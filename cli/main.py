@@ -1,0 +1,442 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import ast
+import json
+import re
+from pathlib import Path
+from typing import Any, Dict, List
+
+from compiler_v2 import AICodeCompiler
+from runtime.adapters.base import AdapterRegistry, RuntimeAdapter
+from runtime.adapters.fs import SandboxedFileSystemAdapter
+from runtime.adapters.http import SimpleHttpAdapter
+from runtime.adapters.replay import RecordingAdapterRegistry, ReplayAdapterRegistry
+from runtime.adapters.sqlite import SimpleSqliteAdapter
+from runtime.adapters.tools import ToolBridgeAdapter
+from runtime.adapters.wasm import WasmAdapter
+from runtime.engine import RuntimeEngine
+
+
+def _limits_from_args(args: argparse.Namespace) -> dict:
+    out = {}
+    for k in ("max_steps", "max_depth", "max_adapter_calls", "max_time_ms", "max_frame_bytes", "max_loop_iters"):
+        v = getattr(args, k, None)
+        if v is not None:
+            out[k] = v
+    return out
+
+
+def _adapter_registry_from_args(args: argparse.Namespace):
+    if args.record_adapters and args.replay_adapters:
+        raise SystemExit("--record-adapters and --replay-adapters are mutually exclusive")
+    allowed = ["core", "ext", "http", "sqlite", "fs", "tools", "db", "api", "cache", "queue", "txn", "auth", "wasm"]
+    if args.replay_adapters:
+        data = json.loads(Path(args.replay_adapters).read_text(encoding="utf-8"))
+        if not isinstance(data, list):
+            raise SystemExit("--replay-adapters must point to a JSON array call log")
+        return ReplayAdapterRegistry(data, allowed=allowed)
+    if args.record_adapters:
+        return RecordingAdapterRegistry(allowed=allowed)
+    return AdapterRegistry(allowed=allowed)
+
+
+class _EchoAdapter(RuntimeAdapter):
+    def call(self, target, args, context):
+        return args[0] if args else target
+
+
+class _InMemoryDbAdapter(RuntimeAdapter):
+    def __init__(self):
+        self.rows: Dict[str, List[Dict[str, Any]]] = {}
+        self.seq = 0
+
+    def call(self, target, args, context):
+        verb = str(target or "").upper()
+        entity = str(args[0]) if len(args) > 0 else "Entity"
+        payload = args[1] if len(args) > 1 else None
+        rows = self.rows.setdefault(entity, [])
+        if verb == "F":
+            return list(rows)
+        if verb == "G":
+            if payload is None:
+                return rows[0] if rows else None
+            for row in rows:
+                if row.get("id") == payload:
+                    return row
+            return None
+        if verb in {"C", "P"}:
+            self.seq += 1
+            row = {"id": self.seq}
+            if isinstance(payload, dict):
+                row.update(payload)
+            rows.append(row)
+            return row
+        if verb == "U":
+            if rows and isinstance(payload, dict):
+                rows[0].update(payload)
+                return rows[0]
+            return rows[0] if rows else None
+        if verb == "D":
+            if not rows:
+                return False
+            if payload is None:
+                rows.pop(0)
+                return True
+            for i, row in enumerate(rows):
+                if row.get("id") == payload:
+                    rows.pop(i)
+                    return True
+            return False
+        return []
+
+
+class _NullApiAdapter(RuntimeAdapter):
+    def call(self, target, args, context):
+        verb = str(target or "").upper()
+        path = str(args[0]) if args else "/"
+        body = args[1] if len(args) > 1 else None
+        if verb in {"G", "GET"}:
+            return {"ok": True, "method": "GET", "path": path, "data": []}
+        if verb in {"P", "POST"}:
+            return {"ok": True, "method": "POST", "path": path, "body": body}
+        return {"ok": True, "method": verb or "GET", "path": path}
+
+
+def _register_enabled_adapters(reg: AdapterRegistry, args: argparse.Namespace) -> None:
+    enabled = set(args.enable_adapter or [])
+    if "ext" in enabled:
+        reg.register("ext", _EchoAdapter())
+    if "http" in enabled:
+        reg.register(
+            "http",
+            SimpleHttpAdapter(
+                default_timeout_s=args.http_timeout_s,
+                max_response_bytes=args.http_max_response_bytes,
+                allow_hosts=args.http_allow_host or [],
+            ),
+        )
+    if "sqlite" in enabled:
+        db = args.sqlite_db or ":memory:"
+        reg.register(
+            "sqlite",
+            SimpleSqliteAdapter(
+                db_path=db,
+                allow_write=bool(args.sqlite_allow_write),
+                allow_tables=args.sqlite_allow_table or [],
+                timeout_s=args.sqlite_timeout_s,
+            ),
+        )
+    if "fs" in enabled:
+        if not args.fs_root:
+            raise SystemExit("--fs-root is required when --enable-adapter fs is used")
+        reg.register(
+            "fs",
+            SandboxedFileSystemAdapter(
+                sandbox_root=args.fs_root,
+                max_read_bytes=args.fs_max_read_bytes,
+                max_write_bytes=args.fs_max_write_bytes,
+                allow_extensions=args.fs_allow_ext or [],
+                allow_delete=bool(args.fs_allow_delete),
+            ),
+        )
+    if "tools" in enabled:
+        tools = {
+            "echo": lambda *a, context=None: a[0] if a else None,
+            "sum": lambda a, b, context=None: int(a) + int(b),
+            "join": lambda sep, arr, context=None: str(sep).join([str(x) for x in (arr or [])]),
+        }
+        reg.register("tools", ToolBridgeAdapter(tools, allow_tools=args.tools_allow or tools.keys()))
+    if "db" in enabled:
+        reg.register("db", _InMemoryDbAdapter())
+    if "api" in enabled:
+        reg.register("api", _NullApiAdapter())
+    if "wasm" in enabled:
+        modules: Dict[str, str] = {}
+        for raw in (getattr(args, "wasm_module", None) or []):
+            if "=" not in raw:
+                raise SystemExit("--wasm-module entries must be name=path")
+            name, path = raw.split("=", 1)
+            name = name.strip()
+            path = path.strip()
+            if not name or not path:
+                raise SystemExit("--wasm-module entries must be name=path")
+            modules[name] = path
+        if not modules:
+            raise SystemExit("--enable-adapter wasm requires at least one --wasm-module name=path")
+        reg.register("wasm", WasmAdapter(modules=modules, allowed_modules=(getattr(args, "wasm_allow_module", None) or None)))
+
+
+def _pretty_runtime_error(err: Exception) -> str:
+    msg = str(err)
+    m = re.search(r"\[line=(\d+)\s+source=(.+?)\]", msg)
+    if not m:
+        return msg
+    line_no = m.group(1)
+    raw_src = m.group(2)
+    try:
+        src = ast.literal_eval(raw_src)
+    except Exception:
+        src = raw_src.strip("'")
+    caret_col = 0
+    while caret_col < len(src) and src[caret_col] in (" ", "\t"):
+        caret_col += 1
+    caret = " " * caret_col + "^"
+    return f"{msg}\n  line {line_no}: {src}\n           {caret}"
+
+
+def cmd_run(args: argparse.Namespace) -> int:
+    if args.self_test_graph:
+        return cmd_self_test_graph(args)
+    if not args.file:
+        raise SystemExit("run requires <file> unless --self-test-graph is set")
+    with open(args.file, "r", encoding="utf-8") as f:
+        code = f.read()
+    reg = _adapter_registry_from_args(args)
+    _register_enabled_adapters(reg, args)
+    eng = RuntimeEngine.from_code(
+        code,
+        strict=args.strict,
+        strict_reachability=getattr(args, "strict_reachability", False),
+        trace=args.trace,
+        step_fallback=not args.no_step_fallback,
+        execution_mode=args.execution_mode,
+        unknown_op_policy=args.unknown_op_policy,
+        limits=_limits_from_args(args),
+        adapters=reg,
+    )
+    label = args.label or eng.default_entry_label()
+    try:
+        result = eng.run_label(label, frame={})
+        payload = {"ok": True, "label": str(label), "result": result, "runtime_version": eng.runtime_version}
+    except Exception as e:
+        payload = {"ok": False, "label": str(label), "error": str(e), "runtime_version": eng.runtime_version}
+        if args.json:
+            print(json.dumps(payload, indent=2))
+        else:
+            print(_pretty_runtime_error(e))
+        return 1
+    if args.trace:
+        payload["trace"] = eng.trace_events
+        if args.trace_out:
+            Path(args.trace_out).write_text(json.dumps(eng.trace_events, indent=2), encoding="utf-8")
+    if reg is not None and args.record_adapters:
+        Path(args.record_adapters).write_text(json.dumps(getattr(reg, "call_log", []), indent=2), encoding="utf-8")
+        payload["adapter_calls_recorded"] = len(getattr(reg, "call_log", []))
+    if reg is not None and args.replay_adapters:
+        payload["adapter_calls_replayed"] = len(getattr(reg, "call_log", []))
+    if args.json:
+        print(json.dumps(payload, indent=2))
+    else:
+        print(payload)
+    return 0
+
+
+def cmd_self_test_graph(args: argparse.Namespace) -> int:
+    tests = [
+        {
+            "name": "graph_add",
+            "code": "L1: R core.add 2 3 ->x J x\n",
+            "expect": 5,
+            "should_error": False,
+        },
+        {
+            "name": "graph_if_call",
+            "code": "L1: Set cond true If cond ->L2 ->L3\nL2: Call L9 J _call_result\nL3: Set bad nope J bad\nL9: R core.add 20 22 ->v J v\n",
+            "expect": 42,
+            "should_error": False,
+        },
+        {
+            "name": "graph_while_guard",
+            "code": "L1: Set cond true While cond ->L2 ->L3\nL2: J keep_going\nL3: J done\n",
+            "expect_contains": "while loop iteration limit exceeded",
+            "should_error": True,
+        },
+    ]
+
+    results = []
+    all_ok = True
+    for t in tests:
+        item = {"name": t["name"], "ok": False}
+        try:
+            eng = RuntimeEngine.from_code(
+                t["code"],
+                strict=True,
+                trace=False,
+                step_fallback=False,
+                execution_mode="graph-only",
+            )
+            out = eng.run_label("1")
+            if t["should_error"]:
+                item["ok"] = False
+                item["error"] = f"expected error, got result={out!r}"
+                all_ok = False
+            else:
+                item["ok"] = out == t["expect"]
+                item["result"] = out
+                if not item["ok"]:
+                    item["error"] = f"expected {t['expect']!r}, got {out!r}"
+                    all_ok = False
+        except Exception as e:
+            if t["should_error"]:
+                msg = str(e)
+                want = t.get("expect_contains", "")
+                item["ok"] = want in msg if want else True
+                item["error"] = msg
+                if not item["ok"]:
+                    all_ok = False
+            else:
+                item["ok"] = False
+                item["error"] = str(e)
+                all_ok = False
+        results.append(item)
+
+    payload = {"ok": all_ok, "mode": "graph_only", "tests": results}
+    if args.json:
+        print(json.dumps(payload, indent=2))
+    else:
+        print(payload)
+    return 0 if all_ok else 1
+
+
+def cmd_check(args: argparse.Namespace) -> int:
+    with open(args.file, "r", encoding="utf-8") as f:
+        code = f.read()
+    c = AICodeCompiler(strict_mode=args.strict)
+    ir = c.compile(code, emit_graph=True)
+    ok = len(ir.get("errors", [])) == 0
+    diagnostics = list(ir.get("diagnostics") or [])
+    if not diagnostics:
+        src_lines = (ir.get("source") or {}).get("lines", [])
+        for e in ir.get("errors", []):
+            m = re.search(r"Line\s+(\d+)", str(e))
+            if not m:
+                continue
+            ln = int(m.group(1))
+            line = src_lines[ln - 1] if 0 <= ln - 1 < len(src_lines) else ""
+            diagnostics.append({"line": ln, "source": line, "error": e})
+    payload = {
+        "ok": ok,
+        "ir_version": ir.get("ir_version"),
+        "errors": ir.get("errors", []),
+        "warnings": ir.get("warnings", []),
+        "meta": ir.get("meta", []),
+        "diagnostics": diagnostics,
+    }
+    print(json.dumps(payload, indent=2))
+    return 0 if ok else 1
+
+
+def cmd_golden(args: argparse.Namespace) -> int:
+    examples_dir = Path(args.examples_dir)
+    ainl_files = sorted(examples_dir.rglob("*.ainl"))
+    if not ainl_files:
+        raise SystemExit(f"no .ainl files found in {examples_dir}")
+    profile_path = Path(__file__).resolve().parent.parent / "tooling" / "artifact_profiles.json"
+    strict_map: Dict[str, bool] = {}
+    if profile_path.exists():
+        profile = json.loads(profile_path.read_text(encoding="utf-8"))
+        for rel in profile.get("examples", {}).get("strict-valid", []):
+            strict_map[str(rel)] = True
+        for rel in profile.get("examples", {}).get("non-strict-only", []):
+            strict_map[str(rel)] = False
+    results = []
+    ok_all = True
+    for f in ainl_files:
+        expected_path = f.with_suffix(".expected.json")
+        if not expected_path.exists():
+            continue
+        try:
+            rel = str(f.resolve().relative_to(Path(__file__).resolve().parent.parent))
+        except Exception:
+            rel = str(f)
+        strict = bool(strict_map.get(rel, False))
+        code = f.read_text(encoding="utf-8")
+        expected = json.loads(expected_path.read_text(encoding="utf-8"))
+        payload = RuntimeEngine.run(
+            code,
+            frame={},
+            strict=strict,
+            trace=bool(args.trace),
+            execution_mode=args.execution_mode,
+            unknown_op_policy=args.unknown_op_policy,
+            limits={"max_steps": args.max_steps} if args.max_steps else None,
+        )
+        same = payload.get("ok") == expected.get("ok") and str(payload.get("label")) == str(expected.get("label")) and payload.get(
+            "result"
+        ) == expected.get("result")
+        results.append({"file": f.name, "ok": same, "result": payload.get("result"), "expected": expected.get("result")})
+        if not same:
+            ok_all = False
+    out = {"ok": ok_all, "results": results}
+    print(json.dumps(out, indent=2))
+    return 0 if ok_all else 1
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description="AINL runtime CLI")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+
+    runp = sub.add_parser("run", help="Run AINL file")
+    runp.add_argument("file", nargs="?")
+    runp.add_argument("--label", default="")
+    runp.add_argument("--strict", action="store_true")
+    runp.add_argument("--strict-reachability", action="store_true")
+    runp.add_argument("--trace", action="store_true")
+    runp.add_argument("--json", action="store_true")
+    runp.add_argument("--no-step-fallback", action="store_true")
+    runp.add_argument("--execution-mode", choices=["graph-preferred", "steps-only", "graph-only"], default="graph-preferred")
+    runp.add_argument("--unknown-op-policy", choices=["skip", "error"], default=None)
+    runp.add_argument("--trace-out", default="")
+    runp.add_argument("--record-adapters", default="")
+    runp.add_argument("--replay-adapters", default="")
+    runp.add_argument(
+        "--enable-adapter",
+        action="append",
+        choices=["http", "sqlite", "fs", "tools", "ext", "db", "api", "wasm"],
+        default=[],
+    )
+    runp.add_argument("--http-allow-host", action="append", default=[])
+    runp.add_argument("--http-timeout-s", type=float, default=5.0)
+    runp.add_argument("--http-max-response-bytes", type=int, default=1_000_000)
+    runp.add_argument("--sqlite-db", default="")
+    runp.add_argument("--sqlite-allow-write", action="store_true")
+    runp.add_argument("--sqlite-allow-table", action="append", default=[])
+    runp.add_argument("--sqlite-timeout-s", type=float, default=5.0)
+    runp.add_argument("--fs-root", default="")
+    runp.add_argument("--fs-max-read-bytes", type=int, default=1_000_000)
+    runp.add_argument("--fs-max-write-bytes", type=int, default=1_000_000)
+    runp.add_argument("--fs-allow-ext", action="append", default=[])
+    runp.add_argument("--fs-allow-delete", action="store_true")
+    runp.add_argument("--tools-allow", action="append", default=[])
+    runp.add_argument("--wasm-module", action="append", default=[], help="WASM module mapping: name=/abs/path/module.wasm")
+    runp.add_argument("--wasm-allow-module", action="append", default=[], help="Optional wasm module allowlist")
+    runp.add_argument("--max-steps", type=int, default=None)
+    runp.add_argument("--max-depth", type=int, default=None)
+    runp.add_argument("--max-adapter-calls", type=int, default=None)
+    runp.add_argument("--max-time-ms", type=int, default=None)
+    runp.add_argument("--max-frame-bytes", type=int, default=None)
+    runp.add_argument("--max-loop-iters", type=int, default=None)
+    runp.add_argument("--self-test-graph", action="store_true")
+    runp.set_defaults(func=cmd_run)
+
+    chk = sub.add_parser("check", help="Compile/check AINL file")
+    chk.add_argument("file")
+    chk.add_argument("--strict", action="store_true")
+    chk.set_defaults(func=cmd_check)
+
+    gld = sub.add_parser("golden", help="Run golden fixtures from examples")
+    gld.add_argument("--examples-dir", default=str(Path(__file__).resolve().parent.parent / "examples"))
+    gld.add_argument("--trace", action="store_true")
+    gld.add_argument("--execution-mode", choices=["graph-preferred", "steps-only", "graph-only"], default="graph-preferred")
+    gld.add_argument("--unknown-op-policy", choices=["skip", "error"], default=None)
+    gld.add_argument("--max-steps", type=int, default=None)
+    gld.set_defaults(func=cmd_golden)
+
+    args = ap.parse_args()
+    raise SystemExit(args.func(args))
+
+
+if __name__ == "__main__":
+    main()

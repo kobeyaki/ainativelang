@@ -1,0 +1,641 @@
+{
+  "ir_version": "1.0.0",
+  "graph_schema_version": "1.0",
+  "source": {
+    "text": "S core web /api\nE /users G ->L_users ->users\n\nL_users:\n  R db.F User * ->users\n  J users\n\n",
+    "lines": [
+      "S core web /api",
+      "E /users G ->L_users ->users",
+      "",
+      "L_users:",
+      "  R db.F User * ->users",
+      "  J users",
+      "",
+      ""
+    ]
+  },
+  "cst": {
+    "lines": [
+      {
+        "lineno": 1,
+        "original_line": "S core web /api",
+        "op_value": "S",
+        "op_canonical": "S",
+        "slot_values": [
+          "core",
+          "web",
+          "/api"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare"
+        ],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "S",
+            "value": "S",
+            "span": {
+              "line": 1,
+              "col_start": 0,
+              "col_end": 1
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 1,
+              "col_start": 1,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "core",
+            "value": "core",
+            "span": {
+              "line": 1,
+              "col_start": 2,
+              "col_end": 6
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 1,
+              "col_start": 6,
+              "col_end": 7
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "web",
+            "value": "web",
+            "span": {
+              "line": 1,
+              "col_start": 7,
+              "col_end": 10
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 1,
+              "col_start": 10,
+              "col_end": 11
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "/api",
+            "value": "/api",
+            "span": {
+              "line": 1,
+              "col_start": 11,
+              "col_end": 15
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 2,
+        "original_line": "E /users G ->L_users ->users",
+        "op_value": "E",
+        "op_canonical": "E",
+        "slot_values": [
+          "/users",
+          "G",
+          "->L_users",
+          "->users"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare"
+        ],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "E",
+            "value": "E",
+            "span": {
+              "line": 2,
+              "col_start": 0,
+              "col_end": 1
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 2,
+              "col_start": 1,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "/users",
+            "value": "/users",
+            "span": {
+              "line": 2,
+              "col_start": 2,
+              "col_end": 8
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 2,
+              "col_start": 8,
+              "col_end": 9
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "G",
+            "value": "G",
+            "span": {
+              "line": 2,
+              "col_start": 9,
+              "col_end": 10
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 2,
+              "col_start": 10,
+              "col_end": 11
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "->L_users",
+            "value": "->L_users",
+            "span": {
+              "line": 2,
+              "col_start": 11,
+              "col_end": 20
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 2,
+              "col_start": 20,
+              "col_end": 21
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "->users",
+            "value": "->users",
+            "span": {
+              "line": 2,
+              "col_start": 21,
+              "col_end": 28
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 3,
+        "original_line": "",
+        "op_value": "",
+        "op_canonical": "",
+        "slot_values": [],
+        "slot_kinds": [],
+        "tokens": []
+      },
+      {
+        "lineno": 4,
+        "original_line": "L_users:",
+        "op_value": "L_users:",
+        "op_canonical": "L_users:",
+        "slot_values": [],
+        "slot_kinds": [],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "L_users:",
+            "value": "L_users:",
+            "span": {
+              "line": 4,
+              "col_start": 0,
+              "col_end": 8
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 5,
+        "original_line": "  R db.F User * ->users",
+        "op_value": "R",
+        "op_canonical": "R",
+        "slot_values": [
+          "db.F",
+          "User",
+          "*",
+          "->users"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare"
+        ],
+        "tokens": [
+          {
+            "kind": "ws",
+            "raw": "  ",
+            "value": "  ",
+            "span": {
+              "line": 5,
+              "col_start": 0,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "R",
+            "value": "R",
+            "span": {
+              "line": 5,
+              "col_start": 2,
+              "col_end": 3
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 5,
+              "col_start": 3,
+              "col_end": 4
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "db.F",
+            "value": "db.F",
+            "span": {
+              "line": 5,
+              "col_start": 4,
+              "col_end": 8
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 5,
+              "col_start": 8,
+              "col_end": 9
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "User",
+            "value": "User",
+            "span": {
+              "line": 5,
+              "col_start": 9,
+              "col_end": 13
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 5,
+              "col_start": 13,
+              "col_end": 14
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "*",
+            "value": "*",
+            "span": {
+              "line": 5,
+              "col_start": 14,
+              "col_end": 15
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 5,
+              "col_start": 15,
+              "col_end": 16
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "->users",
+            "value": "->users",
+            "span": {
+              "line": 5,
+              "col_start": 16,
+              "col_end": 23
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 6,
+        "original_line": "  J users",
+        "op_value": "J",
+        "op_canonical": "J",
+        "slot_values": [
+          "users"
+        ],
+        "slot_kinds": [
+          "bare"
+        ],
+        "tokens": [
+          {
+            "kind": "ws",
+            "raw": "  ",
+            "value": "  ",
+            "span": {
+              "line": 6,
+              "col_start": 0,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "J",
+            "value": "J",
+            "span": {
+              "line": 6,
+              "col_start": 2,
+              "col_end": 3
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 6,
+              "col_start": 3,
+              "col_end": 4
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "users",
+            "value": "users",
+            "span": {
+              "line": 6,
+              "col_start": 4,
+              "col_end": 9
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 7,
+        "original_line": "",
+        "op_value": "",
+        "op_canonical": "",
+        "slot_values": [],
+        "slot_kinds": [],
+        "tokens": []
+      },
+      {
+        "lineno": 8,
+        "original_line": "",
+        "op_value": "",
+        "op_canonical": "",
+        "slot_values": [],
+        "slot_kinds": [],
+        "tokens": []
+      }
+    ]
+  },
+  "services": {
+    "core": {
+      "mode": "web",
+      "path": "/api",
+      "eps": {
+        "/users": {
+          "G": {
+            "method": "G",
+            "label_id": "_users",
+            "return_var": "users",
+            "tgt": "->L_users"
+          }
+        }
+      },
+      "ui": {}
+    }
+  },
+  "types": {},
+  "labels": {
+    "_users": {
+      "nodes": [
+        {
+          "id": "n1",
+          "op": "R",
+          "effect": "io",
+          "reads": [],
+          "writes": [
+            "users"
+          ],
+          "lineno": 5,
+          "data": {
+            "op": "R",
+            "lineno": 5,
+            "adapter": "db.F",
+            "target": "User",
+            "args": [
+              "*"
+            ],
+            "out": "users",
+            "src": "db",
+            "req_op": "F",
+            "entity": "User",
+            "fields": "*",
+            "raw": [
+              "db.F",
+              "User",
+              "*",
+              "->users"
+            ]
+          },
+          "effect_tier": "io-read",
+          "effect_kinds": [
+            "db_read"
+          ],
+          "hash": "sha256:8266e7473814edb757c8c4caa9dc7503fe3b03187fff2ea21cb08a386d2fd059"
+        },
+        {
+          "id": "n2",
+          "op": "J",
+          "effect": "pure",
+          "reads": [
+            "users"
+          ],
+          "writes": [],
+          "lineno": 6,
+          "data": {
+            "op": "J",
+            "lineno": 6,
+            "var": "users"
+          },
+          "effect_tier": "pure",
+          "effect_kinds": [],
+          "hash": "sha256:39208de9a98b1dd7c0e0dd33e63487759eb10493d822e166aa2e7df9964db76a"
+        }
+      ],
+      "edges": [
+        {
+          "from": "n1",
+          "to": "n2",
+          "to_kind": "node",
+          "port": "next"
+        }
+      ],
+      "legacy": {
+        "steps": [
+          {
+            "op": "R",
+            "lineno": 5,
+            "adapter": "db.F",
+            "target": "User",
+            "args": [
+              "*"
+            ],
+            "out": "users",
+            "src": "db",
+            "req_op": "F",
+            "entity": "User",
+            "fields": "*",
+            "raw": [
+              "db.F",
+              "User",
+              "*",
+              "->users"
+            ]
+          },
+          {
+            "op": "J",
+            "lineno": 6,
+            "var": "users"
+          }
+        ]
+      },
+      "slots": [],
+      "entry": "n1",
+      "exits": [
+        {
+          "node": "n2",
+          "var": "users"
+        }
+      ],
+      "effect_summary": {
+        "reads": [
+          "users"
+        ],
+        "writes": [
+          "users"
+        ],
+        "effects": [
+          "db_read"
+        ]
+      },
+      "id_hash": "sha256:25a5489c9e15b328d13f5d53eb38a28c6a288861f36e27df143f5e422f77a093"
+    }
+  },
+  "crons": [],
+  "config": {
+    "env": [],
+    "secrets": []
+  },
+  "observability": {
+    "metrics": [],
+    "trace": false
+  },
+  "deploy": {
+    "strategy": "rolling",
+    "env_target": "",
+    "flags": []
+  },
+  "limits": {
+    "per_path": {},
+    "per_tenant": 0
+  },
+  "roles": [],
+  "allow": [],
+  "audit": {},
+  "admin": {},
+  "desc": {
+    "endpoints": {},
+    "types": {}
+  },
+  "runbooks": {},
+  "ver": null,
+  "compat": null,
+  "tests": [],
+  "api": {
+    "style": "rest",
+    "version_prefix": "",
+    "deprecate": [],
+    "sla": {}
+  },
+  "rag": {
+    "sources": {},
+    "chunking": {},
+    "embeddings": {},
+    "stores": {},
+    "indexes": {},
+    "retrievers": {},
+    "augment": {},
+    "generate": {},
+    "pipelines": {}
+  },
+  "capabilities": {
+    "auth": {},
+    "policy": {},
+    "cache": {},
+    "queue": {},
+    "txn": {}
+  },
+  "runtime_policy": {
+    "execution_mode": "graph-preferred",
+    "unknown_op_policy": "skip"
+  },
+  "meta": [],
+  "errors": [],
+  "warnings": [],
+  "diagnostics": [],
+  "stats": {
+    "lines": 5,
+    "ops": 5
+  },
+  "graph_semantic_checksum": "sha256:f02561ac1af814325abb2f3a079a7bcc48ac75c8a594c9ed24e2726fdf00c65c"
+}

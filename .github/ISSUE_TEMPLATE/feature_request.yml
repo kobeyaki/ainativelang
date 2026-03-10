@@ -1,0 +1,34 @@
+name: Feature request
+description: Propose a new language/runtime/training capability.
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What limitation are you facing?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the desired behavior and why it helps.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impacted areas
+      description: e.g. compiler, runtime, adapters, finetuning, eval, docs; specify canonical owner modules where known (compiler_v2.py, runtime/engine.py, compiler_grammar.py, etc.)
+  - type: textarea
+    id: success
+    attributes:
+      label: Success criteria
+      description: How should we verify the feature is complete?

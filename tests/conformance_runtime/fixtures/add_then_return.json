@@ -1,0 +1,7 @@
+{
+  "name": "add_then_return",
+  "code": "L1: R core.ADD 2 3 ->x J x\n",
+  "input_frame": {},
+  "expected_result": 5,
+  "expected_trace_ops": ["R", "J"]
+}

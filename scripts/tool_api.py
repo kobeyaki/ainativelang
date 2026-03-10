@@ -16,6 +16,13 @@ from typing import Any, Dict
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from compiler_v2 import AICodeCompiler
+from scripts.compat_gate import check_compat_gate
+from scripts.contracts_gate import check_contracts
+from scripts.feedback_loop import collect_feedback
+from scripts.patch_mode import apply_patch_ir
+from scripts.plan_delta import compute_plan_delta
+from scripts.policy_gate import check_policy_gate
+from scripts.viability import evaluate_viability
 
 
 def to_jsonable(obj: Any) -> Any:
@@ -62,6 +69,54 @@ def handle_request(req: Dict[str, Any]) -> Dict[str, Any]:
         else:
             return {"ok": False, "action": action, "error": f"Unsupported target: {target}"}
         return {"ok": True, "action": action, "target": target, "output": out, "errors": ir.get("errors", [])}
+
+    if action == "plan_delta":
+        base_ir = req.get("base_ir") or {}
+        code = req.get("code", "")
+        new_ir = req.get("new_ir")
+        if new_ir is None:
+            new_ir = compiler.compile(code)
+        delta = compute_plan_delta(base_ir, new_ir)
+        return {"ok": True, "action": action, "delta": to_jsonable(delta)}
+
+    if action == "patch_apply":
+        base_ir = req.get("base_ir") or {}
+        allow_replace = bool(req.get("allow_replace", False))
+        patch_ir = req.get("patch_ir")
+        if patch_ir is None:
+            patch_code = req.get("patch_code", "")
+            patch_ir = compiler.compile(patch_code)
+        patched = apply_patch_ir(base_ir, patch_ir, allow_replace=allow_replace)
+        return {"ok": bool(patched.get("ok")), "action": action, **to_jsonable(patched)}
+
+    if action == "policy_check":
+        ir = req.get("ir")
+        if ir is None:
+            ir = compiler.compile(req.get("code", ""))
+        pol = check_policy_gate(ir)
+        ctr = check_contracts(ir)
+        return {"ok": bool(pol.get("ok")) and bool(ctr.get("ok")), "action": action, "policy": pol, "contracts": ctr}
+
+    if action == "compat_check":
+        base_ir = req.get("base_ir") or {}
+        ir = req.get("ir")
+        if ir is None:
+            ir = compiler.compile(req.get("code", ""))
+        mode = req.get("mode") or ir.get("compat") or "add"
+        comp = check_compat_gate(base_ir, ir, mode=mode)
+        return {"ok": bool(comp.get("ok")), "action": action, "compat": comp}
+
+    if action == "viability":
+        code = req.get("code", "")
+        timeout_s = float(req.get("timeout", 20.0))
+        base_ir = req.get("base_ir")
+        res = evaluate_viability(code=code, timeout_s=timeout_s, base_ir=base_ir)
+        return {"ok": bool(res.get("ok")), "action": action, "viability": res}
+
+    if action == "feedback":
+        result = req.get("result") or {}
+        fb = collect_feedback(result)
+        return {"ok": True, "action": action, "feedback": fb}
 
     if action == "explain_error":
         # Minimal structured helper for local agent loops.

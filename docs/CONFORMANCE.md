@@ -1,8 +1,12 @@
-# AINL 1.0 implementation conformance
+# AI Native Lang (AINL) 1.0 implementation conformance
 
-This checklist confirms alignment of this workspace with **docs/AINL_SPEC.md (AINL 1.0)**. AINL 1.0 is the normative spec (graph-first, core+modules, effect typing, namespacing). *AINL 1.0 corresponds to the stabilized subset of the former v2 draft; references to v2 in repo or code (e.g. compiler_v2.py) are historical.* It distinguishes **surface syntax + IR schema** from **canonical graph IR** and **runtime execution mode** so conformance is not overclaimed.
+This checklist confirms alignment of this workspace with **AINL_SPEC.md (AINL 1.0)**. AINL 1.0 is the normative spec (graph-first, core+modules, effect typing, namespacing). *AINL 1.0 corresponds to the stabilized subset of the former v2 draft; references to v2 in repo or code (e.g. compiler_v2.py) are historical.* It distinguishes **surface syntax + IR schema** from **canonical graph IR** and **runtime execution mode** so conformance is not overclaimed.
+Timeline anchor: Foundational AI research and cross-platform experimentation by
+the human founder began in **2024**. After partial loss of early artifacts, AINL
+workstreams were rebuilt, retested, and formalized in overlapping phases through
+**2025-2026**.
 
-**Normative:** docs/AINL_SPEC.md (Version 1.0). **Non-normative expansion:** AINL_CORE_AND_MODULES.md. **Implementation status:** compiler emits canonical graph (nodes/edges/entry/exits) and legacy.steps; runtime executes legacy step-list (graph execution planned).
+**Normative:** `AINL_SPEC.md` (Version 1.0). **Non-normative expansion:** `AINL_CORE_AND_MODULES.md`. **Implementation status:** compiler emits canonical graph (nodes/edges/entry/exits) and legacy.steps; runtime **executes the graph by default** (graph-preferred mode); legacy step-list is fallback when no graph or when steps-only mode.
 
 ---
 
@@ -16,19 +20,18 @@ A conformant implementation must satisfy both. The tables below mark schema (IR 
 ---
 
 ## IR mode (1.0 alignment)
-**Canonical IR is the graph** (`labels[id].nodes` / `labels[id].edges`; here and below, `labels[id]` means `labels[label_key]` where label_key is the numeric id). **The current implementation** emits `nodes`/`edges`/`entry`/`exits` and **`legacy.steps`** per label; runtime executes the legacy serialization (reads `legacy.steps` with fallback to `steps` for old IR). **Graph execution will replace step execution** when runtime runs nodes/edges directly.
+**Canonical IR is the graph** (`labels[id].nodes` / `labels[id].edges`; here and below, `labels[id]` means `labels[label_key]` where label_key is the numeric id). **The current implementation** emits `nodes`/`edges`/`entry`/`exits` and **`legacy.steps`** per label. **Runtime executes the graph by default:** when a label has `nodes`, `edges`, and `entry`, the engine runs **graph traversal** (`_run_label_graph`: follow edges by port, execute one node at a time). Legacy step-list is used only as fallback (e.g. when `execution_mode` is `steps-only`, or when a label has no graph data).
 
-**The only remaining real gap:** Right now the pipeline is **AINL text → canonical graph (emitted) + legacy.steps → runtime executes steps**. The spec demands **AINL text → canonical graph → runtime executes graph**. Until the runtime executes nodes/edges directly, the invariant (canonical IR = nodes/edges) is aspirational. Once the runtime executes the graph directly, AINL becomes fully coherent.
+**Gap closed:** The pipeline is **AINL text → canonical graph (emitted) + legacy.steps → runtime executes graph** (when graph is present; default `execution_mode` is `graph-preferred`). The invariant *canonical IR = nodes/edges* is now enforced in execution: the runtime walks nodes/edges and uses `node.data` as the step payload per node. Legacy.steps remain for backward compatibility and as fallback.
 
 | Aspect | Schema | Semantic | Notes |
 |--------|--------|----------|-------|
-| Legacy step-list exists and is executed | — | ✅ | Runtime runs step-list (via `legacy.steps` or `steps`). |
+| Graph execution (default) | — | ✅ | Runtime runs **nodes/edges** when present (`_run_label_graph`); default mode `graph-preferred`. |
+| Legacy step-list fallback | — | ✅ | When no graph or `steps-only` mode, runtime runs `legacy.steps` (or `steps`). |
 | Legacy step-list storage | ✅ | — | Compiler emits **`labels[id].legacy.steps`** only; no bare `steps`. Runtime reads `legacy.steps` with fallback to `steps` for backward compat. |
 | Compiler emits `labels[id].nodes/edges` | ✅ | — | **Implemented.** `_steps_to_graph_all()` populates nodes, edges, entry, exits per label. |
 | Deterministic `steps_to_graph()` | — | ✅ | **Implemented.** Same steps → same graph; canonical node ids n1, n2, … |
-| Conformance claim | Partial | Partial | Schema conformant for labels (legacy.steps, nodes/edges). Graph execution not yet; strict validation partial. |
-
-When runtimes execute the graph directly (instead of legacy.steps), this doc will be updated to state full 1.0 conformance.
+| Conformance claim | Full | Full | Schema and runtime behavior match AINL 1.0 for labels; remaining items are non-normative tooling/CLI conveniences. |
 
 ---
 
@@ -67,13 +70,13 @@ When runtimes execute the graph directly (instead of legacy.steps), this doc wil
 | R | adapter.verb target [args...] -><out> | ✓ | Parsed as slots; adapter/entity/path and ->out. |
 | J | var | ✓ | |
 | If | cond ->Lthen [->Lelse] | ✓ | Block and inline. |
-| Err | [@node_id] ->Lhandler | ✓ (step-list) | Bare form only (attach to previous node). **@node_id** parsing **Not yet**. |
-| Retry | [@node_id] count [backoff_ms] | ✓ (step-list) | Bare form only. **@node_id** **Not yet**. |
+| Err | [@node_id] ->Lhandler | ✓ (step-list) | Bare form (attach to previous node) and **@node_id** (err edge from that node). |
+| Retry | [@node_id] count [backoff_ms] | ✓ (step-list) | Bare form and **@node_id** (retry edge from that node). |
 | Call | Lid [->out] | ✓ | ->out stored when present; runtime uses _call_result. |
 | Set / Filt / Sort | (see spec) | ✓ | Block and inline. |
 | Inc | path | ✓ | Merge included .lang into IR. |
 | U, T, Rt, Lay, Fm, Tbl, Ev, A, Q, Sc, Cr, P, C | (original + FE) | ✓ | As in table below. |
-| **Module-prefixed** | `ops.Env`, `fe.Tok`, `rag.Src`, … | Partial | rag ops supported via `rag.*` forms; legacy aliases `Rag*` also accepted for backward compatibility. `ops.Env` / `fe.Tok` as single token **Not yet** (unprefixed Env, Tok, … accepted). |
+| **Module-prefixed** | `ops.Env`, `fe.Tok`, `rag.Src`, … | ✓ | Prefixed forms parsed as single tokens (no split on `.`); unprefixed Env, Tok, etc. normalize to `ops.Env`, `fe.Tok` in IR. rag.* and legacy `Rag*` accepted. |
 
 | U | ui_name [prop]* | ✓ | |
 | T | var or var:type | ✓ | Attaches to current U. |
@@ -107,21 +110,22 @@ When runtimes execute the graph directly (instead of legacy.steps), this doc wil
 |--------|------|-----------------|
 | services | name → { mode, path, eps, ui, … } | ✓ Same. `fe` is `services["fe"]` (routes, layouts, forms, tables, events, ui, states). |
 | types | type_name → { fields } | ✓ Same. |
-| labels | label_id → { **nodes**, **edges**, **entry**, **exits**, **legacy**: { **steps** } } | **Schema ✅** Compiler emits `nodes`, `edges`, `entry`, `exits`, and `legacy.steps` only (no bare `steps`). **Semantic ✅** Runtime runs legacy.steps. |
+| labels | label_id → { **nodes**, **edges**, **entry**, **exits**, **legacy**: { **steps** } } | **Schema ✅** Compiler emits `nodes`, `edges`, `entry`, `exits`, and `legacy.steps` only (no bare `steps`). **Semantic ✅** Runtime runs **graph** (nodes/edges) when present; legacy.steps as fallback. |
 | crons | [ { label, expr } ] | ✓ Same. |
 | stats | (lines, ops) | ✓ Returned by compile(). |
 
 ### 3.2 Label execution
 
-**Runtime currently executes the legacy step-list serialization** (steps only); it does not yet execute the canonical nodes/edges graph. Graph execution will replace step execution when canonical IR is available. Control-flow ops (If, Err, Retry, Call) are compiled to steps and executed in step order; effect typing is not yet applied at runtime.
+**Runtime executes the canonical graph** when a label has `nodes`/`edges`/`entry` (default `execution_mode` is `graph-preferred`). It walks the graph by node id and edge port; per-node execution uses `node.data` (step payload). Legacy step-list is used only when graph is absent or `execution_mode` is `steps-only`. Control-flow (If, Err, Retry, Call) is driven by graph edges (then/else, handler, next, etc.); trace events include `node_id` and `port_taken`.
 
 | Rule | Implementation |
 |------|----------------|
 | Entry: path → label_id from eps | ✓ Emitted server calls `_engine.run(ep["label_id"])`. |
-| Run label steps | ✓ Engine runs `_get_steps(label)` (reads `legacy.steps`, fallback `steps`) in order (legacy mode). |
-| R: adapter by src (db/api); store under out | ✓ `ExecutionEngine` uses adapters; result in ctx[out]. |
+| Run label (graph) | ✓ When graph present: `_run_label_graph()` traverses nodes/edges by port; trace has node_id/port_taken. |
+| Run label (legacy fallback) | ✓ When no graph or steps-only: Engine runs `_get_steps(label)` (reads `legacy.steps`, fallback `steps`) in order. |
+| R: adapter/verb dispatch; store under out | ✓ `RuntimeEngine` executes canonical `adapter,target,args,out` (with compiler-owned normalization and compatibility fold for legacy `src/req_op/entity/fields`). |
 | J: return context[var] | ✓ Engine returns on J; server wraps as `{"data": result}`. |
-| If / Err / Retry / Call / Set / Filt / Sort | ✓ Executed as step-list (branch, error handler, retry, subroutine, assign, filter, sort). |
+| If / Err / Retry / Call / Set / Filt / Sort | ✓ In graph mode: driven by edges (then/else, handler, next); in step mode: step-list order. |
 | P (if present) | ✓ **Conformant.** P is never executable; runtime skips P. Use R pay.* in labels for payment. |
 
 ### 3.3 Path → label → return
@@ -129,8 +133,8 @@ When runtimes execute the graph directly (instead of legacy.steps), this doc wil
 | Rule | Implementation |
 |------|----------------|
 | E stores return_var when given | ✓ Parsed and stored in eps. |
-| E return_var must match label's terminal J (else validation error) | **Not implemented.** Required in `--strict`. |
-| Call Lid [->out]; if ->out omitted callee must have exactly one J | **Not implemented.** Runtime stores callee result in _call_result; explicit ->out and single-J validation required in `--strict`. |
+| E return_var must match label's terminal J (else validation error) | ✓ **Implemented** in strict mode (compile-time error when mismatch). |
+| Call Lid [->out]; if ->out omitted callee must have exactly one J | ✓ Runtime honors explicit `->out`; `_call_result` preserved for compatibility when omitted. Strict compiler validation enforces call-shape and endpoint return constraints. |
 | label_id normalized (L1 → 1) | ✓ In compiler and runtime. |
 | Emitters use return_var / infer from J | ✓ _path_to_var() prefers return_var; React fetch wiring uses it. |
 
@@ -142,9 +146,9 @@ When runtimes execute the graph directly (instead of legacy.steps), this doc wil
 
 | Rule | Implementation |
 |------|----------------|
-| Module-prefixed statements (e.g. `ops.Env`, `fe.Tok`, `rag.Src`) | **Partial.** rag ops supported via `rag.*` forms; legacy aliases `Rag*` also accepted. Unprefixed Env, Tok, … ✓; prefixed `ops.Env` / `fe.Tok` as single token **Not yet**. IR must store canonical prefixed form (see normalization rule). |
-| Module–op consistency validation | **Not yet.** Compiler does not reject unknown module.op in strict. |
-| Core-only in labels enforced | **Not yet.** Only executable steps appear in label body in practice; no strict check. |
+| Module-prefixed statements (e.g. `ops.Env`, `fe.Tok`, `rag.Src`) | ✓ | Prefixed forms parsed as single tokens (no split on `.`); unprefixed Env, Tok, etc. normalize to `ops.Env`, `fe.Tok` in IR. rag.* and legacy `Rag*` accepted. |
+| Module–op consistency validation | ✓ | Strict mode rejects unknown module.op in known modules; unknown ops go to meta in non-strict mode. |
+| Core-only in labels enforced | ✓ | Strict mode enforces that every label step op is in STEP_OPS; non-core ops are rejected. |
 | **Metadata preservation (unknown ops)** | ✓ Spec: compiler is **lossless by default**. Unknown ops are appended to **`meta`** (op, slots, lineno). Strict: error if prefixed op has unknown module. Known module ops normalized to `module.op` and stored under config, fe, rag, etc. |
 
 These constraints are treated as *conformance requirements* in `--strict`; non-strict mode may compile permissively.
@@ -171,19 +175,17 @@ These constraints are treated as *conformance requirements* in `--strict`; non-s
 
 | Requirement | Status |
 |-------------|--------|
-| Parser: single line → (OP, slots[]) | ✓ parse_line() returns (OP, slots[]) via whitespace tokenization (**strict tokenizer not yet implemented for quoted strings**). |
+| Parser: single line → (OP, slots[]) | ✓ Lossless tokenizer/parser supports quoted strings and escaped characters; slot kinds are preserved for strict-literal analysis. |
 | Compiler: program → IR per §3.1 | ✓ compile() returns services, types, labels, crons, stats; labels use nodes, edges, entry, exits, legacy.steps. |
-| Runtime: load IR + adapters; run(label_id) | ✓ ExecutionEngine.run() over legacy steps. |
+| Runtime: load IR + adapters; run(label_id) | ✓ Canonical execution via `RuntimeEngine` (`runtime/engine.py`) with graph-preferred policy; `ExecutionEngine` is compatibility shim. |
 | Emitters: path→label_id→return_var and fe.* | ✓ All emitters use IR; React uses routes, layouts, events, path_to_var. |
-| Canonical IR (nodes/edges) or steps→graph | ✓ Compiler emits nodes/edges/entry/exits; deterministic `steps_to_graph()`. Runtime still executes steps (graph execution planned). |
+| Canonical IR (nodes/edges) or steps→graph | ✓ Compiler emits nodes/edges/entry/exits; deterministic `steps_to_graph()`. Runtime executes graph by default and step fallback by policy. |
 
 ---
 
 ## Known divergences from 1.0 conformance
 
-- **Err @node_id** and **Retry @node_id** are not parsed; bare forms only (attach to immediately preceding node).
-- **module.op** tokenization is not supported as single token; module ops accepted unprefixed; IR stores canonical prefixed form (normalization implemented).
-- **Strict validations** are not fully enforced: E return_var vs terminal J, Call single-J, module–op consistency, core-only in labels. Strict mode partial.
+- No known divergences for the 1.0 core + modules: parser, compiler, runtime, and strict validation behave per spec. Remaining items in the roadmap are non-normative tooling/CLI conveniences and future targets.
 
 ---
 
@@ -192,12 +194,12 @@ These constraints are treated as *conformance requirements* in `--strict`; non-s
 Per spec §1.2, in order:
 
 1. ~~**Implement canonical graph emission**~~ — **Done.** Compiler emits `nodes`/`edges`/`entry`/`exits` and `legacy.steps`; deterministic `steps_to_graph()`.
-2. **Replace runtime execution with graph traversal** — Runtime executes the graph (nodes/edges), not the step-list; steps become optional/cache only.
-3. **Implement strict validation fully** — `--strict` per spec §3.5 (canonical graph, single exit J, Call return, no undeclared refs, no unknown module.op, adapter arity, no unreachable/duplicate/non-canonical nodes).
-4. **Implement semantic graph diff** — IR-level semantic diff (machine + human views) for traceability.
-5. **Emit oversight report per compile/run** — Human-auditable report (summary, deltas, tests) on every compile and run.
+2. ~~**Replace runtime execution with graph traversal**~~ — **Done.** Runtime executes the graph (nodes/edges) by default (`graph-preferred`); `_run_label_graph()` walks nodes/edges by port; legacy.steps are fallback only.
+3. ~~**Implement strict validation fully**~~ — **Done.** Strict mode enforces canonical graph invariants, E/J binding, Call return rules, module-op consistency, core-only labels, adapter contracts, and dataflow.
+4. ~~**Implement semantic graph diff**~~ — **Done.** `tooling.graph_diff` and `tooling.graph_safe_edit` provide machine + human IR diffs.
+5. ~~**Emit oversight report per compile/run**~~ — **Done.** `tooling.oversight` exposes compile/runtime oversight reports; callers/CLIs can persist them per compile/run.
 
-Until (2) is done, the invariant (canonical IR = nodes/edges) is emitted but not yet executed; once the runtime executes the graph, AINL becomes fully coherent.
+(2) is done: the invariant (canonical IR = nodes/edges) is both emitted and executed when graph is present; AINL execution is graph-coherent by default.
 
 ---
 
@@ -208,23 +210,26 @@ The table below expands the five items above with implementation notes.
 | Gap | To reach full 1.0 | Notes |
 |-----|------------------|-------|
 | Canonical graph IR | ~~Emit `nodes`/`edges` or implement `steps_to_graph()`~~ | **Done** |
-| Node targeting | Parse `Err @id` / `Retry @id` | Required |
-| Namespacing | Parse `module.op` tokenization | Required |
-| Strict validation | Implement `--strict` per spec §3.5 (canonical graph, single exit J, Call return, no undeclared refs, no unknown module.op, adapter arity, no unreachable/duplicate/non-canonical nodes) | Required |
-| Round-trip | Ensure steps ⇄ graph equivalence | Required |
-| Semantic diff | IR-level semantic diff (machine + human views) | For traceability |
-| Adapter contracts | Enforce arity + allowlists at validation time | Safety boundaries |
+| Runtime graph execution | ~~Execute nodes/edges instead of step-list~~ | **Done** — default `graph-preferred`; `_run_label_graph()` |
+| Node targeting | ~~Parse `Err @id` / `Retry @id`~~ | **Done** — slot + CST paths; err/retry edges from designated node. |
+| Namespacing | ~~Parse `module.op` tokenization~~ | **Done** — prefixed `ops.Env`, `fe.Tok`, etc. are single tokens; unprefixed normalize in IR. |
+| Strict validation | ~~Implement `--strict` per spec §3.5~~ | **Done** — strict mode covers canonical graph invariants, E/J return_var, single exit J, Call format, module.op consistency, core-only steps, adapter contracts, and dataflow. |
+| Round-trip | ~~Ensure steps ⇄ graph equivalence~~ | **Done** on reducible graphs; property tests validate steps vs graph equivalence and side effects. |
+| Semantic diff | ~~IR-level semantic diff (machine + human views)~~ | **Done** — `tooling.graph_diff`, `tooling.graph_safe_edit`, and `tooling.oversight` provide machine + human IR diffs. |
+| Adapter contracts | ~~Enforce arity + allowlists at validation time~~ | **Done** — R adapter.verb is validated against `ADAPTER_EFFECT`; runtime adapter registries enforce allowlists per environment. |
 | Oversight report | Emit human-auditable report on every compile/run (summary, deltas, tests) | Human verification |
 
 ---
 
 ## Summary
 
-This workspace is **conformant with AINL 1.0** for surface syntax, IR schema (labels use `nodes`, `edges`, `entry`, `exits`, `legacy.steps`), lossless unknown-op preservation in `meta`, P declaration-only, and deterministic graph emission. Remaining gaps: runtime still executes legacy.steps (graph execution not yet), strict validation partial, `module.op` single-token parsing and Err/Retry @node_id not implemented.
+This workspace is **conformant with AINL 1.0** for surface syntax, IR schema (labels use `nodes`, `edges`, `entry`, `exits`, `legacy.steps`), lossless unknown-op preservation in `meta`, P declaration-only, deterministic graph emission, strict validation, and **graph execution**.
 
-**Current runtime execution** uses **`_get_steps(label)`** (reads `labels[id].legacy.steps`, fallback to `labels[id].steps`). The **canonical IR** (`labels[id].nodes` / `labels[id].edges`) **is emitted** by the compiler; **graph execution will replace step execution** when implemented.
+Language-surface optimization guardrails for future compression/benchmark work are documented in `docs/SAFE_OPTIMIZATION_POLICY.md`.
 
-Module-prefixed metadata ops (`ops.*`, `fe.*`, `arch.*`, `test.*`, `rag.*`) are preserved in IR for emitters (rag.* and unprefixed forms fully; `ops.Env` / `fe.Tok` as prefixed tokens planned). **Strict validation mode** (slot arity, module–op consistency, E return_var vs J, Call ->out, core-only label bodies) is **not implemented**; the doc specifies the entrypoints below.
+**Current runtime execution:** When a label has `nodes`/`edges`/`entry`, the engine runs **graph traversal** (`_run_label_graph`); legacy step-list is used only when graph is absent or `execution_mode` is `steps-only`.
+
+Module-prefixed metadata ops (`ops.*`, `fe.*`, `arch.*`, `test.*`, `rag.*`) are preserved in IR for emitters (including prefixed canonical forms). **Strict validation mode** is **implemented** for: E return_var vs terminal J; endpoint/targeted labels exactly one J and terminal J; Call second slot format (->var if present); unknown module.op in known module; core-only label bodies (every step op in STEP_OPS); graph port validity, adapter contract (R adapter.verb), call effect inclusion, dataflow defined-before-use, and quoted-literal disambiguation in read positions.
 
 ---
 
@@ -234,10 +239,22 @@ To keep the conformance doc durable and testable:
 
 | Command | Purpose |
 |---------|--------|
-| `python -m ainl compile --strict spec.lang` | Run all validations (E/J, Call ->out, slot arity, module–op, core-only in labels); fail or warn on non-conformant input. **Not yet implemented**; entrypoint specified here. |
+| `python -m ainl compile --strict spec.lang` | Run all validations (E/J, Call ->out, module–op, core-only, graph). **Implemented** via `AICodeCompiler(strict_mode=True)`; compile returns `errors` list CLI entrypoint `ainl` may differ. |
 | `python -m ainl test conformance/` | Execute conformance tests that validate behavior against this doc (e.g. from `docs/CONFORMANCE.md` or a `conformance/` test suite). **Not yet implemented**; entrypoint specified here. |
 
-Current entrypoint: compile via `compiler_v2.py` (e.g. `python compiler_v2.py` or `run_tests_and_emit.py`); runtime via `runtime.ExecutionEngine` and emitted server.
+Current entrypoint: compile via `compiler_v2.py` (e.g. `python compiler_v2.py` or `python scripts/run_tests_and_emit.py`); canonical runtime via `runtime.engine.RuntimeEngine` (compatibility wrapper `runtime.compat.ExecutionEngine` retained for historical imports).
+
+## Release artifact profile contract
+
+Release artifacts are explicitly profiled so strict expectations are not inferred:
+
+- Source of truth: `tooling/artifact_profiles.json`
+- Classes:
+  - `strict-valid`: must compile with strict mode
+  - `non-strict-only`: must compile in non-strict mode and fail strict mode
+  - `legacy-compat`: retained for compatibility/training context; not strict conformance targets
+
+This avoids overclaiming strict conformance for compatibility examples (notably `examples/golden/*.ainl` and selected OpenClaw/corpus fixtures).
 
 ---
 
@@ -258,5 +275,7 @@ These tests define “conformance in spirit”; implement as automated suite whe
 | Graph validation | Reachability from entry, no unreachable nodes | §3.2 topology |
 | Graph validation | No duplicate node IDs, canonical `n`&lt;number&gt; only | §3.5 |
 | Runtime | Graph traversal parity with step execution on reducible graphs | Semantic equivalence |
+| Strict dataflow | `Call ->out` + `Retry @nX` + downstream `J out` compiles clean in strict mode | Compiler-owned RW/dataflow correctness |
+| Strict literals | Quoted-vs-bare matrix for `Set.ref`, `Filt.value`, `CacheGet.key/fallback`, `CacheSet.value`, `QueuePut.value` | Ambiguity elimination in strict mode |
 | Schema | Legacy step-list under `labels[id].legacy.steps` when emitted | IR shape |
 | Schema | P never as executable step; R pay.* for payment in labels | One Rule |

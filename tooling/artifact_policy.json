@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "categories": {
+    "canonical-generated": "Generated artifacts expected to be reproducible from current compiler/runtime entrypoints.",
+    "canonical-source": "Authoritative source files for generated or embedded artifacts.",
+    "non-strict-only": "Artifacts intentionally retained outside strict conformance; must not be routed into strict-facing paths.",
+    "historical-training": "Retained training/history corpora and synthetic data; not strict conformance targets.",
+    "packaging-embedded": "Embedded fallback assets retained for packaging resilience; non-authoritative when canonical source exists."
+  },
+  "canonical_generated": {
+    "files": [
+      "corpus/example_basic_web_api/ir.json",
+      "corpus/example_scraper_daily/ir.json",
+      "corpus/example_monitor_alert/ir.json",
+      "demo/emit/ir.json"
+    ],
+    "regenerator": "scripts/regenerate_ir_snapshots.py"
+  },
+  "canonical_sources": {
+    "files": [
+      "corpus/example_basic_web_api/program.ainl",
+      "corpus/example_scraper_daily/program.ainl",
+      "corpus/example_monitor_alert/program.ainl",
+      "storefront/app.jsx",
+      "storefront/index.html"
+    ]
+  },
+  "non_strict_only": {
+    "files": [
+      "demo/monitor_system.lang",
+      "demo/monitor_system.strict.lang"
+    ]
+  },
+  "historical_training": {
+    "globs": [
+      "corpus/train_*.jsonl",
+      "corpus/raw_negatives.jsonl",
+      "corpus/curated/*.jsonl",
+      "data/synthetic/*.lang"
+    ]
+  },
+  "packaging_embedded": {
+    "entries": [
+      {
+        "file": "scripts/run_tests_and_emit.py",
+        "symbols": [
+          "_EMBEDDED_STOREFRONT_JSX",
+          "_EMBEDDED_STOREFRONT_HTML"
+        ],
+        "source_of_truth": [
+          "storefront/app.jsx",
+          "storefront/index.html"
+        ],
+        "non_authoritative_when_sources_present": true
+      }
+    ]
+  }
+}

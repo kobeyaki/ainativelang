@@ -7,7 +7,18 @@
   "properties": {
     "action": {
       "type": "string",
-      "enum": ["compile", "validate", "emit", "explain_error"]
+      "enum": [
+        "compile",
+        "validate",
+        "emit",
+        "explain_error",
+        "plan_delta",
+        "patch_apply",
+        "policy_check",
+        "compat_check",
+        "viability",
+        "feedback"
+      ]
     },
     "code": {
       "type": "string",
@@ -25,6 +36,42 @@
     "error": {
       "type": "string",
       "description": "Compiler/runtime error text for action=explain_error"
+    },
+    "base_ir": {
+      "type": "object",
+      "description": "Base IR for plan_delta/patch_apply/compat_check/viability"
+    },
+    "patch_ir": {
+      "type": "object",
+      "description": "Patch IR for action=patch_apply"
+    },
+    "patch_code": {
+      "type": "string",
+      "description": "Patch AINL source for action=patch_apply"
+    },
+    "allow_replace": {
+      "type": "boolean",
+      "default": false
+    },
+    "ir": {
+      "type": "object",
+      "description": "Pre-compiled IR for policy_check/compat_check"
+    },
+    "new_ir": {
+      "type": "object",
+      "description": "New IR snapshot for action=plan_delta"
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["add", "break"]
+    },
+    "timeout": {
+      "type": "number",
+      "description": "Timeout in seconds for viability checks"
+    },
+    "result": {
+      "type": "object",
+      "description": "Gate result payload for action=feedback"
     }
   },
   "allOf": [
@@ -43,6 +90,30 @@
     {
       "if": { "properties": { "action": { "const": "explain_error" } } },
       "then": { "required": ["error"] }
+    },
+    {
+      "if": { "properties": { "action": { "const": "plan_delta" } } },
+      "then": { "required": ["base_ir"], "anyOf": [{"required": ["code"]}, {"required": ["new_ir"]}] }
+    },
+    {
+      "if": { "properties": { "action": { "const": "patch_apply" } } },
+      "then": { "required": ["base_ir"], "anyOf": [{"required": ["patch_ir"]}, {"required": ["patch_code"]}] }
+    },
+    {
+      "if": { "properties": { "action": { "const": "policy_check" } } },
+      "then": { "anyOf": [{"required": ["ir"]}, {"required": ["code"]}] }
+    },
+    {
+      "if": { "properties": { "action": { "const": "compat_check" } } },
+      "then": { "required": ["base_ir"], "anyOf": [{"required": ["ir"]}, {"required": ["code"]}] }
+    },
+    {
+      "if": { "properties": { "action": { "const": "viability" } } },
+      "then": { "required": ["code"] }
+    },
+    {
+      "if": { "properties": { "action": { "const": "feedback" } } },
+      "then": { "required": ["result"] }
     }
   ]
 }

@@ -7,14 +7,20 @@ Lossless: source stored exactly; tokenizer emits Token(kind, raw, value, span); 
 import json
 import re
 import difflib
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple, Set, Sequence
 
 from tooling.graph_normalize import (
     DEFAULT_PORTS,
     VALID_PORTS as GRAPH_VALID_PORTS,
     normalize_labels,
 )
-from tooling.effect_analysis import ADAPTER_EFFECT, annotate_labels_effect_analysis, dataflow_defined_before_use
+from tooling.effect_analysis import (
+    ADAPTER_EFFECT,
+    annotate_labels_effect_analysis,
+    dataflow_defined_before_use,
+    strict_adapter_is_allowed,
+    strict_adapter_key_for_step,
+)
 from tooling.ir_canonical import attach_label_and_node_hashes, graph_semantic_checksum
 
 # --- Lossless token model: kind in ("bare","string","ws","comment"), span = {line, col_start, col_end}
@@ -135,6 +141,497 @@ OP_REGISTRY: Dict[str, Dict[str, Any]] = {
     "Enf": {"scope": "label", "min_slots": 1},
 }
 
+# Compiler-owned grammar metadata used by prefix-constrained decoding.
+# This is declarative shape metadata (not full semantic validation logic).
+GRAMMAR_CLASS_NEWLINE = "NEWLINE"
+GRAMMAR_CLASS_QUOTE_CLOSE = "QUOTE_CLOSE"
+GRAMMAR_CLASS_ARROW_CONT = "ARROW_CONT"
+GRAMMAR_CLASS_LABEL_ARROW_CONT = "LABEL_ARROW_CONT"
+GRAMMAR_CLASS_LABEL_DECL = "LABEL_DECL"
+GRAMMAR_CLASS_MODULE_OP = "MODULE_OP"
+GRAMMAR_CLASS_LINE_STARTER = "LINE_STARTER"
+GRAMMAR_CLASS_GENERIC = "GENERIC"
+
+OP_GRAMMAR: Dict[str, Dict[str, Any]] = {
+    "E": {
+        "slots": [
+            {"name": "path", "class": "PATH", "required": True},
+            {"name": "method", "class": "METHOD", "required": True},
+            {"name": "label", "class": "LABEL_REF", "required": True},
+            {"name": "out", "class": "OUT_VAR", "required": False},
+            {"name": "return_type", "class": "TYPE_REF", "required": False},
+            {"name": "description", "class": "DESC_TOKEN", "required": False},
+        ]
+    },
+    "If": {
+        "slots": [
+            {"name": "cond", "class": "COND", "required": True},
+            {"name": "then", "class": "LABEL_REF", "required": True},
+            {"name": "else", "class": "LABEL_REF", "required": False},
+        ]
+    },
+    "R": {
+        "slots": [
+            {"name": "adapter", "class": "ADAPTER_OP", "required": True},
+            {"name": "target", "class": "TARGET", "required": True},
+            {"name": "arg", "class": "FREE_ARG", "required": False, "repeat": True},
+            {"name": "out", "class": "OUT_VAR", "required": False},
+        ]
+    },
+    "Call": {
+        "slots": [
+            {"name": "label", "class": "LABEL_REF", "required": True},
+            {"name": "out", "class": "OUT_VAR", "required": False},
+        ]
+    },
+    "S": {
+        "slots": [
+            {"name": "service_name", "class": "SERVICE_NAME", "required": True},
+            {"name": "service_mode", "class": "SERVICE_MODE", "required": True},
+            {"name": "service_path", "class": "PATH", "required": False},
+        ]
+    },
+    "D": {
+        "slots": [
+            {"name": "entity", "class": "ENTITY_NAME", "required": True},
+            {"name": "field", "class": "FIELD_TYPE", "required": False, "repeat": True},
+        ]
+    },
+    "J": {
+        "slots": [
+            {"name": "var", "class": "VAR_NAME", "required": False},
+        ]
+    },
+    "U": {
+        "slots": [
+            {"name": "ui", "class": "UI_NAME", "required": True},
+            {"name": "prop", "class": "VAR_NAME", "required": False, "repeat": True},
+        ]
+    },
+}
+
+
+def grammar_is_identifier(tok: str) -> bool:
+    return bool(re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", tok or ""))
+
+
+def grammar_is_label_decl(tok: str) -> bool:
+    return bool(re.match(r"^L\d+:$", tok or ""))
+
+
+def grammar_is_label_ref(tok: str) -> bool:
+    if not tok or tok.endswith(":"):
+        return False
+    if tok.startswith("->L") and tok[3:].isdigit():
+        return True
+    return bool(tok.startswith("L") and tok[1:].isdigit())
+
+
+def grammar_is_out_var(tok: str) -> bool:
+    return bool(tok and tok.startswith("->") and not tok.startswith("->L") and len(tok) > 2)
+
+
+def grammar_is_type_ref(tok: str) -> bool:
+    if tok in {"I", "i", "F", "S", "s", "B", "D", "J"}:
+        return True
+    if tok.startswith("A[") and tok.endswith("]"):
+        return True
+    if tok.startswith("E[") and tok.endswith("]"):
+        return True
+    return bool(re.match(r"^[A-Z][A-Za-z0-9_]*$", tok or ""))
+
+
+def grammar_is_field_type(tok: str) -> bool:
+    if ":" not in (tok or ""):
+        return False
+    name, typ = tok.split(":", 1)
+    if not grammar_is_identifier(name):
+        return False
+    if typ.endswith("?") or typ.endswith("!"):
+        typ = typ[:-1]
+    return grammar_is_type_ref(typ)
+
+
+def grammar_matches_token_class(token_class: str, tok: str) -> bool:
+    if token_class == "LABEL_REF":
+        return grammar_is_label_ref(tok)
+    if token_class == "OUT_VAR":
+        return grammar_is_out_var(tok)
+    if token_class == "PATH":
+        return bool(tok and tok.startswith("/"))
+    if token_class == "METHOD":
+        return tok in {"G", "P", "U", "D"}
+    if token_class == "FIELD_TYPE":
+        return grammar_is_field_type(tok)
+    if token_class in {"VAR_NAME", "ENTITY_NAME", "UI_NAME", "SERVICE_NAME", "IDENT"}:
+        return grammar_is_identifier(tok)
+    if token_class == "TYPE_REF":
+        return grammar_is_type_ref(tok)
+    if token_class == "ADAPTER_OP":
+        return bool(re.match(r"^[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_]*$", tok or ""))
+    if token_class == "TARGET":
+        return tok == "*" or grammar_is_identifier(tok) or (tok or "").startswith("/")
+    if token_class == "FREE_ARG":
+        return bool(tok) and not tok.isspace()
+    if token_class == "DESC_TOKEN":
+        return bool(tok) and not tok.startswith("->")
+    if token_class == "COND":
+        return bool(tok) and not tok.startswith("->")
+    return False
+
+
+def grammar_next_slot_classes(op: str, slots_so_far: List[str]) -> Set[str]:
+    """
+    Compiler-owned slot transition helper for prefix decoding.
+    Returns token classes admissible for the *next token* for a given op.
+    """
+    schema = list(OP_GRAMMAR.get(op, {}).get("slots", []))
+    if not schema:
+        return set()
+
+    # Position-dependent handling that cannot be expressed by simple required/repeat flags.
+    if op == "R":
+        if len(slots_so_far) == 0:
+            return {"ADAPTER_OP"}
+        if len(slots_so_far) == 1:
+            return {"TARGET"}
+        if slots_so_far and slots_so_far[-1].startswith("->"):
+            return set()
+        return {"FREE_ARG", "OUT_VAR"}
+
+    if op == "E":
+        if len(slots_so_far) == 0:
+            return {"PATH"}
+        if len(slots_so_far) == 1:
+            return {"METHOD"}
+        if len(slots_so_far) == 2:
+            return {"LABEL_REF"}
+        if len(slots_so_far) == 3:
+            return {"OUT_VAR", "TYPE_REF", "DESC_TOKEN"}
+        if len(slots_so_far) == 4:
+            if grammar_is_out_var(slots_so_far[3]):
+                return {"TYPE_REF", "DESC_TOKEN"}
+            if grammar_is_type_ref(slots_so_far[3]):
+                return {"DESC_TOKEN"}
+            return set()
+        return set()
+
+    idx = len(slots_so_far)
+    if idx >= len(schema):
+        return set()
+    cur = schema[idx]
+    out = {str(cur.get("class"))}
+    if not bool(cur.get("required", True)) and idx + 1 < len(schema):
+        out.add(str(schema[idx + 1].get("class")))
+    if bool(cur.get("repeat", False)) and idx + 1 < len(schema):
+        out.add(str(schema[idx + 1].get("class")))
+    return out
+
+
+def grammar_prefix_line_ok(op: str, slots: List[str], is_last_partial: bool) -> bool:
+    """
+    Compiler-owned semantic-prefix viability checks for individual ops.
+    """
+    def _is_at_node(tok: str) -> bool:
+        if not tok:
+            return False
+        s = tok[1:] if tok.startswith("@") else tok
+        return bool(re.match(r"^n\d+$", s))
+
+    if op == "E":
+        if len(slots) >= 3 and not grammar_is_label_ref(slots[2]):
+            if not (is_last_partial and (slots[2] in {"-", "->"} or slots[2].startswith("->L"))):
+                return False
+        if len(slots) >= 4 and slots[3].startswith("->") and not grammar_is_out_var(slots[3]):
+            return False
+        if len(slots) >= 5 and not grammar_is_type_ref(slots[4]):
+            return False if not is_last_partial else True
+    if op == "If":
+        if len(slots) >= 2 and not grammar_is_label_ref(slots[1]):
+            if not (is_last_partial and (slots[1] in {"-", "->"} or slots[1].startswith("->L"))):
+                return False
+        if len(slots) >= 3 and not grammar_is_label_ref(slots[2]):
+            if not (is_last_partial and (slots[2] in {"-", "->"} or slots[2].startswith("->L"))):
+                return False
+    if op == "Call":
+        if len(slots) >= 1 and not grammar_is_label_ref(slots[0]):
+            if not (is_last_partial and slots[0].startswith("L")):
+                return False
+        if len(slots) >= 2 and not grammar_is_out_var(slots[1]):
+            if not (is_last_partial and slots[1] in {"-", "->"}):
+                return False
+    if op == "Err":
+        if len(slots) >= 1 and _is_at_node(slots[0]) and len(slots) < 2:
+            return False if not is_last_partial else True
+        if len(slots) >= 2 and _is_at_node(slots[0]) and not grammar_is_label_ref(slots[1]):
+            return False if not is_last_partial else True
+    if op == "R" and slots and slots[-1].startswith("->") and not grammar_is_out_var(slots[-1]):
+        return False if not is_last_partial else True
+    return True
+
+
+def grammar_scan_lexical_prefix_state(prefix: str, tokenizer: Optional["AICodeCompiler"] = None) -> Dict[str, Any]:
+    """
+    Compiler-owned incremental lexical scanner for the current line.
+    Returns a plain dict to keep import boundaries lightweight.
+    """
+    comp = tokenizer or AICodeCompiler()
+    line = prefix[prefix.rfind("\n") + 1 :] if prefix else ""
+    tokens: List[str] = []
+    cur: List[str] = []
+    in_quote = False
+    in_comment = False
+    escaped = False
+    for ch in line:
+        if in_comment:
+            break
+        if in_quote:
+            cur.append(ch)
+            if escaped:
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch == '"':
+                in_quote = False
+                cur = []
+            continue
+        if ch == "#":
+            if cur:
+                tokens.append("".join(cur))
+                cur = []
+            in_comment = True
+            continue
+        if ch.isspace():
+            if cur:
+                tokens.append("".join(cur))
+                cur = []
+            continue
+        if ch == '"':
+            if cur:
+                tokens.append("".join(cur))
+                cur = []
+            in_quote = True
+            cur.append(ch)
+            escaped = False
+            continue
+        cur.append(ch)
+    token_in_progress = ""
+    if in_quote:
+        token_in_progress = "".join(cur)
+    elif not in_comment and cur:
+        token_in_progress = "".join(cur)
+        tokens.append(token_in_progress)
+
+    if not in_quote:
+        try:
+            toks = comp.tokenize_line_lossless(line, 1)
+            tokens = [t["value"] for t in toks if t.get("kind") in ("bare", "string")]
+        except Exception:
+            pass
+
+    return {
+        "line": line,
+        "in_quote": in_quote,
+        "in_comment": in_comment,
+        "ends_with_whitespace": bool(line) and line[-1].isspace(),
+        "token_in_progress": token_in_progress,
+        "tokens": tokens,
+    }
+
+
+def grammar_apply_candidate_to_prefix(prefix: str, cand: str, tokenizer: Optional["AICodeCompiler"] = None) -> str:
+    """
+    Compiler-owned prefix edit transition used by constrained decoding.
+    """
+    lex = grammar_scan_lexical_prefix_state(prefix, tokenizer=tokenizer)
+    if cand == "\n":
+        return prefix + "\n"
+    if bool(lex.get("in_quote")):
+        return prefix + cand
+
+    last = str(lex.get("line", ""))
+    head = prefix[: len(prefix) - len(last)]
+    token_in_progress = str(lex.get("token_in_progress", ""))
+    ends_with_whitespace = bool(lex.get("ends_with_whitespace"))
+    in_comment = bool(lex.get("in_comment"))
+
+    if token_in_progress and not ends_with_whitespace and not in_comment:
+        if token_in_progress in {"-", "->"}:
+            return prefix + cand
+        if token_in_progress == "->L":
+            if cand.startswith("->L"):
+                return prefix + cand[3:]
+            return prefix + cand
+        if cand.startswith(token_in_progress):
+            return head + last[: len(last) - len(token_in_progress)] + cand
+        return prefix + " " + cand
+
+    if not last or last.endswith((" ", "\t")):
+        return prefix + cand
+    return prefix + " " + cand
+
+
+def grammar_active_label_scope(prefix: str, tokenizer: Optional["AICodeCompiler"] = None) -> bool:
+    """
+    Compiler-owned active-label-scope computation for prefix state.
+    """
+    comp = tokenizer or AICodeCompiler()
+    in_label = False
+    lines = (prefix or "").split("\n")
+    last_partial = not (prefix or "").endswith("\n")
+
+    for i, raw in enumerate(lines):
+        if not raw.strip():
+            continue
+        is_last = i == len(lines) - 1
+        try:
+            toks = comp.tokenize_line_lossless(raw, i + 1)
+            node = comp.parse_line_lossless(toks, raw, i + 1)
+        except ValueError:
+            if is_last and last_partial:
+                break
+            return in_label
+
+        op_value = node.get("op_value", "")
+        if not op_value:
+            continue
+        if grammar_is_label_decl(op_value):
+            in_label = True
+            continue
+
+        op = MODULE_ALIASES.get(op_value, op_value)
+        scope = OP_REGISTRY.get(op, {}).get("scope", "top")
+        if in_label and op not in comp.STEP_OPS and scope not in ("label", "any"):
+            in_label = False
+
+    return in_label
+
+
+def runtime_normalize_label_id(token: Any) -> str:
+    """
+    Compiler-owned runtime label normalization.
+    Accepted forms: ->L1, L1, 1, L1:suffix, ->anything.
+    Returns canonical numeric/id payload used as labels[] key.
+    """
+    s = str(token or "").strip()
+    if s.startswith("->L"):
+        s = s[3:]
+    elif s.startswith("->"):
+        s = s[2:]
+    elif s.startswith("L"):
+        s = s[1:]
+    if ":" in s:
+        # Historical/runtime compatibility: "L1:entry" should normalize to "1".
+        s = s.split(":", 1)[0]
+    return s
+
+
+def runtime_normalize_node_id(token: Any) -> Optional[str]:
+    """
+    Compiler-owned runtime node-id normalization.
+    Accepted forms: @n3, n3; returns canonical n<number> or None.
+    """
+    if not isinstance(token, str):
+        return None
+    s = token.strip()
+    if s.startswith("@"):
+        s = s[1:]
+    if not s.startswith("n"):
+        return None
+    rest = s[1:]
+    if not rest.isdigit():
+        return None
+    return "n" + str(int(rest))
+
+
+def runtime_canonicalize_r_step(step: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Compiler-owned canonical R-step view for runtime execution.
+
+    Canonical fields:
+    - adapter: adapter or adapter.verb (required for canonical dispatch)
+    - target: route/entity/operation target
+    - args: positional request args (resolved at runtime)
+    - out: destination variable (default res)
+
+    Backward-compat source fields (src/req_op/entity/fields) are folded into
+    canonical fields when adapter/target/args are missing.
+    """
+    adapter = step.get("adapter", "")
+    if not adapter:
+        src = (step.get("src") or "").strip()
+        req_op = (step.get("req_op") or "").strip()
+        adapter = f"{src}.{req_op}" if src and req_op else src
+
+    target = step.get("target", "")
+    if not target:
+        target = step.get("entity", "")
+
+    args = list(step.get("args") or [])
+    # Legacy-only folding: compiler-emitted canonical R steps may still carry
+    # compatibility "fields" metadata (often "*"), which must NOT be promoted
+    # into args when canonical adapter/target are already present.
+    if not args and not step.get("adapter") and step.get("fields") not in (None, ""):
+        args = [step.get("fields")]
+
+    out = step.get("out", "res")
+    return {"adapter": adapter, "target": target, "args": args, "out": out}
+
+
+def grammar_prefix_completable(prefix: str, tokenizer: Optional["AICodeCompiler"] = None) -> bool:
+    """
+    Compiler-owned prefix viability check for formal constrained decoding.
+    """
+    comp = tokenizer or AICodeCompiler()
+    lines = (prefix or "").split("\n")
+    last_partial = not (prefix or "").endswith("\n")
+    in_label_scope = False
+
+    for i, raw in enumerate(lines):
+        is_last = i == len(lines) - 1
+        if not raw.strip():
+            continue
+        try:
+            toks = comp.tokenize_line_lossless(raw, i + 1)
+            node = comp.parse_line_lossless(toks, raw, i + 1)
+        except ValueError:
+            return bool(is_last and last_partial)
+
+        op_value = node.get("op_value", "")
+        slots = node.get("slot_values", [])
+        if not op_value and not slots:
+            continue
+        if grammar_is_label_decl(op_value):
+            in_label_scope = True
+            continue
+
+        op = MODULE_ALIASES.get(op_value, op_value)
+        spec = OP_REGISTRY.get(op)
+        if spec is None:
+            return bool(is_last and last_partial)
+
+        scope = spec.get("scope", "top")
+        min_slots = int(spec.get("min_slots", 0))
+
+        if in_label_scope and op not in comp.STEP_OPS and scope not in ("label", "any"):
+            in_label_scope = False
+
+        if not (is_last and last_partial):
+            if scope == "label" and not in_label_scope:
+                return False
+            if scope == "top" and in_label_scope:
+                return False
+            if len(slots) < min_slots:
+                return False
+
+        if not grammar_prefix_line_ok(op, slots, is_last and last_partial):
+            return False
+
+        if in_label_scope and op not in comp.STEP_OPS:
+            in_label_scope = False
+
+    return True
+
 
 def _iter_eps(eps: Dict[str, Any]) -> List[Tuple[str, str, Dict[str, Any]]]:
     """Return [(path, method, ep), ...] for all endpoints. Supports eps[path][method]=ep and legacy eps[path]=ep."""
@@ -226,6 +723,149 @@ class AICodeCompiler:
             new_errors.append(err)
 
         self._errors = new_errors
+
+    _DIAG_LINE_RE = re.compile(r"\bline\s+(\d+)\b", re.IGNORECASE)
+    _DIAG_LABEL_NODE_RE = re.compile(r"Label\s+'([^']+)':\s+node\s+'([^']+)'", re.IGNORECASE)
+    _DIAG_OP_PREFIX_RE = re.compile(r"^([A-Za-z][A-Za-z0-9_.]*):")
+
+    def _diag_line_from_message(self, message: str) -> Optional[int]:
+        m = self._DIAG_LINE_RE.search(message or "")
+        if not m:
+            return None
+        try:
+            return int(m.group(1))
+        except Exception:
+            return None
+
+    def _diag_label_node_from_message(self, message: str) -> Tuple[Optional[str], Optional[str]]:
+        m = self._DIAG_LABEL_NODE_RE.search(message or "")
+        if not m:
+            return None, None
+        return str(m.group(1)), str(m.group(2))
+
+    def _diag_lineno_from_label_node(self, label_id: Optional[str], node_id: Optional[str], labels: Dict[str, Any]) -> Optional[int]:
+        if not label_id or not node_id:
+            return None
+        body = labels.get(str(label_id))
+        if not isinstance(body, dict):
+            return None
+        nodes = body.get("nodes", [])
+        if not isinstance(nodes, list):
+            return None
+        for node in nodes:
+            if not isinstance(node, dict):
+                continue
+            if str(node.get("id", "")) != str(node_id):
+                continue
+            data = node.get("data", {})
+            if isinstance(data, dict):
+                lineno = data.get("lineno")
+                if isinstance(lineno, int):
+                    return lineno
+            break
+        return None
+
+    def _diag_op_from_message(self, message: str) -> Optional[str]:
+        m = self._DIAG_OP_PREFIX_RE.match((message or "").strip())
+        if not m:
+            return None
+        op = m.group(1)
+        return MODULE_ALIASES.get(op, op)
+
+    def _diag_lineno_from_op(self, op: Optional[str], cst_lines: Sequence[Dict[str, Any]]) -> Optional[int]:
+        if not op:
+            return None
+        matches: List[int] = []
+        for ln in cst_lines:
+            if not isinstance(ln, dict):
+                continue
+            op_value = str(ln.get("op_value", "")).strip()
+            if not op_value:
+                continue
+            canonical = MODULE_ALIASES.get(op_value, op_value)
+            if canonical == op:
+                lineno = ln.get("lineno")
+                if isinstance(lineno, int):
+                    matches.append(lineno)
+        if len(matches) == 1:
+            return matches[0]
+        return None
+
+    def _to_structured_diag(
+        self, item: Any, severity: str, labels: Dict[str, Any], cst_lines: Sequence[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Convert compiler error/warning items to a structured diagnostic object.
+        Keeps backward compatibility by leaving self._errors/self._warnings as strings,
+        while exposing structured diagnostics in IR.
+        """
+        code = "AINL_COMPILE_ERROR" if severity == "error" else "AINL_COMPILE_WARNING"
+        out: Dict[str, Any] = {
+            "code": code,
+            "message": "",
+            "severity": severity,
+        }
+
+        if isinstance(item, dict):
+            # Respect structured fields if callers already provided them.
+            out["message"] = str(item.get("message", ""))
+            for k in ("label_id", "node_id", "op", "lineno", "span"):
+                if k in item:
+                    out[k] = item[k]
+            if not out["message"]:
+                out["message"] = str(item)
+        else:
+            out["message"] = str(item)
+
+        if "lineno" not in out:
+            lineno = self._diag_line_from_message(out["message"])
+            if lineno is not None:
+                out["lineno"] = lineno
+
+        if "label_id" not in out or "node_id" not in out:
+            lid, nid = self._diag_label_node_from_message(out["message"])
+            if lid is not None and "label_id" not in out:
+                out["label_id"] = lid
+            if nid is not None and "node_id" not in out:
+                out["node_id"] = nid
+
+        if "lineno" not in out:
+            lineno = self._diag_lineno_from_label_node(
+                str(out.get("label_id")) if out.get("label_id") is not None else None,
+                str(out.get("node_id")) if out.get("node_id") is not None else None,
+                labels,
+            )
+            if lineno is not None:
+                out["lineno"] = lineno
+
+        if "op" not in out:
+            op = self._diag_op_from_message(out["message"])
+            if op:
+                out["op"] = op
+
+        if "lineno" not in out:
+            lineno = self._diag_lineno_from_op(
+                str(out.get("op")) if out.get("op") is not None else None,
+                cst_lines,
+            )
+            if lineno is not None:
+                out["lineno"] = lineno
+
+        if "span" not in out and isinstance(out.get("lineno"), int):
+            ln = int(out["lineno"])
+            out["span"] = {"line": ln, "col_start": 0, "col_end": 0}
+
+        return out
+
+    def _build_structured_diagnostics(
+        self, labels: Dict[str, Any], cst_lines: Sequence[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        out: List[Dict[str, Any]] = []
+        for err in list(self._errors):
+            out.append(self._to_structured_diag(err, "error", labels, cst_lines))
+        for warn in list(self._warnings):
+            out.append(self._to_structured_diag(warn, "warning", labels, cst_lines))
+        return out
 
     def tokenize_line(self, line: str) -> List[str]:
         """Legacy/simple tokenizer (string tokens only).
@@ -356,6 +996,7 @@ class AICodeCompiler:
         content = [t for t in tokens if t["kind"] in ("bare", "string")]
         op_value = content[0]["value"] if content else ""
         slot_values = [t["value"] for t in content[1:]] if len(content) > 1 else []
+        slot_kinds = [t["kind"] for t in content[1:]] if len(content) > 1 else []
         token_ser = [{"kind": t["kind"], "raw": t["raw"], "value": t["value"], "span": t["span"]} for t in tokens]
         line_no = lineno if lineno is not None else (tokens[0]["span"]["line"] if tokens else 1)
         return {
@@ -364,6 +1005,7 @@ class AICodeCompiler:
             "op_value": op_value,
             "op_canonical": "",
             "slot_values": slot_values,
+            "slot_kinds": slot_kinds,
             "tokens": token_ser,
         }
 
@@ -485,6 +1127,44 @@ class AICodeCompiler:
         op = s.get("op")
         reads: List[str] = []
         writes: List[str] = []
+        literal_fields = s.get("__literal_fields") or {}
+
+        def _is_runtime_literal(tok: Any) -> bool:
+            if tok is None:
+                return True
+            if isinstance(tok, (int, float, bool)):
+                return True
+            if not isinstance(tok, str):
+                return False
+            t = tok.strip()
+            if t in ("", "true", "false", "null"):
+                return True
+            if t.startswith("$"):
+                return False
+            if t.isdigit() or (t.startswith("-") and t[1:].isdigit()):
+                return True
+            s2 = t[1:] if t.startswith("-") else t
+            if "." in s2 and s2.replace(".", "", 1).isdigit():
+                return True
+            if any(ch in s2 for ch in ("e", "E")):
+                try:
+                    float(t)
+                    return True
+                except Exception:
+                    pass
+            return False
+
+        def _add_read_if_var(tok: Any, field_name: Optional[str] = None) -> None:
+            if tok is None:
+                return
+            if field_name and bool(literal_fields.get(field_name)):
+                return
+            if isinstance(tok, str) and tok.startswith("$"):
+                reads.append(tok[1:])
+                return
+            if _is_runtime_literal(tok):
+                return
+            reads.append(str(tok))
 
         if op == "R":
             out_var = s.get("out", "res")
@@ -497,24 +1177,26 @@ class AICodeCompiler:
         elif op == "Set":
             ref = s.get("ref")
             name = s.get("name")
-            if ref is not None:
-                reads.append(str(ref))
+            _add_read_if_var(ref, "ref")
             if name:
                 writes.append(str(name))
         elif op == "Filt":
             ref = s.get("ref")
             name = s.get("name")
-            if ref:
-                reads.append(str(ref))
+            _add_read_if_var(ref, "ref")
+            _add_read_if_var(s.get("value"), "value")
             if name:
                 writes.append(str(name))
         elif op == "Sort":
             ref = s.get("ref")
             name = s.get("name")
-            if ref:
-                reads.append(str(ref))
+            _add_read_if_var(ref, "ref")
             if name:
                 writes.append(str(name))
+        elif op == "Call":
+            out_var = s.get("out") or "_call_result"
+            if out_var:
+                writes.append(str(out_var))
         elif op == "If":
             cond = s.get("cond", "")
             if isinstance(cond, str) and cond:
@@ -529,24 +1211,19 @@ class AICodeCompiler:
             key = s.get("key")
             fallback = s.get("fallback")
             out_var = s.get("out", "data")
-            if key is not None:
-                reads.append(str(key))
-            if fallback is not None:
-                reads.append(str(fallback))
+            _add_read_if_var(key, "key")
+            _add_read_if_var(fallback, "fallback")
             if out_var:
                 writes.append(str(out_var))
         elif op == "CacheSet":
             key = s.get("key")
             value = s.get("value")
-            if key is not None:
-                reads.append(str(key))
-            if value is not None:
-                reads.append(str(value))
+            _add_read_if_var(key, "key")
+            _add_read_if_var(value, "value")
         elif op == "QueuePut":
             value = s.get("value")
             out_var = s.get("out")
-            if value is not None:
-                reads.append(str(value))
+            _add_read_if_var(value, "value")
             if out_var:
                 writes.append(str(out_var))
         elif op == "Tx":
@@ -667,7 +1344,8 @@ class AICodeCompiler:
                 handler = self._norm_lid(s.get("handler"))
                 if handler:
                     edges.append({"from": nid, "to": handler, "to_kind": "label", "port": "handler"})
-                last_nid = None
+                # Err is metadata. Keep linear flow connected to subsequent steps.
+                last_nid = nid
             elif op == "Retry":
                 if last_nid:
                     edges.append({"from": last_nid, "to": nid, "to_kind": "node", "port": "next"})
@@ -734,10 +1412,8 @@ class AICodeCompiler:
                 # Strict: R nodes must use a known adapter.verb (adapter contract).
                 if self.strict_mode and n.get("op") == "R":
                     data = n.get("data") or {}
-                    ad = data.get("adapter") or data.get("src") or ""
-                    verb = (data.get("req_op") or "").upper() or "F"
-                    key = f"{ad.split('.')[0]}.{verb}" if "." in ad else (f"{ad}.{verb}" if ad else "")
-                    if key and key not in ADAPTER_EFFECT:
+                    key = strict_adapter_key_for_step(data)
+                    if key and not strict_adapter_is_allowed(key):
                         self._errors.append(
                             f"Label {lid!r}: node {n.get('id')!r} uses unknown adapter.verb {key!r} (strict adapter contract)"
                         )
@@ -854,6 +1530,7 @@ class AICodeCompiler:
                 for nid, var in violations:
                     self._errors.append(
                         f"Label {lid!r}: node {nid!r} reads {var!r} which may be undefined on this path"
+                        f" (if this is a string literal in strict mode, quote it explicitly)"
                     )
 
             # Call effect inclusion: callee effects must be subset of caller effects.
@@ -904,6 +1581,65 @@ class AICodeCompiler:
             "entity": entity,
             "fields": fields,
             "raw": slots,
+        }
+
+    def _has_nonempty_rag(self) -> bool:
+        rag = self.rag or {}
+        if not isinstance(rag, dict):
+            return False
+        return any(bool(v) for v in rag.values())
+
+    def _iter_all_steps(self) -> List[Dict[str, Any]]:
+        out: List[Dict[str, Any]] = []
+        for _lid, body in (self.labels or {}).items():
+            legacy = (body or {}).get("legacy") or {}
+            for step in (legacy.get("steps") or []):
+                if isinstance(step, dict):
+                    out.append(step)
+        return out
+
+    def _compute_emit_capabilities(self) -> Dict[str, bool]:
+        services = self.services or {}
+        core = services.get("core") or {}
+        core_mode = (core or {}).get("mode")
+        core_eps = bool((core or {}).get("eps"))
+        fe = services.get("fe") or {}
+        has_fe_surface = bool(fe) and any(
+            bool(fe.get(k))
+            for k in ("ui", "routes", "layouts", "forms", "tables", "events", "components", "bindings")
+        )
+        has_types = bool(self.types)
+        has_cron = bool(self.crons) or core_mode == "cron"
+        has_scraper = bool(((services.get("scrape") or {}).get("defs") or {}))
+        steps = self._iter_all_steps()
+        has_mt5_step = any(str((s.get("adapter") or "")).lower().startswith("mt5.") for s in steps)
+        has_mt5_service = "mt5" in services
+        has_mt5 = has_mt5_service or has_mt5_step
+        rag_active = self._has_nonempty_rag()
+        has_user_labels = any(lid != "_anon" for lid in (self.labels or {}).keys())
+        # Backend need is explicit from endpoint/core-web/rag, plus plain label programs
+        # that are not clearly specialized as scraper/mt5/cron-only workflows.
+        needs_python_api = bool(
+            core_eps
+            or core_mode == "web"
+            or rag_active
+            or (has_user_labels and not (has_scraper or has_mt5 or has_cron))
+        )
+        return {
+            "needs_react_ts": has_fe_surface,
+            "needs_python_api": needs_python_api,
+            "needs_prisma": has_types,
+            "needs_mt5": has_mt5,
+            "needs_scraper": has_scraper,
+            "needs_cron": has_cron,
+        }
+
+    def _compute_required_emit_targets(self, emit_capabilities: Dict[str, bool]) -> Dict[str, List[str]]:
+        target_order = ["react_ts", "python_api", "prisma", "mt5", "scraper", "cron"]
+        minimal_emit = [t for t in target_order if emit_capabilities.get(f"needs_{t}", False)]
+        return {
+            "full_multitarget": list(target_order),
+            "minimal_emit": minimal_emit or ["python_api"],
         }
 
     def compile(self, code: str, emit_graph: bool = True) -> Dict[str, Any]:
@@ -959,6 +1695,7 @@ class AICodeCompiler:
             cst_lines.append(line_node)
             op_value = line_node["op_value"]
             slots = line_node["slot_values"]
+            slot_kinds = line_node.get("slot_kinds", [])
             if not op_value and not slots:
                 continue
             parsed_ops += 1
@@ -1066,6 +1803,7 @@ class AICodeCompiler:
                 # Parse inline steps: R ... J var | If | Set | Filt | Sort | Err | Retry | Call | capability steps
                 i = 0
                 step_ops = (
+                    "R",
                     "J",
                     "If",
                     "Set",
@@ -1105,15 +1843,29 @@ class AICodeCompiler:
                         leg["steps"].append({"op": "If", "lineno": lineno, "cond": cond, "then": then_id or slots[i + 2].lstrip("L").split(":")[-1], "else": else_id})
                         i += 4 if i + 3 < len(slots) else 3
                     elif slots[i] == "Set" and i + 3 <= len(slots):
-                        leg["steps"].append({"op": "Set", "lineno": lineno, "name": slots[i + 1], "ref": slots[i + 2]})
+                        step = {"op": "Set", "lineno": lineno, "name": slots[i + 1], "ref": slots[i + 2]}
+                        if i + 2 < len(slot_kinds) and slot_kinds[i + 2] == "string":
+                            step["__literal_fields"] = {"ref": True}
+                        leg["steps"].append(step)
                         i += 3
                     elif slots[i] == "Filt" and i + 6 <= len(slots):
-                        leg["steps"].append({"op": "Filt", "lineno": lineno, "name": slots[i + 1], "ref": slots[i + 2], "field": slots[i + 3], "cmp": slots[i + 4], "value": slots[i + 5]})
+                        step = {"op": "Filt", "lineno": lineno, "name": slots[i + 1], "ref": slots[i + 2], "field": slots[i + 3], "cmp": slots[i + 4], "value": slots[i + 5]}
+                        lit_fields = {}
+                        if i + 2 < len(slot_kinds) and slot_kinds[i + 2] == "string":
+                            lit_fields["ref"] = True
+                        if i + 5 < len(slot_kinds) and slot_kinds[i + 5] == "string":
+                            lit_fields["value"] = True
+                        if lit_fields:
+                            step["__literal_fields"] = lit_fields
+                        leg["steps"].append(step)
                         i += 6
                     elif slots[i] == "Sort" and i + 4 <= len(slots):
                         # Sort name ref field [asc|desc]: need 4 tokens min, optional 5th for order (fix #4).
                         order = slots[i + 4] if (i + 4 < len(slots) and slots[i + 4] in ("asc", "desc")) else "asc"
-                        leg["steps"].append({"op": "Sort", "lineno": lineno, "name": slots[i + 1], "ref": slots[i + 2], "field": slots[i + 3], "order": order})
+                        step = {"op": "Sort", "lineno": lineno, "name": slots[i + 1], "ref": slots[i + 2], "field": slots[i + 3], "order": order}
+                        if i + 2 < len(slot_kinds) and slot_kinds[i + 2] == "string":
+                            step["__literal_fields"] = {"ref": True}
+                        leg["steps"].append(step)
                         i += 5 if (i + 4 < len(slots) and slots[i + 4] in ("asc", "desc")) else 4
                     elif slots[i] == "Err" and i + 1 < len(slots):
                         at_node = self._parse_at_node_id(slots[i + 1])
@@ -1205,25 +1957,47 @@ class AICodeCompiler:
                         if j < len(slots) and slots[j] not in step_ops:
                             fallback = slots[j]
                             j += 1
-                        leg["steps"].append({"op": "CacheGet", "lineno": lineno, "name": name, "key": key, "out": out, "fallback": fallback})
+                        step = {"op": "CacheGet", "lineno": lineno, "name": name, "key": key, "out": out, "fallback": fallback}
+                        lit_fields = {}
+                        if i + 2 < len(slot_kinds) and slot_kinds[i + 2] == "string":
+                            lit_fields["key"] = True
+                        if fallback is not None:
+                            fb_idx = j - 1
+                            if fb_idx < len(slot_kinds) and slot_kinds[fb_idx] == "string":
+                                lit_fields["fallback"] = True
+                        if lit_fields:
+                            step["__literal_fields"] = lit_fields
+                        leg["steps"].append(step)
                         i = j
                     elif slots[i] == "CacheSet" and i + 3 < len(slots):
                         name = slots[i + 1]
                         key = slots[i + 2]
                         value = slots[i + 3]
                         ttl_s = slots[i + 4] if i + 4 < len(slots) and slots[i + 4] not in step_ops else "0"
-                        leg["steps"].append({"op": "CacheSet", "lineno": lineno, "name": name, "key": key, "value": value, "ttl_s": ttl_s})
+                        step = {"op": "CacheSet", "lineno": lineno, "name": name, "key": key, "value": value, "ttl_s": ttl_s}
+                        lit_fields = {}
+                        if i + 2 < len(slot_kinds) and slot_kinds[i + 2] == "string":
+                            lit_fields["key"] = True
+                        if i + 3 < len(slot_kinds) and slot_kinds[i + 3] == "string":
+                            lit_fields["value"] = True
+                        if lit_fields:
+                            step["__literal_fields"] = lit_fields
+                        leg["steps"].append(step)
                         i += 5 if (i + 4 < len(slots) and slots[i + 4] not in step_ops) else 4
                     elif slots[i] == "QueuePut" and i + 2 < len(slots):
                         queue = slots[i + 1]
                         value = slots[i + 2]
+                        value_is_string = (i + 2 < len(slot_kinds) and slot_kinds[i + 2] == "string")
                         out = None
                         if i + 3 < len(slots) and slots[i + 3].startswith("->") and not slots[i + 3].startswith("->L"):
                             out = slots[i + 3][2:]
                             i += 4
                         else:
                             i += 3
-                        leg["steps"].append({"op": "QueuePut", "lineno": lineno, "queue": queue, "value": value, "out": out})
+                        step = {"op": "QueuePut", "lineno": lineno, "queue": queue, "value": value, "out": out}
+                        if value_is_string:
+                            step["__literal_fields"] = {"value": True}
+                        leg["steps"].append(step)
                     elif slots[i] == "Tx" and i + 2 < len(slots):
                         leg["steps"].append({"op": "Tx", "lineno": lineno, "action": slots[i + 1], "name": slots[i + 2]})
                         i += 3
@@ -1439,16 +2213,30 @@ class AICodeCompiler:
             elif op == "Set":
                 if len(slots) >= 2 and self.current_label:
                     self._ensure_label(self.current_label)
-                    self._label_steps(self.current_label).append({"op": "Set", "lineno": lineno, "name": slots[0], "ref": slots[1]})
+                    step = {"op": "Set", "lineno": lineno, "name": slots[0], "ref": slots[1]}
+                    if len(slot_kinds) > 1 and slot_kinds[1] == "string":
+                        step["__literal_fields"] = {"ref": True}
+                    self._label_steps(self.current_label).append(step)
             elif op == "Filt":
                 if len(slots) >= 5 and self.current_label:
                     self._ensure_label(self.current_label)
-                    self._label_steps(self.current_label).append({"op": "Filt", "lineno": lineno, "name": slots[0], "ref": slots[1], "field": slots[2], "cmp": slots[3], "value": slots[4]})
+                    step = {"op": "Filt", "lineno": lineno, "name": slots[0], "ref": slots[1], "field": slots[2], "cmp": slots[3], "value": slots[4]}
+                    lit_fields = {}
+                    if len(slot_kinds) > 1 and slot_kinds[1] == "string":
+                        lit_fields["ref"] = True
+                    if len(slot_kinds) > 4 and slot_kinds[4] == "string":
+                        lit_fields["value"] = True
+                    if lit_fields:
+                        step["__literal_fields"] = lit_fields
+                    self._label_steps(self.current_label).append(step)
             elif op == "Sort":
                 if len(slots) >= 3 and self.current_label:
                     order = slots[3] if len(slots) > 3 else "asc"
                     self._ensure_label(self.current_label)
-                    self._label_steps(self.current_label).append({"op": "Sort", "lineno": lineno, "name": slots[0], "ref": slots[1], "field": slots[2], "order": order})
+                    step = {"op": "Sort", "lineno": lineno, "name": slots[0], "ref": slots[1], "field": slots[2], "order": order}
+                    if len(slot_kinds) > 1 and slot_kinds[1] == "string":
+                        step["__literal_fields"] = {"ref": True}
+                    self._label_steps(self.current_label).append(step)
             elif op == "X":
                 if len(slots) >= 2 and self.current_label:
                     self._ensure_label(self.current_label)
@@ -1482,23 +2270,36 @@ class AICodeCompiler:
                     if len(slots) > idx:
                         fallback = slots[idx]
                     self._ensure_label(self.current_label)
-                    self._label_steps(self.current_label).append(
-                        {"op": "CacheGet", "lineno": lineno, "name": slots[0], "key": slots[1], "out": out, "fallback": fallback}
-                    )
+                    step = {"op": "CacheGet", "lineno": lineno, "name": slots[0], "key": slots[1], "out": out, "fallback": fallback}
+                    lit_fields = {}
+                    if len(slot_kinds) > 1 and slot_kinds[1] == "string":
+                        lit_fields["key"] = True
+                    if fallback is not None and len(slot_kinds) > idx and slot_kinds[idx] == "string":
+                        lit_fields["fallback"] = True
+                    if lit_fields:
+                        step["__literal_fields"] = lit_fields
+                    self._label_steps(self.current_label).append(step)
             elif op == "CacheSet":
                 if len(slots) >= 3 and self.current_label:
                     ttl_s = slots[3] if len(slots) > 3 else "0"
                     self._ensure_label(self.current_label)
-                    self._label_steps(self.current_label).append(
-                        {"op": "CacheSet", "lineno": lineno, "name": slots[0], "key": slots[1], "value": slots[2], "ttl_s": ttl_s}
-                    )
+                    step = {"op": "CacheSet", "lineno": lineno, "name": slots[0], "key": slots[1], "value": slots[2], "ttl_s": ttl_s}
+                    lit_fields = {}
+                    if len(slot_kinds) > 1 and slot_kinds[1] == "string":
+                        lit_fields["key"] = True
+                    if len(slot_kinds) > 2 and slot_kinds[2] == "string":
+                        lit_fields["value"] = True
+                    if lit_fields:
+                        step["__literal_fields"] = lit_fields
+                    self._label_steps(self.current_label).append(step)
             elif op == "QueuePut":
                 if len(slots) >= 2 and self.current_label:
                     out = slots[2][2:] if len(slots) > 2 and slots[2].startswith("->") and not slots[2].startswith("->L") else None
                     self._ensure_label(self.current_label)
-                    self._label_steps(self.current_label).append(
-                        {"op": "QueuePut", "lineno": lineno, "queue": slots[0], "value": slots[1], "out": out}
-                    )
+                    step = {"op": "QueuePut", "lineno": lineno, "queue": slots[0], "value": slots[1], "out": out}
+                    if len(slot_kinds) > 1 and slot_kinds[1] == "string":
+                        step["__literal_fields"] = {"value": True}
+                    self._label_steps(self.current_label).append(step)
             elif op == "Tx":
                 if len(slots) >= 2 and self.current_label:
                     self._ensure_label(self.current_label)
@@ -1877,6 +2678,13 @@ class AICodeCompiler:
         if self.api_opts.get("deprecate"):
             self._warnings.append(f"api deprecations declared: {len(self.api_opts.get('deprecate', []))}")
 
+        # Internal compile-time hints should not leak into emitted IR.
+        for _lid, _body in self.labels.items():
+            _steps = ((_body.get("legacy") or {}).get("steps") or [])
+            for _s in _steps:
+                if isinstance(_s, dict):
+                    _s.pop("__literal_fields", None)
+
         # Add fuzzy suggestions to errors before returning IR
         self._augment_errors_with_suggestions()
 
@@ -1905,15 +2713,18 @@ class AICodeCompiler:
             "api": self.api_opts,
             "rag": self.rag,
             "capabilities": self.capabilities,
+            "emit_capabilities": self._compute_emit_capabilities(),
             "runtime_policy": {"execution_mode": "graph-preferred", "unknown_op_policy": "skip"},
             "meta": self.meta,
             "errors": self._errors,
             "warnings": self._warnings,
+            "diagnostics": self._build_structured_diagnostics(self.labels, cst_lines),
             "stats": {
                 "lines": len([l for l in lines if l.strip() and not l.strip().startswith("#")]),
                 "ops": parsed_ops,
             },
         }
+        ir["required_emit_targets"] = self._compute_required_emit_targets(ir["emit_capabilities"])
         # Attach semantic hashes and graph checksum without changing semantics.
         ir = attach_label_and_node_hashes(ir)
         ir["graph_semantic_checksum"] = graph_semantic_checksum(ir)
@@ -1924,11 +2735,51 @@ class AICodeCompiler:
         src = ir.get("source") or {}
         return src.get("text", "")
 
+    def _provenance_identity(self) -> Dict[str, Any]:
+        return {
+            "project": "AINL",
+            "full_name": "AI Native Lang",
+            "initiator": "Steven Hooley",
+            "x": "https://x.com/sbhooley",
+            "website": "https://stevenhooley.com",
+            "linkedin": "https://linkedin.com/in/sbhooley",
+            "repo_doc": "docs/PROJECT_ORIGIN_AND_ATTRIBUTION.md",
+            "machine_doc": "tooling/project_provenance.json",
+        }
+
+    def _emit_provenance_comment_block(self, comment_prefix: str, emitted_label: str) -> str:
+        p = self._provenance_identity()
+        lines = [
+            f"{comment_prefix} {emitted_label}",
+            f"{comment_prefix} Source project: {p['full_name']} ({p['project']})",
+            f"{comment_prefix} Human initiator: {p['initiator']}",
+            f"{comment_prefix} Public references: {p['x']} | {p['website']} | {p['linkedin']}",
+            f"{comment_prefix} Provenance docs: {p['repo_doc']} | {p['machine_doc']}",
+        ]
+        return "\n".join(lines) + "\n"
+
+    def _openapi_provenance(self) -> Dict[str, Any]:
+        p = self._provenance_identity()
+        return {
+            "project": p["full_name"],
+            "initiator": p["initiator"],
+            "public_references": {
+                "x": p["x"],
+                "website": p["website"],
+                "linkedin": p["linkedin"],
+            },
+            "provenance_docs": {
+                "repo": p["repo_doc"],
+                "machine": p["machine_doc"],
+            },
+        }
+
     def emit_react(self, ir: Dict[str, Any]) -> str:
         fe = ir["services"].get("fe", {})
         uis = fe.get("ui", {})
         states = fe.get("states", {})
-        jsx = "// AINL emitted React/TSX\nimport React, { useState } from 'react';\n\n"
+        jsx = self._emit_provenance_comment_block("//", "AINL emitted React/TSX")
+        jsx += "import React, { useState } from 'react';\n\n"
         for ui_name, props in uis.items():
             state_list = states.get(ui_name, [("data", "any")])
             jsx += f"export const {ui_name}: React.FC = () => {{\n"
@@ -2018,7 +2869,8 @@ class AICodeCompiler:
         retry_cfg = fe.get("retry", {})
         help_map = fe.get("help", {})
 
-        jsx = "const { useState, useEffect } = React;\n\n"
+        jsx = self._emit_provenance_comment_block("//", "AINL emitted browser React app")
+        jsx += "const { useState, useEffect } = React;\n\n"
         if tokens:
             jsx += "const designTokens = " + json.dumps(tokens) + ";\n"
         if theme:
@@ -2144,7 +2996,11 @@ class AICodeCompiler:
         return jsx
 
     def emit_prisma_schema(self, ir: Dict[str, Any]) -> str:
-        out = "// Prisma schema generated from D (Data) ops\n\ngenerator client {\n  provider = \"prisma-client-js\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\n"
+        out = (
+            self._emit_provenance_comment_block("//", "AINL emitted Prisma schema")
+            + "generator client { provider = \"prisma-client-js\" }\n"
+            "datasource db { provider = \"postgresql\" url = env(\"DATABASE_URL\") }\n\n"
+        )
         for name, data in ir["types"].items():
             out += f"model {name} {{\n"
             fields = data.get("fields", {})
@@ -2180,22 +3036,21 @@ class AICodeCompiler:
         return base
 
     def emit_python_api(self, ir: Dict[str, Any]) -> str:
-        py = "from fastapi import FastAPI\napp = FastAPI()\n\n"
+        py = self._emit_provenance_comment_block("#", "AINL emitted FastAPI stub")
+        py += "from fastapi import FastAPI\napp = FastAPI()\n\n"
+        idx = 0
         for srv, data in ir["services"].items():
             if "eps" not in data:
                 continue
             for path, method, ep in _iter_eps(data["eps"]):
-                seg = self._safe_py_ident(path.strip("/").replace("/", "_"), fallback="root")
                 meth = self._http_method(method or ep.get("method", "G"))
-                fn_name = f"{meth}_{seg}"
                 py += f"@app.{meth}('{path}')\n"
-                py += f"def {fn_name}():\n"
-                py += f"    # Exec {ep.get('tgt', path)}\n"
-                py += "    return {\"data\": []}\n\n"
+                py += f"def e{idx}():return{{}}\n\n"
+                idx += 1
         return py
 
     def emit_mt5(self, ir: Dict[str, Any]) -> str:
-        code = "// MT5 Expert Advisor stub — generated from .lang\n"
+        code = self._emit_provenance_comment_block("//", "AINL emitted MT5 Expert Advisor stub")
         code += "#property strict\n\n"
         code += "input int   Multiplier = 1;\n"
         code += "input double LotSize = 0.1;\n"
@@ -2213,29 +3068,27 @@ class AICodeCompiler:
     def emit_python_scraper(self, ir: Dict[str, Any]) -> str:
         defs = ir["services"].get("scrape", {}).get("defs", {})
         if not defs:
-            return "# No Sc scrape definitions in IR\nimport requests\n"
-        code = "import requests\nfrom bs4 import BeautifulSoup\n\n"
+            return self._emit_provenance_comment_block("#", "AINL emitted scraper stub") + "import requests\n"
+        code = self._emit_provenance_comment_block("#", "AINL emitted scraper")
+        code += "import requests\nfrom bs4 import BeautifulSoup as B\n\n"
         for name, defn in defs.items():
             url = defn.get("url", "")
             selectors = defn.get("selectors", {})
             code += f"def scrape_{name}():\n"
-            code += f"    resp = requests.get('{url}')\n"
-            code += "    soup = BeautifulSoup(resp.text, 'html.parser')\n"
-            for var_name, css_selector in selectors.items():
-                code += f"    el = soup.select_one('{css_selector}')\n"
-                code += f"    {var_name} = el.get_text(strip=True) if el else None\n"
-            fields = ", ".join([f"'{v}': {v}" for v in selectors.keys()])
-            code += f"    return {{ {fields} }}\n\n"
+            code += f"    s=B(requests.get('{url}').text,'html.parser')\n"
+            code += "    f=lambda q:(e.get_text(strip=True)if(e:=s.select_one(q))else None)\n"
+            fields = ",".join([f"'{v}':f('{css}')" for v, css in selectors.items()])
+            code += f"    return{{{fields}}}\n\n"
         return code
 
     def emit_cron_stub(self, ir: Dict[str, Any]) -> str:
         crons = ir.get("crons", [])
         if not crons:
-            return "# No Cr cron definitions\n"
-        py = "# Cron stubs (use APScheduler or Celery Beat)\nfrom datetime import datetime\n\n"
+            return ""
+        py = self._emit_provenance_comment_block("#", "AINL emitted cron stub")
         for c in crons:
             py += f"def run_{c['label']}():\n"
-            py += f"    # Schedule: {c['expr']}\n"
+            py += f"    # {c['expr']}\n"
             py += "    pass\n\n"
         return py
 
@@ -2246,6 +3099,7 @@ class AICodeCompiler:
         api_prefix = "/" + api_prefix
 
         py = '"""Web server from AI-Native Lang: real runtime (R/P/Sc via adapters) + static + logging + rate limit."""\n'
+        py += self._emit_provenance_comment_block("#", "AINL emitted runtime-backed web server")
         py += "import json\nimport sys\nimport time\nimport uuid\nimport os\nfrom pathlib import Path\nfrom collections import defaultdict\n\n"
         py += "# Allow importing runtime + adapters (same dir in Docker, else repo root)\n"
         py += "_dir = Path(__file__).resolve().parent\n"
@@ -2584,7 +3438,11 @@ class AICodeCompiler:
         }
         doc = {
             "openapi": "3.0.0",
-            "info": {"title": "AINL API", "version": "1.0.0"},
+            "info": {
+                "title": "AINL API",
+                "version": "1.0.0",
+                "x-ainl-provenance": self._openapi_provenance(),
+            },
             "paths": paths,
             "components": {"schemas": schemas},
         }
@@ -2598,7 +3456,7 @@ class AICodeCompiler:
 
     def emit_dockerfile(self, ir: Dict[str, Any]) -> str:
         """Emit Dockerfile for the AINL server. Run from server dir: docker compose up --build"""
-        return """# AINL emitted server (build from server dir: docker compose up --build)
+        return self._emit_provenance_comment_block("#", "AINL emitted Dockerfile") + """# AINL emitted server (build from server dir: docker compose up --build)
 FROM python:3.11-slim
 WORKDIR /app
 COPY requirements.txt server.py ir.json runtime.py ./
@@ -2613,7 +3471,7 @@ CMD ["python", "server.py"]
     def emit_docker_compose(self, ir: Dict[str, Any]) -> str:
         """Emit docker-compose.yml (api + optional db)."""
         has_db = bool(ir.get("types"))
-        yml = """# AINL emitted stack
+        yml = self._emit_provenance_comment_block("#", "AINL emitted docker-compose stack") + """# AINL emitted stack
 services:
   api:
     build: .
@@ -2639,7 +3497,8 @@ volumes:
 
     def emit_k8s(self, ir: Dict[str, Any], name: str = "ainl-api", replicas: int = 1, with_ingress: bool = False) -> str:
         """Emit Kubernetes Deployment + Service (and optional Ingress) for the AINL server."""
-        yml = f"""# AINL emitted K8s (apply: kubectl apply -f -)
+        yml = self._emit_provenance_comment_block("#", "AINL emitted Kubernetes manifest")
+        yml += f"""# AINL emitted K8s (apply: kubectl apply -f -)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -2721,8 +3580,7 @@ spec:
                 meth = self._http_method(method or ep.get("method", "G"))
                 seg = path.strip("/").replace("/", "_") or "root"
                 fn = f"pages/api/{seg}_{meth.upper()}.ts"
-                content = f"""// AINL emitted Next.js API route: {meth.upper()} {path}
-import type {{ NextApiRequest, NextApiResponse }} from 'next';
+                content = self._emit_provenance_comment_block("//", f"AINL emitted Next.js API route: {meth.upper()} {path}") + f"""import type {{ NextApiRequest, NextApiResponse }} from 'next';
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8765';
 
@@ -2738,14 +3596,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 }}
 """
                 out[fn] = content
-        out["pages/api/health.ts"] = """// AINL health
-import type { NextApiRequest, NextApiResponse } from 'next';
+        out["pages/api/health.ts"] = self._emit_provenance_comment_block("//", "AINL emitted Next.js health route") + """import type { NextApiRequest, NextApiResponse } from 'next';
 export default function handler(_req: NextApiRequest, res: NextApiResponse) {
   res.status(200).json({ status: 'ok' });
 }
 """
-        out["pages/api/ready.ts"] = """// AINL readiness
-import type { NextApiRequest, NextApiResponse } from 'next';
+        out["pages/api/ready.ts"] = self._emit_provenance_comment_block("//", "AINL emitted Next.js readiness route") + """import type { NextApiRequest, NextApiResponse } from 'next';
 export default function handler(_req: NextApiRequest, res: NextApiResponse) {
   res.status(200).json({ ready: true });
 }
@@ -2762,6 +3618,8 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
         route_map = {r["path"]: r["ui"] for r in routes} if routes else {"/": next(iter(uis.keys()), "Dashboard")}
         var_paths = {v: (p, m) for (p, m), v in path_to_var.items()}
         lines = [
+            "<!-- AINL emitted Vue app -->",
+            "<!-- Human initiator: Steven Hooley | https://x.com/sbhooley | https://stevenhooley.com | https://linkedin.com/in/sbhooley -->",
             "<script setup>",
             "import { ref, onMounted } from 'vue'",
             "const path = ref(typeof location !== 'undefined' ? (location.hash || '#/').slice(1) || '/' : '/')",
@@ -2797,6 +3655,8 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
         route_map = {r["path"]: r["ui"] for r in routes} if routes else {"/": next(iter(uis.keys()), "Dashboard")}
         var_paths = {v: (p, m) for (p, m), v in path_to_var.items()}
         lines = [
+            "<!-- AINL emitted Svelte app -->",
+            "<!-- Human initiator: Steven Hooley | https://x.com/sbhooley | https://stevenhooley.com | https://linkedin.com/in/sbhooley -->",
             "<script>",
             "  import { onMount } from 'svelte';",
             "  let path = typeof location !== 'undefined' ? (location.hash || '#/').slice(1) || '/' : '/';",
@@ -2837,7 +3697,8 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
             if t.startswith("A["):
                 return "JSONB" if dialect == "postgres" else "JSON"
             return "VARCHAR(255)"
-        lines = ["-- AINL SQL migration from D types", f"-- dialect: {dialect}", ""]
+        lines = self._emit_provenance_comment_block("--", "AINL emitted SQL migration").splitlines()
+        lines += [f"-- dialect: {dialect}", ""]
         for name, data in ir.get("types", {}).items():
             fields = data.get("fields", {})
             cols = []
@@ -2865,7 +3726,8 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
 
     def emit_env_example(self, ir: Dict[str, Any]) -> str:
         """Emit .env.example and config notes from config.env, S, C, P."""
-        lines = ["# AINL emitted env (copy to .env)", ""]
+        lines = self._emit_provenance_comment_block("#", "AINL emitted env file").splitlines()
+        lines += ["# AINL emitted env (copy to .env)", ""]
         for e in ir.get("config", {}).get("env", []):
             req = "required" if e.get("required") else "optional"
             default = f"  # default: {e.get('default')}" if e.get("default") else ""
@@ -2899,14 +3761,20 @@ def ready():
 
     def emit_runbooks(self, ir: Dict[str, Any]) -> str:
         """Emit runbooks.md from Run ops."""
-        lines = ["# Runbooks", ""]
+        lines = [
+            "# Runbooks",
+            "",
+            "> Emitted from AINL (AI Native Lang). Human initiator: Steven Hooley.",
+            "> References: <https://x.com/sbhooley> | <https://stevenhooley.com> | <https://linkedin.com/in/sbhooley>",
+            "",
+        ]
         for name, steps in ir.get("runbooks", {}).items():
             lines.append(f"## {name}")
             lines.append("")
             for i, step in enumerate(steps, 1):
                 lines.append(f"{i}. {step}")
             lines.append("")
-        return "\n".join(lines) if ir.get("runbooks") else "# Runbooks\n\n(No runbooks defined.)\n"
+        return "\n".join(lines) if ir.get("runbooks") else "# Runbooks\n\n> Emitted from AINL (AI Native Lang). Human initiator: Steven Hooley.\n\n(No runbooks defined.)\n"
 
     def emit_rag_pipeline(self, ir: Dict[str, Any]) -> str:
         """Emit Python RAG pipeline: individual pieces (chunk, embed, index, retrieve, augment, generate) + full pipeline from rag.Pipe."""
@@ -2914,7 +3782,9 @@ def ready():
         if not r:
             return "# AINL RAG emit\n# No rag.* ops in spec.\n"
         lines = [
-            "# AINL RAG pipeline (from rag.* ops)",
+            "# AINL emitted RAG pipeline (from rag.* ops)",
+            "# Human initiator: Steven Hooley",
+            "# Public references: https://x.com/sbhooley | https://stevenhooley.com | https://linkedin.com/in/sbhooley",
             "# Use: ingest (chunk+embed+index), retrieve, or run_pipeline(name).",
             "import os",
             "from typing import List, Dict, Any, Optional",

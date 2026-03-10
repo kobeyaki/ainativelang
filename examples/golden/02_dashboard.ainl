@@ -1,0 +1,72 @@
+# Golden Example 2: Dashboard with auto-refresh
+# Serves a single-page dashboard that polls /data every 30s.
+# Emphasizes: serving HTML/JS, stateful aggregates, JSON APIs.
+
+S core cron "@reboot"
+
+D Config refresh_interval:N   # seconds, e.g. 30
+D Config data_ttl:N           # cache lifetime in seconds
+
+# In-memory metrics cache
+D State last_data:T
+D State last_update:T
+
+# Label 0: Start server
+L0: R http.SERVE 8081 J L1
+
+# Label 1: Main router
+L1: R http.NEXT_REQUEST ->req J L2
+
+L2: X path req.path
+   If (core.eq path "/") ->L3
+   If (core.eq path "/data") ->L4
+   If (core.eq path "/admin") ->L5
+   J L6
+
+L3: # Serve dashboard HTML with embedded JS for auto-refresh
+   R fs.read "examples/golden/dashboard.html" ->html
+   # Inject config via simple string replace (real templating would be safer)
+   X html1 (core.replace html "{{REFRESH_MS}}" (core.stringify (Config.refresh_interval * 1000)))
+   R http.RESPONSE 200 {"Content-Type":"text/html"} html1 J L1
+
+L4: # GET /data → return latest metrics (cached)
+   If (core.ne req.method "GET") ->L404
+   R core.now ->now
+   R cache get "state" "last_update" ->last_upd
+   If (core.gt (core.sub now last_upd) Config.data_ttl) ->L7 ->L8
+
+L7: # Fresh data already cached
+   R cache get "state" "last_data" ->cached
+   R http.RESPONSE 200 {"Content-Type":"application/json"} (core.stringify cached) J L1
+
+L8: # Need to recompute metrics
+   # In a real system, query DB or run aggregations here.
+   X metrics {
+     "ts": now,
+     "active_users": 1234,
+     "requests_1h": 5678,
+     "errors_1h": 12,
+     "uptime_pct": 99.97
+   }
+   R cache set "state" "last_data" metrics
+   R cache set "state" "last_update" now
+   R http.RESPONSE 200 {"Content-Type":"application/json"} (core.stringify metrics) J L1
+
+L5: # /admin — simple auth stub (replace with real auth adapter)
+   X admin_auth req.headers["authorization"] == "Bearer secret123"
+   If admin_auth ->L9 ->L10
+
+L9: # Admin page
+   R fs.read "examples/golden/admin.html" ->html
+   R http.RESPONSE 200 {"Content-Type":"text/html"} html J L1
+
+L10: # Unauthorized
+   R http.RESPONSE 401 {"error":"unauthorized"} J L1
+
+L6: # Not found
+L404: R http.RESPONSE 404 {"error":"not_found"} J L1
+
+# Notes:
+# - Real dashboards would use websockets or SSE; this uses polling for simplicity.
+# - Cache layer prevents expensive recomputation on every poll.
+# - Authentication placeholder shows where to plug an auth adapter.

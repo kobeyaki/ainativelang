@@ -1,0 +1,23 @@
+# Daily Digest
+# Fetches unread emails, today's events, recent mentions; summarizes and notifies.
+S core cron "0 8 * * *"
+
+D Config digest_hours:N  # minimum hours between digests
+D State last_digest:T
+
+L0: R core now ->ts J L1
+L1: R cache get "state" "last_digest" ->last_digest J L2
+L2: X hours_diff (core.div (core.sub ts last_digest) 3600)
+L3: X need_run (core.gt hours_diff Config.digest_hours)
+L4: If need_run ->L5 ->L62
+L5: R email G ->emails J L6
+L6: R calendar G ->events J L7
+L7: R social G ->mentions J L8
+L8: X email_count (len emails)
+L9: X event_count (len events)
+L10: X mention_count (len mentions)
+L11: X payload {"email_count":email_count,"event_count":event_count,"mention_count":mention_count,"ts":ts}
+L12: X summary (wasm.CALL summarize payload)
+L13: R queue Put notify {"summary":summary,"ts":ts} ->_ J L14
+L14: R cache set "state" "last_digest" ts ->_ J L62
+L62:

@@ -1,0 +1,4 @@
+# Test Filter in L0
+L0:
+    R core now ->ts
+    Filter [] where gte r.score 80 ->hv

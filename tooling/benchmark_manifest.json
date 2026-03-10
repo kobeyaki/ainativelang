@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "headline_profile": "canonical_strict_valid",
+  "profiles": {
+    "canonical_strict_valid": {
+      "description": "Primary public benchmark headline set (strict-valid canonical examples).",
+      "artifact_profiles_section": "examples",
+      "classes": ["strict-valid"]
+    },
+    "public_mixed": {
+      "description": "Mixed public examples (strict-valid + non-strict-only), clearly labeled as mixed.",
+      "artifact_profiles_section": "examples",
+      "classes": ["strict-valid", "non-strict-only"]
+    },
+    "compatibility_only": {
+      "description": "Compatibility-oriented examples only (non-strict/legacy classes). Not a headline set.",
+      "artifact_profiles_section": "examples",
+      "classes": ["non-strict-only", "legacy-compat"]
+    }
+  },
+  "modes": {
+    "full_multitarget": {
+      "description": "Measure AINL source size vs aggregate generated output across all benchmark targets."
+    },
+    "minimal_emit": {
+      "description": "Count only generated targets required by artifact capabilities for fairer practical comparison.",
+      "relevance_rules": {
+        "react_ts": {
+          "requires_capability": "needs_react_ts"
+        },
+        "python_api": {
+          "requires_capability": "needs_python_api"
+        },
+        "prisma": {
+          "requires_capability": "needs_prisma"
+        },
+        "cron": {
+          "requires_capability": "needs_cron"
+        },
+        "scraper": {
+          "requires_capability": "needs_scraper"
+        },
+        "mt5": {
+          "requires_capability": "needs_mt5"
+        }
+      },
+      "fallback_targets": ["python_api"]
+    }
+  },
+  "handwritten_baselines": {
+    "status": "scaffolded",
+    "path": "benchmarks/handwritten_baselines/",
+    "note": "Framework scaffold is ready; handwritten baseline programs can be added incrementally."
+  }
+}

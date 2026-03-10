@@ -1,4 +1,6 @@
 {
+  "ir_version": "1.0.0",
+  "graph_schema_version": "1.0",
   "source": {
     "text": "# Ecom dashboard \u2014 API + frontend (AINL 1.0)\n# Webserver at /api (core) + static at / (fe). All behavior defined here.\n\nS core web /api\nS fe web /\n\n# Data\nD Product id:I name:S price:F sku:S\nD Order id:I uid:I total:F status:E[Pending,Paid,Shipped]\nD Customer id:I email:S name:S\n\n# Products API\nE /products G ->L1 ->products\nL1: R db.F Product * ->products J products\n\nE /product G ->L6 ->product\nL6: R db.G Product id ->product J product\n\nE /products P ->L7 ->product\nL7: R db.C Product name price sku ->product J product\n\n# Orders API\nE /orders G ->L2 ->orders\nL2: R db.F Order * ->orders J orders\n\nE /order G ->L8 ->order\nL8: R db.G Order id ->order J order\n\nE /orders P ->L9 ->order\nL9: R db.C Order uid total status ->order J order\n\n# Checkout (payment definition is top-level; in-label use R pay.* when needed)\nE /checkout P ->L3\nL3: R db.F Order * ->ord J ord\n\nP checkout 1999 usd \"Order payment\"\n\n# Customers API\nE /customers G ->L10 ->customers\nL10: R db.F Customer * ->customers J customers\n\n# Frontend: routes, layout, UI, forms, tables, events\nRt / Dashboard\nRt /products ProductList\nRt /orders OrderTable\nRt /customers CustomerTable\n\nLay Shell Sidebar Main\n\nU Dashboard\nT products:A[Product]\nT orders:A[Order]\nT customers:A[Customer]\nU ProductList products\nU OrderTable orders\nU CustomerTable customers\nU CheckoutBtn\n\nFm OrderForm Order id uid total status\nFm ProductForm Product id name price sku\nTbl OrderTable Order id uid total status\nTbl ProductList Product id name price sku\nTbl CustomerTable Customer id email name\n\nEv CheckoutBtn click /checkout\n\nC cart sessionId 3600\n",
     "lines": [
@@ -80,6 +82,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": [
           {
             "kind": "comment",
@@ -99,6 +102,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": [
           {
             "kind": "comment",
@@ -118,6 +122,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -129,6 +134,11 @@
           "core",
           "web",
           "/api"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -213,6 +223,11 @@
           "web",
           "/"
         ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare"
+        ],
         "tokens": [
           {
             "kind": "bare",
@@ -292,6 +307,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -300,6 +316,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": [
           {
             "kind": "comment",
@@ -324,6 +341,13 @@
           "name:S",
           "price:F",
           "sku:S"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -450,6 +474,13 @@
           "total:F",
           "status:E[Pending,Paid,Shipped]"
         ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare"
+        ],
         "tokens": [
           {
             "kind": "bare",
@@ -574,6 +605,12 @@
           "email:S",
           "name:S"
         ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare"
+        ],
         "tokens": [
           {
             "kind": "bare",
@@ -673,6 +710,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -681,6 +719,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": [
           {
             "kind": "comment",
@@ -704,6 +743,12 @@
           "G",
           "->L1",
           "->products"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -811,6 +856,15 @@
           "->products",
           "J",
           "products"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -971,6 +1025,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -983,6 +1038,12 @@
           "G",
           "->L6",
           "->product"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -1090,6 +1151,15 @@
           "->product",
           "J",
           "product"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -1250,6 +1320,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -1262,6 +1333,12 @@
           "P",
           "->L7",
           "->product"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -1371,6 +1448,17 @@
           "->product",
           "J",
           "product"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -1571,6 +1659,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -1579,6 +1668,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": [
           {
             "kind": "comment",
@@ -1602,6 +1692,12 @@
           "G",
           "->L2",
           "->orders"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -1709,6 +1805,15 @@
           "->orders",
           "J",
           "orders"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -1869,6 +1974,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -1881,6 +1987,12 @@
           "G",
           "->L8",
           "->order"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -1988,6 +2100,15 @@
           "->order",
           "J",
           "order"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -2148,6 +2269,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -2160,6 +2282,12 @@
           "P",
           "->L9",
           "->order"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -2269,6 +2397,17 @@
           "->order",
           "J",
           "order"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -2469,6 +2608,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -2477,6 +2617,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": [
           {
             "kind": "comment",
@@ -2499,6 +2640,11 @@
           "/checkout",
           "P",
           "->L3"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -2586,6 +2732,15 @@
           "->ord",
           "J",
           "ord"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -2746,6 +2901,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -2758,6 +2914,12 @@
           "1999",
           "usd",
           "Order payment"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "string"
         ],
         "tokens": [
           {
@@ -2858,6 +3020,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -2866,6 +3029,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": [
           {
             "kind": "comment",
@@ -2889,6 +3053,12 @@
           "G",
           "->L10",
           "->customers"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -2996,6 +3166,15 @@
           "->customers",
           "J",
           "customers"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -3156,6 +3335,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -3164,6 +3344,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": [
           {
             "kind": "comment",
@@ -3185,6 +3366,10 @@
         "slot_values": [
           "/",
           "Dashboard"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -3248,6 +3433,10 @@
           "/products",
           "ProductList"
         ],
+        "slot_kinds": [
+          "bare",
+          "bare"
+        ],
         "tokens": [
           {
             "kind": "bare",
@@ -3309,6 +3498,10 @@
         "slot_values": [
           "/orders",
           "OrderTable"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -3372,6 +3565,10 @@
           "/customers",
           "CustomerTable"
         ],
+        "slot_kinds": [
+          "bare",
+          "bare"
+        ],
         "tokens": [
           {
             "kind": "bare",
@@ -3431,6 +3628,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -3442,6 +3640,11 @@
           "Shell",
           "Sidebar",
           "Main"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -3522,6 +3725,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -3531,6 +3735,9 @@
         "op_canonical": "U",
         "slot_values": [
           "Dashboard"
+        ],
+        "slot_kinds": [
+          "bare"
         ],
         "tokens": [
           {
@@ -3573,6 +3780,9 @@
         "slot_values": [
           "products:A[Product]"
         ],
+        "slot_kinds": [
+          "bare"
+        ],
         "tokens": [
           {
             "kind": "bare",
@@ -3613,6 +3823,9 @@
         "op_canonical": "T",
         "slot_values": [
           "orders:A[Order]"
+        ],
+        "slot_kinds": [
+          "bare"
         ],
         "tokens": [
           {
@@ -3655,6 +3868,9 @@
         "slot_values": [
           "customers:A[Customer]"
         ],
+        "slot_kinds": [
+          "bare"
+        ],
         "tokens": [
           {
             "kind": "bare",
@@ -3696,6 +3912,10 @@
         "slot_values": [
           "ProductList",
           "products"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -3759,6 +3979,10 @@
           "OrderTable",
           "orders"
         ],
+        "slot_kinds": [
+          "bare",
+          "bare"
+        ],
         "tokens": [
           {
             "kind": "bare",
@@ -3821,6 +4045,10 @@
           "CustomerTable",
           "customers"
         ],
+        "slot_kinds": [
+          "bare",
+          "bare"
+        ],
         "tokens": [
           {
             "kind": "bare",
@@ -3882,6 +4110,9 @@
         "slot_values": [
           "CheckoutBtn"
         ],
+        "slot_kinds": [
+          "bare"
+        ],
         "tokens": [
           {
             "kind": "bare",
@@ -3921,6 +4152,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -3935,6 +4167,14 @@
           "uid",
           "total",
           "status"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -4082,6 +4322,14 @@
           "price",
           "sku"
         ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare"
+        ],
         "tokens": [
           {
             "kind": "bare",
@@ -4227,6 +4475,14 @@
           "uid",
           "total",
           "status"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -4374,6 +4630,14 @@
           "price",
           "sku"
         ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare"
+        ],
         "tokens": [
           {
             "kind": "bare",
@@ -4519,6 +4783,13 @@
           "email",
           "name"
         ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare",
+          "bare"
+        ],
         "tokens": [
           {
             "kind": "bare",
@@ -4638,6 +4909,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -4649,6 +4921,11 @@
           "CheckoutBtn",
           "click",
           "/checkout"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -4729,6 +5006,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       },
       {
@@ -4740,6 +5018,11 @@
           "cart",
           "sessionId",
           "3600"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare"
         ],
         "tokens": [
           {
@@ -4820,6 +5103,7 @@
         "op_value": "",
         "op_canonical": "",
         "slot_values": [],
+        "slot_kinds": [],
         "tokens": []
       }
     ]
@@ -5058,8 +5342,14 @@
           "id": "n1",
           "op": "R",
           "effect": "io",
+          "reads": [],
+          "writes": [
+            "products"
+          ],
+          "lineno": 14,
           "data": {
             "op": "R",
+            "lineno": 14,
             "adapter": "db.F",
             "target": "Product",
             "args": [
@@ -5076,29 +5366,45 @@
               "*",
               "->products"
             ]
-          }
+          },
+          "effect_tier": "io-read",
+          "effect_kinds": [
+            "db_read"
+          ],
+          "hash": "sha256:bb7618371e45f081ca040bae7d0242744ea2ba4ed967d457d38ea783128aceeb"
         },
         {
           "id": "n2",
           "op": "J",
           "effect": "pure",
+          "reads": [
+            "products"
+          ],
+          "writes": [],
+          "lineno": 14,
           "data": {
             "op": "J",
+            "lineno": 14,
             "var": "products"
-          }
+          },
+          "effect_tier": "pure",
+          "effect_kinds": [],
+          "hash": "sha256:31774330ece08ef990df8adb8e583d492e1fe64723446d4b6677bdb3ce6d1c5c"
         }
       ],
       "edges": [
         {
           "from": "n1",
           "to": "n2",
-          "to_kind": "node"
+          "to_kind": "node",
+          "port": "next"
         }
       ],
       "legacy": {
         "steps": [
           {
             "op": "R",
+            "lineno": 14,
             "adapter": "db.F",
             "target": "Product",
             "args": [
@@ -5118,6 +5424,7 @@
           },
           {
             "op": "J",
+            "lineno": 14,
             "var": "products"
           }
         ]
@@ -5137,7 +5444,19 @@
           "node": "n2",
           "var": "products"
         }
-      ]
+      ],
+      "effect_summary": {
+        "reads": [
+          "products"
+        ],
+        "writes": [
+          "products"
+        ],
+        "effects": [
+          "db_read"
+        ]
+      },
+      "id_hash": "sha256:73a0de3b541873c5df7e7fe14626ea7aeef2b852b3d770729d3bd6c624e8df0a"
     },
     "6": {
       "nodes": [
@@ -5145,8 +5464,14 @@
           "id": "n1",
           "op": "R",
           "effect": "io",
+          "reads": [],
+          "writes": [
+            "product"
+          ],
+          "lineno": 17,
           "data": {
             "op": "R",
+            "lineno": 17,
             "adapter": "db.G",
             "target": "Product",
             "args": [
@@ -5163,29 +5488,45 @@
               "id",
               "->product"
             ]
-          }
+          },
+          "effect_tier": "io-read",
+          "effect_kinds": [
+            "db_read"
+          ],
+          "hash": "sha256:7aca7b8eb0d29c53fa27a083138424bfaf30390011daa62d7ba2bd62b38811ab"
         },
         {
           "id": "n2",
           "op": "J",
           "effect": "pure",
+          "reads": [
+            "product"
+          ],
+          "writes": [],
+          "lineno": 17,
           "data": {
             "op": "J",
+            "lineno": 17,
             "var": "product"
-          }
+          },
+          "effect_tier": "pure",
+          "effect_kinds": [],
+          "hash": "sha256:c7c526d839399710391ac922364aa24e251b7f07f534ff8f8f65c5c9bce8c8d1"
         }
       ],
       "edges": [
         {
           "from": "n1",
           "to": "n2",
-          "to_kind": "node"
+          "to_kind": "node",
+          "port": "next"
         }
       ],
       "legacy": {
         "steps": [
           {
             "op": "R",
+            "lineno": 17,
             "adapter": "db.G",
             "target": "Product",
             "args": [
@@ -5205,6 +5546,7 @@
           },
           {
             "op": "J",
+            "lineno": 17,
             "var": "product"
           }
         ]
@@ -5224,7 +5566,19 @@
           "node": "n2",
           "var": "product"
         }
-      ]
+      ],
+      "effect_summary": {
+        "reads": [
+          "product"
+        ],
+        "writes": [
+          "product"
+        ],
+        "effects": [
+          "db_read"
+        ]
+      },
+      "id_hash": "sha256:78d649c039913733119023793671a88da1268fefc2c5142c11438a7c24dbd157"
     },
     "7": {
       "nodes": [
@@ -5232,8 +5586,14 @@
           "id": "n1",
           "op": "R",
           "effect": "io",
+          "reads": [],
+          "writes": [
+            "product"
+          ],
+          "lineno": 20,
           "data": {
             "op": "R",
+            "lineno": 20,
             "adapter": "db.C",
             "target": "Product",
             "args": [
@@ -5254,29 +5614,45 @@
               "sku",
               "->product"
             ]
-          }
+          },
+          "effect_tier": "io-write",
+          "effect_kinds": [
+            "db_write"
+          ],
+          "hash": "sha256:96f3d0243fcdb04f8b81e1a0dc8ff3adc3618e18d2703b2a80f9b11135c23c98"
         },
         {
           "id": "n2",
           "op": "J",
           "effect": "pure",
+          "reads": [
+            "product"
+          ],
+          "writes": [],
+          "lineno": 20,
           "data": {
             "op": "J",
+            "lineno": 20,
             "var": "product"
-          }
+          },
+          "effect_tier": "pure",
+          "effect_kinds": [],
+          "hash": "sha256:7e1127482211372cc083464f4c7c0e70931f3cca99f3151020c8de7b732250da"
         }
       ],
       "edges": [
         {
           "from": "n1",
           "to": "n2",
-          "to_kind": "node"
+          "to_kind": "node",
+          "port": "next"
         }
       ],
       "legacy": {
         "steps": [
           {
             "op": "R",
+            "lineno": 20,
             "adapter": "db.C",
             "target": "Product",
             "args": [
@@ -5300,6 +5676,7 @@
           },
           {
             "op": "J",
+            "lineno": 20,
             "var": "product"
           }
         ]
@@ -5321,7 +5698,19 @@
           "node": "n2",
           "var": "product"
         }
-      ]
+      ],
+      "effect_summary": {
+        "reads": [
+          "product"
+        ],
+        "writes": [
+          "product"
+        ],
+        "effects": [
+          "db_write"
+        ]
+      },
+      "id_hash": "sha256:d97eec84ac8dc80e0b105d76066b2bd14a911874c1e4e107eaecb801f58cb2e8"
     },
     "2": {
       "nodes": [
@@ -5329,8 +5718,14 @@
           "id": "n1",
           "op": "R",
           "effect": "io",
+          "reads": [],
+          "writes": [
+            "orders"
+          ],
+          "lineno": 24,
           "data": {
             "op": "R",
+            "lineno": 24,
             "adapter": "db.F",
             "target": "Order",
             "args": [
@@ -5347,29 +5742,45 @@
               "*",
               "->orders"
             ]
-          }
+          },
+          "effect_tier": "io-read",
+          "effect_kinds": [
+            "db_read"
+          ],
+          "hash": "sha256:e5a5e6ccefbe6a72ecc57e3e1dda14b9f586990b6f7ed7b89148372d7c79b8af"
         },
         {
           "id": "n2",
           "op": "J",
           "effect": "pure",
+          "reads": [
+            "orders"
+          ],
+          "writes": [],
+          "lineno": 24,
           "data": {
             "op": "J",
+            "lineno": 24,
             "var": "orders"
-          }
+          },
+          "effect_tier": "pure",
+          "effect_kinds": [],
+          "hash": "sha256:1b4253ace2e3529bfe6f40feae7b243a1a4f897302bc142ef23397c1bf0721f4"
         }
       ],
       "edges": [
         {
           "from": "n1",
           "to": "n2",
-          "to_kind": "node"
+          "to_kind": "node",
+          "port": "next"
         }
       ],
       "legacy": {
         "steps": [
           {
             "op": "R",
+            "lineno": 24,
             "adapter": "db.F",
             "target": "Order",
             "args": [
@@ -5389,6 +5800,7 @@
           },
           {
             "op": "J",
+            "lineno": 24,
             "var": "orders"
           }
         ]
@@ -5408,7 +5820,19 @@
           "node": "n2",
           "var": "orders"
         }
-      ]
+      ],
+      "effect_summary": {
+        "reads": [
+          "orders"
+        ],
+        "writes": [
+          "orders"
+        ],
+        "effects": [
+          "db_read"
+        ]
+      },
+      "id_hash": "sha256:1a9c00b7e74d2e26c02db7cf7c3f139740bdee48e6d5117f1f5e7c4e52229e65"
     },
     "8": {
       "nodes": [
@@ -5416,8 +5840,14 @@
           "id": "n1",
           "op": "R",
           "effect": "io",
+          "reads": [],
+          "writes": [
+            "order"
+          ],
+          "lineno": 27,
           "data": {
             "op": "R",
+            "lineno": 27,
             "adapter": "db.G",
             "target": "Order",
             "args": [
@@ -5434,29 +5864,45 @@
               "id",
               "->order"
             ]
-          }
+          },
+          "effect_tier": "io-read",
+          "effect_kinds": [
+            "db_read"
+          ],
+          "hash": "sha256:2f22a5b7aab6eb13e25f370d31115e30a1bfd8dd83bcad1a190937761e09ec84"
         },
         {
           "id": "n2",
           "op": "J",
           "effect": "pure",
+          "reads": [
+            "order"
+          ],
+          "writes": [],
+          "lineno": 27,
           "data": {
             "op": "J",
+            "lineno": 27,
             "var": "order"
-          }
+          },
+          "effect_tier": "pure",
+          "effect_kinds": [],
+          "hash": "sha256:797b8fae35b1a510b2844dd59f2ec08fb29a5d937ae79133b5f595fce4cf99e4"
         }
       ],
       "edges": [
         {
           "from": "n1",
           "to": "n2",
-          "to_kind": "node"
+          "to_kind": "node",
+          "port": "next"
         }
       ],
       "legacy": {
         "steps": [
           {
             "op": "R",
+            "lineno": 27,
             "adapter": "db.G",
             "target": "Order",
             "args": [
@@ -5476,6 +5922,7 @@
           },
           {
             "op": "J",
+            "lineno": 27,
             "var": "order"
           }
         ]
@@ -5495,7 +5942,19 @@
           "node": "n2",
           "var": "order"
         }
-      ]
+      ],
+      "effect_summary": {
+        "reads": [
+          "order"
+        ],
+        "writes": [
+          "order"
+        ],
+        "effects": [
+          "db_read"
+        ]
+      },
+      "id_hash": "sha256:dbd7d163c16a611824d962902b77d2593dbc416fd54400890cee5b791fad30b0"
     },
     "9": {
       "nodes": [
@@ -5503,8 +5962,14 @@
           "id": "n1",
           "op": "R",
           "effect": "io",
+          "reads": [],
+          "writes": [
+            "order"
+          ],
+          "lineno": 30,
           "data": {
             "op": "R",
+            "lineno": 30,
             "adapter": "db.C",
             "target": "Order",
             "args": [
@@ -5525,29 +5990,45 @@
               "status",
               "->order"
             ]
-          }
+          },
+          "effect_tier": "io-write",
+          "effect_kinds": [
+            "db_write"
+          ],
+          "hash": "sha256:641b2ed8eaa4a7954db2092d6011de7258297f57c62cbca3b810db9fcb1f8762"
         },
         {
           "id": "n2",
           "op": "J",
           "effect": "pure",
+          "reads": [
+            "order"
+          ],
+          "writes": [],
+          "lineno": 30,
           "data": {
             "op": "J",
+            "lineno": 30,
             "var": "order"
-          }
+          },
+          "effect_tier": "pure",
+          "effect_kinds": [],
+          "hash": "sha256:eb13fb42192b3b68bda625e9b95c12e0e58af505ab3a4b442aa2bd558d9b9fa4"
         }
       ],
       "edges": [
         {
           "from": "n1",
           "to": "n2",
-          "to_kind": "node"
+          "to_kind": "node",
+          "port": "next"
         }
       ],
       "legacy": {
         "steps": [
           {
             "op": "R",
+            "lineno": 30,
             "adapter": "db.C",
             "target": "Order",
             "args": [
@@ -5571,6 +6052,7 @@
           },
           {
             "op": "J",
+            "lineno": 30,
             "var": "order"
           }
         ]
@@ -5592,7 +6074,19 @@
           "node": "n2",
           "var": "order"
         }
-      ]
+      ],
+      "effect_summary": {
+        "reads": [
+          "order"
+        ],
+        "writes": [
+          "order"
+        ],
+        "effects": [
+          "db_write"
+        ]
+      },
+      "id_hash": "sha256:66989868f1bc02cd6f7a6dcf56e6d4597d9b5f2f5161d236c746c7f562b582c5"
     },
     "3": {
       "nodes": [
@@ -5600,8 +6094,14 @@
           "id": "n1",
           "op": "R",
           "effect": "io",
+          "reads": [],
+          "writes": [
+            "ord"
+          ],
+          "lineno": 34,
           "data": {
             "op": "R",
+            "lineno": 34,
             "adapter": "db.F",
             "target": "Order",
             "args": [
@@ -5618,29 +6118,45 @@
               "*",
               "->ord"
             ]
-          }
+          },
+          "effect_tier": "io-read",
+          "effect_kinds": [
+            "db_read"
+          ],
+          "hash": "sha256:930712eebb6d1e3d9cfbe6480a1d31b323912ecc6ebff754bc17a4f78aac899f"
         },
         {
           "id": "n2",
           "op": "J",
           "effect": "pure",
+          "reads": [
+            "ord"
+          ],
+          "writes": [],
+          "lineno": 34,
           "data": {
             "op": "J",
+            "lineno": 34,
             "var": "ord"
-          }
+          },
+          "effect_tier": "pure",
+          "effect_kinds": [],
+          "hash": "sha256:5728d7e3a029a8908f014088d89939f17145386cec1cb95ac392ed82d964b87f"
         }
       ],
       "edges": [
         {
           "from": "n1",
           "to": "n2",
-          "to_kind": "node"
+          "to_kind": "node",
+          "port": "next"
         }
       ],
       "legacy": {
         "steps": [
           {
             "op": "R",
+            "lineno": 34,
             "adapter": "db.F",
             "target": "Order",
             "args": [
@@ -5660,6 +6176,7 @@
           },
           {
             "op": "J",
+            "lineno": 34,
             "var": "ord"
           }
         ]
@@ -5679,7 +6196,19 @@
           "node": "n2",
           "var": "ord"
         }
-      ]
+      ],
+      "effect_summary": {
+        "reads": [
+          "ord"
+        ],
+        "writes": [
+          "ord"
+        ],
+        "effects": [
+          "db_read"
+        ]
+      },
+      "id_hash": "sha256:2bd53f052e10877b0dafa076b96a510cb1132aeab3c315bdd46a4fae658d3ece"
     },
     "10": {
       "nodes": [
@@ -5687,8 +6216,14 @@
           "id": "n1",
           "op": "R",
           "effect": "io",
+          "reads": [],
+          "writes": [
+            "customers"
+          ],
+          "lineno": 40,
           "data": {
             "op": "R",
+            "lineno": 40,
             "adapter": "db.F",
             "target": "Customer",
             "args": [
@@ -5705,29 +6240,45 @@
               "*",
               "->customers"
             ]
-          }
+          },
+          "effect_tier": "io-read",
+          "effect_kinds": [
+            "db_read"
+          ],
+          "hash": "sha256:f7ae191d6ed331c54a131655ea7472cb49962d24fdd41e3eb1de9b3ea19fe891"
         },
         {
           "id": "n2",
           "op": "J",
           "effect": "pure",
+          "reads": [
+            "customers"
+          ],
+          "writes": [],
+          "lineno": 40,
           "data": {
             "op": "J",
+            "lineno": 40,
             "var": "customers"
-          }
+          },
+          "effect_tier": "pure",
+          "effect_kinds": [],
+          "hash": "sha256:c185ce8f3c40b6c1241db145ec41d07cc00a580dc051540671dd58a5f58b2bac"
         }
       ],
       "edges": [
         {
           "from": "n1",
           "to": "n2",
-          "to_kind": "node"
+          "to_kind": "node",
+          "port": "next"
         }
       ],
       "legacy": {
         "steps": [
           {
             "op": "R",
+            "lineno": 40,
             "adapter": "db.F",
             "target": "Customer",
             "args": [
@@ -5747,6 +6298,7 @@
           },
           {
             "op": "J",
+            "lineno": 40,
             "var": "customers"
           }
         ]
@@ -5766,7 +6318,19 @@
           "node": "n2",
           "var": "customers"
         }
-      ]
+      ],
+      "effect_summary": {
+        "reads": [
+          "customers"
+        ],
+        "writes": [
+          "customers"
+        ],
+        "effects": [
+          "db_read"
+        ]
+      },
+      "id_hash": "sha256:f54ecf99cdf14053f5bbd07cee10e3b4740868ff975010ad063c0aac0b5aff7b"
     }
   },
   "crons": [],
@@ -5816,10 +6380,30 @@
     "generate": {},
     "pipelines": {}
   },
+  "capabilities": {
+    "auth": {},
+    "policy": {},
+    "cache": {
+      "cart": {
+        "key": "sessionId",
+        "ttl": "3600",
+        "default": null
+      }
+    },
+    "queue": {},
+    "txn": {}
+  },
+  "runtime_policy": {
+    "execution_mode": "graph-preferred",
+    "unknown_op_policy": "skip"
+  },
   "meta": [],
   "errors": [],
+  "warnings": [],
+  "diagnostics": [],
   "stats": {
     "lines": 42,
     "ops": 42
-  }
+  },
+  "graph_semantic_checksum": "sha256:eb7b06610dd3887242397cc35dea9b3524caec945c496e6063927ec4c1e98f68"
 }

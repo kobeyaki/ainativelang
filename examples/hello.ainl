@@ -1,0 +1,3 @@
+L1:
+  R core.ADD 2 3 ->x
+  J x

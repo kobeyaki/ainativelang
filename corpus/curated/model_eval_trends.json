@@ -1,0 +1,581 @@
+{
+  "summary": {
+    "total_reports_seen": 19,
+    "latest_report": "model_eval_report_v5_aligned.json",
+    "latest_lora": {
+      "strict_ainl_rate": 0.6666666666666666,
+      "runtime_compile_rate": 0.6666666666666666,
+      "nonempty_rate": 0.6666666666666666
+    },
+    "previous_report": "model_eval_report_phase3_smoke.json",
+    "delta_vs_previous": {
+      "lora_strict_ainl_rate_delta": -0.33333333333333337,
+      "lora_runtime_compile_rate_delta": -0.33333333333333337,
+      "lora_nonempty_rate_delta": -0.33333333333333337
+    },
+    "gate": {
+      "passed": false,
+      "failures": [
+        "runtime_compile_rate_below_min:0.6667<0.7500",
+        "nonempty_rate_below_min:0.6667<0.7000",
+        "strict_ainl_rate_regressed:-0.3333<-0.0500",
+        "runtime_compile_rate_regressed:-0.3333<-0.0500",
+        "nonempty_rate_regressed:-0.3333<-0.0500"
+      ],
+      "thresholds": {
+        "min_lora_strict_ainl_rate": 0.6,
+        "min_lora_runtime_rate": 0.75,
+        "min_lora_nonempty_rate": 0.7,
+        "max_regression_strict": 0.05,
+        "max_regression_runtime": 0.05,
+        "max_regression_nonempty": 0.05
+      }
+    }
+  },
+  "latest_rows": [
+    {
+      "report_file": "corpus/curated/model_eval_report_smoke.json",
+      "report_name": "model_eval_report_smoke.json",
+      "modified_epoch": 1772388447.7659373,
+      "adapter_path": "models/ainl-phi3-lora",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 10,
+      "constrained_decoding": false,
+      "quantization_mode": null,
+      "repair_attempts": 0,
+      "lora": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 0.0,
+        "nonempty_rate": 1.0
+      },
+      "base": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 1.0,
+        "nonempty_rate": 1.0
+      },
+      "failure_families_lora": null,
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_full.json",
+      "report_name": "model_eval_report_full.json",
+      "modified_epoch": 1772388666.4355977,
+      "adapter_path": "models/ainl-phi3-lora",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 10,
+      "constrained_decoding": false,
+      "quantization_mode": null,
+      "repair_attempts": 0,
+      "lora": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 0.75,
+        "nonempty_rate": 1.0
+      },
+      "base": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 1.0,
+        "nonempty_rate": 1.0
+      },
+      "failure_families_lora": null,
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_calibrated.json",
+      "report_name": "model_eval_report_calibrated.json",
+      "modified_epoch": 1772388719.0052133,
+      "adapter_path": "models/ainl-phi3-lora",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 24,
+      "constrained_decoding": false,
+      "quantization_mode": null,
+      "repair_attempts": 0,
+      "lora": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 0.3333333333333333,
+        "nonempty_rate": 0.3333333333333333
+      },
+      "base": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 0.6666666666666666,
+        "nonempty_rate": 0.6666666666666666
+      },
+      "failure_families_lora": null,
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_v2_full.json",
+      "report_name": "model_eval_report_v2_full.json",
+      "modified_epoch": 1772392306.7340212,
+      "adapter_path": "models/ainl-phi3-lora-v2",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 80,
+      "constrained_decoding": false,
+      "quantization_mode": null,
+      "repair_attempts": 0,
+      "lora": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 0.9166666666666666,
+        "nonempty_rate": 1.0
+      },
+      "base": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 0.9166666666666666,
+        "nonempty_rate": 1.0
+      },
+      "failure_families_lora": null,
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_v3_curriculum.json",
+      "report_name": "model_eval_report_v3_curriculum.json",
+      "modified_epoch": 1772393384.1506486,
+      "adapter_path": "models/ainl-phi3-lora-v3-curriculum",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 40,
+      "constrained_decoding": false,
+      "quantization_mode": null,
+      "repair_attempts": 0,
+      "lora": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 0.75,
+        "nonempty_rate": 1.0
+      },
+      "base": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 1.0,
+        "nonempty_rate": 1.0
+      },
+      "failure_families_lora": null,
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_v4_unconstrained_40.json",
+      "report_name": "model_eval_report_v4_unconstrained_40.json",
+      "modified_epoch": 1772478599.4072118,
+      "adapter_path": "models/ainl-phi3-lora-v4-regression",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 40,
+      "constrained_decoding": false,
+      "quantization_mode": null,
+      "repair_attempts": 0,
+      "lora": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 1.0,
+        "nonempty_rate": 1.0
+      },
+      "base": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 1.0,
+        "nonempty_rate": 1.0
+      },
+      "failure_families_lora": null,
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_v4_constrained_40.json",
+      "report_name": "model_eval_report_v4_constrained_40.json",
+      "modified_epoch": 1772478805.5427277,
+      "adapter_path": "models/ainl-phi3-lora-v4-regression",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 40,
+      "constrained_decoding": true,
+      "quantization_mode": null,
+      "repair_attempts": 0,
+      "lora": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 1.0,
+        "nonempty_rate": 1.0
+      },
+      "base": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 1.0,
+        "nonempty_rate": 1.0
+      },
+      "failure_families_lora": null,
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_v4_constrained_repair.json",
+      "report_name": "model_eval_report_v4_constrained_repair.json",
+      "modified_epoch": 1772479822.8925567,
+      "adapter_path": "models/ainl-phi3-lora-v4-regression",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 40,
+      "constrained_decoding": true,
+      "quantization_mode": null,
+      "repair_attempts": 2,
+      "lora": {
+        "strict_ainl_rate": 0.08333333333333333,
+        "runtime_compile_rate": 0.08333333333333333,
+        "nonempty_rate": 0.08333333333333333
+      },
+      "base": {
+        "strict_ainl_rate": 0.75,
+        "runtime_compile_rate": 0.75,
+        "nonempty_rate": 0.75
+      },
+      "failure_families_lora": null,
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_v4_constrained_repair_strict_smoke.json",
+      "report_name": "model_eval_report_v4_constrained_repair_strict_smoke.json",
+      "modified_epoch": 1772481069.05767,
+      "adapter_path": "models/ainl-phi3-lora-v4-regression",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 40,
+      "constrained_decoding": true,
+      "quantization_mode": null,
+      "repair_attempts": 2,
+      "lora": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 0.0,
+        "nonempty_rate": 0.0
+      },
+      "base": {
+        "strict_ainl_rate": 1.0,
+        "runtime_compile_rate": 1.0,
+        "nonempty_rate": 1.0
+      },
+      "failure_families_lora": null,
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_v4_constrained_repair_strict_smoke2.json",
+      "report_name": "model_eval_report_v4_constrained_repair_strict_smoke2.json",
+      "modified_epoch": 1772481423.4337375,
+      "adapter_path": "models/ainl-phi3-lora-v4-regression",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 40,
+      "constrained_decoding": true,
+      "quantization_mode": null,
+      "repair_attempts": 2,
+      "lora": {
+        "strict_ainl_rate": 0.3333333333333333,
+        "runtime_compile_rate": 0.3333333333333333,
+        "nonempty_rate": 0.3333333333333333
+      },
+      "base": {
+        "strict_ainl_rate": 1.0,
+        "runtime_compile_rate": 1.0,
+        "nonempty_rate": 1.0
+      },
+      "failure_families_lora": null,
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_v4_constrained_repair_strict_smoke3.json",
+      "report_name": "model_eval_report_v4_constrained_repair_strict_smoke3.json",
+      "modified_epoch": 1772481664.5418582,
+      "adapter_path": "models/ainl-phi3-lora-v4-regression",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 40,
+      "constrained_decoding": true,
+      "quantization_mode": null,
+      "repair_attempts": 2,
+      "lora": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 0.0,
+        "nonempty_rate": 0.0
+      },
+      "base": {
+        "strict_ainl_rate": 1.0,
+        "runtime_compile_rate": 1.0,
+        "nonempty_rate": 1.0
+      },
+      "failure_families_lora": null,
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_skip_base_smoke.json",
+      "report_name": "model_eval_report_skip_base_smoke.json",
+      "modified_epoch": 1772482428.965654,
+      "adapter_path": "models/ainl-phi3-lora-v4-regression/checkpoint-20",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 30,
+      "constrained_decoding": true,
+      "quantization_mode": null,
+      "repair_attempts": 1,
+      "lora": {
+        "strict_ainl_rate": 1.0,
+        "runtime_compile_rate": 1.0,
+        "nonempty_rate": 1.0
+      },
+      "base": null,
+      "failure_families_lora": null,
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_v6_breakthrough_best.json",
+      "report_name": "model_eval_report_v6_breakthrough_best.json",
+      "modified_epoch": 1772524173.5992486,
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/best_by_strict_ainl",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 30,
+      "constrained_decoding": true,
+      "quantization_mode": null,
+      "repair_attempts": 1,
+      "lora": {
+        "strict_ainl_rate": 0.5,
+        "runtime_compile_rate": 0.5,
+        "nonempty_rate": 0.5
+      },
+      "base": {
+        "strict_ainl_rate": 0.5833333333333334,
+        "runtime_compile_rate": 0.8333333333333334,
+        "nonempty_rate": 0.8333333333333334
+      },
+      "failure_families_lora": null,
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_v6_breakthrough_best_full.json",
+      "report_name": "model_eval_report_v6_breakthrough_best_full.json",
+      "modified_epoch": 1772532497.679613,
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/best_by_strict_ainl",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 30,
+      "constrained_decoding": true,
+      "quantization_mode": null,
+      "repair_attempts": 1,
+      "lora": {
+        "strict_ainl_rate": 0.5833333333333334,
+        "runtime_compile_rate": 0.5833333333333334,
+        "nonempty_rate": 0.5833333333333334
+      },
+      "base": {
+        "strict_ainl_rate": 0.75,
+        "runtime_compile_rate": 0.9166666666666666,
+        "nonempty_rate": 0.9166666666666666
+      },
+      "failure_families_lora": null,
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_phase1_smoke.json",
+      "report_name": "model_eval_report_phase1_smoke.json",
+      "modified_epoch": 1772546857.4851956,
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 20,
+      "constrained_decoding": true,
+      "quantization_mode": null,
+      "repair_attempts": 1,
+      "lora": {
+        "strict_ainl_rate": 1.0,
+        "runtime_compile_rate": 1.0,
+        "nonempty_rate": 1.0
+      },
+      "base": null,
+      "failure_families_lora": {
+        "ok": 1
+      },
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_phase2_smoke.json",
+      "report_name": "model_eval_report_phase2_smoke.json",
+      "modified_epoch": 1772547379.8311763,
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 20,
+      "constrained_decoding": true,
+      "quantization_mode": null,
+      "repair_attempts": 1,
+      "lora": {
+        "strict_ainl_rate": 0.0,
+        "runtime_compile_rate": 0.0,
+        "nonempty_rate": 0.0
+      },
+      "base": null,
+      "failure_families_lora": {
+        "generation_timeout": 1
+      },
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_phase2_smoke2.json",
+      "report_name": "model_eval_report_phase2_smoke2.json",
+      "modified_epoch": 1772547465.1201203,
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 10,
+      "constrained_decoding": true,
+      "quantization_mode": null,
+      "repair_attempts": 1,
+      "lora": {
+        "strict_ainl_rate": 1.0,
+        "runtime_compile_rate": 1.0,
+        "nonempty_rate": 1.0
+      },
+      "base": null,
+      "failure_families_lora": {
+        "ok": 1
+      },
+      "constraint_alerts_lora": [],
+      "constraint_ratios_lora": {},
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_phase3_smoke.json",
+      "report_name": "model_eval_report_phase3_smoke.json",
+      "modified_epoch": 1772547817.3886194,
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 10,
+      "constrained_decoding": true,
+      "quantization_mode": null,
+      "repair_attempts": 1,
+      "lora": {
+        "strict_ainl_rate": 1.0,
+        "runtime_compile_rate": 1.0,
+        "nonempty_rate": 1.0
+      },
+      "base": null,
+      "failure_families_lora": {
+        "ok": 1
+      },
+      "constraint_alerts_lora": [
+        "high_fallback_rate",
+        "eos_never_allowed"
+      ],
+      "constraint_ratios_lora": {
+        "fallback_rate": 0.5,
+        "allowed_token_rate": 0.0011483103879849812,
+        "strict_reject_share": 0.4165341812400636,
+        "eos_block_rate": 1.0
+      },
+      "quantization_lora": null,
+      "length_bucket_count_lora": 0,
+      "worst_strict_bucket_lora": null,
+      "slowest_bucket_lora": null
+    },
+    {
+      "report_file": "corpus/curated/model_eval_report_v5_aligned.json",
+      "report_name": "model_eval_report_v5_aligned.json",
+      "modified_epoch": 1772562144.904219,
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage/best_by_strict_ainl",
+      "prompt_set": "corpus/curated/regression_prompts.jsonl",
+      "max_new_tokens": 30,
+      "constrained_decoding": true,
+      "quantization_mode": "none",
+      "repair_attempts": 2,
+      "lora": {
+        "strict_ainl_rate": 0.6666666666666666,
+        "runtime_compile_rate": 0.6666666666666666,
+        "nonempty_rate": 0.6666666666666666
+      },
+      "base": {
+        "strict_ainl_rate": 0.8333333333333334,
+        "runtime_compile_rate": 1.0,
+        "nonempty_rate": 1.0
+      },
+      "failure_families_lora": {
+        "ok": 8,
+        "empty_output": 4
+      },
+      "constraint_alerts_lora": [
+        "high_fallback_rate",
+        "eos_never_allowed"
+      ],
+      "constraint_ratios_lora": {
+        "fallback_rate": 0.273015873015873,
+        "allowed_token_rate": 0.00470623000973439,
+        "strict_reject_share": 0.0006644027757271519,
+        "eos_block_rate": 1.0
+      },
+      "quantization_lora": {
+        "requested_mode": "none",
+        "applied_mode": "none",
+        "enabled": false,
+        "fallback_reason": null
+      },
+      "length_bucket_count_lora": 1,
+      "worst_strict_bucket_lora": "tok_000_064",
+      "slowest_bucket_lora": "tok_000_064"
+    }
+  ]
+}

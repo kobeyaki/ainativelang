@@ -1,0 +1,5 @@
+{"name": "valid_complete", "prefix": "S core web /api\nE /x G ->L1\nL1: J data\n", "structurally_plausible": true}
+{"name": "invalid_endpoint_label", "prefix": "S core web /api\nE /x G ->1\n", "structurally_plausible": false}
+{"name": "valid_partial_call", "prefix": "L1:\nCall L2 ->", "structurally_plausible": true}
+{"name": "invalid_if_then", "prefix": "L1:\nIf cond nope\n", "structurally_plausible": false}
+{"name": "open_quote_partial", "prefix": "Desc /x \"unterminated", "structurally_plausible": true}

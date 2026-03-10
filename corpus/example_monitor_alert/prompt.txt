@@ -1,0 +1,2 @@
+Monitor metrics every 5 minutes and send a webhook alert if data indicates a problem; otherwise return the current metrics.
+

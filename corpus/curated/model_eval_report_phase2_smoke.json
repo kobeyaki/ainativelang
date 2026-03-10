@@ -1,0 +1,141 @@
+{
+  "base_model": "microsoft/phi-3-mini-4k-instruct",
+  "adapter_path": "models/ainl-phi3-lora-v6-breakthrough",
+  "prompt_set": "corpus/curated/regression_prompts.jsonl",
+  "max_new_tokens": 20,
+  "device": "mps",
+  "constrained_decoding": true,
+  "repair_attempts": 1,
+  "canonicalize_output": true,
+  "base_evaluated": false,
+  "emit_timing": true,
+  "constraint_diagnostics": true,
+  "sanity": {
+    "pass": false,
+    "first_prompt_id": "weather_email",
+    "first_prompt_runtime_ok": false,
+    "first_prompt_strict_ok": false
+  },
+  "summary": {
+    "lora": {
+      "total_prompts": 1,
+      "nonempty_outputs": 0,
+      "nonempty_rate": 0.0,
+      "runtime_compile_ok": 0,
+      "runtime_compile_rate": 0.0,
+      "strict_compile_ok": 0,
+      "strict_compile_rate": 0.0,
+      "ainl_like_ok": 0,
+      "ainl_like_rate": 0.0,
+      "strict_ainl_ok": 0,
+      "strict_ainl_rate": 0.0
+    },
+    "base": null,
+    "failure_families": {
+      "lora": {
+        "generation_timeout": 1
+      },
+      "base": null
+    },
+    "comparison": {
+      "lora_wins_runtime_compile": null,
+      "base_wins_runtime_compile": null,
+      "ties_runtime_compile": null,
+      "lora_wins_strict_ainl": null,
+      "base_wins_strict_ainl": null,
+      "ties_strict_ainl": null
+    }
+  },
+  "diagnostics": {
+    "lora": {
+      "model_name": "LoRA",
+      "model_load_seconds": 30.055471181869507,
+      "prompt_count": 1,
+      "timing_totals": {
+        "generate_seconds": 0.0,
+        "compile_seconds": 94.18295907974243,
+        "repair_generate_seconds": 0.0,
+        "canonicalize_seconds": 0.0,
+        "prompt_total_seconds": 197.80932712554932,
+        "loop_wall_seconds": 197.80932712554932
+      },
+      "constraint_diagnostics": {
+        "steps_processed": 0,
+        "tokens_considered": 0,
+        "tokens_allowed": 0,
+        "rejected_by_next_token": 0,
+        "rejected_by_strict_prefix": 0,
+        "eos_allowed": 0,
+        "eos_blocked": 0,
+        "fallback_used_steps": 0
+      },
+      "cleanup_seconds": 10.349829912185669
+    },
+    "base": null
+  },
+  "results": [
+    {
+      "id": "weather_email",
+      "prompt": "Generate a tiny valid AINL workflow that checks weather in Seattle and emails a short summary to ops@example.com.",
+      "lora": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": "repair_failed: Generation timed out after 90s (max_new_tokens=20).",
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: Generation timed out after 90s (max_new_tokens=20)."
+          ],
+          "strict_errors": [
+            "no_output: Generation timed out after 90s (max_new_tokens=20)."
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "empty_output",
+          "strict_ainl_ok": false
+        },
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 0.0,
+            "compile_seconds": 94.18295907974243,
+            "repair_generate_seconds": 0.0,
+            "canonicalize_seconds": 0.0,
+            "prompt_total_seconds": 197.80932712554932
+          },
+          "repair_attempts_used": 0,
+          "constraint": {
+            "steps_processed": 0,
+            "tokens_considered": 0,
+            "tokens_allowed": 0,
+            "rejected_by_next_token": 0,
+            "rejected_by_strict_prefix": 0,
+            "eos_allowed": 0,
+            "eos_blocked": 0,
+            "fallback_used_steps": 0,
+            "vocab_size": null,
+            "fallback_size": null,
+            "attempts_recorded": 0
+          }
+        }
+      },
+      "base": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": "skipped",
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "skipped"
+          ],
+          "strict_errors": [
+            "skipped"
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "skipped",
+          "strict_ainl_ok": false
+        }
+      }
+    }
+  ]
+}

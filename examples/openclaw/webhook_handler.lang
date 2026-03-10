@@ -1,0 +1,25 @@
+# Webhook Handler
+# Purpose: Accept external webhook, process payload, store state, send ack
+# Adapters: E /webhook G ->L, cache.get/set, db.F (maybe lookup), queue.Put
+# Note: This is a server-side endpoint; deploy with ainl emit server
+
+S core web /api
+S fe web /
+
+D WebhookEvent id:I payload:S received:T processed:B
+
+E /webhook G ->L1 ->event
+L1: X now (core.now) ->ts J L2
+L2: X event_obj (core.merge payload {"received_at": ts, "processed": false}) ->ev J L3
+L3: R db.F WebhookEvent * ->existing J L4
+L4: X id_next (core.add (len existing) 1) ->id J L5
+L5: X new_event (core.merge ev {"id": id_next}) ->new_ev J L6
+L6: R db.P Insert WebhookEvent new_ev ->stored J L7
+L7: R cache set "webhook" (core.stringify id_next) new_ev ->_ J L8
+L8: R queue.Put notify {
+    "type": "webhook_received",
+    "id": id_next,
+    "payload": payload,
+    "ts": ts
+  } ->_ J L9
+L9: X response (core.merge stored {"status": "queued"}) ->response J response

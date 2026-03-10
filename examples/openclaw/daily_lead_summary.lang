@@ -1,0 +1,18 @@
+# Daily Lead Summary (simplified)
+# Reports number of leads created in the last day.
+S core cron "0 7 * * *"
+
+D Config lookback_days:N
+D State last_run:T
+
+L0:
+    R core now ->ts
+    R cache get "state" "last_run" ->last_run
+    R core sub ts 86400 ->cutoff
+    R db F ->rows
+    X total len rows
+    R core stringify total ->s_total
+    R core concat "Leads: " s_total ->summary
+    X notify_payload obj text summary
+    R queue Put notify notify_payload ->_
+    R cache set "state" "last_run" ts ->_

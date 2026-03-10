@@ -1,0 +1,14 @@
+# Heartbeat demo: proper If usage and step ops.
+S core cron "*/30 * * * *"
+D Config threshold:N
+
+L0: Set now (core.now) ->now
+L1: R db.F "heartbeat_log" ->logs J logs
+L2: R cache.Get "state" "last_run" ->last J last
+L3: Cache.Set "state" "last_run" now
+L4: Filter logs where ts > last ->new_logs
+L5: Set (core.len new_logs) ->count
+L6: Set (core.gt count Config.threshold) ->needs_notify
+L7: If needs_notify ->L8 ->L9
+L8: QueuePut "notify" {"type":"heartbeat","count":count} J ok
+L9: J done

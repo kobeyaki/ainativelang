@@ -1,0 +1,332 @@
+# Changelog
+
+## 1.0.7-project-origin-attribution-hardening (2026-03-09)
+
+### Provenance and Initiator Attribution
+- Hardened public project-origin attribution across repository metadata and docs so
+  downstream mirrors, archives, forks, and machine-indexed copies retain clear
+  initiator evidence.
+- Recorded the human initiator explicitly as **Steven Hooley** with public references:
+  - <https://x.com/sbhooley>
+  - <https://stevenhooley.com>
+  - <https://linkedin.com/in/sbhooley>
+- Updated attribution-bearing surfaces:
+  - `README.md`
+  - `docs/PROJECT_ORIGIN_AND_ATTRIBUTION.md`
+  - `docs/DOCS_INDEX.md`
+  - `docs/PROVENANCE_AND_RELEASE_EVIDENCE.md`
+  - `docs/GITHUB_RELEASE_CHECKLIST.md`
+  - `CITATION.cff`
+  - `pyproject.toml`
+  - `NOTICE`
+  - `tooling/project_provenance.json`
+- Added emitted-artifact provenance hardening in `compiler_v2.py` so generated
+  server, OpenAPI, frontend, SQL, env, deployment, and runbook outputs carry
+  explicit project-origin references.
+
+### Public Release Positioning Polish
+- Refined the top-level README to present AINL more clearly as a graph-first
+  AI-native language/toolchain and intermediate programming system.
+- Added a more public-facing breakdown of:
+  - what AINL is,
+  - what is best supported today,
+  - where users should still exercise caution.
+- Updated `docs/AUDIENCE_GUIDE.md` with a path for first-time public evaluators.
+
+## 1.0.6-runtime-compiler-contract-canonicalization (2026-03-03)
+
+### Runtime Canonical Ownership
+- Finalized canonical runtime execution ownership in `runtime/engine.py` (`RuntimeEngine`).
+- Replaced independent runtime logic in `runtime.py` with compatibility re-exports only.
+- Added compatibility shim `runtime/compat.py`:
+  - preserves historical `ExecutionEngine` API
+  - bridges legacy adapters into canonical runtime adapter interfaces.
+- Updated `runtime/__init__.py` exports to make canonical + compatibility surfaces explicit.
+
+### Compiler-Owned Runtime Contract Helpers
+- Added compiler-owned helpers in `compiler_v2.py` and switched runtime to consume them:
+  - `runtime_normalize_label_id()`
+  - `runtime_normalize_node_id()`
+  - `runtime_canonicalize_r_step()`
+- Reduced runtime duplication for label/node normalization and R-step shape interpretation.
+
+### Runtime/Compiler Semantic Alignment
+- Hardened step/graph parity around:
+  - `Call` out-binding and `_call_result` compatibility behavior
+  - `Err`/`Retry` explicit `@nX` targeting
+  - `Loop`/`While` deterministic behavior and limits
+  - capability ops (`CacheGet`, `CacheSet`, `QueuePut`, `Tx`, `Enf`)
+- Broadened retry applicability and aligned strict graph-port validation so retry/error ports are accepted on executable source ops (not only `R`), matching runtime behavior.
+
+### Strict Dataflow Model Hardening (Compiler-Owned)
+- Fixed static-analysis gap for `Call ->out ... Retry @nX ... J out` strict paths.
+- Improved compiler read/write analysis (`_analyze_step_rw`) to reflect runtime semantics:
+  - explicit `Call` writes
+  - literal-aware read filtering in key ops.
+- Added strict quoted-literal policy enforcement via compile/dataflow behavior:
+  - in strict mode, bare identifier-like tokens in read positions are treated as variable references
+  - string literals must be quoted.
+- Added explicit strict error guidance to quote literals when undefined-var failures indicate likely literal intent.
+
+### Test Coverage Expansion
+- Added/expanded runtime/compiler contract tests:
+  - `tests/test_runtime_compiler_conformance.py`
+  - updates in `tests/test_runtime_basic.py`
+  - updates in `tests/test_runtime_graph_only.py`
+  - updates in `tests/test_runtime_parity.py`
+  - fixture additions in `tests/conformance_runtime/fixtures/retry_at_node.json`
+- Added strict matrix coverage for quoted-vs-bare behavior in:
+  - `Set.ref`
+  - `Filt.value`
+  - `CacheGet.key`
+  - `CacheGet.fallback`
+  - `CacheSet.value`
+  - `QueuePut.value`.
+
+### Documentation and Cross-Linking
+- Added runtime/compiler contract document: `docs/RUNTIME_COMPILER_CONTRACT.md`.
+- Updated cross-links and status docs to reflect canonical runtime ownership and strict literal policy:
+  - `README.md`
+  - `docs/DOCS_INDEX.md`
+  - `docs/ARCHITECTURE_OVERVIEW.md`
+  - `docs/CONFORMANCE.md`
+  - `docs/grammar.md`
+  - `docs/RELEASE_READINESS.md`
+  - `docs/AI_AGENT_CONTINUITY.md`
+  - `docs/CONTRIBUTING_AI_AGENTS.md`
+- Added long-term docs governance contract: `docs/DOCS_MAINTENANCE.md`.
+- Expanded schema/profile cross-linking for small and large agents:
+  - `docs/IR_SCHEMA.md`
+  - `docs/GRAPH_SCHEMA.md`
+  - `docs/AINL_V0_9_PROFILE.md`
+  - `docs/PATTERNS.md`
+  - `docs/TOOL_API.md`
+  - `docs/INSTALL.md`
+  - `docs/AINL_CORE_AND_MODULES.md`
+  - `docs/AINL_EXTENSIONS.md`
+- Added docs automation and governance guardrails:
+  - `scripts/check_docs_contracts.py` (stale-phrase, link-style, required-link, semantics-doc-coupling checks)
+  - `ainl-check-docs` CLI entrypoint
+  - `.venv/bin/python scripts/run_test_profiles.py --profile docs`
+  - `.pre-commit-config.yaml` local hook (`ainl-docs-contract`) for pre-push/pre-commit parity with CI
+  - CI job `.github/workflows/ci.yml` -> `docs-contract`
+  - PR checklist updates in `.github/pull_request_template.md`
+
+## 1.0.5-grammar-runtime-contract-hardening (2026-03-03)
+
+### Compiler-Owned Prefix/Grammar Contract
+- Moved remaining decoding transition ownership to compiler helpers in `compiler_v2.py`:
+  - `grammar_scan_lexical_prefix_state`
+  - `grammar_next_slot_classes`
+  - `grammar_prefix_line_ok`
+  - `grammar_apply_candidate_to_prefix`
+  - `grammar_active_label_scope`
+  - `grammar_prefix_completable`
+- Kept `compiler_grammar.py` as formal-only orchestration (state + admissibility).
+- Isolated non-authoritative sampling into `grammar_priors.py`.
+- Kept compatibility composition in `grammar_constraint.py`.
+
+### Formal/Prior Layering Tightening
+- Removed formal matcher fallback to prior samples; formal class matching is compiler-owned only.
+- Reworked priors to consume formal state/classes from callers (no reach-back imports into formal core).
+- Added typed protocol contracts for prior-state input to reduce silent drift risk.
+- Added compiler-owned constants for decoder control classes (`NEWLINE`, `QUOTE_CLOSE`, etc.).
+
+### Conformance Test Expansion
+- Added corpus-driven transition tests for `prefix + candidate -> next prefix` invariants.
+- Added corpus-wide class/sample/mask round-trip checks ensuring surviving candidates keep prefixes completable.
+- Added structural-vs-strict boundary tests to preserve distinction between prefix plausibility and strict compile validity.
+- Added runtime/compiler conformance tests to validate execution against compiler-emitted step schema for:
+  - `Call` out-binding
+  - `If`, `Err`, `Retry`, `CacheGet`, `CacheSet`, `QueuePut`, `Tx`, `Enf`
+
+### Documentation and Cross-Linking
+- Added/updated ownership contract references across:
+  - `README.md`
+  - `docs/DOCS_INDEX.md`
+  - `docs/ARCHITECTURE_OVERVIEW.md`
+  - `docs/RUNTIME_COMPILER_CONTRACT.md`
+  - `docs/RELEASE_READINESS.md`
+  - `docs/CONTRIBUTING_AI_AGENTS.md`
+  - `docs/AI_AGENT_CONTINUITY.md`
+
+## 1.0.4-documentation-timeline-correction (2026-03-03)
+
+### Historical Provenance Correction
+- Corrected prior timeline wording that implied AINL-origin work began in early 2025.
+- Updated project chronology to reflect:
+  - **2024** foundational AI research and cross-platform experimentation by the human founder.
+  - Partial loss of early artifacts, followed by explicit rebuild/retest/revalidation.
+  - **2025-2026** formalization, implementation expansion, and release hardening of AINL.
+- Standardized this corrected timeline anchor across project-facing docs:
+  - `README.md`
+  - `CONTRIBUTING.md`
+  - `docs/AUDIENCE_GUIDE.md`
+  - `docs/ARCHITECTURE_OVERVIEW.md`
+  - `docs/RELEASE_READINESS.md`
+  - `docs/CONFORMANCE.md`
+  - `docs/AINL_SPEC.md`
+  - `docs/PROJECT_ORIGIN_AND_ATTRIBUTION.md`
+  - `CITATION.cff`
+
+## 1.0.3-documentation-timeline-clarity (2026-03-03)
+
+> Note: historical start-date wording in this entry is superseded and corrected by `1.0.4-documentation-timeline-correction`.
+
+### Project Timeline Clarification
+- Documented an explicit historical timeline confirming that AINL research and project initiation began in **early 2025**.
+- Added phase framing to reduce ambiguity about when work occurred:
+  - **Early 2025**: concept definition, AI-native language research, and naming/design exploration.
+  - **Mid 2025**: grammar/spec experimentation, compiler direction setting, and first IR-shape validation loops.
+  - **Late 2025**: implementation expansion across compiler/runtime paths, emitter surface growth, and conformance-first test structuring.
+  - **Early 2026**: runtime/platform hardening, adapter contract coverage, alignment/eval gate maturity, and publication/operations documentation.
+- Added explicit note that phases overlap by design and were developed iteratively in parallel tracks
+  (research, development, and implementation were not strictly linear).
+- Updated cross-reference documentation (`README.md`, `docs/PROJECT_ORIGIN_AND_ATTRIBUTION.md`, `docs/DOCS_INDEX.md`)
+  so timeline context is discoverable from both onboarding and release-history entry points.
+
+## 1.0.2-alignment-docs-and-gates (2026-03-03)
+
+### Evaluation and Alignment Pipeline
+- Added hard trend quality gates with threshold/regression checks and non-zero failure mode in `scripts/analyze_eval_trends.py`.
+- Added machine-readable run health output `corpus/curated/alignment_run_health.json` in `scripts/run_alignment_cycle.sh`.
+- Added prompt-length bucketing support across eval/sweep/cycle for shape-stability and better diagnostics.
+- Added optional quantized eval/infer lane (`--quantization-mode none|dynamic-int8`) with safe fallback behavior.
+- Added bounded host-side canonicalization controls:
+  - `--canonicalize-chunk-lines`
+  - `--canonicalize-max-lines`
+
+### Diagnostics
+- Added per-length-bucket diagnostics in model eval output:
+  - rates, timing totals, failure families, and per-bucket constraint health.
+- Extended trend output with bucket-level summary pointers:
+  - worst strict bucket
+  - slowest bucket
+  - quantization metadata
+
+### Documentation
+- Added `docs/DOCS_INDEX.md` as a top-level orientation map.
+- Added `docs/AI_AGENT_CONTINUITY.md` for handoff and persistence protocol.
+- Added `docs/TRAINING_ALIGNMENT_RUNBOOK.md` for full train/sweep/gate operations.
+- Added publication-layer docs:
+  - `docs/ARCHITECTURE_OVERVIEW.md`
+  - `docs/CONTRIBUTING_AI_AGENTS.md`
+  - `docs/GLOSSARY.md`
+  - `docs/PROJECT_ORIGIN_AND_ATTRIBUTION.md`
+- Added OpenClaw integration guide: `docs/OPENCLAW_ADAPTERS.md`
+- Added consultant report template and index:
+  - `AI_CONSULTANT_REPORT_TEMPLATE.md`
+  - `CONSULTANT_REPORTS.md`
+  - `AI_CONSULTANT_REPORT_APOLLO.md` (Apollo's OpenClaw integration analysis)
+- Added OpenClaw agent quickstart: `AI_AGENT_QUICKSTART_OPENCLAW.md`
+- Updated `docs/FINETUNE_GUIDE.md` to link and use the new runbook.
+- Added publication/trust/community artifacts:
+  - `docs/AUDIENCE_GUIDE.md`
+  - `docs/GITHUB_RELEASE_CHECKLIST.md`
+  - `CODE_OF_CONDUCT.md`
+  - `SECURITY.md`
+  - `CITATION.cff`
+  - `.github/ISSUE_TEMPLATE/bug_report.yml`
+  - `.github/ISSUE_TEMPLATE/feature_request.yml`
+  - `.github/pull_request_template.md`
+- Added Option C legal/package baseline files:
+  - `LICENSE` (Apache-2.0)
+  - `LICENSE.docs`
+  - `COMMERCIAL.md`
+  - `TRADEMARKS.md`
+  - `MODEL_LICENSE.md`
+  - `NOTICE`
+- Updated `README.md`, `CONTRIBUTING.md`, `docs/DOCS_INDEX.md`, and `CITATION.cff`
+  to reflect open-core licensing structure and DCO expectations.
+
+## 1.0.1-runtime-platform (2026-02-22)
+
+### Runtime
+- Added execution mode policy controls: `graph-preferred`, `steps-only`, and `graph-only`.
+- Added unknown-op policy controls: `skip` and `error`, with explicit behavior in both step and graph execution.
+- Added IR/version compatibility guard: runtime validates `ir_version` major compatibility.
+- Added runtime metadata and ergonomics:
+  - `RuntimeEngine.run(...)` convenience wrapper
+  - `runtime_version` in run payloads
+  - `trace_sink` callback for streaming trace events
+  - `lineno` included in trace events
+- Added production guardrails:
+  - `max_steps`
+  - `max_depth`
+  - `max_adapter_calls`
+  - `max_time_ms`
+  - `max_frame_bytes`
+  - `max_loop_iters` (applies across loop paths)
+- Hardened frame semantics and variable validation:
+  - explicit failures for missing destination variables in `Set`, `Filt`, `Sort`, and `X`.
+- Refactored runtime internals to reduce semantic drift:
+  - shared step execution helpers (`_exec_step` and common op helpers)
+  - shared graph error-routing helper for `err` edge + active handler fallback + recursion guard.
+- Improved graph traversal performance with indexed edge lookups for common `(from, port, to_kind)` access.
+
+### CLI
+- Extended `ainl run` with:
+  - execution mode and unknown-op policy flags
+  - guardrail limit flags
+  - `--trace-out` to write trace JSON
+  - `--record-adapters` and `--replay-adapters` for deterministic adapter replay workflows.
+- Added pretty runtime error formatting with source snippet + caret output in non-JSON mode.
+- Added `ainl golden` command for fixture-driven verification using `examples/*.ainl` + `*.expected.json`.
+- Enhanced `ainl check` output with `ir_version` and compiler warnings.
+- Added direct adapter bootstrapping flags to `ainl run` for `http`, `sqlite`, `fs`, `tools`, and `ext`.
+
+### Adapters
+- Added `SimpleHttpAdapter` (`runtime/adapters/http.py`) with:
+  - method allowlist
+  - timeout handling
+  - host allowlist
+  - JSON/text request-response handling
+  - response-size guard
+  - consistent `AdapterError` mapping for transport/status/validation failures.
+- Added replay/recording adapter registries in runtime package:
+  - `RecordingAdapterRegistry`
+  - `ReplayAdapterRegistry`
+- Added `SimpleSqliteAdapter` (`runtime/adapters/sqlite.py`) with query/execute contract, allow-write policy, and table allowlist support.
+- Added `SandboxedFileSystemAdapter` (`runtime/adapters/fs.py`) with sandbox-root confinement, extension policy, and size caps.
+- Added `ToolBridgeAdapter` (`runtime/adapters/tools.py`) for tool-call bridging with tool allowlist and error mapping.
+- Added `HttpAdapter` support in adapter base and registry accessor (`get_http()`).
+- Added registry accessors for `sqlite`, `fs`, and `tools`.
+
+### Tests
+- Added property/fuzz suites (Hypothesis):
+  - step-vs-graph equivalence
+  - randomized IR safety checks.
+- Added runtime guardrail tests (`max_*` limits).
+- Added HTTP adapter contract tests (validation, timeout, error mapping, request/response shape).
+- Added deterministic replay test (live run vs replay output/log parity).
+- Added runtime API/compat tests:
+  - `ir_version`/`runtime_policy` presence
+  - unsupported IR rejection
+  - unknown-op policy enforcement
+  - trace sink and wrapper behavior
+  - CLI golden pass.
+- Added runtime conformance fixture harness with trace-signature expectations.
+- Updated conformance assertions for endpoint layout compatibility.
+
+### Documentation
+- Added/updated:
+  - `SEMANTICS.md` (frozen runtime semantics)
+  - `docs/RELEASE_READINESS.md` (capability-to-test/file handoff map)
+  - `docs/INSTALL.md` (runtime adapter CLI examples, record/replay usage)
+  - README runtime/replay/golden usage notes.
+
+### Runner Service
+- Added deployable runtime runner service:
+  - `scripts/runtime_runner_service.py`
+  - endpoints: `/run`, `/enqueue`, `/result/{id}`, `/health`, `/ready`, `/metrics`
+  - compile cache + async job worker + structured logs + trace IDs
+- Added deployment artifacts:
+  - `services/runtime_runner/Dockerfile`
+  - `services/runtime_runner/docker-compose.yml`
+- Added service test coverage:
+  - `tests/test_runner_service.py`
+
+### Verification
+- Consolidated matrix result after this release set:
+  - **68 passed / 0 failed**
+  - Property + runtime + adapter contract + replay + compat + conformance suites all green.

@@ -1,0 +1,11 @@
+{
+  "invalid_program": "invalid_program.ainl",
+  "expected_errors": [
+    {
+      "code": "MISSING_TERMINAL_J",
+      "message_contains": "must end in J"
+    }
+  ],
+  "notes": "Invalid program omits terminal J in L_scrape."
+}
+

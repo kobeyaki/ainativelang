@@ -1,0 +1,43 @@
+# Heartbeat & proactive ops: ingest, decide, notify, with state tracking.
+S core cron "*/30 * * * *"
+D Config heartbeat_interval_minutes:N recent_mentions_threshold:N
+
+# State (persisted between runs via cache)
+D CheckState last_email_check:T last_calendar_check:T last_social_check:T last_notified_email:T last_notified_calendar:T last_notified_social:T
+
+L0: Set now (core.now) ->now
+# Check email (mock adapter: email.G)
+L1: R email.G inbox ->emails J emails
+L2: R cache.get "state" "last_email_check" ->last_check
+L3: If (core.gt last_check now) ->L9
+L4: Filter emails where date > last_check ->new_emails
+L5: If (core.gt (core.len new_emails) Config.recent_mentions_threshold) ->L10
+L6: Cache.set "state" "last_email_check" now
+L7: Cache.set "state" "last_notified_email" now
+L8: Queue.put "notify" {"type":"email","count":(core.len new_emails),"ts":now}
+L9: J data
+
+# Check calendar (mock adapter: calendar.G)
+L10: R calendar.G events ->events J events
+L11: R cache.get "state" "last_calendar_check" ->last_cal
+L12: If (core.gt last_cal now) ->L18
+L13: Filter events where start > now ->upcoming
+L14: If (core.gt (core.len upcoming) 0) ->L15
+L15: Cache.set "state" "last_calendar_check" now
+L16: Cache.set "state" "last_notified_calendar" now
+L17: Queue.put "notify" {"type":"calendar","count":(core.len upcoming),"ts":now}
+L18: J data
+
+# Check social mentions (mock adapter: social.G)
+L20: R social.G mentions ->mentions J mentions
+L21: R cache.get "state" "last_social_check" ->last_soc
+L22: If (core.gt last_soc now) ->L28
+L23: Filter mentions where ts > last_soc ->new_mentions
+L24: If (core.gt (core.len new_mentions) Config.recent_mentions_threshold) ->L26
+L25: Cache.set "state" "last_social_check" now
+L26: Cache.set "state" "last_notified_social" now
+L27: Queue.put "notify" {"type":"social","count":(core.len new_mentions),"ts":now}
+L28: J data
+
+# Done
+L99: J ok

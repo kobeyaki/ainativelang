@@ -9,7 +9,11 @@ from collections import defaultdict
 
 # Allow importing runtime + adapters (same dir in Docker, else repo root)
 _dir = Path(__file__).resolve().parent
-_root = _dir if (_dir / 'runtime.py').exists() else _dir.parent.parent.parent
+_root = _dir
+for _ in range(6):
+    if (_root / 'runtime.py').exists() and (_root / 'adapters').exists():
+        break
+    _root = _root.parent
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
@@ -17,16 +21,17 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import FileResponse
 
-from runtime import ExecutionEngine
-from adapters import mock_registry
+from runtime.engine import RuntimeEngine
+from adapters.mock import mock_registry
 
 # Load IR (emitted with server); use real adapters by replacing mock_registry
 _ir_path = Path(__file__).resolve().parent / "ir.json"
 with open(_ir_path) as f:
     _ir = json.load(f)
 _registry = mock_registry(_ir.get("types"))
-_engine = ExecutionEngine(_ir, _registry)
+_engine = RuntimeEngine(ir=_ir, adapters=_registry, trace=False, step_fallback=True, execution_mode='graph-preferred')
 
 _metrics = defaultdict(int)
 _trace_enabled = False
@@ -73,8 +78,14 @@ app.add_middleware(RateLimitMiddleware, requests_per_minute=_rate_limit)
 app.add_middleware(LoggingMiddleware)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-def _run_label(lid):
-    r = _engine.run(lid); return {"data": r if r is not None else []}
+def _run_label(lid, request: Request):
+    ctx = {
+        "_role": request.headers.get("X-Role"),
+        "_auth_header": request.headers.get("Authorization") or request.headers.get("X-Auth"),
+        "_auth_present": bool(request.headers.get("Authorization") or request.headers.get("X-Auth")),
+    }
+    r = _engine.run_label(lid, frame=ctx)
+    return {"data": r if r is not None else []}
 
 api = FastAPI()
 
@@ -91,36 +102,36 @@ def _iter_eps(eps):
     return out
 
 @api.get('/products')
-def get_products():
-    return _run_label('1')
+def get_products(request: Request):
+    return _run_label('1', request)
 
 @api.post('/products')
-def post_products():
-    return _run_label('7')
+def post_products(request: Request):
+    return _run_label('7', request)
 
 @api.get('/product')
-def get_product():
-    return _run_label('6')
+def get_product(request: Request):
+    return _run_label('6', request)
 
 @api.get('/orders')
-def get_orders():
-    return _run_label('2')
+def get_orders(request: Request):
+    return _run_label('2', request)
 
 @api.post('/orders')
-def post_orders():
-    return _run_label('9')
+def post_orders(request: Request):
+    return _run_label('9', request)
 
 @api.get('/order')
-def get_order():
-    return _run_label('8')
+def get_order(request: Request):
+    return _run_label('8', request)
 
 @api.post('/checkout')
-def post_checkout():
-    return _run_label('3')
+def post_checkout(request: Request):
+    return _run_label('3', request)
 
 @api.get('/customers')
-def get_customers():
-    return _run_label('10')
+def get_customers(request: Request):
+    return _run_label('10', request)
 
 @api.get("/health")
 def health():
@@ -132,12 +143,22 @@ def ready():
 
 app.mount("/api", api)
 
-# Static: do not write user-provided content to static_dir (fix #10).
+# Static: serve index.html at / when present; else simple API-only landing
 static_dir = Path(__file__).resolve().parent / "static"
 static_dir.mkdir(exist_ok=True)
+_index_html = static_dir / "index.html" if static_dir.exists() else None
+if _index_html and _index_html.is_file():
+    @app.get("/")
+    def _serve_index():
+        return FileResponse(_index_html)
+else:
+    @app.get("/")
+    def _root():
+        from starlette.responses import HTMLResponse
+        return HTMLResponse("<html><body><h1>API</h1><p><a href=\"/api\">/api</a></p></body></html>")
 if static_dir.exists():
     app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8765)
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", "8765")))

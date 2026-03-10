@@ -1,27 +1,64 @@
-# AINL Example Apps
+# AI Native Lang (AINL) Examples
 
-Full-stack and API-only examples. Compile with:
+Examples are intentionally split by compile profile for release safety:
+
+- **Strict-valid canonical examples**: expected to compile with `--strict`
+- **Non-strict-only examples**: useful compatibility demos that intentionally do not pass strict mode
+- **Legacy compatibility artifacts**: retained for migration/training context
+
+The machine-readable source of truth is:
+
+- `tooling/artifact_profiles.json`
+
+Quick checks:
 
 ```bash
-python scripts/validate_ainl.py examples/blog.lang --emit ir
+python scripts/validate_ainl.py examples/hello.ainl --strict
+python scripts/validate_ainl.py examples/blog.lang
 ```
 
-**Ecom dashboard (API + webserver + frontend):** The main e-commerce app is `tests/ecom_dashboard.lang`. Build and serve it with:
+Canonical strict-valid examples:
 
-```bash
-python run_tests_and_emit.py
-python serve_dashboard.py
-```
+- `examples/hello.ainl` — canonical single-label compute + return (`R core.ADD` + `J`).
+- `examples/web/basic_web_api.ainl` — canonical web endpoint flow (`S core web`, `E`, label body).
+- `examples/crud_api.ainl` — canonical `Set` + `If` branch routing and explicit string literals.
+- `examples/scraper/basic_scraper.ainl` — canonical scraper+cron intent (`Sc` + `Cr`) with runtime label flow.
+- `examples/rag_pipeline.ainl` — canonical `Call ... ->out` return binding pattern (no `_call_result` compatibility style).
+- `examples/retry_error_resilience.ainl` — canonical resilience flow (`R` + `Retry @nX` + `Err @nX` + explicit fallback label).
+- `examples/if_call_workflow.ainl` — canonical branching + modular call composition (`If` + `Call ... ->out`).
+- `examples/webhook_automation.ainl` — canonical webhook-style automation branch (`validate` -> `accepted/ignored`) plus external action (`R http.POST`).
+- `examples/monitor_escalation.ainl` — canonical scheduled monitoring/escalation (`Cr` + condition branch -> `escalate/noop`).
 
-Then open http://127.0.0.1:8765/ for the dashboard and http://127.0.0.1:8765/api/ for the API (OpenAPI at `/api/openapi.json`).
+Recommended canonical learning order (small-model first):
 
-| File | Description |
-|------|-------------|
-| **blog.lang** | Posts + comments, CRUD, cache |
-| **ticketing.lang** | Events + tickets, auth (A), payment (P) |
-| **internal_tool.lang** | Tasks + users, cron (Cr) |
-| **api_only.lang** | Backend only: users + sessions |
-| **ecom.lang** | E-commerce snippet (routes, P, cache) |
-| **tests/ecom_dashboard.lang** | Full ecom dashboard: API + frontend, Products/Orders/Customers, checkout, cache (C) |
+1. `examples/hello.ainl` (compute + return)
+2. `examples/crud_api.ainl` (Set + If branch)
+3. `examples/rag_pipeline.ainl` (Call + bound return)
+4. `examples/if_call_workflow.ainl` (If + Call workflow)
+5. `examples/retry_error_resilience.ainl` (Retry + Err resilience)
+6. `examples/web/basic_web_api.ainl` (endpoint + DB read)
+7. `examples/webhook_automation.ainl` (validate/act/reject automation)
+8. `examples/scraper/basic_scraper.ainl` (scraper + cron + persistence)
+9. `examples/monitor_escalation.ainl` (scheduled monitor escalation)
 
-Grammar version: **1.0** (see docs/AINL_SPEC.md).
+Machine-readable curriculum source:
+
+- `tooling/canonical_curriculum.json`
+
+Non-strict-only examples (intentional compatibility surface):
+
+- `examples/api_only.lang`
+- `examples/blog.lang`
+- `examples/ecom.lang`
+- `examples/internal_tool.lang`
+- `examples/ticketing.lang`
+- `examples/cron/monitor_and_alert.ainl`
+- `examples/openclaw/*.lang`
+- `examples/golden/*.ainl`
+
+Use non-strict examples for runtime/backward-compat demonstrations, not as strict language conformance references.
+
+Canonical guidance for small-model reliability:
+
+- Prefer uppercase adapter verbs in strict-valid examples (e.g., `core.ADD`, `http.GET`).
+- Prefer explicit `Call ... ->out` return binding over compatibility fallback (`_call_result`) in canonical examples.

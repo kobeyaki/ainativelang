@@ -1,0 +1,10 @@
+# Heartbeat demo: simple flow with computation, condition, queue.
+S core cron "*/30 * * * *"
+D Config threshold:N
+
+L0: Set now (core.now) ->now
+L1: Set test_val 5
+L2: X above gt test_val Config.threshold
+L3: If above ->L4 ->L5
+L4: QueuePut notify "heartbeat" J ok
+L5: J done

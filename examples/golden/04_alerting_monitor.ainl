@@ -1,0 +1,70 @@
+# Golden Example 4: Alerting monitor with throttling
+# Checks service health and sends alerts only once per 15 minutes per failure.
+# Shows: service checks, stateful dedup, notification queue, WASM health score.
+
+S core cron "*/5 * * * *"  # every 5 minutes
+
+D Config throttle_seconds:N  # min time between repeated alerts for same failure
+D Config health_threshold:N  # health score below this triggers alert
+
+# State: last alert per failure type and overall health score
+D State last_alert_time:T
+D State last_services_down:S  # comma-separated list
+
+# Label 0: Check all services
+L0: X svc_caddy (svc caddy)
+    X svc_cloud (svc cloudflared)
+    X svc_maddy (svc maddy)
+    R core.now ->now J L1
+
+L1: # Build list of down services
+   Set failed "" J L2
+
+L2: If (core.ne svc_caddy "up") ->L3 ->L4
+L3: Set failed (core.add failed "caddy,") J L4
+
+L4: If (core.ne svc_cloud "up") ->L5 ->L6
+L5: Set failed (core.add failed "cloudflared,") J L6
+
+L6: If (core.ne svc_maddy "up") ->L7 ->L8
+L7: Set failed (core.add failed "maddy,") J L8
+
+L8: # Trim trailing comma
+   X failed_str (core.replace failed "," "")
+
+   # Compare to previous failure set
+   R cache get "state" "last_services_down" ->prev
+   If (core.eq failed_str prev) ->L9  # no change
+
+L9: # If anything is down now, or if recovered, decide on alert
+   If (core.eq failed_str "") ->L10  # all healthy now — could send recovery notice
+   # Something is down
+   R cache get "state" "last_alert_time" ->last_alert
+   If (core.gt (core.sub now last_alert) Config.throttle_seconds) ->L11 ->L12
+
+L10: # Recovery case: all services up, but previously down
+   R queue Put notify {"event":"recovered","services":prev,"ts":now}
+   R cache set "state" "last_services_down" ""
+   J done
+
+L11: # Send new alert
+   # Compute health score (example: 100 - 20 per down service)
+   X down_count (core.len failed_str)
+   X health (core.sub 100 (core.mul down_count 20))
+   R queue Put notify {
+     "event":"failure",
+     "failed_services":failed_str,
+     "health_score":health,
+     "ts":now
+   }
+   R cache set "state" "last_alert_time" now
+   R cache set "state" "last_services_down" failed_str
+   J done
+
+L12: # Throttled — skip sending; state remains the same
+   J done
+
+# Notes:
+# - Deduplication by comparing current failure set to previous; alerts only on change or throttle expiry.
+# - WASM module could compute more sophisticated health; here we use core math.
+# - The notification queue delivers to OpenClaw messaging (self).

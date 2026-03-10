@@ -23,9 +23,3 @@ model Order {
   status  String
 }
 
-model Customer {
-  id  Int
-  email  String
-  name  String
-}
-

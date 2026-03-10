@@ -1,0 +1,70 @@
+# Golden Example 3: Scraper with rate limiting and CSV output
+# Fetches a product page daily, extracts price, writes to CSV.
+# Emphasizes: HTTP fetching, HTML parsing (via regex placeholders), file writing, scheduling.
+
+S core cron "0 9 * * *"  # run daily at 09:00
+
+D Config target_url:S
+D Config output_csv:S
+D Config rate_limit_sec:N
+
+# State: last fetch timestamp to enforce rate limit
+D State last_fetch:T
+
+# Label 0: Main
+L0: R core.now ->now
+    R cache get "state" "last_fetch" ->last
+    If (core.gt (core.sub now last) Config.rate_limit_sec) ->L1 ->L2
+
+L1: # Too soon — wait until next run; exit gracefully
+   R core.now ->now  # refresh
+   R cache set "state" "last_run_skipped" now
+   J done
+
+L2: # Fetch page
+   R http.GET Config.target_url ->resp J L3
+
+L3: # Check status
+   If (core.ne resp.status 200) ->L4
+   # Success path
+   X html resp.body J L5
+
+L4: # HTTP error — log and skip; still update timestamp to avoid retry storm
+   R cache set "state" "last_fetch" now
+   R cache set "state" "last_error" (core.stringify {"status": resp.status, "ts": now})
+   J done
+
+L5: # Extract price with a simple pattern (real scraper would use HTML parser)
+   # Pattern: <span class="price">$123.45</span>
+   X re_match (core.match html "<span class=\"price\">\\$([0-9,]+\\.[0-9]{2})</span>")
+   If re_match ->L6 ->L7
+
+L6: # Got price
+   X price_str re_match[1]
+   X price (core.parse (core.replace price_str "," ""))  # remove commas, parse float
+   J L8
+
+L7: # No price found — skip write
+   R cache set "state" "last_fetch" now
+   R cache set "state" "last_error" (core.stringify {"error":"price_not_found","ts":now})
+   J done
+
+L8: # Append to CSV (create with header if missing)
+   R fs.read Config.output_csv ->existing J L9
+   If existing ->L10
+
+L9: # File missing — write header
+   R fs.write Config.output_csv "date,price_usd\\n" J L10
+
+L10: # Append new row
+   X date_str (core.iso now)  # UTC ISO
+   X row (core.concat date_str "," (core.stringify price) "\\n")
+   R fs.write Config.output_csv (core.concat existing row)  # naive append; for real use, lock or atomic write
+   R cache set "state" "last_fetch" now
+   R cache set "state" "last_price" price
+
+# Notes:
+# - Real HTML parsing requires a structured adapter; for AINL we assume regex or future html adapter.
+# - Rate limiting uses cache to persist across runs.
+# - CSV handling is basic; consider a db adapter for production.
+# - Errors are captured in state but do not stop the program.

@@ -1,0 +1,146 @@
+{
+  "schema": "https://ainl.dev/training/v1",
+  "description": "Outline of training examples for fine-tuning a small AINL model (~3B params). Total ~1200 examples; this file describes the buckets and provides representative samples.",
+  "buckets": [
+    {
+      "name": "core_basics",
+      "count": 200,
+      "description": "Basic statements, labels, jumps, conditionals, state/config declarations",
+      "sample_prompts": [
+        "Write a program that counts from 1 to 10 and stores the final count in a state variable 'total'.",
+        "Declare a configuration threshold:N with default 5, and a state counter:N starting at 0.",
+        "Create two labels: L0 sets counter to 0 and jumps to L1; L1 increments counter 10 times then jumps to L2; L2 writes counter to cache."
+      ],
+      "positive_example_template": {
+        "prompt": "...",
+        "program": "...",
+        "explanation": "brief natural language"
+      },
+      "negative_examples": [
+        {
+          "error": "Missing jump after label",
+          "fix": "Add J to next label"
+        },
+        {
+          "error": "Used = instead of :=",
+          "fix": "Replace = with :="
+        }
+      ]
+    },
+    {
+      "name": "core_arithmetic_string",
+      "count": 200,
+      "description": "Using core.add, sub, mul, div, concat, replace, parse, stringify",
+      "sample_prompts": [
+        "Parse a JSON string from a variable 'input' and extract the 'price' field.",
+        "Concatenate three strings stored in variables a, b, c into one string separated by dashes.",
+        "Clamp a score between 0 and 100 using core.clamp."
+      ],
+      "positive_example_template": {
+        "prompt": "...",
+        "program": "X price (core.parse input)['price']",
+        "explanation": "core.parse converts string to dict; bracket access"
+      }
+    },
+    {
+      "name": "adapter_http",
+      "count": 300,
+      "description": "HTTP GET/POST with status checks, JSON handling, timeouts",
+      "sample_prompts": [
+        "Fetch https://api.example.com/data and return the 'items' array from the JSON response.",
+        "POST to /webhook with JSON body {\"event\":\"ping\"} and check for 200 status.",
+        "Retry a GET request up to 3 times with exponential backoff (1s, 2s, 4s) if status is 5xx."
+      ],
+      "positive_example_template": {
+        "prompt": "...",
+        "program": "R http.GET url ->resp\nIf (core.ne resp.status 200) ->error\nX data (core.parse resp.body)['items']",
+        "explanation": "Check status before parsing; extract array"
+      }
+    },
+    {
+      "name": "adapter_sqlite",
+      "count": 200,
+      "description": "SELECT queries, parameterized, safe table access",
+      "sample_prompts": [
+        "Query all rows from table 'logs' where level = 'error' using a parameterized query.",
+        "Insert a new metrics row with fields ts (now), value into table 'metrics'.",
+        "Count active users today: SELECT COUNT(*) FROM users WHERE last_active > ?"
+      ],
+      "positive_example_template": {
+        "prompt": "...",
+        "program": "R sqlite.query \"SELECT * FROM logs WHERE level = ?\" [\"error\"] ->rows",
+        "explanation": "Parameterized query prevents injection"
+      }
+    },
+    {
+      "name": "adapter_fs_cache",
+      "count": 200,
+      "description": "File read/write and cache get/set for persistence",
+      "sample_prompts": [
+        "Read a JSON config file at startup and store it in a state variable 'config'.",
+        "Cache a value for 1 hour: set cache 'api' 'token' to a token string, expire in 3600 seconds.",
+        "Append a line to a log file using fs.read + fs.write (atomic append placeholder)."
+      ],
+      "positive_example_template": {
+        "prompt": "...",
+        "program": "R fs.read \"/config/app.json\" ->raw\nX config (core.parse raw)",
+        "explanation": "Read and parse JSON into state"
+      }
+    },
+    {
+      "name": "error_handling",
+      "count": 200,
+      "description": "Status checks, safe gets, try/except patterns, defaults",
+      "sample_prompts": [
+        "Call an HTTP API and if status is not 200, log error and return default value [].",
+        "Read a cache key; if missing, compute and store default.",
+        "Wrap a db query in a safe pattern: on error, return empty list and write error to state."
+      ],
+      "positive_example_template": {
+        "prompt": "...",
+        "program": "R cache get \"x\" \"y\" ->val\nIf val ->found\nX default 0\nR cache set \"x\" \"y\" default",
+        "explanation": "Fallback to default when cache miss"
+      }
+    },
+    {
+      "name": "openclaw_integration",
+      "count": 300,
+      "description": "Using email, calendar, social, db leads, svc, queue adapters",
+      "sample_prompts": [
+        "Check unread emails and count how many are from 'boss@example.com'.",
+        "Get upcoming calendar events in the next 24 hours and format a summary string.",
+        "Check if services caddy and maddy are up; send alert if any are down.",
+        "Fetch all leads from the CRM and compute average rating."
+      ],
+      "positive_example_template": {
+        "prompt": "...",
+        "program": "R email G ->emails\nX boss_count (len filter emails where (core.contains ? \"boss@example.com\"))",
+        "explanation": "email adapter returns list; filter by sender substring"
+      }
+    },
+    {
+      "name": "full_programs",
+      "count": 100,
+      "description": "Complete golden examples and variations",
+      "sample_prompts": [
+        "Write a complete web server that serves /metrics and /.",
+        "Build a daily scraper that fetches a price and appends to CSV.",
+        "Implement a 5-minute monitor that checks services and throttles alerts to once per 15 minutes."
+      ],
+      "positive_example_template": {
+        "prompt": "...",
+        "program": "(full program from examples/golden)",
+        "explanation": "Reference exact file; small variations are separate examples"
+      }
+    }
+  ],
+  "total_examples": 1300,
+  "format": "JSONL with fields: {prompt, program, explanation, bucket, difficulty (easy|medium|hard), tags []}",
+  "generation_notes": [
+    "Each positive example should be minimal (10–50 lines) and self-contained.",
+    "Negative examples should exhibit one common mistake (syntax, type, missing arg, wrong target) and include the corrected program.",
+    "For full programs, include the golden examples verbatim plus 20–30 small variants (different schedules, thresholds, or route paths).",
+    "Ensure adapter usage matches the ADAPTER_REGISTRY.json spec exactly.",
+    "All programs should compile with `compiler_v2.py` in strict_mode=false; run a subset through the runtime to verify."
+  ]
+}

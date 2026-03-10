@@ -1,0 +1,77 @@
+# Golden Example 5: Batch file processor (log rotation + stats)
+# Scans a directory for .log files older than 1 day, compresses them, and aggregates stats.
+# Emphasizes: filesystem listing, file metadata, atomic writes, error handling.
+
+S core cron "0 2 * * *"  # daily at 2 AM
+
+D Config input_dir:S
+D Config archive_dir:S
+D Config stats_json:S
+
+# State: last processed file mtimes to avoid re-processing
+D State processed_mtimes:{"":0}
+
+# Label 0: Main
+L0: R fs.list Config.input_dir ->entries J L1
+
+L1: # Filter to .log files
+   X logs (filter entries where (core.ends_with ? ".log")) J L2
+
+L2: Set stats { "files_processed": 0, "bytes_saved": 0, "errors": [] } J L3
+
+L3: # Iterate over log files
+   Set i 0 J L4
+
+L4: If (core.ge i (core.len logs)) ->L9  # done
+
+L5: X name logs[i]
+   X path (Config.input_dir + "/" + name)
+   R fs.get_meta path ->meta J L6
+   # get_meta hypothetical; if not available, use fs.read + size, or modify fs adapter to return size/mtime
+   # For AINL we assume an extended fs adapter or separate stat call; here we approximate by reading and cache size later.
+   # Instead, we'll skip mtime check and just process all files; but record processed in state to avoid double-work.
+   R cache get "state" "processed_mtimes" ->pmap
+   X last_mtime pmap[path] || 0
+   # We need file mtime; assume meta.mtime exists. If not, skip check.
+   # For simplicity, we skip mtime and rely on external cron to run once daily; we still mark processed.
+   # Process this file: compress and archive
+   R fs.read path ->content J L7
+
+L6: # Could not read file — log error and skip
+   Set stats.errors (core.append stats.errors (core.concat "read_failed: " name)) J L8
+
+L7: # Simulate compression (in reality, use gzip binary or WASM)
+   X compressed (core.concat "[COMPRESSED] " content)  # dummy
+   X archive_path (Config.archive_dir + "/" + name + ".gz")
+   R fs.write archive_path compressed J L8
+
+L8: # Update stats
+   X size (core.len content)
+   Set stats.files_processed (core.add stats.files_processed 1)
+   Set stats.bytes_saved (core.add stats.bytes_saved size)
+   R cache set "state" ("processed:" + name) true
+   Set i (core.add i 1) J L4
+
+L9: # Write aggregated stats JSON
+   R fs.read Config.stats_json ->old_stats J L10
+   If old_stats ->L11
+
+L10: # No existing stats file — write fresh
+   R fs.write Config.stats_json (core.stringify stats) J done
+
+L11: # Merge with previous stats (simple update)
+   X prev (core.parse old_stats)
+   X merged {
+     "files_processed": (core.add prev.files_processed stats.files_processed),
+     "bytes_saved": (core.add prev.bytes_saved stats.bytes_saved),
+     "errors": (core.concat prev.errors stats.errors)
+   }
+   R fs.write Config.stats_json (core.stringify merged)
+
+done: J ok
+
+# Notes:
+# - Real compression would use an external tool or WASM module; here it's a placeholder.
+# - fs adapter lacks stat/get_meta; to make this production-ready, extend fs adapter to return size/mtime.
+# - State tracking via cache prevents re-processing same file within same run if program restarts.
+# - Idempotency: writing .gz even if already compressed is harmless; consider checking existence first.

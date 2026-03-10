@@ -1,0 +1,1061 @@
+{
+  "source": {
+    "text": "S core web /api\nS fe web /\n\nD Quote symbol:S regularMarketPrice:F currency:S regularMarketTime:D\n\nE /apple-price G ->L1 ->quote\nL1: R api.G https://query1.finance.yahoo.com/v7/finance/quote?symbols=AAPL ->quote J quote\n\nU ApplePrice quote\nT quote:J\nRt / ApplePrice\nBind ApplePrice /apple-price G ->quote\n",
+    "lines": [
+      "S core web /api",
+      "S fe web /",
+      "",
+      "D Quote symbol:S regularMarketPrice:F currency:S regularMarketTime:D",
+      "",
+      "E /apple-price G ->L1 ->quote",
+      "L1: R api.G https://query1.finance.yahoo.com/v7/finance/quote?symbols=AAPL ->quote J quote",
+      "",
+      "U ApplePrice quote",
+      "T quote:J",
+      "Rt / ApplePrice",
+      "Bind ApplePrice /apple-price G ->quote",
+      ""
+    ]
+  },
+  "cst": {
+    "lines": [
+      {
+        "lineno": 1,
+        "original_line": "S core web /api",
+        "op_value": "S",
+        "op_canonical": "S",
+        "slot_values": [
+          "core",
+          "web",
+          "/api"
+        ],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "S",
+            "value": "S",
+            "span": {
+              "line": 1,
+              "col_start": 0,
+              "col_end": 1
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 1,
+              "col_start": 1,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "core",
+            "value": "core",
+            "span": {
+              "line": 1,
+              "col_start": 2,
+              "col_end": 6
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 1,
+              "col_start": 6,
+              "col_end": 7
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "web",
+            "value": "web",
+            "span": {
+              "line": 1,
+              "col_start": 7,
+              "col_end": 10
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 1,
+              "col_start": 10,
+              "col_end": 11
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "/api",
+            "value": "/api",
+            "span": {
+              "line": 1,
+              "col_start": 11,
+              "col_end": 15
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 2,
+        "original_line": "S fe web /",
+        "op_value": "S",
+        "op_canonical": "S",
+        "slot_values": [
+          "fe",
+          "web",
+          "/"
+        ],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "S",
+            "value": "S",
+            "span": {
+              "line": 2,
+              "col_start": 0,
+              "col_end": 1
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 2,
+              "col_start": 1,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "fe",
+            "value": "fe",
+            "span": {
+              "line": 2,
+              "col_start": 2,
+              "col_end": 4
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 2,
+              "col_start": 4,
+              "col_end": 5
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "web",
+            "value": "web",
+            "span": {
+              "line": 2,
+              "col_start": 5,
+              "col_end": 8
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 2,
+              "col_start": 8,
+              "col_end": 9
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "/",
+            "value": "/",
+            "span": {
+              "line": 2,
+              "col_start": 9,
+              "col_end": 10
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 3,
+        "original_line": "",
+        "op_value": "",
+        "op_canonical": "",
+        "slot_values": [],
+        "tokens": []
+      },
+      {
+        "lineno": 4,
+        "original_line": "D Quote symbol:S regularMarketPrice:F currency:S regularMarketTime:D",
+        "op_value": "D",
+        "op_canonical": "D",
+        "slot_values": [
+          "Quote",
+          "symbol:S",
+          "regularMarketPrice:F",
+          "currency:S",
+          "regularMarketTime:D"
+        ],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "D",
+            "value": "D",
+            "span": {
+              "line": 4,
+              "col_start": 0,
+              "col_end": 1
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 4,
+              "col_start": 1,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "Quote",
+            "value": "Quote",
+            "span": {
+              "line": 4,
+              "col_start": 2,
+              "col_end": 7
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 4,
+              "col_start": 7,
+              "col_end": 8
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "symbol:S",
+            "value": "symbol:S",
+            "span": {
+              "line": 4,
+              "col_start": 8,
+              "col_end": 16
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 4,
+              "col_start": 16,
+              "col_end": 17
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "regularMarketPrice:F",
+            "value": "regularMarketPrice:F",
+            "span": {
+              "line": 4,
+              "col_start": 17,
+              "col_end": 37
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 4,
+              "col_start": 37,
+              "col_end": 38
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "currency:S",
+            "value": "currency:S",
+            "span": {
+              "line": 4,
+              "col_start": 38,
+              "col_end": 48
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 4,
+              "col_start": 48,
+              "col_end": 49
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "regularMarketTime:D",
+            "value": "regularMarketTime:D",
+            "span": {
+              "line": 4,
+              "col_start": 49,
+              "col_end": 68
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 5,
+        "original_line": "",
+        "op_value": "",
+        "op_canonical": "",
+        "slot_values": [],
+        "tokens": []
+      },
+      {
+        "lineno": 6,
+        "original_line": "E /apple-price G ->L1 ->quote",
+        "op_value": "E",
+        "op_canonical": "E",
+        "slot_values": [
+          "/apple-price",
+          "G",
+          "->L1",
+          "->quote"
+        ],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "E",
+            "value": "E",
+            "span": {
+              "line": 6,
+              "col_start": 0,
+              "col_end": 1
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 6,
+              "col_start": 1,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "/apple-price",
+            "value": "/apple-price",
+            "span": {
+              "line": 6,
+              "col_start": 2,
+              "col_end": 14
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 6,
+              "col_start": 14,
+              "col_end": 15
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "G",
+            "value": "G",
+            "span": {
+              "line": 6,
+              "col_start": 15,
+              "col_end": 16
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 6,
+              "col_start": 16,
+              "col_end": 17
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "->L1",
+            "value": "->L1",
+            "span": {
+              "line": 6,
+              "col_start": 17,
+              "col_end": 21
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 6,
+              "col_start": 21,
+              "col_end": 22
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "->quote",
+            "value": "->quote",
+            "span": {
+              "line": 6,
+              "col_start": 22,
+              "col_end": 29
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 7,
+        "original_line": "L1: R api.G https://query1.finance.yahoo.com/v7/finance/quote?symbols=AAPL ->quote J quote",
+        "op_value": "L1:",
+        "op_canonical": "L1:",
+        "slot_values": [
+          "R",
+          "api.G",
+          "https://query1.finance.yahoo.com/v7/finance/quote?symbols=AAPL",
+          "->quote",
+          "J",
+          "quote"
+        ],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "L1:",
+            "value": "L1:",
+            "span": {
+              "line": 7,
+              "col_start": 0,
+              "col_end": 3
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 7,
+              "col_start": 3,
+              "col_end": 4
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "R",
+            "value": "R",
+            "span": {
+              "line": 7,
+              "col_start": 4,
+              "col_end": 5
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 7,
+              "col_start": 5,
+              "col_end": 6
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "api.G",
+            "value": "api.G",
+            "span": {
+              "line": 7,
+              "col_start": 6,
+              "col_end": 11
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 7,
+              "col_start": 11,
+              "col_end": 12
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "https://query1.finance.yahoo.com/v7/finance/quote?symbols=AAPL",
+            "value": "https://query1.finance.yahoo.com/v7/finance/quote?symbols=AAPL",
+            "span": {
+              "line": 7,
+              "col_start": 12,
+              "col_end": 74
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 7,
+              "col_start": 74,
+              "col_end": 75
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "->quote",
+            "value": "->quote",
+            "span": {
+              "line": 7,
+              "col_start": 75,
+              "col_end": 82
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 7,
+              "col_start": 82,
+              "col_end": 83
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "J",
+            "value": "J",
+            "span": {
+              "line": 7,
+              "col_start": 83,
+              "col_end": 84
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 7,
+              "col_start": 84,
+              "col_end": 85
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "quote",
+            "value": "quote",
+            "span": {
+              "line": 7,
+              "col_start": 85,
+              "col_end": 90
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 8,
+        "original_line": "",
+        "op_value": "",
+        "op_canonical": "",
+        "slot_values": [],
+        "tokens": []
+      },
+      {
+        "lineno": 9,
+        "original_line": "U ApplePrice quote",
+        "op_value": "U",
+        "op_canonical": "U",
+        "slot_values": [
+          "ApplePrice",
+          "quote"
+        ],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "U",
+            "value": "U",
+            "span": {
+              "line": 9,
+              "col_start": 0,
+              "col_end": 1
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 9,
+              "col_start": 1,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "ApplePrice",
+            "value": "ApplePrice",
+            "span": {
+              "line": 9,
+              "col_start": 2,
+              "col_end": 12
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 9,
+              "col_start": 12,
+              "col_end": 13
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "quote",
+            "value": "quote",
+            "span": {
+              "line": 9,
+              "col_start": 13,
+              "col_end": 18
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 10,
+        "original_line": "T quote:J",
+        "op_value": "T",
+        "op_canonical": "T",
+        "slot_values": [
+          "quote:J"
+        ],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "T",
+            "value": "T",
+            "span": {
+              "line": 10,
+              "col_start": 0,
+              "col_end": 1
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 10,
+              "col_start": 1,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "quote:J",
+            "value": "quote:J",
+            "span": {
+              "line": 10,
+              "col_start": 2,
+              "col_end": 9
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 11,
+        "original_line": "Rt / ApplePrice",
+        "op_value": "Rt",
+        "op_canonical": "Rt",
+        "slot_values": [
+          "/",
+          "ApplePrice"
+        ],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "Rt",
+            "value": "Rt",
+            "span": {
+              "line": 11,
+              "col_start": 0,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 11,
+              "col_start": 2,
+              "col_end": 3
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "/",
+            "value": "/",
+            "span": {
+              "line": 11,
+              "col_start": 3,
+              "col_end": 4
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 11,
+              "col_start": 4,
+              "col_end": 5
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "ApplePrice",
+            "value": "ApplePrice",
+            "span": {
+              "line": 11,
+              "col_start": 5,
+              "col_end": 15
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 12,
+        "original_line": "Bind ApplePrice /apple-price G ->quote",
+        "op_value": "Bind",
+        "op_canonical": "Bind",
+        "slot_values": [
+          "ApplePrice",
+          "/apple-price",
+          "G",
+          "->quote"
+        ],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "Bind",
+            "value": "Bind",
+            "span": {
+              "line": 12,
+              "col_start": 0,
+              "col_end": 4
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 12,
+              "col_start": 4,
+              "col_end": 5
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "ApplePrice",
+            "value": "ApplePrice",
+            "span": {
+              "line": 12,
+              "col_start": 5,
+              "col_end": 15
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 12,
+              "col_start": 15,
+              "col_end": 16
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "/apple-price",
+            "value": "/apple-price",
+            "span": {
+              "line": 12,
+              "col_start": 16,
+              "col_end": 28
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 12,
+              "col_start": 28,
+              "col_end": 29
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "G",
+            "value": "G",
+            "span": {
+              "line": 12,
+              "col_start": 29,
+              "col_end": 30
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 12,
+              "col_start": 30,
+              "col_end": 31
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "->quote",
+            "value": "->quote",
+            "span": {
+              "line": 12,
+              "col_start": 31,
+              "col_end": 38
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 13,
+        "original_line": "",
+        "op_value": "",
+        "op_canonical": "",
+        "slot_values": [],
+        "tokens": []
+      }
+    ]
+  },
+  "services": {
+    "core": {
+      "mode": "web",
+      "path": "/api",
+      "eps": {
+        "/apple-price": {
+          "G": {
+            "method": "G",
+            "label_id": "1",
+            "return_var": "quote",
+            "tgt": "->L1"
+          }
+        }
+      },
+      "ui": {}
+    },
+    "fe": {
+      "mode": "web",
+      "path": "/",
+      "eps": {},
+      "ui": {
+        "ApplePrice": [
+          "quote"
+        ]
+      },
+      "states": {
+        "ApplePrice": [
+          [
+            "quote",
+            "J"
+          ]
+        ]
+      },
+      "routes": [
+        {
+          "path": "/",
+          "ui": "ApplePrice"
+        }
+      ],
+      "bindings": {
+        "ApplePrice": [
+          {
+            "path": "/apple-price",
+            "method": "G",
+            "var": "quote"
+          }
+        ]
+      }
+    }
+  },
+  "types": {
+    "Quote": {
+      "fields": {
+        "symbol": "S",
+        "regularMarketPrice": "F",
+        "currency": "S",
+        "regularMarketTime": "D"
+      }
+    }
+  },
+  "labels": {
+    "1": {
+      "nodes": [
+        {
+          "id": "n1",
+          "op": "R",
+          "effect": "io",
+          "data": {
+            "op": "R",
+            "adapter": "api.G",
+            "target": "https://query1.finance.yahoo.com/v7/finance/quote?symbols=AAPL",
+            "args": [],
+            "out": "quote",
+            "src": "api",
+            "req_op": "G",
+            "entity": "https://query1.finance.yahoo.com/v7/finance/quote?symbols=AAPL",
+            "fields": "*",
+            "raw": [
+              "api.G",
+              "https://query1.finance.yahoo.com/v7/finance/quote?symbols=AAPL",
+              "->quote"
+            ]
+          }
+        },
+        {
+          "id": "n2",
+          "op": "J",
+          "effect": "pure",
+          "data": {
+            "op": "J",
+            "var": "quote"
+          }
+        }
+      ],
+      "edges": [
+        {
+          "from": "n1",
+          "to": "n2",
+          "to_kind": "node"
+        }
+      ],
+      "legacy": {
+        "steps": [
+          {
+            "op": "R",
+            "adapter": "api.G",
+            "target": "https://query1.finance.yahoo.com/v7/finance/quote?symbols=AAPL",
+            "args": [],
+            "out": "quote",
+            "src": "api",
+            "req_op": "G",
+            "entity": "https://query1.finance.yahoo.com/v7/finance/quote?symbols=AAPL",
+            "fields": "*",
+            "raw": [
+              "api.G",
+              "https://query1.finance.yahoo.com/v7/finance/quote?symbols=AAPL",
+              "->quote"
+            ]
+          },
+          {
+            "op": "J",
+            "var": "quote"
+          }
+        ]
+      },
+      "slots": [
+        "R",
+        "api.G",
+        "https://query1.finance.yahoo.com/v7/finance/quote?symbols=AAPL",
+        "->quote",
+        "J",
+        "quote"
+      ],
+      "entry": "n1",
+      "exits": [
+        {
+          "node": "n2",
+          "var": "quote"
+        }
+      ]
+    }
+  },
+  "crons": [],
+  "config": {
+    "env": [],
+    "secrets": []
+  },
+  "observability": {
+    "metrics": [],
+    "trace": false
+  },
+  "deploy": {
+    "strategy": "rolling",
+    "env_target": "",
+    "flags": []
+  },
+  "limits": {
+    "per_path": {},
+    "per_tenant": 0
+  },
+  "roles": [],
+  "allow": [],
+  "audit": {},
+  "admin": {},
+  "desc": {
+    "endpoints": {},
+    "types": {}
+  },
+  "runbooks": {},
+  "ver": null,
+  "compat": null,
+  "tests": [],
+  "api": {
+    "style": "rest",
+    "version_prefix": "",
+    "deprecate": [],
+    "sla": {}
+  },
+  "rag": {
+    "sources": {},
+    "chunking": {},
+    "embeddings": {},
+    "stores": {},
+    "indexes": {},
+    "retrievers": {},
+    "augment": {},
+    "generate": {},
+    "pipelines": {}
+  },
+  "meta": [],
+  "errors": [],
+  "stats": {
+    "lines": 9,
+    "ops": 9
+  }
+}

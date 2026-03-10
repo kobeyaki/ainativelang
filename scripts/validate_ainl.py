@@ -15,10 +15,12 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from compiler_v2 import AICodeCompiler
 
 
-def compile_and_validate(code: str):
-    c = AICodeCompiler()
+def compile_and_validate(code: str, *, strict: bool = False, strict_reachability: bool = False):
+    c = AICodeCompiler(strict_mode=strict, strict_reachability=strict_reachability)
     try:
-        ir = c.compile(code)
+        ir = c.compile(code, emit_graph=True)
+        if ir.get("errors"):
+            return {"ok": False, "errors": ir.get("errors", []), "ir": ir}
         return {"ok": True, "ir": ir}
     except Exception as e:
         return {"ok": False, "error": str(e)}
@@ -30,6 +32,12 @@ def main():
     ap.add_argument("--emit", choices=["ir", "server", "react", "openapi", "prisma", "sql"], default="ir",
                     help="Emit this artifact instead of IR JSON")
     ap.add_argument("--no-json", action="store_true", help="Print IR as Python repr (for debugging)")
+    ap.add_argument("--strict", action="store_true", help="Enable strict compiler validation")
+    ap.add_argument(
+        "--strict-reachability",
+        action="store_true",
+        help="Enable strict reachability checks (implies --strict)",
+    )
     args = ap.parse_args()
 
     if args.file:
@@ -38,9 +46,14 @@ def main():
     else:
         code = sys.stdin.read()
 
-    result = compile_and_validate(code)
+    strict = bool(args.strict or args.strict_reachability)
+    result = compile_and_validate(code, strict=strict, strict_reachability=bool(args.strict_reachability))
     if not result["ok"]:
-        print(result["error"], file=sys.stderr)
+        if "errors" in result:
+            for err in result["errors"]:
+                print(err, file=sys.stderr)
+        else:
+            print(result["error"], file=sys.stderr)
         sys.exit(1)
 
     ir = result["ir"]

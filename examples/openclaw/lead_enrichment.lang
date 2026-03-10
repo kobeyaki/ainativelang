@@ -1,0 +1,28 @@
+# Lead Enrichment Pipeline
+# Purpose: Pull fresh leads, look up social mentions for each company, add enrichment data
+# Adapters: db.F (leads CSV), social.G (web search), cache.set, queue.Put
+# Cron: Runs every 6 hours
+
+S core cron "0 */6 * * *"
+
+L0: R core now ->ts J L1
+L1: R db.F Lead * ->leads J L2
+L2: X total (len leads) ->total_leads J L3
+L3: Set enriched [] ->enriched J L4
+L4: X i 0 ->i J L5
+L5: If (core.ge i total_leads) ->L_done ->L6
+L6: X lead leads[i] ->current J L7
+L7: R social G ->mentions J L8
+L8: Filter mentions where (core.contains (core.lower current.company) (core.lower mentions.text)) ->related
+L9: X mention_count len related ->mc J L10
+L10: X enriched_item (core.merge current {"social_mentions": mc, "enriched_at": ts}) ->enriched_item J L11
+L11: X enriched (core.append enriched enriched_item) ->enriched J L12
+L12: X i (core.add i 1) ->i J L5
+L_done:
+L13: R cache set "leads" "enriched_last_run" enriched ->_ J L14
+L14: R queue.Put notify {
+    "type": "lead_enrichment",
+    "total": total_leads,
+    "enriched_count": (len enriched),
+    "ts": ts
+  } ->_ J ok

@@ -3,17 +3,6 @@
 
 input int   Multiplier = 1;
 input double LotSize = 0.1;
-// Product.id : I
-// Product.name : S
-// Product.price : F
-// Product.sku : S
-// Order.id : I
-// Order.uid : I
-// Order.total : F
-// Order.status : E[Pending,Paid,Shipped]
-// Customer.id : I
-// Customer.email : S
-// Customer.name : S
 // Position.id : I
 // Position.symbol : S
 // Position.volume : F

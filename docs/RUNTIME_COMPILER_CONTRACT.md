@@ -1,0 +1,80 @@
+## Runtime Compiler Contract
+
+The canonical execution source of truth is the compiler-emitted IR consumed by `runtime/engine.py`.
+
+- Canonical runtime: `RuntimeEngine` in `runtime/engine.py`
+- Compatibility runtime: `ExecutionEngine` in `runtime/compat.py` (re-exported by `runtime.py` and `runtime/__init__.py`)
+- Compiler-owned runtime helpers:
+  - `compiler_v2.runtime_normalize_label_id()`
+  - `compiler_v2.runtime_normalize_node_id()`
+  - `compiler_v2.runtime_canonicalize_r_step()`
+- Compiler-owned decoding/grammar helpers:
+  - `compiler_v2.grammar_scan_lexical_prefix_state()`
+  - `compiler_v2.grammar_next_slot_classes()`
+  - `compiler_v2.grammar_prefix_line_ok()`
+  - `compiler_v2.grammar_apply_candidate_to_prefix()`
+  - `compiler_v2.grammar_active_label_scope()`
+  - `compiler_v2.grammar_prefix_completable()`
+
+### Source Of Truth
+
+Runtime executes compiler-emitted IR fields directly:
+
+- Label routing and normalization via compiler-owned label helper.
+- Node targeting (`Err`/`Retry` `at_node_id`) via compiler-owned node helper.
+- `R` step dispatch uses compiler-canonicalized `adapter`, `target`, `args`, `out`.
+- Strict graph port validation allows explicit `err`/`retry` bindings on executable
+  source nodes (not just `R`) so compiler lowering and runtime retry/error handling
+  remain aligned.
+- Prefix-constrained decoding uses compiler-owned transition helpers so
+  prefix viability/masking follows compiler law rather than duplicate heuristics.
+
+Backward-compatible `R` fields (`src`, `req_op`, `entity`, `fields`) are folded only through `runtime_canonicalize_r_step()`.
+
+Strict compiler dataflow policy treats bare identifier-like tokens in read positions
+as variable references. String literals must be quoted in strict mode to avoid
+undefined-var failures and ambiguity drift.
+
+Covered strict migration fields include:
+
+- `Set.ref`
+- `Filt.value`
+- `CacheGet.key`
+- `CacheGet.fallback`
+- `CacheSet.value`
+- `QueuePut.value`
+
+### Legacy Compatibility Policy
+
+- Canonical behavior is implemented only in `RuntimeEngine`.
+- `ExecutionEngine` is a thin API wrapper for historical imports; it does not define independent semantics.
+- Legacy adapter interfaces are bridged into canonical runtime adapters in `runtime/compat.py`.
+- `_call_result` is preserved for compatibility; explicit `Call ... ->out` remains authoritative.
+
+### Decoder Layering Contract
+
+- `compiler_grammar.py` is formal-only orchestration (state + admissibility).
+- `grammar_priors.py` is non-authoritative candidate sampling only.
+- `grammar_constraint.py` composes formal state/classes + priors + pruning for compatibility APIs.
+- Priors do not define formal validity.
+
+### Graph vs Legacy Steps Execution Policy
+
+Current policy remains graph-preferred:
+
+- If label graph data (`nodes`, `edges`, `entry`) is present, runtime executes graph semantics.
+- Step execution is retained as compatibility/fallback and for explicit `steps-only`.
+- Both paths share the same op handlers where possible to reduce semantic drift.
+
+### Future Runtime Semantics Location
+
+Any new executable semantics must be defined in compiler-owned IR shape/normalization first, then implemented in `RuntimeEngine` only.
+
+Do not add divergent behavior to compatibility wrappers.
+
+## Verification Surface (Must Stay Green)
+
+- Prefix alignment and transitions: `tests/test_grammar_constraint_alignment.py`
+- Runtime/compiler step-schema conformance: `tests/test_runtime_compiler_conformance.py`
+- Runtime behavior sanity and capability op execution: `tests/test_runtime_basic.py`
+- Graph/step parity and retry/error routing: `tests/test_runtime_parity.py`, `tests/test_runtime_graph_only.py`

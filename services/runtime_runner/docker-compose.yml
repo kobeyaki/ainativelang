@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  ainl-runner:
+    build:
+      context: ../..
+      dockerfile: services/runtime_runner/Dockerfile
+    ports:
+      - "8770:8770"
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped

@@ -1,0 +1,130 @@
+{
+  "base_model": "microsoft/phi-3-mini-4k-instruct",
+  "adapter_path": "models/ainl-phi3-lora",
+  "prompt_set": "corpus/curated/regression_prompts.jsonl",
+  "max_new_tokens": 24,
+  "device": "cpu",
+  "sanity": {
+    "pass": false,
+    "first_prompt_id": "weather_email",
+    "first_prompt_runtime_ok": false,
+    "first_prompt_strict_ok": false
+  },
+  "summary": {
+    "lora": {
+      "total_prompts": 3,
+      "nonempty_outputs": 1,
+      "nonempty_rate": 0.3333333333333333,
+      "runtime_compile_ok": 1,
+      "runtime_compile_rate": 0.3333333333333333,
+      "strict_compile_ok": 1,
+      "strict_compile_rate": 0.3333333333333333
+    },
+    "base": {
+      "total_prompts": 3,
+      "nonempty_outputs": 2,
+      "nonempty_rate": 0.6666666666666666,
+      "runtime_compile_ok": 2,
+      "runtime_compile_rate": 0.6666666666666666,
+      "strict_compile_ok": 2,
+      "strict_compile_rate": 0.6666666666666666
+    },
+    "comparison": {
+      "lora_wins_runtime_compile": 0,
+      "base_wins_runtime_compile": 1,
+      "ties_runtime_compile": 2
+    }
+  },
+  "results": [
+    {
+      "id": "weather_email",
+      "prompt": "Generate a tiny valid AINL workflow that checks weather in Seattle and emails a short summary to ops@example.com.",
+      "lora": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": "Generation timed out after 120s (max_new_tokens=24).",
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: Generation timed out after 120s (max_new_tokens=24)."
+          ],
+          "strict_errors": [
+            "no_output: Generation timed out after 120s (max_new_tokens=24)."
+          ]
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\nimport requests\nimport smtplib\nfrom email.message import EmailMessage\n\n# Function to get",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      }
+    },
+    {
+      "id": "api_status_alert",
+      "prompt": "Create a workflow that calls a REST status endpoint every 5 minutes and sends an alert when status is not ok.",
+      "lora": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": "Generation timed out after 120s (max_new_tokens=24).",
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: Generation timed out after 120s (max_new_tokens=24)."
+          ],
+          "strict_errors": [
+            "no_output: Generation timed out after 120s (max_new_tokens=24)."
+          ]
+        }
+      },
+      "base": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": "Generation timed out after 120s (max_new_tokens=24).",
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: Generation timed out after 120s (max_new_tokens=24)."
+          ],
+          "strict_errors": [
+            "no_output: Generation timed out after 120s (max_new_tokens=24)."
+          ]
+        }
+      }
+    },
+    {
+      "id": "rss_to_sqlite",
+      "prompt": "Build a workflow that polls an RSS feed, deduplicates items, and stores new entries in sqlite.",
+      "lora": {
+        "nonempty": true,
+        "output": "workflow RSS_to_sqlite {\n    if exists table rss_items (col name=\"id\") {",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\nimport feedparser\nimport sqlite3\nimport time\n\n# Define the RSS feed URL\nR",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      }
+    }
+  ]
+}

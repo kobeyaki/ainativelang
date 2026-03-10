@@ -1,0 +1,198 @@
+{
+  "adapter_root": "models/ainl-phi3-lora-v7-coverage",
+  "base_model": "microsoft/phi-3-mini-4k-instruct",
+  "prompt_set": "corpus/curated/regression_prompts.jsonl",
+  "top_k": 3,
+  "ranked": [
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage/checkpoint-180",
+      "ok": true,
+      "strict_ainl_rate": 0.6666666666666666,
+      "runtime_compile_rate": 0.6666666666666666,
+      "nonempty_rate": 0.6666666666666666,
+      "strict_ainl_ok": 8,
+      "runtime_compile_ok": 8,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/checkpoint-180.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage/checkpoint-200",
+      "ok": true,
+      "strict_ainl_rate": 0.6666666666666666,
+      "runtime_compile_rate": 0.6666666666666666,
+      "nonempty_rate": 0.6666666666666666,
+      "strict_ainl_ok": 8,
+      "runtime_compile_ok": 8,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/checkpoint-200.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage",
+      "ok": true,
+      "strict_ainl_rate": 0.5833333333333334,
+      "runtime_compile_rate": 0.5833333333333334,
+      "nonempty_rate": 0.5833333333333334,
+      "strict_ainl_ok": 7,
+      "runtime_compile_ok": 7,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/ainl-phi3-lora-v7-coverage.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage/checkpoint-220",
+      "ok": true,
+      "strict_ainl_rate": 0.5833333333333334,
+      "runtime_compile_rate": 0.5833333333333334,
+      "nonempty_rate": 0.5833333333333334,
+      "strict_ainl_ok": 7,
+      "runtime_compile_ok": 7,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/checkpoint-220.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage/checkpoint-280",
+      "ok": true,
+      "strict_ainl_rate": 0.5833333333333334,
+      "runtime_compile_rate": 0.5833333333333334,
+      "nonempty_rate": 0.5833333333333334,
+      "strict_ainl_ok": 7,
+      "runtime_compile_ok": 7,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/checkpoint-280.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage/checkpoint-300",
+      "ok": true,
+      "strict_ainl_rate": 0.5833333333333334,
+      "runtime_compile_rate": 0.5833333333333334,
+      "nonempty_rate": 0.5833333333333334,
+      "strict_ainl_ok": 7,
+      "runtime_compile_ok": 7,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/checkpoint-300.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage/checkpoint-320",
+      "ok": true,
+      "strict_ainl_rate": 0.5833333333333334,
+      "runtime_compile_rate": 0.5833333333333334,
+      "nonempty_rate": 0.5833333333333334,
+      "strict_ainl_ok": 7,
+      "runtime_compile_ok": 7,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/checkpoint-320.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage/checkpoint-340",
+      "ok": true,
+      "strict_ainl_rate": 0.5833333333333334,
+      "runtime_compile_rate": 0.5833333333333334,
+      "nonempty_rate": 0.5833333333333334,
+      "strict_ainl_ok": 7,
+      "runtime_compile_ok": 7,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/checkpoint-340.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage/checkpoint-360",
+      "ok": true,
+      "strict_ainl_rate": 0.5833333333333334,
+      "runtime_compile_rate": 0.5833333333333334,
+      "nonempty_rate": 0.5833333333333334,
+      "strict_ainl_ok": 7,
+      "runtime_compile_ok": 7,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/checkpoint-360.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage/checkpoint-380",
+      "ok": true,
+      "strict_ainl_rate": 0.5833333333333334,
+      "runtime_compile_rate": 0.5833333333333334,
+      "nonempty_rate": 0.5833333333333334,
+      "strict_ainl_ok": 7,
+      "runtime_compile_ok": 7,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/checkpoint-380.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage/checkpoint-384",
+      "ok": true,
+      "strict_ainl_rate": 0.5833333333333334,
+      "runtime_compile_rate": 0.5833333333333334,
+      "nonempty_rate": 0.5833333333333334,
+      "strict_ainl_ok": 7,
+      "runtime_compile_ok": 7,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/checkpoint-384.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage/checkpoint-240",
+      "ok": true,
+      "strict_ainl_rate": 0.5,
+      "runtime_compile_rate": 0.5833333333333334,
+      "nonempty_rate": 0.5833333333333334,
+      "strict_ainl_ok": 6,
+      "runtime_compile_ok": 7,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/checkpoint-240.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage/checkpoint-260",
+      "ok": true,
+      "strict_ainl_rate": 0.5,
+      "runtime_compile_rate": 0.5833333333333334,
+      "nonempty_rate": 0.5833333333333334,
+      "strict_ainl_ok": 6,
+      "runtime_compile_ok": 7,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/checkpoint-260.json"
+    }
+  ],
+  "selected": [
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage/checkpoint-180",
+      "ok": true,
+      "strict_ainl_rate": 0.6666666666666666,
+      "runtime_compile_rate": 0.6666666666666666,
+      "nonempty_rate": 0.6666666666666666,
+      "strict_ainl_ok": 8,
+      "runtime_compile_ok": 8,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/checkpoint-180.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage/checkpoint-200",
+      "ok": true,
+      "strict_ainl_rate": 0.6666666666666666,
+      "runtime_compile_rate": 0.6666666666666666,
+      "nonempty_rate": 0.6666666666666666,
+      "strict_ainl_ok": 8,
+      "runtime_compile_ok": 8,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/checkpoint-200.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v7-coverage",
+      "ok": true,
+      "strict_ainl_rate": 0.5833333333333334,
+      "runtime_compile_rate": 0.5833333333333334,
+      "nonempty_rate": 0.5833333333333334,
+      "strict_ainl_ok": 7,
+      "runtime_compile_ok": 7,
+      "total_prompts": 12,
+      "report_json": "models/ainl-phi3-lora-v7-coverage/checkpoint_eval/ainl-phi3-lora-v7-coverage.json"
+    }
+  ],
+  "pruned": [
+    "models/ainl-phi3-lora-v7-coverage/checkpoint-240",
+    "models/ainl-phi3-lora-v7-coverage/checkpoint-360",
+    "models/ainl-phi3-lora-v7-coverage/checkpoint-380",
+    "models/ainl-phi3-lora-v7-coverage/checkpoint-320",
+    "models/ainl-phi3-lora-v7-coverage/checkpoint-280",
+    "models/ainl-phi3-lora-v7-coverage/checkpoint-220",
+    "models/ainl-phi3-lora-v7-coverage/checkpoint-300",
+    "models/ainl-phi3-lora-v7-coverage/checkpoint-340",
+    "models/ainl-phi3-lora-v7-coverage/checkpoint-384",
+    "models/ainl-phi3-lora-v7-coverage/checkpoint-260"
+  ]
+}

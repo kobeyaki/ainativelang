@@ -1,0 +1,368 @@
+{
+  "base_model": "microsoft/phi-3-mini-4k-instruct",
+  "adapter_path": "models/ainl-phi3-lora",
+  "prompt_set": "corpus/curated/regression_prompts.jsonl",
+  "max_new_tokens": 10,
+  "device": "mps",
+  "sanity": {
+    "pass": true,
+    "first_prompt_id": "weather_email",
+    "first_prompt_runtime_ok": false,
+    "first_prompt_strict_ok": false
+  },
+  "summary": {
+    "lora": {
+      "total_prompts": 12,
+      "nonempty_outputs": 12,
+      "nonempty_rate": 1.0,
+      "runtime_compile_ok": 9,
+      "runtime_compile_rate": 0.75,
+      "strict_compile_ok": 7,
+      "strict_compile_rate": 0.5833333333333334
+    },
+    "base": {
+      "total_prompts": 12,
+      "nonempty_outputs": 12,
+      "nonempty_rate": 1.0,
+      "runtime_compile_ok": 12,
+      "runtime_compile_rate": 1.0,
+      "strict_compile_ok": 12,
+      "strict_compile_rate": 1.0
+    },
+    "comparison": {
+      "lora_wins_runtime_compile": 0,
+      "base_wins_runtime_compile": 3,
+      "ties_runtime_compile": 9
+    }
+  },
+  "results": [
+    {
+      "id": "weather_email",
+      "prompt": "Generate a tiny valid AINL workflow that checks weather in Seattle and emails a short summary to ops@example.com.",
+      "lora": {
+        "nonempty": true,
+        "output": "workflow CheckWeather {\n    title: \"",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "exception: Unterminated string literal at line 2, column 11"
+          ],
+          "strict_errors": [
+            "exception: Unterminated string literal at line 2, column 11"
+          ]
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\nimport requests\nimport smtplib",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      }
+    },
+    {
+      "id": "api_status_alert",
+      "prompt": "Create a workflow that calls a REST status endpoint every 5 minutes and sends an alert when status is not ok.",
+      "lora": {
+        "nonempty": true,
+        "output": "Variables:\n  status_url: str",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "import requests\nimport time\nfrom datetime import datetime",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      }
+    },
+    {
+      "id": "rss_to_sqlite",
+      "prompt": "Build a workflow that polls an RSS feed, deduplicates items, and stores new entries in sqlite.",
+      "lora": {
+        "nonempty": true,
+        "output": "workflow RSS_to_sqlite {",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\nimport feedparser\nimport sqlite3",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      }
+    },
+    {
+      "id": "daily_csv_report",
+      "prompt": "Generate a workflow that runs daily at 8am and writes a CSV report of yesterday's events.",
+      "lora": {
+        "nonempty": true,
+        "output": "workflow GenerateReport {\n    task WriteReport",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\n\nimport csv\n\nimport datetime",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      }
+    },
+    {
+      "id": "webhook_ingest",
+      "prompt": "Create an endpoint workflow that accepts webhook payloads, validates required fields, and stores them to a database.",
+      "lora": {
+        "nonempty": true,
+        "output": "def handle_webhook(event):",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "import json\nfrom flask import Flask, request",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      }
+    },
+    {
+      "id": "retry_on_http_fail",
+      "prompt": "Generate an AINL workflow that retries failed HTTP requests up to three times with backoff and logs failures.",
+      "lora": {
+        "nonempty": true,
+        "output": "X http_req_10 (http.",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": false,
+          "runtime_errors": [],
+          "strict_errors": [
+            "Line 1: label-only op 'X' used at top-level"
+          ]
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "import requests\nimport time\nimport logging",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      }
+    },
+    {
+      "id": "branch_on_risk",
+      "prompt": "Create a workflow that scores incoming records and branches to manual-review label when risk exceeds threshold.",
+      "lora": {
+        "nonempty": true,
+        "output": "workflow ScoreAndBranch {\n    records",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\n\nimport pandas as pd",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      }
+    },
+    {
+      "id": "queue_worker",
+      "prompt": "Build a queue worker workflow that reads queued jobs, processes each job, and writes success or error status.",
+      "lora": {
+        "nonempty": true,
+        "output": "workflow QueueWorker:\n  jobs:",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\nimport queue\nimport threading",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      }
+    },
+    {
+      "id": "db_to_email_digest",
+      "prompt": "Generate a workflow that queries open tickets from database and emails a digest to support lead.",
+      "lora": {
+        "nonempty": true,
+        "output": "title: \"Query open tickets and email dig",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "exception: Unterminated string literal at line 1, column 7"
+          ],
+          "strict_errors": [
+            "exception: Unterminated string literal at line 1, column 7"
+          ]
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\nimport smtplib\nfrom email",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      }
+    },
+    {
+      "id": "auth_policy_gate",
+      "prompt": "Create a workflow that enforces auth policy before executing data fetch and returns an error path if unauthorized.",
+      "lora": {
+        "nonempty": true,
+        "output": "Workflow:\n1. Check auth\n2",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": false,
+          "runtime_errors": [],
+          "strict_errors": [
+            "Line 2: unknown module '1' in '1.'"
+          ]
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```javascript\n// Assuming Express.js and Pass",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      }
+    },
+    {
+      "id": "transform_and_post",
+      "prompt": "Build a workflow that fetches JSON data, transforms fields, and posts the transformed payload to another API.",
+      "lora": {
+        "nonempty": true,
+        "output": "title: \"Fetch JSON -> Transform -> Post",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "exception: Unterminated string literal at line 1, column 7"
+          ],
+          "strict_errors": [
+            "exception: Unterminated string literal at line 1, column 7"
+          ]
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\nimport requests\nimport json",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      }
+    },
+    {
+      "id": "cron_backup_notify",
+      "prompt": "Generate a scheduled workflow that backs up records nightly and sends completion notification with counts.",
+      "lora": {
+        "nonempty": true,
+        "output": "title: Nightly Backup and Notify",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\nimport os\nimport shutil",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": []
+        }
+      }
+    }
+  ]
+}

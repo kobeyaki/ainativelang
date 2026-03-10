@@ -1,0 +1,2 @@
+Scrape product prices from a website once per day, store results, and return a compact summary object.
+

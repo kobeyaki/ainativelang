@@ -1,0 +1,7 @@
+S core web /api
+E /users G ->L_users ->users
+
+L_users:
+  R db.F User *
+  J users
+

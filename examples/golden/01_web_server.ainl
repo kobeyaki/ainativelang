@@ -1,0 +1,58 @@
+# Golden Example 1: Simple JSON API + static file server
+# Serves metrics at GET /metrics and static HTML at GET /
+# Uses core, http (as server), fs, and cache for rate limiting.
+
+S core cron "@reboot"  # start when workflow begins
+
+# Config
+D Config rate_limit_per_ip:N
+D Config static_dir:S
+
+# State for rate limiting (stores last request timestamp per IP)
+D State ip_tracker:{"":0}  # map<string, number>
+
+# Label 0: Initialize server
+L0: R core.now ->ts
+    R cache set "state" "ip_tracker" {}  # reset rate limiter
+    R http.SERVE 8080  # non-blocking; returns server handle J L1
+
+# Label 1: Router — dispatch based on path
+L1: R http.NEXT_REQUEST ->req J L2
+
+L2: X path req.path
+   X method req.method
+   X ip req.headers["x-forwarded-for"] || req.remote_addr
+
+   # Rate limiting: one request per IP per second
+   R cache get "state" "ip_tracker" ->tracker
+   X last_ts tracker[ip]
+   R core.now ->now
+   If (core.gt (core.sub now last_ts) Config.rate_limit_per_ip) ->L3 ->L4
+
+L3: # Too fast → 429
+   R http.RESPONSE 429 {"error":"rate_limit","retry_after":1} J L1
+
+L4: # Check routes
+   If (core.eq path "/") ->L5
+   If (core.eq path "/metrics") ->L6
+   J L7  # 404
+
+L5: # GET / → serve static index.html
+   If (core.ne method "GET") ->L404
+   R fs.read (Config.static_dir + "/index.html") ->html
+   R http.RESPONSE 200 {"Content-Type":"text/html"} html J L1
+
+L6: # GET /metrics → return JSON
+   If (core.ne method "GET") ->L404
+   # Collect metrics (could also query db, etc.)
+   X metrics {"uptime":now,"requests":1}
+   R http.RESPONSE 200 {"Content-Type":"application/json"} (core.stringify metrics) J L1
+
+L7: # Default 404
+L404: R http.RESPONSE 404 {"error":"not_found"} J L1
+
+# Notes:
+# - In a real deployment, use adapter.http for outbound calls; inbound server uses http.SERVE/NEXT_REQUEST/RESPONSE builtins (hypothetical; adapt to your runtime).
+# - Cache.get/set manage state across requests.
+# - core.now provides unix timestamp; core.stringify produces JSON.
+# - All operations are pure functions except cache writes and http response.

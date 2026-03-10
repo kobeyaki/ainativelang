@@ -1,8 +1,15 @@
-# AINL 1.0 — Grammar & Ops Reference
+# AI Native Lang (AINL) 1.0 — Grammar & Ops Reference
 
 **Version: 1.0** — Stable for conformance tests and model training. *Formerly referred to as v2 draft; AINL 1.0 is the normative name.*
 
-**Formal grammar and conformance:** see [docs/AINL_SPEC.md](docs/AINL_SPEC.md) and [docs/CONFORMANCE.md](docs/CONFORMANCE.md).
+**Formal grammar and conformance:** see [AINL_SPEC.md](AINL_SPEC.md) and [CONFORMANCE.md](CONFORMANCE.md).
+**Compiler/runtime decoding contract:** see [RUNTIME_COMPILER_CONTRACT.md](RUNTIME_COMPILER_CONTRACT.md).
+
+**Ownership split (for contributors):**
+- Grammar law and prefix transition helpers live in `compiler_v2.py`.
+- Formal orchestration/admissibility lives in `compiler_grammar.py`.
+- Non-authoritative candidate priors live in `grammar_priors.py`.
+- Compatibility composition APIs live in `grammar_constraint.py`.
 
 ## Syntax
 
@@ -10,6 +17,7 @@
 - **Comments**: `#` to end of line, only when not inside a double-quoted string.
 - **Labels**: `L<id>:` starts a block. Following **executable step ops** belong to that label until next `L<id>:` or EOF. Only executable step ops are allowed inside a label: `R J If Err Retry Call Set Filt Sort`. Inline form `L1: R ... J var` is allowed on the same line. **P is declaration-only** (not a step); payment in labels uses `R pay.*`.
 - **Lexical:** Strings = double quotes only; no multiline; escape `\"` and `\\`. Identifiers = alphanumeric + underscore (dot allowed e.g. in fe tokens). Path = `/`-prefixed. Enum = `E[Id1,Id2,...]`.
+- **Strict literal policy:** In strict mode, bare identifier-like tokens in read positions are interpreted as variable references. If intent is a string literal, quote it explicitly (e.g. `Set out "ok"` not `Set out ok`).
 
 ---
 
@@ -67,6 +75,7 @@
 
 ### J (JSON return)
 - `J us` → return JSON from variable `us` (in same label as R).
+- In strict mode, returning unbound bare identifier-like tokens is a defined-before-use error; quote literals when literal intent is required upstream.
 
 ### T (State)
 - `T us:A[User]` → state `us` of type array of User (attaches to current U).
@@ -133,7 +142,7 @@
 
 - **Rag (module):** rag.Src name type path | rag.Chunk name source strategy size [overlap] | rag.Embed name model [dim] | rag.Store name type | rag.Idx name source chunk embed store | rag.Ret name idx top_k [filter] | rag.Aug name tpl chunks_var query_var out | rag.Gen name model prompt_var [out] | rag.Pipe name ret aug gen. Build RAG piece-by-piece or one pipeline. Surface forms RagSrc, RagChunk, … allowed.
 
-See [docs/AINL_CORE_AND_MODULES.md](docs/AINL_CORE_AND_MODULES.md) for namespaced grammar and IR.
+See [AINL_CORE_AND_MODULES.md](AINL_CORE_AND_MODULES.md) for namespaced grammar and IR.
 
 ---
 

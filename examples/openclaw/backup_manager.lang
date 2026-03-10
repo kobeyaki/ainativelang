@@ -1,0 +1,40 @@
+S core cron "0 */6 * * *"
+S db cache queue svc core
+D Config retention_hours:N
+D State last_backup:T
+D State backup_count:N
+
+L0: R core now ->ts J L1
+L1: R cache get "state" "last_backup" ->last_backup J L2
+L2: X hours_passed (core.div (core.sub ts last_backup) 3600)
+J L3
+
+L3: X need_backup (core.gt hours_passed Config.retention_hours)
+L4: If need_backup ->L5 ->L20
+
+L5: R svc caddy ->caddy_ok J L6
+L6: R svc cloudflared ->cloudflared_ok J L7
+L7: R svc maddy ->maddy_ok J L8
+L8: R svc crm ->crm_ok J L9
+
+L9: X all_services_ok (core.and (core.and (core.and caddy_ok cloudflared_ok) maddy_ok) crm_ok)
+L10: If all_services_ok ->L11 ->L19
+
+L11: R db F ->leads J L12
+L12: X lead_count len leads J L13
+
+L13: X summary_text (core.concat "Backup report: " (core.stringify lead_count) " leads as of " (core.iso ts))
+L14: X backup_json (core.obj "backup_ts" ts "backup_count" Config.retention_hours "leads_count" lead_count "note" summary_text)
+
+L15: R cache set "last_backup" "ts" ts ->_ J L16
+L16: R cache set "backup_state" "last_count" lead_count ->_ J L17
+L17: R cache set "backup_state" "summary" summary_text ->_ J L18
+
+L18: R queue Put notify (payload=backup_json) ->_ J L20
+
+L19: R queue Put notify (payload=(core.obj "backup" "skipped" "reason" "service_down" "ts" ts)) ->_ J L20
+
+L20: R cache set "state" "last_backup" ts ->_ J L21
+L21: R cache set "state" "backup_count" (core.add backup_count 1) ->_ J L22
+
+L22:

@@ -1,0 +1,45 @@
+# Legacy compatibility sample (non-strict-only in current release profile).
+# NOTE: despite filename, this file is currently not strict-valid.
+# See tooling/artifact_profiles.json for authoritative classification.
+# Daily Digest Monitor
+# Purpose: Periodic summary of email, calendar, and social mentions
+# Adapters: email.G, calendar.G, social.G, cache.get/set, queue.Put
+# Cron: Runs every morning at 8 AM
+
+S core cron "0 8 * * *"
+
+D DigestConfig email_limit:N calendar_days:N social_count:N throttle_minutes:N
+D DigestState last_run:T last_email_ts:T
+
+L0: R core.now ->now_ts J L1
+
+L1: R cache.get "digest" "last_run" ->last_run J L2
+L2: X minutes_since (core.div (core.sub now_ts last_run) 60) J L3
+L3: X _cond (core.lt mins Config.throttle_minutes) If _cond ->L4 ->L5
+L4: J "throttled"
+
+L5: R cache.get "digest" "last_email_ts" ->last_email_ts J L6
+L6: R email.G ->emails J L7
+L7: Filter emails where ts > last_email_ts ->new_emails
+L8: X email_count (core.min (len new_emails) Config.email_limit) J L9
+L9: R calendar.G ->events J L10
+L10: Filter events where start > now_ts ->upcoming
+L11: X cal_count (len upcoming) J L12
+L12: R social.G ->mentions J L13
+L13: X social_count (core.min (len mentions) Config.social_count) J L14
+
+L14: X part1 (core.concat "📧 New emails: " (core.stringify email_count))
+L15: X part2 (core.concat "📅 Upcoming events: " (core.stringify cal_count))
+L16: X part3 (core.concat "🔊 Mentions: " (core.stringify social_count))
+L17: X digest_summary (core.join "\n\n" [part1 part2 part3]) J L18
+
+L18: R queue.Put "notify" {
+    "type": "daily_digest",
+    "summary": digest_summary,
+    "email_count": email_count,
+    "cal_count": cal_count,
+    "social_count": social_count,
+    "ts": now_ts
+  } ->_ J L19
+L19: R cache.set "digest" "last_run" now_ts ->_ J L20
+L20: R cache.set "digest" "last_email_ts" now_ts ->_ J ok

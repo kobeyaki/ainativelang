@@ -1,4 +1,4 @@
-# AINL: Core + Modules — Thesis-Aligned Spec
+# AI Native Lang (AINL): Core + Modules — Thesis-Aligned Spec
 
 **Status:** This document is the thesis-aligned expansion of [AINL_SPEC.md](AINL_SPEC.md). It must not introduce new normative rules that contradict the formal spec; the formal spec (§§0–5 of AINL_SPEC.md) is normative.
 
@@ -8,7 +8,7 @@
 
 - **Core** is the only executable semantics; runtimes execute core ops. **Declarations** (U, T, Rt, …) are structural metadata stored as `core.decl`; they never affect execution. **Modules** are domain metadata; runtimes may ignore module ops they don’t implement, but all ops must be preserved in IR for emitters.
 - **No unqualified op name may have multiple semantics.** Namespaced ops are distinct (e.g. `Retry` vs `fe.FetchRetry`). Use distinct names across domains to avoid trainability drift.
-- IR is **graph-first**: canonical meaning is defined by nodes/edges; step-list is an allowed surface encoding only.
+- IR is **graph-first**: canonical meaning is defined by nodes/edges; `legacy.steps` is an allowed compatibility encoding only.
 - Token cost stays low because meaning is structural, not prose.
 
 ---
@@ -71,6 +71,7 @@ Examples: `R db.F User * ->us` | `R api.G /external ->res` | `R rag.Ret ret1 que
 
 - **Strings:** Double quotes only; no multiline. Escaping: `\"` and `\\`. Conformance tests must accept only this form. **Tokenization:** Slots are separated by whitespace **except inside double-quoted strings**, which are a single token and may contain spaces.
 - **Identifiers:** Alphanumeric and underscore; no spaces. Names like `OrderTable`, `color.primary` (dot allowed in fe tokens). Path tokens: `/`-prefixed, e.g. `/api/products`. Enum literals: `E[Ad,Us]` — comma-separated ids inside brackets.
+- **Strict disambiguation:** In strict mode, bare identifier-like tokens in read positions are interpreted as variable references; if literal intent is required, quote the value.
 
 ### 2.6 Core declarations (non-executable)
 
@@ -90,9 +91,9 @@ Variables: use **Set**, **Filt**, **Sort** only (no overloading). Client fetch r
 
 - **Canonical meaning** of a label is defined by **nodes** and **edges**.  
 - **`labels[id].nodes`** and **`labels[id].edges`** are the canonical representation (in IR and in this doc, `labels[id]` means `labels[label_key]` where label_key is the numeric id).  
-- **`labels[id].steps`** (or **`labels[id].legacy.steps`**) is a **non-canonical, allowed surface encoding** that must round-trip to the same graph. Emitters and runtimes that consume step-lists must treat them as a serialization of that graph. **graph_to_steps()** is required only for graphs that are representable in step-list form (a reducible subset). For general graphs, `legacy.steps` may be absent; `nodes`/`edges` remains canonical.
+- **`labels[id].legacy.steps`** is a **non-canonical compatibility encoding** that must round-trip to the same graph. Emitters and runtimes that consume step-lists must treat them as a serialization of that graph. **graph_to_steps()** is required only for graphs that are representable in step-list form (a reducible subset). For general graphs, `legacy.steps` may be absent; `nodes`/`edges` remains canonical.
 
-So: *“Canonical meaning is defined by nodes/edges; step-list is an allowed surface encoding.”* **Invariant:** Canonical IR = nodes/edges; everything else is serialization. The canonical IR is the graph; implementations may currently emit and execute steps only—graph execution will replace step execution when canonical IR is emitted. **Until the runtime executes the graph directly, this invariant is aspirational; once it does, AINL becomes fully coherent.** No emitter should define label semantics from steps alone in a way that diverges from the graph.
+So: *“Canonical meaning is defined by nodes/edges; step-list is an allowed compatibility encoding.”* **Invariant:** Canonical IR = nodes/edges; everything else is serialization. Current implementation emits canonical graph and executes graph by default (`graph-preferred`), with `legacy.steps` retained for compatibility and explicit `steps-only` mode. No emitter should define label semantics from steps alone in a way that diverges from the graph.
 
 ### 3.2 Labels as graphs
 
@@ -166,6 +167,7 @@ IR = {
 ```
 
 **Rule:** Only `services`, `types`, `labels` (graph), and `crons` (and adapter config implied by Q, Sc, P, C) drive execution. All other keys are metadata for emitters.
+Canonical runtime execution lives in `runtime/engine.py` (`RuntimeEngine`); compatibility API lives in `runtime/compat.py` (`ExecutionEngine`, re-exported by `runtime.py`).
 
 ---
 

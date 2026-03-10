@@ -1,0 +1,50 @@
+cff-version: 1.2.0
+message: "If you use AINL in research, software, benchmarks, or publications, please cite this project and preserve initiator attribution to Steven Hooley."
+title: "AINL (AI Native Lang)"
+type: software
+
+authors:
+  - family-names: "Hooley"
+    given-names: "Steven"
+    alias: "sbhooley"
+    website: "https://stevenhooley.com"
+
+abstract: >-
+  AINL (AI Native Lang) is an AI-native language and runtime ecosystem for
+  human+AI co-development, canonical IR-oriented execution, structured code
+  generation, and rigorous evaluation workflows for AINL-producing systems.
+  The project was human-initiated by Steven Hooley and developed in active
+  collaboration with AI systems.
+
+keywords:
+  - AI-native language
+  - compiler
+  - runtime
+  - intermediate representation
+  - constrained decoding
+  - evaluation
+  - fine-tuning
+  - co-development
+
+license: Apache-2.0
+
+url: "https://stevenhooley.com"
+
+# Optional but recommended once you start tagging releases:
+# version: "0.1.0"
+# date-released: "2026-03-03"
+
+# Optional if you publish a paper, Zenodo archive, or software DOI:
+# identifiers:
+#   - type: doi
+#     value: "10.0000/example-doi"
+
+# Optional if you want preferred citation metadata later:
+# preferred-citation:
+#   type: article
+#   authors:
+#     - family-names: "LastName"
+#       given-names: "FirstName"
+#   title: "AINL: ..."
+#   journal: "..."
+#   year: 2026

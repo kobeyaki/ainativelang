@@ -138,6 +138,19 @@ Bind Db /us P ->L1
     assert b["var"] == "data"
 
 
+def test_call_invalid_second_slot_strict_reports_error():
+    c = AICodeCompiler(strict_mode=True)
+    ir = c.compile("L1: Call L2 nope J data\nL2: J data\n")
+    assert any("Call optional return binding must be -><var>" in e for e in ir.get("errors", []))
+
+
+def test_strict_unknown_prefixed_module_op_rejected():
+    """Strict: unknown module.op should be rejected, not just preserved in meta."""
+    c = AICodeCompiler(strict_mode=True)
+    ir = c.compile("ops.Unknown some value\n")
+    assert any("unknown module.op" in e for e in ir.get("errors", []))
+
+
 def test_react_browser_bind_var_gets_state_and_setter():
     """emit_react_browser must define useState for Bind vars before calling setters."""
     c = AICodeCompiler()
@@ -233,10 +246,36 @@ U Db
     assert "fetch('/api/a'" in react
 
 
+def test_emit_server_sanitizes_hyphenated_path_function_name():
+    c = AICodeCompiler()
+    ir = c.compile("S core web /api\nE /apple-price G ->L1\nL1: J data\n")
+    server = c.emit_server(ir)
+    assert "@api.get('/apple-price')" in server
+    assert "def get_apple_price(request: Request):" in server
+
+
 def test_cst_stores_op_canonical_alias_normalized():
     c = AICodeCompiler()
     ir = c.compile("Env API_KEY required")
     assert ir["cst"]["lines"][0]["op_canonical"] == "ops.Env"
+
+
+def test_prefixed_ops_env_parsed_as_single_token():
+    """Prefixed form ops.Env is one token and is recognized; config.env populated."""
+    c = AICodeCompiler()
+    ir = c.compile("ops.Env API_KEY required")
+    assert not ir.get("errors"), ir.get("errors")
+    assert ir["cst"]["lines"][0]["op_canonical"] == "ops.Env"
+    assert any(e.get("name") == "API_KEY" for e in ir.get("config", {}).get("env", []))
+
+
+def test_prefixed_fe_tok_parsed_as_single_token():
+    """Prefixed form fe.Tok is one token and is recognized; fe.tokens populated."""
+    c = AICodeCompiler()
+    ir = c.compile("fe.Tok primary 0xffffff")
+    assert not ir.get("errors"), ir.get("errors")
+    assert ir["cst"]["lines"][0]["op_canonical"] == "fe.Tok"
+    assert ir.get("services", {}).get("fe", {}).get("tokens", {}).get("primary") == "0xffffff"
 
 
 def test_strict_targeted_label_requires_steps_and_single_terminal_j():

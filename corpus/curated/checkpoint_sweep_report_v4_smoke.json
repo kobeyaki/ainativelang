@@ -1,0 +1,77 @@
+{
+  "adapter_root": "models/ainl-phi3-lora-v4-regression",
+  "base_model": "microsoft/phi-3-mini-4k-instruct",
+  "prompt_set": "corpus/curated/regression_prompts.jsonl",
+  "top_k": 3,
+  "ranked": [
+    {
+      "adapter_path": "models/ainl-phi3-lora-v4-regression/checkpoint-20",
+      "ok": true,
+      "strict_ainl_rate": 1.0,
+      "runtime_compile_rate": 1.0,
+      "nonempty_rate": 1.0,
+      "strict_ainl_ok": 2,
+      "runtime_compile_ok": 2,
+      "total_prompts": 2,
+      "report_json": "models/ainl-phi3-lora-v4-regression/checkpoint_eval/checkpoint-20.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v4-regression/checkpoint-10",
+      "ok": true,
+      "strict_ainl_rate": 0.5,
+      "runtime_compile_rate": 1.0,
+      "nonempty_rate": 1.0,
+      "strict_ainl_ok": 1,
+      "runtime_compile_ok": 2,
+      "total_prompts": 2,
+      "report_json": "models/ainl-phi3-lora-v4-regression/checkpoint_eval/checkpoint-10.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v4-regression",
+      "ok": true,
+      "strict_ainl_rate": 0.0,
+      "runtime_compile_rate": 0.0,
+      "nonempty_rate": 0.0,
+      "strict_ainl_ok": 0,
+      "runtime_compile_ok": 0,
+      "total_prompts": 2,
+      "report_json": "models/ainl-phi3-lora-v4-regression/checkpoint_eval/ainl-phi3-lora-v4-regression.json"
+    }
+  ],
+  "selected": [
+    {
+      "adapter_path": "models/ainl-phi3-lora-v4-regression/checkpoint-20",
+      "ok": true,
+      "strict_ainl_rate": 1.0,
+      "runtime_compile_rate": 1.0,
+      "nonempty_rate": 1.0,
+      "strict_ainl_ok": 2,
+      "runtime_compile_ok": 2,
+      "total_prompts": 2,
+      "report_json": "models/ainl-phi3-lora-v4-regression/checkpoint_eval/checkpoint-20.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v4-regression/checkpoint-10",
+      "ok": true,
+      "strict_ainl_rate": 0.5,
+      "runtime_compile_rate": 1.0,
+      "nonempty_rate": 1.0,
+      "strict_ainl_ok": 1,
+      "runtime_compile_ok": 2,
+      "total_prompts": 2,
+      "report_json": "models/ainl-phi3-lora-v4-regression/checkpoint_eval/checkpoint-10.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v4-regression",
+      "ok": true,
+      "strict_ainl_rate": 0.0,
+      "runtime_compile_rate": 0.0,
+      "nonempty_rate": 0.0,
+      "strict_ainl_ok": 0,
+      "runtime_compile_ok": 0,
+      "total_prompts": 2,
+      "report_json": "models/ainl-phi3-lora-v4-regression/checkpoint_eval/ainl-phi3-lora-v4-regression.json"
+    }
+  ],
+  "pruned": []
+}

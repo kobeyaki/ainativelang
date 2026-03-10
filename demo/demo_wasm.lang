@@ -1,0 +1,12 @@
+# WASM Compute Demo
+# Compiles and calls a WASM module for lead scoring.
+S core cron "* * * * *"  # run every minute for demo
+
+D Config reviews_weight:N rating_weight:N age_weight:N
+
+L0: R core now ->ts J L1
+L1: R wasm.CALL metrics add 2 3 ->sum J L2
+L2: X sum_val sum J L3
+L3: R wasm.CALL metrics lead_score 15 450 30 ->lead_sc J L4
+L4: X lead_score_val lead_sc J L5
+L5: QueuePut notify {"wasm_add":sum_val,"wasm_lead_score":lead_score_val,"ts":ts} J done

@@ -1,0 +1,12 @@
+{"id":"weather_email","prompt":"Generate a tiny valid AINL workflow that checks weather in Seattle and emails a short summary to ops@example.com."}
+{"id":"api_status_alert","prompt":"Create a workflow that calls a REST status endpoint every 5 minutes and sends an alert when status is not ok."}
+{"id":"rss_to_sqlite","prompt":"Build a workflow that polls an RSS feed, deduplicates items, and stores new entries in sqlite."}
+{"id":"daily_csv_report","prompt":"Generate a workflow that runs daily at 8am and writes a CSV report of yesterday's events."}
+{"id":"webhook_ingest","prompt":"Create an endpoint workflow that accepts webhook payloads, validates required fields, and stores them to a database."}
+{"id":"retry_on_http_fail","prompt":"Generate an AINL workflow that retries failed HTTP requests up to three times with backoff and logs failures."}
+{"id":"branch_on_risk","prompt":"Create a workflow that scores incoming records and branches to manual-review label when risk exceeds threshold."}
+{"id":"queue_worker","prompt":"Build a queue worker workflow that reads queued jobs, processes each job, and writes success or error status."}
+{"id":"db_to_email_digest","prompt":"Generate a workflow that queries open tickets from database and emails a digest to support lead."}
+{"id":"auth_policy_gate","prompt":"Create a workflow that enforces auth policy before executing data fetch and returns an error path if unauthorized."}
+{"id":"transform_and_post","prompt":"Build a workflow that fetches JSON data, transforms fields, and posts the transformed payload to another API."}
+{"id":"cron_backup_notify","prompt":"Generate a scheduled workflow that backs up records nightly and sends completion notification with counts."}

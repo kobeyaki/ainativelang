@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "policy": {
+    "strict-valid": "Must compile with strict_mode=true.",
+    "non-strict-only": "Must compile with strict_mode=false and fail strict_mode=true.",
+    "legacy-compat": "Retained for training/compatibility context; not a strict conformance target."
+  },
+  "examples": {
+    "strict-valid": [
+      "examples/hello.ainl",
+      "examples/rag_pipeline.ainl",
+      "examples/crud_api.ainl",
+      "examples/scraper/basic_scraper.ainl",
+      "examples/web/basic_web_api.ainl",
+      "examples/retry_error_resilience.ainl",
+      "examples/if_call_workflow.ainl",
+      "examples/webhook_automation.ainl",
+      "examples/monitor_escalation.ainl"
+    ],
+    "non-strict-only": [
+      "examples/api_only.lang",
+      "examples/blog.lang",
+      "examples/ecom.lang",
+      "examples/internal_tool.lang",
+      "examples/ticketing.lang",
+      "examples/cron/monitor_and_alert.ainl",
+      "examples/openclaw/daily_digest.lang",
+      "examples/openclaw/daily_digest.strict.lang",
+      "examples/openclaw/daily_lead_summary.lang",
+      "examples/openclaw/backup_manager.lang",
+      "examples/openclaw/infrastructure_watchdog.lang",
+      "examples/openclaw/lead_enrichment.lang",
+      "examples/openclaw/webhook_handler.lang",
+      "examples/golden/01_web_server.ainl",
+      "examples/golden/02_dashboard.ainl",
+      "examples/golden/03_scraper.ainl",
+      "examples/golden/04_alerting_monitor.ainl",
+      "examples/golden/05_file_processor.ainl"
+    ],
+    "legacy-compat": []
+  },
+  "corpus_examples": {
+    "strict-valid": [
+      "corpus/example_basic_web_api/program.ainl",
+      "corpus/example_scraper_daily/program.ainl"
+    ],
+    "non-strict-only": [
+      "corpus/example_monitor_alert/program.ainl",
+      "corpus/example_monitor_alert/corrected_program.ainl"
+    ],
+    "legacy-compat": [
+      "corpus/example_basic_web_api/corrected_program.ainl",
+      "corpus/example_basic_web_api/invalid_program.ainl",
+      "corpus/example_scraper_daily/corrected_program.ainl",
+      "corpus/example_scraper_daily/invalid_program.ainl",
+      "corpus/example_monitor_alert/invalid_program.ainl"
+    ]
+  },
+  "runtime_fixtures": {
+    "strict-valid": [
+      "tests/conformance_runtime/fixtures/add_then_return.json",
+      "tests/conformance_runtime/fixtures/err_handler_path.json",
+      "tests/conformance_runtime/fixtures/retry_at_node.json"
+    ],
+    "non-strict-only": [
+      "tests/conformance_runtime/fixtures/if_call_flow.json"
+    ],
+    "legacy-compat": []
+  }
+}

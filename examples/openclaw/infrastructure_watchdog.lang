@@ -1,0 +1,27 @@
+# Infrastructure Watchdog
+# Monitors core services and alerts if any are down.
+S core cron "*/5 * * * *"
+
+D Config alert_interval_sec:N 600  # minimum seconds between alerts per service
+D State last_alert:T
+
+L0: R core now ->ts J L1
+L1: R cache get "watchdog" "last_alert" ->last_alert J L2
+L2: If (core.eq last_alert null) ->L3 ->L4
+L3: Set last_alert 0 J L4
+L4: R svc caddy ->caddy_status J L5
+L5: R svc cloudflared ->cloudflared_status J L6
+L6: R svc maddy ->maddy_status J L7
+L7: R svc crm ->crm_status J L8
+L8: If (core.eq caddy_status "down") ->L10 ->L9
+L9: If (core.eq cloudflared_status "down") ->L10 ->L11
+L10: If (core.eq maddy_status "down") ->L12 ->L11
+L11: If (core.eq crm_status "down") ->L12 ->L62
+L12: X alert_key (core.concat "alert:" caddy_status ":" cloudflared_status ":" maddy_status ":" crm_status)
+L13: X cooldown_ok (core.gt (core.sub ts last_alert) Config.alert_interval_sec)
+L14: If cooldown_ok ->L15 ->L62
+L15: R email G ->_ J L16
+L16: X msg (core.concat "Infrastructure alert: caddy=" caddy_status " cloudflared=" cloudflared_status " maddy=" maddy_status " crm=" crm_status)
+L17: R queue Put notify {"message":msg,"ts":ts} ->_ J L18
+L18: R cache set "watchdog" "last_alert" ts ->_ J L62
+L62:

@@ -1,0 +1,505 @@
+{
+  "base_model": "microsoft/phi-3-mini-4k-instruct",
+  "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/best_by_strict_ainl",
+  "prompt_set": "corpus/curated/regression_prompts.jsonl",
+  "max_new_tokens": 30,
+  "device": "mps",
+  "constrained_decoding": true,
+  "repair_attempts": 1,
+  "canonicalize_output": true,
+  "base_evaluated": true,
+  "sanity": {
+    "pass": false,
+    "first_prompt_id": "weather_email",
+    "first_prompt_runtime_ok": false,
+    "first_prompt_strict_ok": false
+  },
+  "summary": {
+    "lora": {
+      "total_prompts": 12,
+      "nonempty_outputs": 6,
+      "nonempty_rate": 0.5,
+      "runtime_compile_ok": 6,
+      "runtime_compile_rate": 0.5,
+      "strict_compile_ok": 6,
+      "strict_compile_rate": 0.5,
+      "ainl_like_ok": 6,
+      "ainl_like_rate": 0.5,
+      "strict_ainl_ok": 6,
+      "strict_ainl_rate": 0.5
+    },
+    "base": {
+      "total_prompts": 12,
+      "nonempty_outputs": 10,
+      "nonempty_rate": 0.8333333333333334,
+      "runtime_compile_ok": 10,
+      "runtime_compile_rate": 0.8333333333333334,
+      "strict_compile_ok": 7,
+      "strict_compile_rate": 0.5833333333333334,
+      "ainl_like_ok": 10,
+      "ainl_like_rate": 0.8333333333333334,
+      "strict_ainl_ok": 7,
+      "strict_ainl_rate": 0.5833333333333334
+    },
+    "comparison": {
+      "lora_wins_runtime_compile": 0,
+      "base_wins_runtime_compile": 4,
+      "ties_runtime_compile": 8,
+      "lora_wins_strict_ainl": 2,
+      "base_wins_strict_ainl": 3,
+      "ties_strict_ainl": 7
+    }
+  },
+  "results": [
+    {
+      "id": "weather_email",
+      "prompt": "Generate a tiny valid AINL workflow that checks weather in Seattle and emails a short summary to ops@example.com.",
+      "lora": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": "repair_failed: Generation timed out after 120s (max_new_tokens=30).",
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: Generation timed out after 120s (max_new_tokens=30)."
+          ],
+          "strict_errors": [
+            "no_output: Generation timed out after 120s (max_new_tokens=30)."
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "empty_output",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": "repair_failed: Generation timed out after 120s (max_new_tokens=30).",
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: Generation timed out after 120s (max_new_tokens=30)."
+          ],
+          "strict_errors": [
+            "no_output: Generation timed out after 120s (max_new_tokens=30)."
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "empty_output",
+          "strict_ainl_ok": false
+        }
+      }
+    },
+    {
+      "id": "api_status_alert",
+      "prompt": "Create a workflow that calls a REST status endpoint every 5 minutes and sends an alert when status is not ok.",
+      "lora": {
+        "nonempty": true,
+        "output": "Cr L */* * * * * L X L R X L J DL JL J X J L J L J L J L J",
+        "generation_error": "Generation timed out after 120s (max_new_tokens=30).",
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S c a /\nR If P - S\nS c a /\nR If P - S\nS c a /\nR If P",
+        "generation_error": "Generation timed out after 120s (max_new_tokens=30).",
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        }
+      }
+    },
+    {
+      "id": "rss_to_sqlite",
+      "prompt": "Build a workflow that polls an RSS feed, deduplicates items, and stores new entries in sqlite.",
+      "lora": {
+        "nonempty": true,
+        "output": "Cr D */ */ * * *",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S c a / R\nS c a / D\nS c a / E\nS c a / L\nS c a / R",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        }
+      }
+    },
+    {
+      "id": "daily_csv_report",
+      "prompt": "Generate a workflow that runs daily at 8am and writes a CSV report of yesterday's events.",
+      "lora": {
+        "nonempty": true,
+        "output": "Cr D */*/* * * * * L D R L XL J R L J L J L J L J L J L J L",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S c a / R\nS c a / R\nS c a / R\nS c a / R\nS c a / R",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        }
+      }
+    },
+    {
+      "id": "webhook_ingest",
+      "prompt": "Create an endpoint workflow that accepts webhook payloads, validates required fields, and stores them to a database.",
+      "lora": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: empty output"
+          ],
+          "strict_errors": [
+            "no_output: empty output"
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "empty_output",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "C\nC\nC\nC\nC\nC\nC\nC\nC\nC\nC\nC\nC\nC\nC",
+        "generation_error": "repair_failed: Generation timed out after 120s (max_new_tokens=30).",
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": false,
+          "runtime_errors": [],
+          "strict_errors": [
+            "Line 1: op 'C' requires at least 3 slots, got 0",
+            "Line 2: op 'C' requires at least 3 slots, got 0",
+            "Line 3: op 'C' requires at least 3 slots, got 0",
+            "Line 4: op 'C' requires at least 3 slots, got 0",
+            "Line 5: op 'C' requires at least 3 slots, got 0",
+            "Line 6: op 'C' requires at least 3 slots, got 0",
+            "Line 7: op 'C' requires at least 3 slots, got 0",
+            "Line 8: op 'C' requires at least 3 slots, got 0",
+            "Line 9: op 'C' requires at least 3 slots, got 0",
+            "Line 10: op 'C' requires at least 3 slots, got 0",
+            "Line 11: op 'C' requires at least 3 slots, got 0",
+            "Line 12: op 'C' requires at least 3 slots, got 0",
+            "Line 13: op 'C' requires at least 3 slots, got 0",
+            "Line 14: op 'C' requires at least 3 slots, got 0",
+            "Line 15: op 'C' requires at least 3 slots, got 0"
+          ],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": false
+        }
+      }
+    },
+    {
+      "id": "retry_on_http_fail",
+      "prompt": "Generate an AINL workflow that retries failed HTTP requests up to three times with backoff and logs failures.",
+      "lora": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: empty output"
+          ],
+          "strict_errors": [
+            "no_output: empty output"
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "empty_output",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": "repair_failed: Generation timed out after 120s (max_new_tokens=30).",
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: Generation timed out after 120s (max_new_tokens=30)."
+          ],
+          "strict_errors": [
+            "no_output: Generation timed out after 120s (max_new_tokens=30)."
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "empty_output",
+          "strict_ainl_ok": false
+        }
+      }
+    },
+    {
+      "id": "branch_on_risk",
+      "prompt": "Create a workflow that scores incoming records and branches to manual-review label when risk exceeds threshold.",
+      "lora": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: empty output"
+          ],
+          "strict_errors": [
+            "no_output: empty output"
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "empty_output",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S c a /\nS c a /\nS c a /\nS c a /\nS c a /\nS c a /",
+        "generation_error": "Generation timed out after 120s (max_new_tokens=30).",
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        }
+      }
+    },
+    {
+      "id": "queue_worker",
+      "prompt": "Build a queue worker workflow that reads queued jobs, processes each job, and writes success or error status.",
+      "lora": {
+        "nonempty": true,
+        "output": "Cr L */ * * * *\nCr Cr */*/*/*/ */ */ */ */ L J X J R J L J D L J L",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "C\nA\nC\nA\nC\nA\nC\nA\nC\nA\nC\nA\nC\nA\nC",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": false,
+          "runtime_errors": [],
+          "strict_errors": [
+            "Line 1: op 'C' requires at least 3 slots, got 0",
+            "Line 2: op 'A' requires at least 2 slots, got 0",
+            "Line 3: op 'C' requires at least 3 slots, got 0",
+            "Line 4: op 'A' requires at least 2 slots, got 0",
+            "Line 5: op 'C' requires at least 3 slots, got 0",
+            "Line 6: op 'A' requires at least 2 slots, got 0",
+            "Line 7: op 'C' requires at least 3 slots, got 0",
+            "Line 8: op 'A' requires at least 2 slots, got 0",
+            "Line 9: op 'C' requires at least 3 slots, got 0",
+            "Line 10: op 'A' requires at least 2 slots, got 0",
+            "Line 11: op 'C' requires at least 3 slots, got 0",
+            "Line 12: op 'A' requires at least 2 slots, got 0",
+            "Line 13: op 'C' requires at least 3 slots, got 0",
+            "Line 14: op 'A' requires at least 2 slots, got 0",
+            "Line 15: op 'C' requires at least 3 slots, got 0"
+          ],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": false
+        }
+      }
+    },
+    {
+      "id": "db_to_email_digest",
+      "prompt": "Generate a workflow that queries open tickets from database and emails a digest to support lead.",
+      "lora": {
+        "nonempty": true,
+        "output": "Cr D */ */ * * * L R L R L R L L X L L L L J L J D L L L L L L",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S c a /D\nS c a /E\nS c a /L\nS c a /R\nS c a /If",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        }
+      }
+    },
+    {
+      "id": "auth_policy_gate",
+      "prompt": "Create a workflow that enforces auth policy before executing data fetch and returns an error path if unauthorized.",
+      "lora": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: empty output"
+          ],
+          "strict_errors": [
+            "no_output: empty output"
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "empty_output",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S c a /R\nS c a /E\nS c a /L\nS c a /If\nS c a /X",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        }
+      }
+    },
+    {
+      "id": "transform_and_post",
+      "prompt": "Build a workflow that fetches JSON data, transforms fields, and posts the transformed payload to another API.",
+      "lora": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: empty output"
+          ],
+          "strict_errors": [
+            "no_output: empty output"
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "empty_output",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S c a /\nS c a /\nS c a /\nS c a /\nS c a /\nS c a /",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        }
+      }
+    },
+    {
+      "id": "cron_backup_notify",
+      "prompt": "Generate a scheduled workflow that backs up records nightly and sends completion notification with counts.",
+      "lora": {
+        "nonempty": true,
+        "output": "Cr D */*/* * * * *",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S cw a /D\nS cw a /E\nS cw a /R\nS cw a /S\nS c",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": false,
+          "runtime_errors": [],
+          "strict_errors": [
+            "Line 5: op 'S' requires at least 2 slots, got 1"
+          ],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": false
+        }
+      }
+    }
+  ]
+}

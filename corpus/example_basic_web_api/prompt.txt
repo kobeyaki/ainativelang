@@ -1,0 +1,2 @@
+Build a small web API that exposes GET /api/users and returns the list of users from the database.
+

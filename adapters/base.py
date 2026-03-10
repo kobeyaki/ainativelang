@@ -1,6 +1,6 @@
 """
-Adapter interface for AI-Native Lang runtime.
-Implement these to plug in real backends (Prisma, Stripe, HTTP, etc.).
+Adapter interfaces for AI-Native Lang runtime.
+Implement these to plug in real backends (Prisma, Stripe, HTTP, cache, queue, txn, auth).
 """
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
@@ -68,8 +68,59 @@ class ScrapeAdapter(ABC):
         pass
 
 
+class CacheAdapter(ABC):
+    """Backend for cache capability steps."""
+
+    @abstractmethod
+    def get(self, namespace: str, key: str) -> Any:
+        """Lookup cache value by namespace+key; return None on miss."""
+        pass
+
+    @abstractmethod
+    def set(self, namespace: str, key: str, value: Any, ttl_s: int = 0) -> None:
+        """Store cache value with optional ttl in seconds."""
+        pass
+
+
+class QueueAdapter(ABC):
+    """Backend for queue capability steps."""
+
+    @abstractmethod
+    def push(self, queue: str, value: Any) -> str:
+        """Push value to queue and return message id."""
+        pass
+
+
+class TxnAdapter(ABC):
+    """Backend for transaction capability steps."""
+
+    @abstractmethod
+    def begin(self, name: str) -> str:
+        """Start transaction scope and return transaction id."""
+        pass
+
+    @abstractmethod
+    def commit(self, name: str) -> None:
+        """Commit transaction scope."""
+        pass
+
+    @abstractmethod
+    def rollback(self, name: str) -> None:
+        """Rollback transaction scope."""
+        pass
+
+
+class AuthAdapter(ABC):
+    """Backend for auth capability checks."""
+
+    @abstractmethod
+    def validate(self, token_or_value: str) -> bool:
+        """Return True when auth value/token is valid."""
+        pass
+
+
 class AdapterRegistry:
-    """Holds db, api, pay, scrape adapters. Used by ExecutionEngine."""
+    """Holds runtime adapters. Used by ExecutionEngine."""
 
     def __init__(
         self,
@@ -77,11 +128,19 @@ class AdapterRegistry:
         api: Optional[APIAdapter] = None,
         pay: Optional[PayAdapter] = None,
         scrape: Optional[ScrapeAdapter] = None,
+        cache: Optional[CacheAdapter] = None,
+        queue: Optional[QueueAdapter] = None,
+        txn: Optional[TxnAdapter] = None,
+        auth: Optional[AuthAdapter] = None,
     ):
         self.db = db
         self.api = api
         self.pay = pay
         self.scrape = scrape
+        self.cache = cache
+        self.queue = queue
+        self.txn = txn
+        self.auth = auth
 
     def get_db(self) -> DBAdapter:
         if self.db is None:
@@ -102,3 +161,23 @@ class AdapterRegistry:
         if self.scrape is None:
             raise RuntimeError("No scrape adapter registered")
         return self.scrape
+
+    def get_cache(self) -> CacheAdapter:
+        if self.cache is None:
+            raise RuntimeError("No cache adapter registered")
+        return self.cache
+
+    def get_queue(self) -> QueueAdapter:
+        if self.queue is None:
+            raise RuntimeError("No queue adapter registered")
+        return self.queue
+
+    def get_txn(self) -> TxnAdapter:
+        if self.txn is None:
+            raise RuntimeError("No txn adapter registered")
+        return self.txn
+
+    def get_auth(self) -> AuthAdapter:
+        if self.auth is None:
+            raise RuntimeError("No auth adapter registered")
+        return self.auth

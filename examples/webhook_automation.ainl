@@ -1,0 +1,10 @@
+L1:
+  Set is_valid true
+  R http.POST "https://example.com/automation" "event_webhook" ->resp
+  If is_valid ->L2 ->L3
+L2:
+  Set out "accepted"
+  J out
+L3:
+  Set out "ignored"
+  J out

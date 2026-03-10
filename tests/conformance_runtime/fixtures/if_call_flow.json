@@ -1,0 +1,8 @@
+{
+  "name": "if_call_flow",
+  "code": "L1: Set cond true If cond ->L2 ->L3\nL2: Call L9 ->ans J ans\nL3: Set bad nope J bad\nL9: X v add 20 22 J v\n",
+  "strict": false,
+  "input_frame": {},
+  "expected_result": 42,
+  "expected_trace_ops_contains": ["Set", "X", "Call", "J", "If"]
+}

@@ -1,0 +1,180 @@
+{
+  "adapter_root": "models/ainl-phi3-lora-v6-breakthrough",
+  "base_model": "microsoft/phi-3-mini-4k-instruct",
+  "prompt_set": "corpus/curated/regression_prompts.jsonl",
+  "top_k": 3,
+  "ranked": [
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/checkpoint-160",
+      "ok": true,
+      "strict_ainl_rate": 1.0,
+      "runtime_compile_rate": 1.0,
+      "nonempty_rate": 1.0,
+      "strict_ainl_ok": 3,
+      "runtime_compile_ok": 3,
+      "total_prompts": 3,
+      "report_json": "models/ainl-phi3-lora-v6-breakthrough/checkpoint_eval/checkpoint-160.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/checkpoint-200",
+      "ok": true,
+      "strict_ainl_rate": 1.0,
+      "runtime_compile_rate": 1.0,
+      "nonempty_rate": 1.0,
+      "strict_ainl_ok": 3,
+      "runtime_compile_ok": 3,
+      "total_prompts": 3,
+      "report_json": "models/ainl-phi3-lora-v6-breakthrough/checkpoint_eval/checkpoint-200.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/checkpoint-260",
+      "ok": true,
+      "strict_ainl_rate": 1.0,
+      "runtime_compile_rate": 1.0,
+      "nonempty_rate": 1.0,
+      "strict_ainl_ok": 3,
+      "runtime_compile_ok": 3,
+      "total_prompts": 3,
+      "report_json": "models/ainl-phi3-lora-v6-breakthrough/checkpoint_eval/checkpoint-260.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/checkpoint-300",
+      "ok": true,
+      "strict_ainl_rate": 1.0,
+      "runtime_compile_rate": 1.0,
+      "nonempty_rate": 1.0,
+      "strict_ainl_ok": 3,
+      "runtime_compile_ok": 3,
+      "total_prompts": 3,
+      "report_json": "models/ainl-phi3-lora-v6-breakthrough/checkpoint_eval/checkpoint-300.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/checkpoint-140",
+      "ok": true,
+      "strict_ainl_rate": 0.6666666666666666,
+      "runtime_compile_rate": 0.6666666666666666,
+      "nonempty_rate": 0.6666666666666666,
+      "strict_ainl_ok": 2,
+      "runtime_compile_ok": 2,
+      "total_prompts": 3,
+      "report_json": "models/ainl-phi3-lora-v6-breakthrough/checkpoint_eval/checkpoint-140.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/checkpoint-220",
+      "ok": true,
+      "strict_ainl_rate": 0.6666666666666666,
+      "runtime_compile_rate": 0.6666666666666666,
+      "nonempty_rate": 0.6666666666666666,
+      "strict_ainl_ok": 2,
+      "runtime_compile_ok": 2,
+      "total_prompts": 3,
+      "report_json": "models/ainl-phi3-lora-v6-breakthrough/checkpoint_eval/checkpoint-220.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/checkpoint-180",
+      "ok": true,
+      "strict_ainl_rate": 0.3333333333333333,
+      "runtime_compile_rate": 0.3333333333333333,
+      "nonempty_rate": 0.3333333333333333,
+      "strict_ainl_ok": 1,
+      "runtime_compile_ok": 1,
+      "total_prompts": 3,
+      "report_json": "models/ainl-phi3-lora-v6-breakthrough/checkpoint_eval/checkpoint-180.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/checkpoint-280",
+      "ok": true,
+      "strict_ainl_rate": 0.3333333333333333,
+      "runtime_compile_rate": 0.3333333333333333,
+      "nonempty_rate": 0.3333333333333333,
+      "strict_ainl_ok": 1,
+      "runtime_compile_ok": 1,
+      "total_prompts": 3,
+      "report_json": "models/ainl-phi3-lora-v6-breakthrough/checkpoint_eval/checkpoint-280.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/checkpoint-100",
+      "ok": false,
+      "error": "eval_failed: exit=-11",
+      "strict_ainl_rate": 0.0,
+      "runtime_compile_rate": 0.0,
+      "nonempty_rate": 0.0
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/checkpoint-120",
+      "ok": true,
+      "strict_ainl_rate": 0.0,
+      "runtime_compile_rate": 0.0,
+      "nonempty_rate": 0.0,
+      "strict_ainl_ok": 0,
+      "runtime_compile_ok": 0,
+      "total_prompts": 3,
+      "report_json": "models/ainl-phi3-lora-v6-breakthrough/checkpoint_eval/checkpoint-120.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/checkpoint-240",
+      "ok": true,
+      "strict_ainl_rate": 0.0,
+      "runtime_compile_rate": 0.0,
+      "nonempty_rate": 0.0,
+      "strict_ainl_ok": 0,
+      "runtime_compile_ok": 0,
+      "total_prompts": 3,
+      "report_json": "models/ainl-phi3-lora-v6-breakthrough/checkpoint_eval/checkpoint-240.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/checkpoint-80",
+      "ok": false,
+      "error": "eval_failed: exit=1",
+      "strict_ainl_rate": 0.0,
+      "runtime_compile_rate": 0.0,
+      "nonempty_rate": 0.0
+    }
+  ],
+  "selected": [
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/checkpoint-160",
+      "ok": true,
+      "strict_ainl_rate": 1.0,
+      "runtime_compile_rate": 1.0,
+      "nonempty_rate": 1.0,
+      "strict_ainl_ok": 3,
+      "runtime_compile_ok": 3,
+      "total_prompts": 3,
+      "report_json": "models/ainl-phi3-lora-v6-breakthrough/checkpoint_eval/checkpoint-160.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/checkpoint-200",
+      "ok": true,
+      "strict_ainl_rate": 1.0,
+      "runtime_compile_rate": 1.0,
+      "nonempty_rate": 1.0,
+      "strict_ainl_ok": 3,
+      "runtime_compile_ok": 3,
+      "total_prompts": 3,
+      "report_json": "models/ainl-phi3-lora-v6-breakthrough/checkpoint_eval/checkpoint-200.json"
+    },
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough/checkpoint-260",
+      "ok": true,
+      "strict_ainl_rate": 1.0,
+      "runtime_compile_rate": 1.0,
+      "nonempty_rate": 1.0,
+      "strict_ainl_ok": 3,
+      "runtime_compile_ok": 3,
+      "total_prompts": 3,
+      "report_json": "models/ainl-phi3-lora-v6-breakthrough/checkpoint_eval/checkpoint-260.json"
+    }
+  ],
+  "pruned": [
+    "models/ainl-phi3-lora-v6-breakthrough/checkpoint-240",
+    "models/ainl-phi3-lora-v6-breakthrough/checkpoint-100",
+    "models/ainl-phi3-lora-v6-breakthrough/checkpoint-140",
+    "models/ainl-phi3-lora-v6-breakthrough/checkpoint-320",
+    "models/ainl-phi3-lora-v6-breakthrough/checkpoint-280",
+    "models/ainl-phi3-lora-v6-breakthrough/checkpoint-220",
+    "models/ainl-phi3-lora-v6-breakthrough/checkpoint-300",
+    "models/ainl-phi3-lora-v6-breakthrough/checkpoint-120",
+    "models/ainl-phi3-lora-v6-breakthrough/checkpoint-180"
+  ]
+}

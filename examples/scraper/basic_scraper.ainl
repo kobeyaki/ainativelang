@@ -1,0 +1,9 @@
+S core cron
+Sc products "https://example.com/products" title=.product-title price=.product-price
+Cr L_scrape "0 * * * *"   # hourly
+
+L_scrape:
+  R http.GET "https://example.com/products" ->resp
+  R db.C Product * ->stored
+  J stored
+

@@ -1,0 +1,39 @@
+# Monitor System (Strict Mode)
+# Fetches email, calendar, social counts; caches state; sends alert if thresholds exceeded.
+S core cron "*/15 * * * *"
+
+D Config email_alert_above:N 10
+D Config calendar_alert_above:N 5
+D Config social_alert_above:N 20
+D Config recent_hours:N 24
+
+D State last_check:T
+D State last_email_alert:T
+D State last_calendar_alert:T
+D State last_social_alert:T
+
+L0: R core now ->ts J L1
+L1: X elapsed (core.sub ts State.last_check)
+L2: X need_check (core.gt elapsed (* 15 60))
+L3: If need_check ->L4 ->L62
+L4: CacheGet "monitor" "last_check" ->cached_ts J L5
+L5: X hours (core.div (core.sub ts cached_ts) 3600)
+L6: X should_email (core.gt hours Config.recent_hours)
+L7: X should_calendar (core.gt hours Config.recent_hours)
+L8: X should_social (core.gt hours Config.recent_hours)
+L9: If should_email ->L10 ->L12
+L10: EmailF ->emails J L11
+L11: X email_unread_count (len emails)
+L12: If should_calendar ->L13 ->L15
+L13: CalendarF ->events J L14
+L14: X event_count (len events)
+L15: If should_social ->L16 ->L18
+L16: SocialF ->mentions J L17
+L17: X mention_count (len mentions)
+L18: X email_alert (core.gt email_unread_count Config.email_alert_above)
+L19: X calendar_alert (core.gt event_count Config.calendar_alert_above)
+L20: X social_alert (core.gt mention_count Config.social_alert_above)
+L21: If (core.or email_alert (core.or calendar_alert social_alert)) ->L22 ->L23
+L22: EmailG ->_ J L23
+L23: CacheSet "monitor" "last_check" ts ->_ J L62
+L62:

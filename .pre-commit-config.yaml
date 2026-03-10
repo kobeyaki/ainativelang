@@ -1,0 +1,15 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  - repo: local
+    hooks:
+      - id: ainl-docs-contract
+        name: AINL docs contract check
+        entry: python scripts/check_docs_contracts.py --scope changed
+        language: system
+        pass_filenames: false

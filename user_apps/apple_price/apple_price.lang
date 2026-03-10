@@ -1,0 +1,12 @@
+S core web /api
+S fe web /
+
+D Quote symbol:S regularMarketPrice:F currency:S regularMarketTime:D
+
+E /apple-price G ->L1 ->quote
+L1: R api.G https://query1.finance.yahoo.com/v7/finance/quote?symbols=AAPL ->quote J quote
+
+U ApplePrice quote
+T quote:J
+Rt / ApplePrice
+Bind ApplePrice /apple-price G ->quote

@@ -1,0 +1,60 @@
+name: Bug report
+description: Report a reproducible bug in language, runtime, or training/eval tooling.
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is broken?
+      placeholder: Clear, short description
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      description: Exact steps/commands to reproduce.
+      placeholder: |
+        1) ...
+        2) ...
+        3) ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: OS, Python, relevant dependency versions
+      placeholder: macOS 14.x, Python 3.10, transformers x.y.z
+  - type: dropdown
+    id: artifact_profile
+    attributes:
+      label: Artifact profile (if example/corpus/fixture related)
+      description: Match the classification in tooling/artifact_profiles.json when applicable.
+      options:
+        - not applicable
+        - strict-valid
+        - non-strict-only
+        - legacy-compat
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / artifacts
+      description: Paste errors and link relevant JSON report files.

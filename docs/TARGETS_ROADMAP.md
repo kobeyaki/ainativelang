@@ -1,6 +1,6 @@
-# AINL targets roadmap — real-world and production
+# AI Native Lang (AINL) targets roadmap — real-world and production
 
-Expanding targets so AINL is usable in production and for mass adoption. Tiers: **Today** (implemented), **Next** (high priority), **Production** (deploy, observe, scale), **Ecosystem** (other languages and platforms).
+Expanding targets so AI Native Lang is usable in production and for mass adoption. Tiers: **Today** (implemented), **Next** (high priority), **Production** (deploy, observe, scale), **Ecosystem** (other languages and platforms).
 
 ---
 

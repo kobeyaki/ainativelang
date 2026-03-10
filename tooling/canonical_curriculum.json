@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "description": "Ordered strict-valid canonical curriculum for small-model learnability.",
+  "examples": [
+    {
+      "order": 1,
+      "path": "examples/hello.ainl",
+      "primary_pattern": "compute_return",
+      "secondary_pattern": "none"
+    },
+    {
+      "order": 2,
+      "path": "examples/crud_api.ainl",
+      "primary_pattern": "if_branching",
+      "secondary_pattern": "set_literals"
+    },
+    {
+      "order": 3,
+      "path": "examples/rag_pipeline.ainl",
+      "primary_pattern": "call_return",
+      "secondary_pattern": "label_modularity"
+    },
+    {
+      "order": 4,
+      "path": "examples/if_call_workflow.ainl",
+      "primary_pattern": "if_call_workflow",
+      "secondary_pattern": "bound_call_result"
+    },
+    {
+      "order": 5,
+      "path": "examples/retry_error_resilience.ainl",
+      "primary_pattern": "retry_error",
+      "secondary_pattern": "failure_fallback"
+    },
+    {
+      "order": 6,
+      "path": "examples/web/basic_web_api.ainl",
+      "primary_pattern": "web_endpoint",
+      "secondary_pattern": "db_read"
+    },
+    {
+      "order": 7,
+      "path": "examples/webhook_automation.ainl",
+      "primary_pattern": "webhook_automation",
+      "secondary_pattern": "validate_act_return"
+    },
+    {
+      "order": 8,
+      "path": "examples/scraper/basic_scraper.ainl",
+      "primary_pattern": "scraper_cron",
+      "secondary_pattern": "http_to_storage"
+    },
+    {
+      "order": 9,
+      "path": "examples/monitor_escalation.ainl",
+      "primary_pattern": "monitoring_escalation",
+      "secondary_pattern": "scheduled_branch"
+    }
+  ]
+}

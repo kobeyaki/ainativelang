@@ -30,7 +30,11 @@ def test_minimal_api_compiles():
     assert "core" in ir["services"]
     assert "eps" in ir["services"]["core"]
     assert "/users" in ir["services"]["core"]["eps"]
-    assert ir["services"]["core"]["eps"]["/users"]["label_id"] == "1"
+    ep = ir["services"]["core"]["eps"]["/users"]
+    if "label_id" in ep:
+        assert ep["label_id"] == "1"
+    else:
+        assert ep.get("G", {}).get("label_id") == "1"
     assert "types" in ir
     assert "User" in ir["types"]
     assert "labels" in ir
@@ -57,6 +61,8 @@ def test_minimal_api_emit_server_contains_route():
     assert "_run_label(" in server
     assert "health" in server
     assert "ready" in server
+    assert "Steven Hooley" in server
+    assert "project_provenance.json" in server
 
 
 def test_minimal_api_emit_openapi_has_path():
@@ -68,6 +74,9 @@ def test_minimal_api_emit_openapi_has_path():
     assert "get" in doc["paths"]["/api/users"]
     assert "/api/health" in doc["paths"]
     assert "/api/ready" in doc["paths"]
+    prov = doc["info"]["x-ainl-provenance"]
+    assert prov["initiator"] == "Steven Hooley"
+    assert prov["public_references"]["website"] == "https://stevenhooley.com"
 
 
 def test_minimal_api_emit_react_non_empty():
@@ -76,6 +85,7 @@ def test_minimal_api_emit_react_non_empty():
     react = c.emit_react(ir)
     assert len(react) > 0
     assert "React" in react or "useState" in react
+    assert "Steven Hooley" in react
 
 
 def test_minimal_api_emit_prisma_has_model():
@@ -84,6 +94,7 @@ def test_minimal_api_emit_prisma_has_model():
     prisma = c.emit_prisma_schema(ir)
     assert "model" in prisma
     assert "User" in prisma
+    assert "Steven Hooley" in prisma
 
 
 def test_ecom_dashboard_compiles():
@@ -122,6 +133,7 @@ def test_ecom_dashboard_emit_sql_migrations():
     assert "CREATE TABLE" in sql
     assert "Product" in sql
     assert "Order" in sql
+    assert "Steven Hooley" in sql
 
 
 def test_auth_op_stored_in_ir():
@@ -160,4 +172,8 @@ def test_ir_json_roundtrip():
     ir = c.compile(MINIMAL_API)
     js = c.emit_ir_json(ir)
     back = json.loads(js)
-    assert back["services"]["core"]["eps"]["/users"]["label_id"] == "1"
+    ep = back["services"]["core"]["eps"]["/users"]
+    if "label_id" in ep:
+        assert ep["label_id"] == "1"
+    else:
+        assert ep.get("G", {}).get("label_id") == "1"

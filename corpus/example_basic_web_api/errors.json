@@ -1,0 +1,11 @@
+{
+  "invalid_program": "invalid_program.ainl",
+  "expected_errors": [
+    {
+      "code": "MISSING_OUT_VAR",
+      "message_contains": "R requires ->out"
+    }
+  ],
+  "notes": "The invalid example omits ->users on the R line."
+}
+

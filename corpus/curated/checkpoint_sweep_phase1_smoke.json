@@ -1,0 +1,33 @@
+{
+  "adapter_root": "models/ainl-phi3-lora-v6-breakthrough",
+  "base_model": "microsoft/phi-3-mini-4k-instruct",
+  "prompt_set": "corpus/curated/regression_prompts.jsonl",
+  "top_k": 2,
+  "ranked": [
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough",
+      "ok": true,
+      "strict_ainl_rate": 1.0,
+      "runtime_compile_rate": 1.0,
+      "nonempty_rate": 1.0,
+      "strict_ainl_ok": 1,
+      "runtime_compile_ok": 1,
+      "total_prompts": 1,
+      "report_json": "models/ainl-phi3-lora-v6-breakthrough/checkpoint_eval/ainl-phi3-lora-v6-breakthrough.json"
+    }
+  ],
+  "selected": [
+    {
+      "adapter_path": "models/ainl-phi3-lora-v6-breakthrough",
+      "ok": true,
+      "strict_ainl_rate": 1.0,
+      "runtime_compile_rate": 1.0,
+      "nonempty_rate": 1.0,
+      "strict_ainl_ok": 1,
+      "runtime_compile_ok": 1,
+      "total_prompts": 1,
+      "report_json": "models/ainl-phi3-lora-v6-breakthrough/checkpoint_eval/ainl-phi3-lora-v6-breakthrough.json"
+    }
+  ],
+  "pruned": []
+}

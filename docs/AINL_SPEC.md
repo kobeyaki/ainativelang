@@ -1,8 +1,12 @@
-# AINL — Formal Spec & Design Principles
+# AI Native Lang (AINL) — Formal Spec & Design Principles
 
 **Version: 1.0** — Grammar and IR are stable for training and tooling. Backward-compatible extensions only. *AINL 1.0 is the stabilized subset of the graph-first design (formerly v2 draft).*
+Timeline anchor: Foundational AI research and cross-platform experimentation by
+the human founder began in **2024**. After partial loss of early artifacts, AINL
+workstreams were rebuilt, retested, and formalized in overlapping phases through
+**2025-2026**.
 
-**AINL is an agent-native production language.** It is an **AI-to-AI intermediate programming language**: a compact, deterministic, executable IR that happens to have a surface syntax. It is **not intended to be authored or reviewed by humans**. Humans interact with the system in natural language; AI agents compile those intents into AINL, which serves as a compact, deterministic, verifiable intermediate program representation. **Human oversight is performed through emitted artifacts** (tests, semantic diffs, policy reports, and target-code output), not through direct inspection of AINL source.
+**AI Native Lang (AINL) is an agent-native production language.** It is an **AI-to-AI intermediate programming language**: a compact, deterministic, executable IR that happens to have a surface syntax. It is **not intended to be authored or reviewed by humans**. Humans interact with the system in natural language; AI agents compile those intents into AINL, which serves as a compact, deterministic, verifiable intermediate program representation. **Human oversight is performed through emitted artifacts** (tests, semantic diffs, policy reports, and target-code output), not through direct inspection of AINL source.
 
 **Design axiom:** Natural language is the **human interface**. AINL is the **agent interface**. Emitters and runtimes are the **machine interface**. Pipeline: **Human NL → Agent planning → AINL → IR(graph) → execution/emission.** AINL’s requirements are parseability, low entropy, determinism, trainability, and verifiability—not human readability.
 
@@ -15,7 +19,7 @@
 **Core = execution. Declarations = structural metadata. Modules = domain metadata.**
 
 - **Core** is the only executable semantics: S, D, E, L, R, J, If, Err, Retry, Call, Set, Filt, Sort, Inc. These ops define control flow, adapters, and label graphs; runtimes execute them.
-- **Declarations** are structural metadata (UI, routes, config, bindings). They never affect execution. Ops: U, T, Rt, Lay, Fm, Tbl, Ev, A, Q, Sc, Cr, P, C. In IR they are stored under **`core.decl`**; emitters consume them. Runtimes that do not implement a declaration simply preserve it in IR.
+- **Declarations** are structural metadata (UI, routes, config, bindings). They never affect execution. Ops: U, T, Rt, Lay, Fm, Tbl, Ev, A, Q, Sc, Cr, P, C, Pol, Txn. In IR they are stored under **`core.decl`**; emitters consume them. Runtimes that do not implement a declaration simply preserve it in IR.
 - **Modules** are domain metadata (`ops`, `fe`, `arch`, `test`, etc.). Namespaced ops are distinct from core (e.g. **Retry** vs **fe.FetchRetry**). Runtimes may ignore module ops they don’t implement; all ops must be preserved in IR for emitters. **Normalization:** For backward compatibility, unprefixed ops that are known module ops may be accepted at parse time but **must be normalized to canonical `module.op` form in emitted IR** (e.g. `Env` → `ops.Env`), so IR does not diverge across implementations.
 - **Canonical IR:** Label meaning is defined by **nodes/edges**. A step-list is an **optional, non-canonical** serialization (`legacy.steps`) and must round-trip to the same graph. Core (executable) nodes have **effect: pure | io** (R = io; Set/Filt/Sort/If = pure; Call computed from callee subgraph).
 - **Full grammar and validation:** [AINL_CORE_AND_MODULES.md](AINL_CORE_AND_MODULES.md) — namespaced grammar, canonical IR, effect typing, validation ruleset, optional bytecode (AINL-BC).
@@ -47,15 +51,15 @@ Since agents generate AINL, correctness and safety come from **tooling and verif
 
 ### 1.2 What we need to do next (operational safety)
 
-The most important next evolution is making the language **operationally safe**, not adding more ops. In order:
+Operational-safety milestones are now implemented and enforced across compiler/runtime/test contracts:
 
-1. **Implement canonical graph emission** — Emit `nodes`/`edges` per label (and deterministic `steps_to_graph()` so step-list round-trips).
-2. **Replace runtime execution with graph traversal** — Runtime executes the graph (nodes/edges), not the step-list; steps become optional/cache only.
-3. **Implement strict validation fully** — `--strict` per spec §3.5 (canonical graph, single exit J, Call return, no undeclared refs, no unknown module.op, adapter arity, no unreachable/duplicate/non-canonical nodes).
-4. **Implement semantic graph diff** — IR-level semantic diff (machine + human views) for traceability.
-5. **Emit oversight report per compile/run** — Human-auditable report (summary, deltas, tests) on every compile and run.
+1. **Canonical graph emission** — implemented (`nodes`/`edges` + deterministic lowering/round-trip behavior).
+2. **Runtime graph traversal** — implemented (graph-first execution policy with compatibility `steps-only` mode).
+3. **Strict validation** — implemented (`--strict` guarantees in §3.5).
+4. **Semantic graph diff** — implemented in graph tooling.
+5. **Oversight reporting** — implemented via oversight/tooling surfaces.
 
-Until (1) and (2) are done, the invariant (canonical IR = nodes/edges) remains aspirational; once the runtime executes the graph, AINL becomes fully coherent.
+The invariant (canonical IR = nodes/edges) is now operational, not aspirational.
 
 ---
 
@@ -67,7 +71,7 @@ Until (1) and (2) are done, the invariant (canonical IR = nodes/edges) remains a
 - **Comment**: `#` to end of line (ignored).
 - **Statement**: **OP** **slots**.
 - **OP (core):** Either (a) a short core token (`S`, `D`, `E`, `R`, `J`, `U`, `T`, `Q`, `Sc`, `Cr`, `P`, `C`, `Rt`, `Lay`, `Fm`, `Tbl`, `Ev`, plus `A` and structural/declaration ops), or (b) a reserved identifier for core control/dataflow: `If`, `Err`, `Retry`, `Call`, `Set`, `Filt`, `Sort`, `Inc`. Labels use `L` + id + `:`.
-- **Label block parsing:** `L`&lt;number&gt;`:` begins a label block. Within a label block, each subsequent non-empty non-comment line **must** begin with a label-step op token (`R|J|If|Err|Retry|Call|Set|Filt|Sort`). Any other op within a label block is invalid. The block continues until the next `L`&lt;number&gt;`:` or EOF. Inline form is allowed: after the colon on the same line, a sequence of label-step statements may appear. This makes compiler behavior deterministic.
+- **Label block parsing:** `L`&lt;number&gt;`:` begins a label block. Within a label block, each subsequent non-empty non-comment line **must** begin with a label-step op token (`R|J|If|Err|Retry|Call|Set|Filt|Sort|CacheGet|CacheSet|QueuePut|Tx|Enf`). Any other op within a label block is invalid. The block continues until the next `L`&lt;number&gt;`:` or EOF. Inline form is allowed: after the colon on the same line, a sequence of label-step statements may appear. This makes compiler behavior deterministic.
 - **OP (module):** Module-prefixed ops use an identifier form: `module "." MODULE_OP` where `module` and `MODULE_OP` are identifiers (`[A-Za-z][A-Za-z0-9_]*`); dot only in the prefix (e.g. `ops.Env`, `fe.Tok`, `rag.Src`). This preserves dense short core ops while allowing descriptive module ops.
 - **Statement grammar:** `statement := core_stmt | module_stmt`; `core_stmt := CORE_OP slots`; `module_stmt := module "." MODULE_OP slots`.
 - **slots**: Zero or more **slot** tokens. Slots are separated by whitespace **except inside double-quoted strings**, which form a single token and may contain spaces. A **slot** is thus: a path, identifier, literal (including a quoted string), or composite like `f:T`, `->x` (arrow_var), `->L1` (arrow_lbl), `A[User]`.
@@ -84,7 +88,7 @@ core_stmt     := S_s | D_s | E_s | L_s | Inc_s
               | U_s | T_s | Q_s | Sc_s | Cr_s | P_s | C_s | A_s
               | Rt_s | Lay_s | Fm_s | Tbl_s | Ev_s
 
-label_step    := R_s | J_s | If_s | Err_s | Retry_s | Call_s | Set_s | Filt_s | Sort_s
+label_step    := R_s | J_s | If_s | Err_s | Retry_s | Call_s | Set_s | Filt_s | Sort_s | CacheGet_s | CacheSet_s | QueuePut_s | Tx_s | Enf_s
 L_s           := "L" number ":" (label_step)*
 at_node_id    := "@n" number
 
@@ -98,6 +102,8 @@ Sort_s        := "Sort" var ref field ["asc"|"desc"]
 Inc_s         := "Inc" path
 
 A_s           := "A" kind header_name [extra]
+Pol_s         := "Pol" policy_name (constraint)*
+Txn_s         := "Txn" txn_name [adapter] [mode]
 S_s           := "S" name mode [path]
 D_s           := "D" type_name (field ":" type)+
 E_s           := "E" path method arrow_lbl [ arrow_var ]
@@ -120,6 +126,11 @@ Lay_s         := "Lay" shell_name slot_name+
 Fm_s          := "Fm" form_name type_name field*
 Tbl_s         := "Tbl" table_name type_name column*
 Ev_s          := "Ev" component_name event target
+CacheGet_s    := "CacheGet" cache_name key [arrow_var] [fallback]
+CacheSet_s    := "CacheSet" cache_name key value [ttl]
+QueuePut_s    := "QueuePut" queue_name value [arrow_var]
+Tx_s          := "Tx" ("begin"|"commit"|"rollback") txn_name
+Enf_s         := "Enf" policy_name
 
 module_stmt   := module "." MODULE_OP slots
 path          := "/" segment*
@@ -200,6 +211,8 @@ This table mirrors the compiler registry and is intended as a machine-readable h
 | Tbl | top | 2 |
 | Ev | top | 3 |
 | A | top | 2 |
+| Pol | top | 1 |
+| Txn | top | 1 |
 | Inc | top | 1 |
 | Role | top | 1 |
 | Allow | top | 2 |
@@ -227,6 +240,11 @@ This table mirrors the compiler registry and is intended as a machine-readable h
 | Set | label | 2 |
 | Filt | label | 5 |
 | Sort | label | 3 |
+| CacheGet | label | 2 |
+| CacheSet | label | 3 |
+| QueuePut | label | 2 |
+| Tx | label | 2 |
+| Enf | label | 1 |
 
 ### 2.4 Type shorthand
 
@@ -238,15 +256,15 @@ This table mirrors the compiler registry and is intended as a machine-readable h
 
 ## 3. Execution Model
 
-**Canonical IR is the graph.** Label meaning is defined by **nodes** and **edges**. The step-list (`legacy.steps`) is a **legacy serialization** only: implementations may emit and execute it today, but **graph execution is the target**; step execution is transitional and must match graph semantics (via `steps_to_graph()` or equivalent).
+**Canonical IR is the graph.** Label meaning is defined by **nodes** and **edges**. The step-list (`legacy.steps`) is a **legacy compatibility serialization**; canonical runtimes execute graph semantics by default, and any step execution mode must remain semantically equivalent to graph behavior (via compiler lowering contracts such as `steps_to_graph()`).
 
-**The only remaining real gap:** Today the pipeline is **AINL text → steps → runtime executes steps**. The thesis demands **AINL text → canonical graph → runtime executes graph**. Until the runtime executes nodes/edges directly, the invariant (canonical IR = nodes/edges) is **aspirational**. Once the runtime executes the graph directly, AINL becomes **fully coherent**.
+**Conformance:** The thesis demands **AINL text → canonical graph → runtime executes graph**. The reference implementation achieves this: when a label has `nodes`/`edges`/`entry`, the runtime executes the graph (node/edge traversal by port); legacy step-list is fallback only. The invariant *canonical IR = nodes/edges* is thus both emitted and executed; AINL is **fully coherent** for graph-capable runtimes.
 
 ### 3.1 IR (intermediate representation)
 
 - **services**: map service name → { mode, path, eps, ui, … }. **eps** = path → { method, tgt, label_id, return_var }.
 - **types**: map type_name → { fields: { key: type_shorthand } }.
-- **labels**: map `label_key` → { **nodes**, **edges**, **legacy**?: { steps } }, where `label_key` is the numeric id (`1`, `2`, …). IR may also store the raw source token (e.g. `"L1"`) as metadata. In IR examples and prose, `labels[id]` means `labels[label_key]` where label_key is the numeric id. **nodes** and **edges** are canonical; **steps** are optional and non-canonical (allowed serialization that must round-trip to the same graph). Implementations that currently emit or execute only steps use the legacy serialization; graph execution will replace step execution. **Recommended schema (for tooling and diffs):** `labels[id].entry` = root node id (e.g. `"n1"`); `labels[id].exits` = list of `{ node, var }` for each J node; nodes as `[{ id, op, effect?, slots?, data? }]`, edges as `[{ from, to, port? }]`.
+- **labels**: map `label_key` → { **nodes**, **edges**, **legacy**?: { steps } }, where `label_key` is the numeric id (`1`, `2`, …). IR may also store the raw source token (e.g. `"L1"`) as metadata. In IR examples and prose, `labels[id]` means `labels[label_key]` where label_key is the numeric id. **nodes** and **edges** are canonical; **steps** are optional compatibility serialization that must round-trip to the same graph. Current implementation emits canonical graph and executes graph by default (`graph-preferred` runtime mode), with `legacy.steps` kept for compatibility and explicit `steps-only` operation. **Recommended schema (for tooling and diffs):** `labels[id].entry` = root node id (e.g. `"n1"`); `labels[id].exits` = list of `{ node, var }` for each J node; nodes as `[{ id, op, effect?, slots?, data? }]`, edges as `[{ from, to, port? }]`.
 - **crons**: list of { label, expr }.
 - **fe**: routes, layouts, forms, tables, events (and ui, states) for front-end emission.
 
@@ -277,7 +295,7 @@ These rules prevent nondeterministic or ambiguous graph topologies.
 ### 3.3 Label execution (runtime)
 
 - **Entry**: HTTP request hits endpoint **path** with **method**; server looks up **path** in **eps**, gets **label_id**.
-- **Run:** A conforming runtime executes the label’s **canonical graph** (`nodes`/`edges`). **Legacy mode:** If only `legacy.steps` is present, the runtime executes the legacy serialization (or first applies `steps_to_graph()` and executes the graph). Semantics are defined by the graph; graph execution will replace step execution when canonical IR is emitted.
+- **Run:** A conforming runtime executes the label’s **canonical graph** (`nodes`/`edges`). **Legacy mode:** If only `legacy.steps` is present, the runtime executes the legacy serialization (or first applies `steps_to_graph()` and executes the graph). Semantics are defined by the graph; (Reference implementation runs the graph when nodes/edges are present.)
 - **Node semantics:** **R** resolves adapter (db, api, …), stores result in context under **out**; **J** returns context[**var**] as response body (typically `{ "data": result }`). **Call** nodes have **effect** computed from the callee’s reachable subgraph **from the callee entry** (io if any reachable io node, else pure). **If**, **Err**, **Retry**, **Set**, **Filt**, **Sort** execute per graph edges. (Payments are metadata in v1.0; use R pay.* for label payment calls where supported.)
 - **Adapters**: Pluggable (DB, API, Pay, Scrape). Default = mock; production = Prisma, Stripe, httpx, etc.
 
@@ -298,6 +316,7 @@ Strict mode is the compiler’s enforcement layer. A conforming `--strict` valid
 | Single exit J for endpoint labels | Any label referenced by `E` has exactly one `J` node. |
 | Call return validation | `Call` with `->out` or callee with single J; return binding consistent. |
 | No undeclared references | All label_ids, node_ids, and vars resolve. |
+| Quoted literal disambiguation in read positions | Bare identifier-like tokens in read positions are treated as variable refs; string literals must be quoted to avoid ambiguity. |
 | No unknown module.op | Every prefixed op is from a known module. |
 | Adapter.verb arity validation | R slots match adapter definition (fixed-arity or k=v list). |
 | No unreachable nodes | Every node reachable from entry and (if non-exit) can reach an exit. |
@@ -306,7 +325,7 @@ Strict mode is the compiler’s enforcement layer. A conforming `--strict` valid
 
 Without strict mode, AINL becomes soft; implementations should treat it as the default for production.
 
-**Compiler behavior (two orthogonal flags):** **`--emit-graph`** (default true once implemented): emit canonical `nodes`/`edges`; if step-list is present it must round-trip. **`--strict`** (validation policy): enforce all §3.5 guarantees. This allows a transitional world where runtime may execute steps, or graph, or steps→graph, without making strict mode the only way to get canonical output.
+**Compiler behavior (two orthogonal flags):** **`--emit-graph`** (default true): emit canonical `nodes`/`edges`; if step-list is present it must round-trip. **`--strict`** (validation policy): enforce all §3.5 guarantees. Runtime policy controls execution mode (`graph-preferred`, `graph-only`, `steps-only`) without changing strict compile guarantees.
 
 ---
 

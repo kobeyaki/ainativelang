@@ -1,0 +1,8 @@
+L1:
+  R ext.OP "unstable_task" ->resp
+  Retry @n1 2 0
+  Err @n1 ->L_fail
+  J resp
+L_fail:
+  Set out "failed_after_retries"
+  J out

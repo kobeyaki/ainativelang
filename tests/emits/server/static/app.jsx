@@ -1,5 +1,10 @@
 const { useState, useEffect } = React;
 
+// Boundary note:
+// This storefront expects a business API surface mounted at /api
+// (e.g., /api/products and /api/checkout from an emitted web server).
+// It is intentionally separate from the runtime runner execution API
+// (`/run`, `/enqueue`, `/result`, etc.).
 const API_BASE = '/api';
 const CART_KEY = 'ecom_cart';
 

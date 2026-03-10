@@ -46,7 +46,7 @@ def test_diagnostic_classifier_substrings_remain_present(code: str, expected_sub
             {
                 "labels_sha256": "ef566311fa33b4f2641b832464d8e31d527796d4fd9111ba23650bbe03e10191",
                 "graph_semantic_checksum": "sha256:6c2054b0040775d99d41bd8070e338bf2d4cf7d6b40f4ce13f4497b6b41053a3",
-                "emit_ir_json_sha256": "d16858f96caecd0312ac3178f5f86f89ef1883078c3abb9630fb24d6c68b9bcd",
+                "emit_ir_json_sha256": "d683ae1db74df671f2ac86b10a355df60bbb48c49e3cbe2a326ab700d1b7293b",
                 "emit_openapi_sha256": "da94673422c765dc848bf34f99a3197ff326418d3c930631320b6cb69a9af547",
                 "emit_server_sha256": "7ef87a29711800176ff33e252ec7e3e27b239575b8bac7d4b9d58e3f7088488a",
                 "emit_react_sha256": "445caf103f4e83486813e7df9d1c19492570c80978ab88c439d55552feb68e2b",
@@ -56,9 +56,9 @@ def test_diagnostic_classifier_substrings_remain_present(code: str, expected_sub
             "inline_if_flow",
             "S core web /api\nE /flow G ->L1 ->out\nL1: Set cond true If cond ->L2 ->L3\nL2: Set out pass J out\nL3: Set out fail J out\n",
             {
-                "labels_sha256": "afbeba4d61e7bd492ca9930e4cd8a87f29abb017521b3f11fee8aad7ffc7164f",
-                "graph_semantic_checksum": "sha256:39f7adca92fb1d9e6f7c2de549ff2c754ca985007c0fa023ceb760c137b2c474",
-                "emit_ir_json_sha256": "bf8a55f2d63ad55c1cead60caefec1781cdb5e841d8354ccf2a2b82dacbcc5d3",
+                "labels_sha256": "63aaf5c65678a1ca7966a3b2f51b872f3e071155691d76546b15546d72e24a11",
+                "graph_semantic_checksum": "sha256:03597e2e690a15964074adb1fcdf52b0f323fd47267fc493b69bb610277f111e",
+                "emit_ir_json_sha256": "636da282ac1accf856e3a78ef70b56f10ca8ba81fc5b7524f2a8f42690ce4f2d",
                 "emit_openapi_sha256": "23c32ff2a1ea80dc8c74d5b8bb73f48c627adb820f61c5e871e9034cdd3e2f99",
                 "emit_server_sha256": "55f4495330c24eab3b833ab0368a120e4366a2c730b233b9c55f55253a2d60a6",
                 "emit_react_sha256": "445caf103f4e83486813e7df9d1c19492570c80978ab88c439d55552feb68e2b",

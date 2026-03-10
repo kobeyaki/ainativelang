@@ -1,0 +1,137 @@
+{
+  "base_model": "microsoft/phi-3-mini-4k-instruct",
+  "adapter_path": "models/ainl-phi3-lora-v6-breakthrough",
+  "prompt_set": "corpus/curated/regression_prompts.jsonl",
+  "max_new_tokens": 10,
+  "device": "mps",
+  "constrained_decoding": true,
+  "repair_attempts": 1,
+  "canonicalize_output": true,
+  "base_evaluated": false,
+  "emit_timing": true,
+  "constraint_diagnostics": true,
+  "sanity": {
+    "pass": true,
+    "first_prompt_id": "weather_email",
+    "first_prompt_runtime_ok": true,
+    "first_prompt_strict_ok": true
+  },
+  "summary": {
+    "lora": {
+      "total_prompts": 1,
+      "nonempty_outputs": 1,
+      "nonempty_rate": 1.0,
+      "runtime_compile_ok": 1,
+      "runtime_compile_rate": 1.0,
+      "strict_compile_ok": 1,
+      "strict_compile_rate": 1.0,
+      "ainl_like_ok": 1,
+      "ainl_like_rate": 1.0,
+      "strict_ainl_ok": 1,
+      "strict_ainl_rate": 1.0
+    },
+    "base": null,
+    "failure_families": {
+      "lora": {
+        "ok": 1
+      },
+      "base": null
+    },
+    "comparison": {
+      "lora_wins_runtime_compile": null,
+      "base_wins_runtime_compile": null,
+      "ties_runtime_compile": null,
+      "lora_wins_strict_ainl": null,
+      "base_wins_strict_ainl": null,
+      "ties_strict_ainl": null
+    }
+  },
+  "diagnostics": {
+    "lora": {
+      "model_name": "LoRA",
+      "model_load_seconds": 11.178374767303467,
+      "prompt_count": 1,
+      "timing_totals": {
+        "generate_seconds": 6.106074094772339,
+        "compile_seconds": 0.0010752677917480469,
+        "repair_generate_seconds": 4.541079044342041,
+        "canonicalize_seconds": 0.00032711029052734375,
+        "prompt_total_seconds": 10.648736000061035,
+        "loop_wall_seconds": 10.648736000061035
+      },
+      "constraint_diagnostics": {
+        "steps_processed": 20,
+        "tokens_considered": 639200,
+        "tokens_allowed": 734,
+        "rejected_by_next_token": 637942,
+        "rejected_by_strict_prefix": 524,
+        "eos_allowed": 0,
+        "eos_blocked": 20,
+        "fallback_used_steps": 10
+      },
+      "cleanup_seconds": 0.4447650909423828
+    },
+    "base": null
+  },
+  "results": [
+    {
+      "id": "weather_email",
+      "prompt": "Generate a tiny valid AINL workflow that checks weather in Seattle and emails a short summary to ops@example.com.",
+      "lora": {
+        "nonempty": true,
+        "output": "D R u cr cn tbody cn",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 6.106074094772339,
+            "compile_seconds": 0.0010752677917480469,
+            "repair_generate_seconds": 4.541079044342041,
+            "canonicalize_seconds": 0.00032711029052734375,
+            "prompt_total_seconds": 10.648736000061035
+          },
+          "repair_attempts_used": 1,
+          "constraint": {
+            "steps_processed": 20,
+            "tokens_considered": 639200,
+            "tokens_allowed": 734,
+            "rejected_by_next_token": 637942,
+            "rejected_by_strict_prefix": 524,
+            "eos_allowed": 0,
+            "eos_blocked": 20,
+            "fallback_used_steps": 10,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 2
+          }
+        }
+      },
+      "base": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": "skipped",
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "skipped"
+          ],
+          "strict_errors": [
+            "skipped"
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "skipped",
+          "strict_ainl_ok": false
+        }
+      }
+    }
+  ]
+}

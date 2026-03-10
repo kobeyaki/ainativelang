@@ -1,6 +1,10 @@
-# AINL Extensions — Programmers, Ops, Admins, Users, Designers, Architects
+# AI Native Lang (AINL) Extensions — Programmers, Ops, Admins, Users, Designers, Architects
 
-**Superseded for structure by [AINL_CORE_AND_MODULES.md](AINL_CORE_AND_MODULES.md).** That doc enforces Core (executable only) vs Modules (metadata), no op overloading, graph-first IR, and Set/Filt/Sort instead of overloading V. The list below is the *raw* extension set; the canonical, thesis-aligned form is Core + Modules.
+**Superseded for structure by [AINL_CORE_AND_MODULES.md](AINL_CORE_AND_MODULES.md).** That doc enforces Core (executable only) vs Modules (metadata), no op overloading, graph-first IR, and Set/Filt/Sort instead of overloading V. The list below is the *raw/historical extension set*; canonical, thesis-aligned behavior is documented in:
+
+- `AINL_SPEC.md`
+- `RUNTIME_COMPILER_CONTRACT.md`
+- `CONFORMANCE.md`
 
 All new ops and IR keys for control flow, variables, composition, types, config, observability, deploy, secrets, scaling, admin, RBAC, audit, feature flags, i18n/a11y/theme/offline/help, design tokens/components/copy, multi-service, relations/indexes, API rules, NFRs, docs, versioning, testing.
 
@@ -22,6 +26,8 @@ All new ops and IR keys for control flow, variables, composition, types, config,
 | **V** | name ref | label step | Assign: name = ctx[ref] |
 | **V** | name filter ref field op value | label step | Filter array ref by field op value -> name |
 | **V** | name sort ref field [asc\|desc] | label step | Sort array ref by field -> name |
+
+`V` forms are historical aliases. Canonical current forms are `Set`, `Filt`, and `Sort`.
 
 ### Composition
 | Op | Slots | IR | Purpose |
@@ -184,7 +190,7 @@ All new ops and IR keys for control flow, variables, composition, types, config,
 
 ## IR summary (new keys)
 
-- **labels[].steps**: R, J, If, Err, Retry, Call, Set, Filt, Sort (legacy: V forms allowed only in compat mode)
+- **labels[].legacy.steps**: R, J, If, Err, Retry, Call, Set, Filt, Sort (legacy serialization; canonical semantics are graph nodes/edges)
 - **config**: { env: [...], secrets: [...] }
 - **observability**: { metrics: [...], trace: true }
 - **deploy**: { strategy, env_target, flags: [...] }

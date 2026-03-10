@@ -1,0 +1,12 @@
+S core cron
+Cr L_tick "*/5 * * * *"
+
+L_tick:
+  R core.MAX 7 3 ->metric
+  If metric ->L_escalate ->L_noop
+L_escalate:
+  Set out "escalate"
+  J out
+L_noop:
+  Set out "noop"
+  J out

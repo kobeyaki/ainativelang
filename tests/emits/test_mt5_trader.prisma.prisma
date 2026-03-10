@@ -9,26 +9,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Product {
-  id  Int
-  name  String
-  price  Float
-  sku  String
-}
-
-model Order {
-  id  Int
-  uid  Int
-  total  Float
-  status  String
-}
-
-model Customer {
-  id  Int
-  email  String
-  name  String
-}
-
 model Position {
   id  Int
   symbol  String

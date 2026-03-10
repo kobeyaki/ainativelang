@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "adapters": {
+    "core": {
+      "verbs": [
+        "ADD",
+        "SUB",
+        "MUL",
+        "DIV",
+        "MIN",
+        "MAX",
+        "CLAMP",
+        "CONCAT",
+        "SPLIT",
+        "JOIN",
+        "LOWER",
+        "UPPER",
+        "REPLACE",
+        "PARSE",
+        "STRINGIFY",
+        "NOW",
+        "ISO",
+        "SLEEP",
+        "ECHO"
+      ],
+      "effect_default": "pure",
+      "notes": "Built-in deterministic helper operations."
+    },
+    "db": {
+      "verbs": ["F", "G", "P", "C", "U", "D"],
+      "effect_default": "io",
+      "notes": "Database CRUD style adapter."
+    },
+    "api": {
+      "verbs": ["G", "P", "POST"],
+      "effect_default": "io",
+      "notes": "HTTP/API adapter from legacy step forms."
+    },
+    "email": {
+      "verbs": ["G"],
+      "effect_default": "io",
+      "notes": "Email provider adapter used by monitoring workflows."
+    },
+    "calendar": {
+      "verbs": ["G"],
+      "effect_default": "io",
+      "notes": "Calendar provider adapter used by monitoring workflows."
+    },
+    "social": {
+      "verbs": ["G"],
+      "effect_default": "io",
+      "notes": "Social provider adapter used by monitoring workflows."
+    },
+    "ext": {
+      "verbs": ["G", "P", "NEXT", "ECHO", "OP"],
+      "effect_default": "io",
+      "notes": "External extension adapter namespace used in runtime tests."
+    },
+    "wasm": {
+      "verbs": ["CALL"],
+      "effect_default": "pure",
+      "notes": "Sandboxed compute adapter namespace."
+    },
+    "cache": {
+      "verbs": ["Get", "Set"],
+      "effect_default": "io",
+      "notes": "Cache namespace used by CacheGet/CacheSet and runtime adapter."
+    },
+    "queue": {
+      "verbs": ["Put"],
+      "effect_default": "io",
+      "notes": "Queue write namespace."
+    },
+    "txn": {
+      "verbs": ["Begin", "Commit", "Rollback"],
+      "effect_default": "io",
+      "notes": "Transaction namespace."
+    },
+    "auth": {
+      "verbs": ["Validate"],
+      "effect_default": "io",
+      "notes": "Authentication namespace."
+    },
+    "http": {
+      "verbs": ["Get", "Post", "Put", "Patch", "Delete", "Head", "Options"],
+      "effect_default": "io",
+      "notes": "Runtime HTTP adapter namespace."
+    },
+    "sqlite": {
+      "verbs": ["Execute", "Query"],
+      "effect_default": "io",
+      "notes": "Runtime SQLite adapter namespace."
+    },
+    "fs": {
+      "verbs": ["Read", "Write", "List", "Delete"],
+      "effect_default": "io",
+      "notes": "Runtime filesystem adapter namespace."
+    },
+    "tools": {
+      "verbs": ["Call"],
+      "effect_default": "io",
+      "notes": "Runtime tool bridge namespace."
+    }
+  }
+}
+

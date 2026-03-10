@@ -1,0 +1,942 @@
+{
+  "mode": "dual",
+  "strict": {
+    "positive": {
+      "total": 279,
+      "compiled_ok": 279,
+      "errors": []
+    },
+    "negative": {
+      "total": 150,
+      "failed_ok": 150,
+      "error_categories": {
+        "missing_args": 68,
+        "endpoint_error": 30,
+        "scope_error": 52
+      },
+      "mismatches": []
+    },
+    "full_workflows": {
+      "total": 57,
+      "compiled_ok": 57
+    }
+  },
+  "runtime": {
+    "positive": {
+      "total": 279,
+      "compiled_ok": 279,
+      "errors": []
+    },
+    "negative": {
+      "total": 150,
+      "failed_ok": 0,
+      "error_categories": {},
+      "mismatches": [
+        {
+          "program": "Rt route_only_107",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad119 G L119",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad115 G L115",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v84 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 60 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_93",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad25 G L25",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_42",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_95",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v62 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_18",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad52 G L52",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_109",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_96",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad46 G L46",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 37 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad94 G L94",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_79",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_108",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_69",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_119",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_85",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad64 G L64",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_96",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 55 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v83 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_116",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v67 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad45 G L45",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v11 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_63",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_48",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v60 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 50 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_2",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_74",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad68 G L68",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 97 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_89",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_4",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 27 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_87",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 17 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 84 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_50",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad28 G L28",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_26",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v65 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad62 G L62",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_61",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_87",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad47 G L47",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_83",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_59",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_36",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 43 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_82",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 58 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 16 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 76 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v63 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad110 G L110",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 23 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v78 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad100 G L100",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_37",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad14 G L14",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 75 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_23",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad111 G L111",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v88 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad112 G L112",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v112 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 110 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad66 G L66",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 92 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v86 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_41",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v50 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_40",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v35 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad2 G L2",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_21",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v111 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_111",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_19",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 1 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v55 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad98 G L98",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_99",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v58 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_62",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad83 G L83",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_13",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad95 G L95",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_92",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 39 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v94 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_34",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 98 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_107",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad102 G L102",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v23 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v81 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_75",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_34",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_29",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad19 G L19",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 33 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_112",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad67 G L67",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_117",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad39 G L39",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_90",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad27 G L27",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v14 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_4",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_38",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v64 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v2 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_83",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 51 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_8",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 29 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_21",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_52",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_17",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v53 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 35 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_26",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 112 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 108 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_86",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad78 G L78",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_106",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_89",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_85",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_94",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad91 G L91",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_57",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_91",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_10",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "S svc_only_98",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_63",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_35",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "E /bad70 G L70",
+          "expected": "endpoint_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 103 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "Rt route_only_47",
+          "expected": "missing_args",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "If (core.gt 13 0) ->L1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        },
+        {
+          "program": "X v32 1",
+          "expected": "scope_error",
+          "got": "compiled_ok",
+          "errors": []
+        }
+      ]
+    },
+    "full_workflows": {
+      "total": 57,
+      "compiled_ok": 57
+    }
+  }
+}

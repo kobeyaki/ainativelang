@@ -1,0 +1,11 @@
+{
+  "invalid_program": "invalid_program.ainl",
+  "expected_errors": [
+    {
+      "code": "IF_MISSING_ELSE",
+      "message_contains": "If requires then and else labels"
+    }
+  ],
+  "notes": "Invalid program omits else label target in If."
+}
+

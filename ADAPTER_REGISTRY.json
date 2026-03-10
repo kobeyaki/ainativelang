@@ -1,0 +1,184 @@
+{
+  "$schema": "https://ainl.dev/registry/v1",
+  "description": "Machine-readable catalog of AINL adapters for OpenClaw integration",
+  "adapters": {
+    "core": {
+      "description": "Built-in arithmetic, string, date/time, and control utilities",
+      "targets": {
+        "add": { "args": ["number", "number"], "returns": "number", "pure": true },
+        "sub": { "args": ["number", "number"], "returns": "number", "pure": true },
+        "mul": { "args": ["number", "number"], "returns": "number", "pure": true },
+        "div": { "args": ["number", "number"], "returns": "number", "pure": true },
+        "min": { "args": ["any..."], "returns": "any", "pure": true },
+        "max": { "args": ["any..."], "returns": "any", "pure": true },
+        "clamp": { "args": ["number", "number", "number"], "returns": "number", "pure": true },
+        "concat": { "args": ["string..."], "returns": "string", "pure": true },
+        "split": { "args": ["string", "string"], "returns": "[string]", "pure": true },
+        "join": { "args": ["string", "[string]"], "returns": "string", "pure": true },
+        "lower": { "args": ["string"], "returns": "string", "pure": true },
+        "upper": { "args": ["string"], "returns": "string", "pure": true },
+        "replace": { "args": ["string", "string", "string"], "returns": "string", "pure": true },
+        "parse": { "args": ["string"], "returns": "any", "pure": true },
+        "stringify": { "args": ["any"], "returns": "string", "pure": true },
+        "now": { "args": [], "returns": "number", "pure": true },
+        "iso": { "args": [], "returns": "string", "pure": true },
+        "sleep": { "args": ["number"], "returns": "null", "side_effect": "blocks" }
+      }
+    },
+    "http": {
+      "description": "HTTP client with host allowlist and response size limits",
+      "targets": {
+        "GET": { "args": ["url", "headers?"], "returns": "{status, headers, body}", "network": true },
+        "POST": { "args": ["url", "body?", "headers?", "timeout?"], "returns": "{status, headers, body}", "network": true },
+        "PUT": { "args": ["url", "body?", "headers?", "timeout?"], "returns": "{status, headers, body}", "network": true },
+        "PATCH": { "args": ["url", "body?", "headers?", "timeout?"], "returns": "{status, headers, body}", "network": true },
+        "DELETE": { "args": ["url", "headers?", "timeout?"], "returns": "{status, headers, body}", "network": true },
+        "HEAD": { "args": ["url", "headers?", "timeout?"], "returns": "{status, headers, body}", "network": true },
+        "OPTIONS": { "args": ["url", "headers?", "timeout?"], "returns": "{status, headers, body}", "network": true }
+      },
+      "config": {
+        "default_timeout_s": 5.0,
+        "max_response_bytes": 1000000,
+        "allow_hosts": []
+      }
+    },
+    "sqlite": {
+      "description": "SQLite database access with optional table allowlist",
+      "targets": {
+        "query": { "args": ["sql", "params?"], "returns": "[row]", "pure": false },
+        "execute": { "args": ["sql", "params?"], "returns": "{rows_affected, lastrowid}", "pure": false }
+      },
+      "config": {
+        "db_path": "required",
+        "allow_write": false,
+        "allow_tables": [],
+        "timeout_s": 5.0
+      },
+      "rules": [
+        "query target requires SELECT statements",
+        "execute target requires DML/DDL",
+        "table allowlist enforced by regex"
+      ]
+    },
+    "fs": {
+      "description": "Sandboxed file system operations",
+      "targets": {
+        "read": { "args": ["path"], "returns": "string", "pure": false },
+        "write": { "args": ["path", "content"], "returns": "{ok, bytes}", "pure": false },
+        "list": { "args": ["path"], "returns": "[string]", "pure": false },
+        "delete": { "args": ["path"], "returns": "{ok}", "pure": false, "requires_allow_delete": true }
+      },
+      "config": {
+        "sandbox_root": "required",
+        "max_read_bytes": 1000000,
+        "max_write_bytes": 1000000,
+        "allow_extensions": [],
+        "allow_delete": false
+      },
+      "rules": [
+        "All paths must stay within sandbox_root",
+        "Extension allowlist enforced when set",
+        "Size limits enforced for read/write"
+      ]
+    },
+    "email": {
+      "description": "OpenClaw email check integration (only G target)",
+      "targets": {
+        "G": { "args": [], "returns": "[email]", "network": false, "side_effect": "reads openclaw mailbox" }
+      },
+      "returns": "List of unread email objects with fields: id, from, subject, body, ts"
+    },
+    "calendar": {
+      "description": "OpenClaw calendar integration (only G target)",
+      "targets": {
+        "G": { "args": [], "returns": "[event]", "network": false, "side_effect": "reads openclaw calendar" }
+      },
+      "returns": "List of upcoming calendar events with fields: id, title, start, end, location"
+    },
+    "social": {
+      "description": "OpenClaw web search for mentions (only G target)",
+      "targets": {
+        "G": { "args": [], "returns": "[mention]", "network": true, "side_effect": "calls openclaw web search" }
+      },
+      "returns": "List of mention objects with fields: id, text, ts",
+      "config": {
+        "query_env": "SOCIAL_MONITOR_QUERY (default: \"Steven Hooley\")",
+        "count": 10
+      }
+    },
+    "svc": {
+      "description": "Infrastructure service status checks",
+      "targets": {
+        "caddy": { "args": [], "returns": "\"up\"|\"down\"", "pure": true },
+        "cloudflared": { "args": [], "returns": "\"up\"|\"down\"", "pure": true },
+        "maddy": { "args": [], "returns": "\"up\"|\"down\"", "pure": true },
+        "crm": { "args": [], "returns": "\"up\"|\"down\"", "pure": true }
+      }
+    },
+    "db": {
+      "description": "Leads database adapter (CSV source)",
+      "targets": {
+        "F": { "args": [], "returns": "[lead]", "network": false, "side_effect": "reads leads CSV" }
+      },
+      "config": {
+        "leads_csv_env": "LEADS_CSV (default: workspace/leads/lead_output.csv)"
+      },
+      "returns": "List of lead objects with enriched fields (name, city, phone, website, etc.)"
+    },
+    "cache": {
+      "description": "Persistent key-value store (JSON file)",
+      "targets": {
+        "get": { "args": ["namespace", "key"], "returns": "any", "pure": false },
+        "set": { "args": ["namespace", "key", "value"], "returns": "null", "pure": false }
+      },
+      "config": {
+        "cache_json_env": "MONITOR_CACHE_JSON (default: /tmp/monitor_state.json)"
+      }
+    },
+    "queue": {
+      "description": "Notification queue (sends to self via OpenClaw)",
+      "targets": {
+        "Put": { "args": ["queue_name", "payload"], "returns": "\"sent\"|\"logged\"|\"error\"", "pure": false }
+      },
+      "rules": [
+        "Only queue 'notify' is implemented",
+        "Payload should include fields like email_count, cal_count, social_count, leads_count, health_score, failed_services, ts"
+      ]
+    },
+    "wasm": {
+      "description": "WebAssembly module execution",
+      "targets": {
+        "CALL": { "args": ["module", "function", "args..."], "returns": "any", "pure": false }
+      },
+      "config": {
+        "modules_dir": "demo/wasm",
+        "available_modules": ["metrics", "health"],
+        "require_wasmtime": true
+      }
+    },
+    "extras": {
+      "description": "Utility health checks: file + Docker + HTTP + backup mtime",
+      "targets": {
+        "file_exists": { "args": ["path"], "returns": "number", "pure": false },
+        "docker_image_exists": { "args": ["image"], "returns": "number", "pure": false },
+        "http_status": { "args": ["url"], "returns": "number", "network": true },
+        "newest_backup_mtime": { "args": ["backup_dir"], "returns": "number", "pure": false }
+      }
+    },
+    "tiktok": {
+      "description": "TikTok reports from CRM database",
+      "targets": {
+        "F": { "args": [], "returns": "[report]", "network": false, "side_effect": "reads TiktokReport table" },
+        "recent": { "args": ["hours_ago?"], "returns": "number", "pure": false },
+        "videos": { "args": [], "returns": "[video]", "network": false, "side_effect": "reads TiktokVideo table" }
+      },
+      "returns": "F returns report objects; videos returns video objects with fields: id, tiktokId, title, description, processedAt, createdAt"
+    }
+  },
+  "notes": [
+    "All adapters are optional except 'core'. Enable only what's needed.",
+    "Side effects are explicit: cache writes, network calls, and OpenClaw integrations are marked.",
+    "For small offline models: focus on core, http, sqlite, fs, and cache. The OpenClaw-specific adapters (email, calendar, social, db, queue, svc) are specialized.",
+    "Error handling: adapter errors throw; catch with If/J blocks or use safe wrappers."
+  ]
+}

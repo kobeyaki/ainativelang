@@ -1,0 +1,62 @@
+# GitHub Release Checklist
+
+Use this checklist before publishing publicly or cutting a major release.
+For the step-by-step maintainer flow, use `docs/RELEASING.md`.
+
+## 1) Repository Basics
+
+- [ ] `README.md` is current and links key docs.
+- [ ] `CONTRIBUTING.md` exists and reflects current workflow.
+- [ ] `CODE_OF_CONDUCT.md` exists.
+- [ ] `SECURITY.md` exists with vulnerability reporting path.
+- [ ] License is set for repository publication.
+- [ ] `CITATION.cff` exists for academic referencing.
+
+## 2) Documentation Completeness
+
+- [ ] `docs/DOCS_INDEX.md` is up to date.
+- [ ] Language spec and semantics are current (`docs/AINL_SPEC.md`, `SEMANTICS.md`).
+- [ ] Training and eval docs match scripts:
+  - `docs/FINETUNE_GUIDE.md`
+  - `docs/TRAINING_ALIGNMENT_RUNBOOK.md`
+- [ ] AI continuity/handoff docs are current:
+  - `docs/AI_AGENT_CONTINUITY.md`
+  - `docs/CONTRIBUTING_AI_AGENTS.md`
+- [ ] Changelog includes this release (`docs/CHANGELOG.md`).
+
+## 3) Quality and Reproducibility
+
+- [ ] Core tests pass (`.venv/bin/python scripts/run_test_profiles.py --profile core`).
+- [ ] Training/eval scripts parse and run in expected environment.
+- [ ] Latest run artifacts are present and reviewable:
+  - `corpus/curated/model_eval_report_v5_aligned.json`
+  - `corpus/curated/model_eval_trends.json`
+  - `corpus/curated/alignment_run_health.json`
+- [ ] Primary quality metrics are reported:
+  - `strict_ainl_rate`
+  - `runtime_compile_rate`
+  - `nonempty_rate`
+
+## 4) GitHub Community UX
+
+- [ ] Issue templates exist for bug reports and feature requests.
+- [ ] PR template exists with test/docs checklist.
+- [ ] CI workflow is green and documented.
+
+## 5) AI-Led Attribution Clarity
+
+- [ ] README clearly states human-initiated + AI-led co-development model.
+- [ ] `docs/PROJECT_ORIGIN_AND_ATTRIBUTION.md` is linked and current.
+- [ ] Attribution language is consistent across top-level docs.
+- [ ] `tooling/project_provenance.json` matches current initiator/provenance metadata.
+- [ ] `docs/PROVENANCE_AND_RELEASE_EVIDENCE.md` has been reviewed for this release.
+- [ ] Release post(s) include the same initiator references and release commit/hash.
+
+## 6) Final Publish Pass
+
+- [ ] Run a final docs link check (manual or scripted).
+- [ ] Verify no private/sensitive data in committed artifacts.
+- [ ] Create release notes summarizing:
+  - key technical changes
+  - known limitations
+  - immediate next milestones

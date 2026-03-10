@@ -1,0 +1,4 @@
+S core web /api
+D User id:I name:S
+E /users GET ->L1
+L1: R db.F User * ->users J users

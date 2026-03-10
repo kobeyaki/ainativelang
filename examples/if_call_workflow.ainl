@@ -1,0 +1,15 @@
+L1:
+  Call L8 ->has_payload
+  If has_payload ->L2 ->L3
+L8:
+  Set v true
+  J v
+L2:
+  Call L9 ->out
+  J out
+L3:
+  Set out "missing_payload"
+  J out
+L9:
+  R core.CONCAT "task_" "ready" ->res
+  J res

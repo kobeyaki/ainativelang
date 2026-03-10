@@ -1,0 +1,1078 @@
+{
+  "ir_version": "1.0.0",
+  "graph_schema_version": "1.0",
+  "source": {
+    "text": "S core cron\nCr L_monitor \"*/5 * * * *\"\n\nL_monitor:\n  R db.F Metric * ->metrics\n  If metrics ->L_alert ->L_ok\n\nL_alert:\n  R http.Post \"https://hook.example.com/alert\" metrics ->ack\n  J ack\n\nL_ok:\n  J metrics\n\n",
+    "lines": [
+      "S core cron",
+      "Cr L_monitor \"*/5 * * * *\"",
+      "",
+      "L_monitor:",
+      "  R db.F Metric * ->metrics",
+      "  If metrics ->L_alert ->L_ok",
+      "",
+      "L_alert:",
+      "  R http.Post \"https://hook.example.com/alert\" metrics ->ack",
+      "  J ack",
+      "",
+      "L_ok:",
+      "  J metrics",
+      "",
+      ""
+    ]
+  },
+  "cst": {
+    "lines": [
+      {
+        "lineno": 1,
+        "original_line": "S core cron",
+        "op_value": "S",
+        "op_canonical": "S",
+        "slot_values": [
+          "core",
+          "cron"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare"
+        ],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "S",
+            "value": "S",
+            "span": {
+              "line": 1,
+              "col_start": 0,
+              "col_end": 1
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 1,
+              "col_start": 1,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "core",
+            "value": "core",
+            "span": {
+              "line": 1,
+              "col_start": 2,
+              "col_end": 6
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 1,
+              "col_start": 6,
+              "col_end": 7
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "cron",
+            "value": "cron",
+            "span": {
+              "line": 1,
+              "col_start": 7,
+              "col_end": 11
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 2,
+        "original_line": "Cr L_monitor \"*/5 * * * *\"",
+        "op_value": "Cr",
+        "op_canonical": "Cr",
+        "slot_values": [
+          "L_monitor",
+          "*/5 * * * *"
+        ],
+        "slot_kinds": [
+          "bare",
+          "string"
+        ],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "Cr",
+            "value": "Cr",
+            "span": {
+              "line": 2,
+              "col_start": 0,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 2,
+              "col_start": 2,
+              "col_end": 3
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "L_monitor",
+            "value": "L_monitor",
+            "span": {
+              "line": 2,
+              "col_start": 3,
+              "col_end": 12
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 2,
+              "col_start": 12,
+              "col_end": 13
+            }
+          },
+          {
+            "kind": "string",
+            "raw": "\"*/5 * * * *\"",
+            "value": "*/5 * * * *",
+            "span": {
+              "line": 2,
+              "col_start": 13,
+              "col_end": 26
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 3,
+        "original_line": "",
+        "op_value": "",
+        "op_canonical": "",
+        "slot_values": [],
+        "slot_kinds": [],
+        "tokens": []
+      },
+      {
+        "lineno": 4,
+        "original_line": "L_monitor:",
+        "op_value": "L_monitor:",
+        "op_canonical": "L_monitor:",
+        "slot_values": [],
+        "slot_kinds": [],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "L_monitor:",
+            "value": "L_monitor:",
+            "span": {
+              "line": 4,
+              "col_start": 0,
+              "col_end": 10
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 5,
+        "original_line": "  R db.F Metric * ->metrics",
+        "op_value": "R",
+        "op_canonical": "R",
+        "slot_values": [
+          "db.F",
+          "Metric",
+          "*",
+          "->metrics"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare",
+          "bare"
+        ],
+        "tokens": [
+          {
+            "kind": "ws",
+            "raw": "  ",
+            "value": "  ",
+            "span": {
+              "line": 5,
+              "col_start": 0,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "R",
+            "value": "R",
+            "span": {
+              "line": 5,
+              "col_start": 2,
+              "col_end": 3
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 5,
+              "col_start": 3,
+              "col_end": 4
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "db.F",
+            "value": "db.F",
+            "span": {
+              "line": 5,
+              "col_start": 4,
+              "col_end": 8
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 5,
+              "col_start": 8,
+              "col_end": 9
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "Metric",
+            "value": "Metric",
+            "span": {
+              "line": 5,
+              "col_start": 9,
+              "col_end": 15
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 5,
+              "col_start": 15,
+              "col_end": 16
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "*",
+            "value": "*",
+            "span": {
+              "line": 5,
+              "col_start": 16,
+              "col_end": 17
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 5,
+              "col_start": 17,
+              "col_end": 18
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "->metrics",
+            "value": "->metrics",
+            "span": {
+              "line": 5,
+              "col_start": 18,
+              "col_end": 27
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 6,
+        "original_line": "  If metrics ->L_alert ->L_ok",
+        "op_value": "If",
+        "op_canonical": "If",
+        "slot_values": [
+          "metrics",
+          "->L_alert",
+          "->L_ok"
+        ],
+        "slot_kinds": [
+          "bare",
+          "bare",
+          "bare"
+        ],
+        "tokens": [
+          {
+            "kind": "ws",
+            "raw": "  ",
+            "value": "  ",
+            "span": {
+              "line": 6,
+              "col_start": 0,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "If",
+            "value": "If",
+            "span": {
+              "line": 6,
+              "col_start": 2,
+              "col_end": 4
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 6,
+              "col_start": 4,
+              "col_end": 5
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "metrics",
+            "value": "metrics",
+            "span": {
+              "line": 6,
+              "col_start": 5,
+              "col_end": 12
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 6,
+              "col_start": 12,
+              "col_end": 13
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "->L_alert",
+            "value": "->L_alert",
+            "span": {
+              "line": 6,
+              "col_start": 13,
+              "col_end": 22
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 6,
+              "col_start": 22,
+              "col_end": 23
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "->L_ok",
+            "value": "->L_ok",
+            "span": {
+              "line": 6,
+              "col_start": 23,
+              "col_end": 29
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 7,
+        "original_line": "",
+        "op_value": "",
+        "op_canonical": "",
+        "slot_values": [],
+        "slot_kinds": [],
+        "tokens": []
+      },
+      {
+        "lineno": 8,
+        "original_line": "L_alert:",
+        "op_value": "L_alert:",
+        "op_canonical": "L_alert:",
+        "slot_values": [],
+        "slot_kinds": [],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "L_alert:",
+            "value": "L_alert:",
+            "span": {
+              "line": 8,
+              "col_start": 0,
+              "col_end": 8
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 9,
+        "original_line": "  R http.Post \"https://hook.example.com/alert\" metrics ->ack",
+        "op_value": "R",
+        "op_canonical": "R",
+        "slot_values": [
+          "http.Post",
+          "https://hook.example.com/alert",
+          "metrics",
+          "->ack"
+        ],
+        "slot_kinds": [
+          "bare",
+          "string",
+          "bare",
+          "bare"
+        ],
+        "tokens": [
+          {
+            "kind": "ws",
+            "raw": "  ",
+            "value": "  ",
+            "span": {
+              "line": 9,
+              "col_start": 0,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "R",
+            "value": "R",
+            "span": {
+              "line": 9,
+              "col_start": 2,
+              "col_end": 3
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 9,
+              "col_start": 3,
+              "col_end": 4
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "http.Post",
+            "value": "http.Post",
+            "span": {
+              "line": 9,
+              "col_start": 4,
+              "col_end": 13
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 9,
+              "col_start": 13,
+              "col_end": 14
+            }
+          },
+          {
+            "kind": "string",
+            "raw": "\"https://hook.example.com/alert\"",
+            "value": "https://hook.example.com/alert",
+            "span": {
+              "line": 9,
+              "col_start": 14,
+              "col_end": 46
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 9,
+              "col_start": 46,
+              "col_end": 47
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "metrics",
+            "value": "metrics",
+            "span": {
+              "line": 9,
+              "col_start": 47,
+              "col_end": 54
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 9,
+              "col_start": 54,
+              "col_end": 55
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "->ack",
+            "value": "->ack",
+            "span": {
+              "line": 9,
+              "col_start": 55,
+              "col_end": 60
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 10,
+        "original_line": "  J ack",
+        "op_value": "J",
+        "op_canonical": "J",
+        "slot_values": [
+          "ack"
+        ],
+        "slot_kinds": [
+          "bare"
+        ],
+        "tokens": [
+          {
+            "kind": "ws",
+            "raw": "  ",
+            "value": "  ",
+            "span": {
+              "line": 10,
+              "col_start": 0,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "J",
+            "value": "J",
+            "span": {
+              "line": 10,
+              "col_start": 2,
+              "col_end": 3
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 10,
+              "col_start": 3,
+              "col_end": 4
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "ack",
+            "value": "ack",
+            "span": {
+              "line": 10,
+              "col_start": 4,
+              "col_end": 7
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 11,
+        "original_line": "",
+        "op_value": "",
+        "op_canonical": "",
+        "slot_values": [],
+        "slot_kinds": [],
+        "tokens": []
+      },
+      {
+        "lineno": 12,
+        "original_line": "L_ok:",
+        "op_value": "L_ok:",
+        "op_canonical": "L_ok:",
+        "slot_values": [],
+        "slot_kinds": [],
+        "tokens": [
+          {
+            "kind": "bare",
+            "raw": "L_ok:",
+            "value": "L_ok:",
+            "span": {
+              "line": 12,
+              "col_start": 0,
+              "col_end": 5
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 13,
+        "original_line": "  J metrics",
+        "op_value": "J",
+        "op_canonical": "J",
+        "slot_values": [
+          "metrics"
+        ],
+        "slot_kinds": [
+          "bare"
+        ],
+        "tokens": [
+          {
+            "kind": "ws",
+            "raw": "  ",
+            "value": "  ",
+            "span": {
+              "line": 13,
+              "col_start": 0,
+              "col_end": 2
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "J",
+            "value": "J",
+            "span": {
+              "line": 13,
+              "col_start": 2,
+              "col_end": 3
+            }
+          },
+          {
+            "kind": "ws",
+            "raw": " ",
+            "value": " ",
+            "span": {
+              "line": 13,
+              "col_start": 3,
+              "col_end": 4
+            }
+          },
+          {
+            "kind": "bare",
+            "raw": "metrics",
+            "value": "metrics",
+            "span": {
+              "line": 13,
+              "col_start": 4,
+              "col_end": 11
+            }
+          }
+        ]
+      },
+      {
+        "lineno": 14,
+        "original_line": "",
+        "op_value": "",
+        "op_canonical": "",
+        "slot_values": [],
+        "slot_kinds": [],
+        "tokens": []
+      },
+      {
+        "lineno": 15,
+        "original_line": "",
+        "op_value": "",
+        "op_canonical": "",
+        "slot_values": [],
+        "slot_kinds": [],
+        "tokens": []
+      }
+    ]
+  },
+  "services": {
+    "core": {
+      "mode": "cron",
+      "path": "",
+      "eps": {},
+      "ui": {}
+    }
+  },
+  "types": {},
+  "labels": {
+    "_monitor": {
+      "nodes": [
+        {
+          "id": "n1",
+          "op": "R",
+          "effect": "io",
+          "reads": [],
+          "writes": [
+            "metrics"
+          ],
+          "lineno": 5,
+          "data": {
+            "op": "R",
+            "lineno": 5,
+            "adapter": "db.F",
+            "target": "Metric",
+            "args": [
+              "*"
+            ],
+            "out": "metrics",
+            "src": "db",
+            "req_op": "F",
+            "entity": "Metric",
+            "fields": "*",
+            "raw": [
+              "db.F",
+              "Metric",
+              "*",
+              "->metrics"
+            ]
+          },
+          "effect_tier": "io-read",
+          "effect_kinds": [
+            "db_read"
+          ],
+          "hash": "sha256:65d97530cc1d7ef2656af0b1a1b2e0113d3ec44034444ee3a81a9203dfb16b46"
+        },
+        {
+          "id": "n2",
+          "op": "If",
+          "effect": "pure",
+          "reads": [
+            "metrics"
+          ],
+          "writes": [],
+          "lineno": 6,
+          "data": {
+            "op": "If",
+            "lineno": 6,
+            "cond": "metrics",
+            "then": "_alert",
+            "else": null
+          },
+          "effect_tier": "control",
+          "effect_kinds": [
+            "control"
+          ],
+          "hash": "sha256:2f1e3e49f71070578f39e351aa1260d077f3b802ee81a19340067d8eed541842"
+        }
+      ],
+      "edges": [
+        {
+          "from": "n1",
+          "to": "n2",
+          "to_kind": "node",
+          "port": "next"
+        },
+        {
+          "from": "n2",
+          "to": "_alert",
+          "port": "then",
+          "to_kind": "label"
+        }
+      ],
+      "legacy": {
+        "steps": [
+          {
+            "op": "R",
+            "lineno": 5,
+            "adapter": "db.F",
+            "target": "Metric",
+            "args": [
+              "*"
+            ],
+            "out": "metrics",
+            "src": "db",
+            "req_op": "F",
+            "entity": "Metric",
+            "fields": "*",
+            "raw": [
+              "db.F",
+              "Metric",
+              "*",
+              "->metrics"
+            ]
+          },
+          {
+            "op": "If",
+            "lineno": 6,
+            "cond": "metrics",
+            "then": "_alert",
+            "else": null
+          }
+        ]
+      },
+      "slots": [],
+      "entry": "n1",
+      "exits": [],
+      "effect_summary": {
+        "reads": [
+          "metrics"
+        ],
+        "writes": [
+          "metrics"
+        ],
+        "effects": [
+          "control",
+          "db_read"
+        ]
+      },
+      "id_hash": "sha256:36545af50a025e91a193fda757f55bfefe7b42779d31e1b440907b29da3bc87e"
+    },
+    "_alert": {
+      "nodes": [
+        {
+          "id": "n1",
+          "op": "R",
+          "effect": "io",
+          "reads": [],
+          "writes": [
+            "ack"
+          ],
+          "lineno": 9,
+          "data": {
+            "op": "R",
+            "lineno": 9,
+            "adapter": "http.Post",
+            "target": "https://hook.example.com/alert",
+            "args": [
+              "metrics"
+            ],
+            "out": "ack",
+            "src": "http",
+            "req_op": "POST",
+            "entity": "https://hook.example.com/alert",
+            "fields": "metrics",
+            "raw": [
+              "http.Post",
+              "https://hook.example.com/alert",
+              "metrics",
+              "->ack"
+            ]
+          },
+          "effect_tier": "io-write",
+          "effect_kinds": [
+            "http"
+          ],
+          "hash": "sha256:bba78cea7f8120f868c98f77ec3124c857b228e044b9d3ced3e622e44cecf924"
+        },
+        {
+          "id": "n2",
+          "op": "J",
+          "effect": "pure",
+          "reads": [
+            "ack"
+          ],
+          "writes": [],
+          "lineno": 10,
+          "data": {
+            "op": "J",
+            "lineno": 10,
+            "var": "ack"
+          },
+          "effect_tier": "pure",
+          "effect_kinds": [],
+          "hash": "sha256:c786f350e319abd9ad6d3a7ba6f8c00a41fad6e70ecd25c7b7a8e9fe7e442d96"
+        }
+      ],
+      "edges": [
+        {
+          "from": "n1",
+          "to": "n2",
+          "to_kind": "node",
+          "port": "next"
+        }
+      ],
+      "legacy": {
+        "steps": [
+          {
+            "op": "R",
+            "lineno": 9,
+            "adapter": "http.Post",
+            "target": "https://hook.example.com/alert",
+            "args": [
+              "metrics"
+            ],
+            "out": "ack",
+            "src": "http",
+            "req_op": "POST",
+            "entity": "https://hook.example.com/alert",
+            "fields": "metrics",
+            "raw": [
+              "http.Post",
+              "https://hook.example.com/alert",
+              "metrics",
+              "->ack"
+            ]
+          },
+          {
+            "op": "J",
+            "lineno": 10,
+            "var": "ack"
+          }
+        ]
+      },
+      "slots": [],
+      "entry": "n1",
+      "exits": [
+        {
+          "node": "n2",
+          "var": "ack"
+        }
+      ],
+      "effect_summary": {
+        "reads": [
+          "ack"
+        ],
+        "writes": [
+          "ack"
+        ],
+        "effects": [
+          "http"
+        ]
+      },
+      "id_hash": "sha256:72eda41acff9adacce5dfff57a71f8604bb2c8a3a617bc5adae9519be31f0d7b"
+    },
+    "_ok": {
+      "nodes": [
+        {
+          "id": "n1",
+          "op": "J",
+          "effect": "pure",
+          "reads": [
+            "metrics"
+          ],
+          "writes": [],
+          "lineno": 13,
+          "data": {
+            "op": "J",
+            "lineno": 13,
+            "var": "metrics"
+          },
+          "effect_tier": "pure",
+          "effect_kinds": [],
+          "hash": "sha256:1aea261a573cbb5a09270088cba1621514cd32101e0aa7ea6251965d58e58530"
+        }
+      ],
+      "edges": [],
+      "legacy": {
+        "steps": [
+          {
+            "op": "J",
+            "lineno": 13,
+            "var": "metrics"
+          }
+        ]
+      },
+      "slots": [],
+      "entry": "n1",
+      "exits": [
+        {
+          "node": "n1",
+          "var": "metrics"
+        }
+      ],
+      "effect_summary": {
+        "reads": [
+          "metrics"
+        ],
+        "writes": [],
+        "effects": []
+      },
+      "id_hash": "sha256:d3a92a269bc3f8b52565293aa384597bd1f7ebbd32733ceb6a0b0dcc0917286d"
+    }
+  },
+  "crons": [
+    {
+      "label": "L_monitor",
+      "expr": "*/5 * * * *"
+    }
+  ],
+  "config": {
+    "env": [],
+    "secrets": []
+  },
+  "observability": {
+    "metrics": [],
+    "trace": false
+  },
+  "deploy": {
+    "strategy": "rolling",
+    "env_target": "",
+    "flags": []
+  },
+  "limits": {
+    "per_path": {},
+    "per_tenant": 0
+  },
+  "roles": [],
+  "allow": [],
+  "audit": {},
+  "admin": {},
+  "desc": {
+    "endpoints": {},
+    "types": {}
+  },
+  "runbooks": {},
+  "ver": null,
+  "compat": null,
+  "tests": [],
+  "api": {
+    "style": "rest",
+    "version_prefix": "",
+    "deprecate": [],
+    "sla": {}
+  },
+  "rag": {
+    "sources": {},
+    "chunking": {},
+    "embeddings": {},
+    "stores": {},
+    "indexes": {},
+    "retrievers": {},
+    "augment": {},
+    "generate": {},
+    "pipelines": {}
+  },
+  "capabilities": {
+    "auth": {},
+    "policy": {},
+    "cache": {},
+    "queue": {},
+    "txn": {}
+  },
+  "runtime_policy": {
+    "execution_mode": "graph-preferred",
+    "unknown_op_policy": "skip"
+  },
+  "meta": [],
+  "errors": [],
+  "warnings": [],
+  "diagnostics": [],
+  "stats": {
+    "lines": 10,
+    "ops": 10
+  },
+  "graph_semantic_checksum": "sha256:1e3c56780ffa738d88d93c94827eb2794965ea3850865fb95fa68c9f246eccce"
+}

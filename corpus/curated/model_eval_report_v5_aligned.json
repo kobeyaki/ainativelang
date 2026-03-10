@@ -1,0 +1,1319 @@
+{
+  "base_model": "microsoft/phi-3-mini-4k-instruct",
+  "adapter_path": "models/ainl-phi3-lora-v7-coverage/best_by_strict_ainl",
+  "prompt_set": "corpus/curated/regression_prompts.jsonl",
+  "max_new_tokens": 30,
+  "device": "mps",
+  "constrained_decoding": true,
+  "repair_attempts": 2,
+  "canonicalize_output": true,
+  "base_evaluated": true,
+  "emit_timing": true,
+  "constraint_diagnostics": true,
+  "bucket_by_prompt_length": true,
+  "canonicalize_chunk_lines": 256,
+  "canonicalize_max_lines": 512,
+  "quantization_mode": "none",
+  "sanity": {
+    "pass": true,
+    "first_prompt_id": "weather_email",
+    "first_prompt_runtime_ok": true,
+    "first_prompt_strict_ok": true
+  },
+  "summary": {
+    "lora": {
+      "total_prompts": 12,
+      "nonempty_outputs": 8,
+      "nonempty_rate": 0.6666666666666666,
+      "runtime_compile_ok": 8,
+      "runtime_compile_rate": 0.6666666666666666,
+      "strict_compile_ok": 8,
+      "strict_compile_rate": 0.6666666666666666,
+      "ainl_like_ok": 8,
+      "ainl_like_rate": 0.6666666666666666,
+      "strict_ainl_ok": 8,
+      "strict_ainl_rate": 0.6666666666666666
+    },
+    "base": {
+      "total_prompts": 12,
+      "nonempty_outputs": 12,
+      "nonempty_rate": 1.0,
+      "runtime_compile_ok": 12,
+      "runtime_compile_rate": 1.0,
+      "strict_compile_ok": 10,
+      "strict_compile_rate": 0.8333333333333334,
+      "ainl_like_ok": 12,
+      "ainl_like_rate": 1.0,
+      "strict_ainl_ok": 10,
+      "strict_ainl_rate": 0.8333333333333334
+    },
+    "failure_families": {
+      "lora": {
+        "ok": 8,
+        "empty_output": 4
+      },
+      "base": {
+        "ok": 10,
+        "strict_compile_failure": 2
+      }
+    },
+    "comparison": {
+      "lora_wins_runtime_compile": 0,
+      "base_wins_runtime_compile": 4,
+      "ties_runtime_compile": 8,
+      "lora_wins_strict_ainl": 2,
+      "base_wins_strict_ainl": 4,
+      "ties_strict_ainl": 6
+    }
+  },
+  "diagnostics": {
+    "lora": {
+      "model_name": "LoRA",
+      "model_load_seconds": 10.822403192520142,
+      "prompt_count": 12,
+      "prompt_ordering": {
+        "bucket_by_prompt_length": true,
+        "ordered_prompt_ids": [
+          "cron_backup_notify",
+          "branch_on_risk",
+          "db_to_email_digest",
+          "daily_csv_report",
+          "queue_worker",
+          "transform_and_post",
+          "api_status_alert",
+          "auth_policy_gate",
+          "rss_to_sqlite",
+          "webhook_ingest",
+          "retry_on_http_fail",
+          "weather_email"
+        ]
+      },
+      "canonicalize_config": {
+        "chunk_lines": 256,
+        "max_lines": 512
+      },
+      "quantization": {
+        "requested_mode": "none",
+        "applied_mode": "none",
+        "enabled": false,
+        "fallback_reason": null
+      },
+      "timing_totals": {
+        "generate_seconds": 133.24238562583923,
+        "compile_seconds": 0.003450155258178711,
+        "repair_generate_seconds": 189.37219882011414,
+        "canonicalize_seconds": 0.001318216323852539,
+        "prompt_total_seconds": 322.62591886520386,
+        "loop_wall_seconds": 322.62591886520386
+      },
+      "constraint_diagnostics": {
+        "steps_processed": 630,
+        "tokens_considered": 20134800,
+        "tokens_allowed": 94759,
+        "rejected_by_next_token": 20039978,
+        "rejected_by_strict_prefix": 63,
+        "eos_allowed": 0,
+        "eos_blocked": 630,
+        "fallback_used_steps": 172
+      },
+      "length_buckets": {
+        "tok_000_064": {
+          "total_prompts": 12,
+          "nonempty_outputs": 8,
+          "runtime_compile_ok": 8,
+          "strict_compile_ok": 8,
+          "strict_ainl_ok": 8,
+          "timing_totals": {
+            "generate_seconds": 133.24238562583923,
+            "compile_seconds": 0.003450155258178711,
+            "repair_generate_seconds": 189.37219882011414,
+            "canonicalize_seconds": 0.001318216323852539,
+            "prompt_total_seconds": 322.62591886520386
+          },
+          "failure_families": {
+            "ok": 8,
+            "empty_output": 4
+          },
+          "constraint_diagnostics": {
+            "steps_processed": 630,
+            "tokens_considered": 20134800,
+            "tokens_allowed": 94759,
+            "rejected_by_next_token": 20039978,
+            "rejected_by_strict_prefix": 63,
+            "eos_allowed": 0,
+            "eos_blocked": 630,
+            "fallback_used_steps": 172
+          },
+          "nonempty_rate": 0.6666666666666666,
+          "runtime_compile_rate": 0.6666666666666666,
+          "strict_compile_rate": 0.6666666666666666,
+          "strict_ainl_rate": 0.6666666666666666,
+          "constraint_health": {
+            "alerts": [
+              "high_fallback_rate",
+              "eos_never_allowed"
+            ],
+            "hints": [
+              "Constraint may be too narrow; consider broadening next_valid_tokens for current prefix states.",
+              "EOS gating is almost always blocked; reduce minimum structure threshold or improve prompt scaffolding."
+            ],
+            "ratios": {
+              "fallback_rate": 0.273015873015873,
+              "allowed_token_rate": 0.00470623000973439,
+              "strict_reject_share": 0.0006644027757271519,
+              "eos_block_rate": 1.0
+            }
+          }
+        }
+      },
+      "cleanup_seconds": 0.4031081199645996,
+      "prompt_template_cache_entries": 17,
+      "constraint_health": {
+        "alerts": [
+          "high_fallback_rate",
+          "eos_never_allowed"
+        ],
+        "hints": [
+          "Constraint may be too narrow; consider broadening next_valid_tokens for current prefix states.",
+          "EOS gating is almost always blocked; reduce minimum structure threshold or improve prompt scaffolding."
+        ],
+        "ratios": {
+          "fallback_rate": 0.273015873015873,
+          "allowed_token_rate": 0.00470623000973439,
+          "strict_reject_share": 0.0006644027757271519,
+          "eos_block_rate": 1.0
+        }
+      }
+    },
+    "base": {
+      "model_name": "Base",
+      "model_load_seconds": 8.008864164352417,
+      "prompt_count": 12,
+      "prompt_ordering": {
+        "bucket_by_prompt_length": true,
+        "ordered_prompt_ids": [
+          "cron_backup_notify",
+          "branch_on_risk",
+          "db_to_email_digest",
+          "daily_csv_report",
+          "queue_worker",
+          "transform_and_post",
+          "api_status_alert",
+          "auth_policy_gate",
+          "rss_to_sqlite",
+          "webhook_ingest",
+          "retry_on_http_fail",
+          "weather_email"
+        ]
+      },
+      "canonicalize_config": {
+        "chunk_lines": 256,
+        "max_lines": 512
+      },
+      "quantization": {
+        "requested_mode": "none",
+        "applied_mode": "none",
+        "enabled": false,
+        "fallback_reason": null
+      },
+      "timing_totals": {
+        "generate_seconds": 159.50931072235107,
+        "compile_seconds": 0.016793489456176758,
+        "repair_generate_seconds": 221.0440583229065,
+        "canonicalize_seconds": 0.005379915237426758,
+        "prompt_total_seconds": 380.59009861946106,
+        "loop_wall_seconds": 380.59009861946106
+      },
+      "constraint_diagnostics": {
+        "steps_processed": 780,
+        "tokens_considered": 24928800,
+        "tokens_allowed": 63660,
+        "rejected_by_next_token": 24850018,
+        "rejected_by_strict_prefix": 15122,
+        "eos_allowed": 0,
+        "eos_blocked": 780,
+        "fallback_used_steps": 212
+      },
+      "length_buckets": {
+        "tok_000_064": {
+          "total_prompts": 12,
+          "nonempty_outputs": 12,
+          "runtime_compile_ok": 12,
+          "strict_compile_ok": 10,
+          "strict_ainl_ok": 10,
+          "timing_totals": {
+            "generate_seconds": 159.50931072235107,
+            "compile_seconds": 0.016793489456176758,
+            "repair_generate_seconds": 221.0440583229065,
+            "canonicalize_seconds": 0.005379915237426758,
+            "prompt_total_seconds": 380.59009861946106
+          },
+          "failure_families": {
+            "ok": 10,
+            "strict_compile_failure": 2
+          },
+          "constraint_diagnostics": {
+            "steps_processed": 780,
+            "tokens_considered": 24928800,
+            "tokens_allowed": 63660,
+            "rejected_by_next_token": 24850018,
+            "rejected_by_strict_prefix": 15122,
+            "eos_allowed": 0,
+            "eos_blocked": 780,
+            "fallback_used_steps": 212
+          },
+          "nonempty_rate": 1.0,
+          "runtime_compile_rate": 1.0,
+          "strict_compile_rate": 0.8333333333333334,
+          "strict_ainl_rate": 0.8333333333333334,
+          "constraint_health": {
+            "alerts": [
+              "high_fallback_rate",
+              "eos_never_allowed"
+            ],
+            "hints": [
+              "Constraint may be too narrow; consider broadening next_valid_tokens for current prefix states.",
+              "EOS gating is almost always blocked; reduce minimum structure threshold or improve prompt scaffolding."
+            ],
+            "ratios": {
+              "fallback_rate": 0.2717948717948718,
+              "allowed_token_rate": 0.0025536728603061517,
+              "strict_reject_share": 0.19194739915209058,
+              "eos_block_rate": 1.0
+            }
+          }
+        }
+      },
+      "cleanup_seconds": 0.41271018981933594,
+      "prompt_template_cache_entries": 26,
+      "constraint_health": {
+        "alerts": [
+          "high_fallback_rate",
+          "eos_never_allowed"
+        ],
+        "hints": [
+          "Constraint may be too narrow; consider broadening next_valid_tokens for current prefix states.",
+          "EOS gating is almost always blocked; reduce minimum structure threshold or improve prompt scaffolding."
+        ],
+        "ratios": {
+          "fallback_rate": 0.2717948717948718,
+          "allowed_token_rate": 0.0025536728603061517,
+          "strict_reject_share": 0.19194739915209058,
+          "eos_block_rate": 1.0
+        }
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "weather_email",
+      "prompt": "Generate a tiny valid AINL workflow that checks weather in Seattle and emails a short summary to ops@example.com.",
+      "lora": {
+        "nonempty": true,
+        "output": "Cr X * * * * * L R LXL RL SL S L XL R J D XL JL JL J",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 35,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 7.357379198074341,
+            "compile_seconds": 0.0003311634063720703,
+            "repair_generate_seconds": 0.0,
+            "canonicalize_seconds": 1.5020370483398438e-05,
+            "prompt_total_seconds": 7.357864856719971
+          },
+          "repair_attempts_used": 0,
+          "constraint": {
+            "steps_processed": 30,
+            "tokens_considered": 958800,
+            "tokens_allowed": 157,
+            "rejected_by_next_token": 958636,
+            "rejected_by_strict_prefix": 7,
+            "eos_allowed": 0,
+            "eos_blocked": 30,
+            "fallback_used_steps": 24,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 1
+          }
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "A SXA AXDLXLXLXLXLXLXLXLXLXLXLXL",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 35,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 7.144520998001099,
+            "compile_seconds": 0.0003440380096435547,
+            "repair_generate_seconds": 0.0,
+            "canonicalize_seconds": 8.296966552734375e-05,
+            "prompt_total_seconds": 7.145187139511108
+          },
+          "repair_attempts_used": 0,
+          "constraint": {
+            "steps_processed": 30,
+            "tokens_considered": 958800,
+            "tokens_allowed": 169,
+            "rejected_by_next_token": 958621,
+            "rejected_by_strict_prefix": 10,
+            "eos_allowed": 0,
+            "eos_blocked": 30,
+            "fallback_used_steps": 26,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "api_status_alert",
+      "prompt": "Create a workflow that calls a REST status endpoint every 5 minutes and sends an alert when status is not ok.",
+      "lora": {
+        "nonempty": true,
+        "output": "Cr L */*/*/* * * * * L XL R L R XL L J R L J XL L J XL L",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 31,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 7.019142150878906,
+            "compile_seconds": 0.0004868507385253906,
+            "repair_generate_seconds": 0.0,
+            "canonicalize_seconds": 1.8835067749023438e-05,
+            "prompt_total_seconds": 7.019826889038086
+          },
+          "repair_attempts_used": 0,
+          "constraint": {
+            "steps_processed": 30,
+            "tokens_considered": 958800,
+            "tokens_allowed": 175,
+            "rejected_by_next_token": 958618,
+            "rejected_by_strict_prefix": 7,
+            "eos_allowed": 0,
+            "eos_blocked": 30,
+            "fallback_used_steps": 21,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 1
+          }
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S cw a /\nS cw a /\nS cw a /\nS cw a /\nS cw a /",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 31,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 15.353614091873169,
+            "compile_seconds": 0.0014727115631103516,
+            "repair_generate_seconds": 31.666633129119873,
+            "canonicalize_seconds": 0.00027179718017578125,
+            "prompt_total_seconds": 47.023696184158325
+          },
+          "repair_attempts_used": 2,
+          "constraint": {
+            "steps_processed": 90,
+            "tokens_considered": 2876400,
+            "tokens_allowed": 8306,
+            "rejected_by_next_token": 2867635,
+            "rejected_by_strict_prefix": 459,
+            "eos_allowed": 0,
+            "eos_blocked": 90,
+            "fallback_used_steps": 12,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "rss_to_sqlite",
+      "prompt": "Build a workflow that polls an RSS feed, deduplicates items, and stores new entries in sqlite.",
+      "lora": {
+        "nonempty": true,
+        "output": "Cr L */ * * * * D Cr X R S L R S L Cr X R S L J D L J X L J D L",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 31,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 6.978973150253296,
+            "compile_seconds": 0.0004439353942871094,
+            "repair_generate_seconds": 0.0,
+            "canonicalize_seconds": 1.5974044799804688e-05,
+            "prompt_total_seconds": 6.979557037353516
+          },
+          "repair_attempts_used": 0,
+          "constraint": {
+            "steps_processed": 30,
+            "tokens_considered": 958800,
+            "tokens_allowed": 157,
+            "rejected_by_next_token": 958636,
+            "rejected_by_strict_prefix": 7,
+            "eos_allowed": 0,
+            "eos_blocked": 30,
+            "fallback_used_steps": 24,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 1
+          }
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S c a / R\nS c a / D\nS c a / E\nS c a / L\nS c a / R",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 31,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 15.112303972244263,
+            "compile_seconds": 0.0009462833404541016,
+            "repair_generate_seconds": 14.452009916305542,
+            "canonicalize_seconds": 0.00017595291137695312,
+            "prompt_total_seconds": 29.56640911102295
+          },
+          "repair_attempts_used": 1,
+          "constraint": {
+            "steps_processed": 60,
+            "tokens_considered": 1917600,
+            "tokens_allowed": 7310,
+            "rejected_by_next_token": 1909942,
+            "rejected_by_strict_prefix": 348,
+            "eos_allowed": 0,
+            "eos_blocked": 60,
+            "fallback_used_steps": 11,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "daily_csv_report",
+      "prompt": "Generate a workflow that runs daily at 8am and writes a CSV report of yesterday's events.",
+      "lora": {
+        "nonempty": true,
+        "output": "Cr D */*/* * * * * LD XL R LR XL L R L R L J R L R L J L",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 30,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 7.048602819442749,
+            "compile_seconds": 0.00022912025451660156,
+            "repair_generate_seconds": 0.0,
+            "canonicalize_seconds": 3.790855407714844e-05,
+            "prompt_total_seconds": 7.048985242843628
+          },
+          "repair_attempts_used": 0,
+          "constraint": {
+            "steps_processed": 30,
+            "tokens_considered": 958800,
+            "tokens_allowed": 169,
+            "rejected_by_next_token": 958624,
+            "rejected_by_strict_prefix": 7,
+            "eos_allowed": 0,
+            "eos_blocked": 30,
+            "fallback_used_steps": 22,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 1
+          }
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S c a / R\nS c a / R\nS c a / R\nS c a / R\nS c a / R",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 30,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 11.297201871871948,
+            "compile_seconds": 0.0008258819580078125,
+            "repair_generate_seconds": 17.891872882843018,
+            "canonicalize_seconds": 0.0001819133758544922,
+            "prompt_total_seconds": 29.19085383415222
+          },
+          "repair_attempts_used": 1,
+          "constraint": {
+            "steps_processed": 60,
+            "tokens_considered": 1917600,
+            "tokens_allowed": 2301,
+            "rejected_by_next_token": 1912526,
+            "rejected_by_strict_prefix": 2773,
+            "eos_allowed": 0,
+            "eos_blocked": 60,
+            "fallback_used_steps": 25,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "webhook_ingest",
+      "prompt": "Create an endpoint workflow that accepts webhook payloads, validates required fields, and stores them to a database.",
+      "lora": {
+        "nonempty": true,
+        "output": "Cr L */ * * * * R L S R JLXL JLXL Cr X RD X RL X RLX",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 31,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 15.924201011657715,
+            "compile_seconds": 0.00025200843811035156,
+            "repair_generate_seconds": 12.874833345413208,
+            "canonicalize_seconds": 3.504753112792969e-05,
+            "prompt_total_seconds": 28.79986882209778
+          },
+          "repair_attempts_used": 1,
+          "constraint": {
+            "steps_processed": 60,
+            "tokens_considered": 1917600,
+            "tokens_allowed": 7331,
+            "rejected_by_next_token": 1910262,
+            "rejected_by_strict_prefix": 7,
+            "eos_allowed": 0,
+            "eos_blocked": 60,
+            "fallback_used_steps": 24,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 2
+          }
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S c a /\nS c a /\nS c a /\nS c a /\nS c a /\nS c a /",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 31,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 13.195472002029419,
+            "compile_seconds": 0.0005147457122802734,
+            "repair_generate_seconds": 13.154124975204468,
+            "canonicalize_seconds": 0.0020210742950439453,
+            "prompt_total_seconds": 26.353057146072388
+          },
+          "repair_attempts_used": 1,
+          "constraint": {
+            "steps_processed": 60,
+            "tokens_considered": 1917600,
+            "tokens_allowed": 2787,
+            "rejected_by_next_token": 1911060,
+            "rejected_by_strict_prefix": 3753,
+            "eos_allowed": 0,
+            "eos_blocked": 60,
+            "fallback_used_steps": 21,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "retry_on_http_fail",
+      "prompt": "Generate an AINL workflow that retries failed HTTP requests up to three times with backoff and logs failures.",
+      "lora": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: empty output"
+          ],
+          "strict_errors": [
+            "no_output: empty output"
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "empty_output",
+          "strict_ainl_ok": false
+        },
+        "prompt_token_length": 33,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 16.145416975021362,
+            "compile_seconds": 3.314018249511719e-05,
+            "repair_generate_seconds": 44.374412298202515,
+            "canonicalize_seconds": 0.0003273487091064453,
+            "prompt_total_seconds": 60.52333998680115
+          },
+          "repair_attempts_used": 2,
+          "constraint": {
+            "steps_processed": 90,
+            "tokens_considered": 2876400,
+            "tokens_allowed": 21522,
+            "rejected_by_next_token": 2854878,
+            "rejected_by_strict_prefix": 0,
+            "eos_allowed": 0,
+            "eos_blocked": 90,
+            "fallback_used_steps": 0,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 3
+          }
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S c a /\nS c a /\nS c a /\nS c a /\nS c a /\nS c a /",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 33,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 15.441362857818604,
+            "compile_seconds": 0.0006198883056640625,
+            "repair_generate_seconds": 15.584098815917969,
+            "canonicalize_seconds": 9.799003601074219e-05,
+            "prompt_total_seconds": 31.02707004547119
+          },
+          "repair_attempts_used": 1,
+          "constraint": {
+            "steps_processed": 60,
+            "tokens_considered": 1917600,
+            "tokens_allowed": 7454,
+            "rejected_by_next_token": 1909777,
+            "rejected_by_strict_prefix": 369,
+            "eos_allowed": 0,
+            "eos_blocked": 60,
+            "fallback_used_steps": 8,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "branch_on_risk",
+      "prompt": "Create a workflow that scores incoming records and branches to manual-review label when risk exceeds threshold.",
+      "lora": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: empty output"
+          ],
+          "strict_errors": [
+            "no_output: empty output"
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "empty_output",
+          "strict_ainl_ok": false
+        },
+        "prompt_token_length": 28,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 16.05659794807434,
+            "compile_seconds": 4.0531158447265625e-06,
+            "repair_generate_seconds": 44.43091893196106,
+            "canonicalize_seconds": 5.0067901611328125e-05,
+            "prompt_total_seconds": 60.48788785934448
+          },
+          "repair_attempts_used": 2,
+          "constraint": {
+            "steps_processed": 90,
+            "tokens_considered": 2876400,
+            "tokens_allowed": 21522,
+            "rejected_by_next_token": 2854878,
+            "rejected_by_strict_prefix": 0,
+            "eos_allowed": 0,
+            "eos_blocked": 90,
+            "fallback_used_steps": 0,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 3
+          }
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S c a /\nS c a /\nS c a /\nS c a /\nS c a /\nS c a /",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 28,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 14.851299285888672,
+            "compile_seconds": 0.00045561790466308594,
+            "repair_generate_seconds": 14.868885040283203,
+            "canonicalize_seconds": 5.412101745605469e-05,
+            "prompt_total_seconds": 29.72121000289917
+          },
+          "repair_attempts_used": 1,
+          "constraint": {
+            "steps_processed": 60,
+            "tokens_considered": 1917600,
+            "tokens_allowed": 7454,
+            "rejected_by_next_token": 1909777,
+            "rejected_by_strict_prefix": 369,
+            "eos_allowed": 0,
+            "eos_blocked": 60,
+            "fallback_used_steps": 8,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "queue_worker",
+      "prompt": "Build a queue worker workflow that reads queued jobs, processes each job, and writes success or error status.",
+      "lora": {
+        "nonempty": true,
+        "output": "Cr L */ * * * * L R L X Cr L Cr L R L L L L L L J R J L L L L J",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 30,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 6.995348930358887,
+            "compile_seconds": 0.00019478797912597656,
+            "repair_generate_seconds": 0.0,
+            "canonicalize_seconds": 1.4066696166992188e-05,
+            "prompt_total_seconds": 6.99564790725708
+          },
+          "repair_attempts_used": 0,
+          "constraint": {
+            "steps_processed": 30,
+            "tokens_considered": 958800,
+            "tokens_allowed": 157,
+            "rejected_by_next_token": 958636,
+            "rejected_by_strict_prefix": 7,
+            "eos_allowed": 0,
+            "eos_blocked": 30,
+            "fallback_used_steps": 24,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 1
+          }
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S cw a/ /\nS cw a/ /\nS cw a/ /\nS cw a/ /\nS c",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": false,
+          "runtime_errors": [],
+          "strict_errors": [
+            "Line 5: op 'S' requires at least 2 slots, got 1"
+          ],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": false
+        },
+        "prompt_token_length": 30,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 9.84497618675232,
+            "compile_seconds": 0.007069110870361328,
+            "repair_generate_seconds": 33.2131085395813,
+            "canonicalize_seconds": 0.0018739700317382812,
+            "prompt_total_seconds": 43.07093000411987
+          },
+          "repair_attempts_used": 2,
+          "constraint": {
+            "steps_processed": 90,
+            "tokens_considered": 2876400,
+            "tokens_allowed": 1823,
+            "rejected_by_next_token": 2870834,
+            "rejected_by_strict_prefix": 3743,
+            "eos_allowed": 0,
+            "eos_blocked": 90,
+            "fallback_used_steps": 37,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "db_to_email_digest",
+      "prompt": "Generate a workflow that queries open tickets from database and emails a digest to support lead.",
+      "lora": {
+        "nonempty": true,
+        "output": "Cr L * * * * *\nCr Cr */*/*/*/*/ */* * * * LX R LD X LX LD",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 28,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 7.0772600173950195,
+            "compile_seconds": 0.00021719932556152344,
+            "repair_generate_seconds": 0.0,
+            "canonicalize_seconds": 1.71661376953125e-05,
+            "prompt_total_seconds": 7.077620029449463
+          },
+          "repair_attempts_used": 0,
+          "constraint": {
+            "steps_processed": 30,
+            "tokens_considered": 958800,
+            "tokens_allowed": 344,
+            "rejected_by_next_token": 958442,
+            "rejected_by_strict_prefix": 14,
+            "eos_allowed": 0,
+            "eos_blocked": 30,
+            "fallback_used_steps": 13,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 1
+          }
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "C\nS cw w/ /\nD\nS cw w/ /\nE\nS\nR\nIf\nX\nS",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": false,
+          "runtime_errors": [],
+          "strict_errors": [
+            "Line 1: op 'C' requires at least 3 slots, got 0",
+            "Line 3: op 'D' requires at least 1 slots, got 0",
+            "Line 5: op 'E' requires at least 3 slots, got 0",
+            "Line 6: op 'S' requires at least 2 slots, got 0",
+            "Line 8: op 'If' requires at least 2 slots, got 0",
+            "Line 9: op 'X' requires at least 2 slots, got 0",
+            "Line 10: op 'S' requires at least 2 slots, got 0"
+          ],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": false
+        },
+        "prompt_token_length": 28,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 15.301259994506836,
+            "compile_seconds": 0.0013594627380371094,
+            "repair_generate_seconds": 34.08036708831787,
+            "canonicalize_seconds": 0.00011277198791503906,
+            "prompt_total_seconds": 49.383671045303345
+          },
+          "repair_attempts_used": 2,
+          "constraint": {
+            "steps_processed": 90,
+            "tokens_considered": 2876400,
+            "tokens_allowed": 7999,
+            "rejected_by_next_token": 2866198,
+            "rejected_by_strict_prefix": 2203,
+            "eos_allowed": 0,
+            "eos_blocked": 90,
+            "fallback_used_steps": 29,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "auth_policy_gate",
+      "prompt": "Create a workflow that enforces auth policy before executing data fetch and returns an error path if unauthorized.",
+      "lora": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: empty output"
+          ],
+          "strict_errors": [
+            "no_output: empty output"
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "empty_output",
+          "strict_ainl_ok": false
+        },
+        "prompt_token_length": 31,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 15.899450778961182,
+            "compile_seconds": 2.002716064453125e-05,
+            "repair_generate_seconds": 43.27192497253418,
+            "canonicalize_seconds": 0.00021791458129882812,
+            "prompt_total_seconds": 59.172484159469604
+          },
+          "repair_attempts_used": 2,
+          "constraint": {
+            "steps_processed": 90,
+            "tokens_considered": 2876400,
+            "tokens_allowed": 21522,
+            "rejected_by_next_token": 2854878,
+            "rejected_by_strict_prefix": 0,
+            "eos_allowed": 0,
+            "eos_blocked": 90,
+            "fallback_used_steps": 0,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 3
+          }
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S c a /\nS c a /\nS c a /\nS c a /\nS c a /\nS c a /",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 31,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 15.8296217918396,
+            "compile_seconds": 0.0012400150299072266,
+            "repair_generate_seconds": 13.21435809135437,
+            "canonicalize_seconds": 0.0001952648162841797,
+            "prompt_total_seconds": 29.047863006591797
+          },
+          "repair_attempts_used": 1,
+          "constraint": {
+            "steps_processed": 60,
+            "tokens_considered": 1917600,
+            "tokens_allowed": 7813,
+            "rejected_by_next_token": 1909436,
+            "rejected_by_strict_prefix": 351,
+            "eos_allowed": 0,
+            "eos_blocked": 60,
+            "fallback_used_steps": 7,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "transform_and_post",
+      "prompt": "Build a workflow that fetches JSON data, transforms fields, and posts the transformed payload to another API.",
+      "lora": {
+        "nonempty": false,
+        "output": "",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": false,
+          "strict_ok": false,
+          "runtime_errors": [
+            "no_output: empty output"
+          ],
+          "strict_errors": [
+            "no_output: empty output"
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "empty_output",
+          "strict_ainl_ok": false
+        },
+        "prompt_token_length": 30,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 15.84631085395813,
+            "compile_seconds": 1.5974044799804688e-05,
+            "repair_generate_seconds": 44.420109272003174,
+            "canonicalize_seconds": 0.00011777877807617188,
+            "prompt_total_seconds": 60.267297983169556
+          },
+          "repair_attempts_used": 2,
+          "constraint": {
+            "steps_processed": 90,
+            "tokens_considered": 2876400,
+            "tokens_allowed": 21522,
+            "rejected_by_next_token": 2854878,
+            "rejected_by_strict_prefix": 0,
+            "eos_allowed": 0,
+            "eos_blocked": 90,
+            "fallback_used_steps": 0,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 3
+          }
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S c a /\nS c a /\nS c a /\nS c a /\nS c a /\nS c a /",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 30,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 8.746946811676025,
+            "compile_seconds": 0.0013599395751953125,
+            "repair_generate_seconds": 18.201496839523315,
+            "canonicalize_seconds": 0.00019097328186035156,
+            "prompt_total_seconds": 26.951210975646973
+          },
+          "repair_attempts_used": 1,
+          "constraint": {
+            "steps_processed": 60,
+            "tokens_considered": 1917600,
+            "tokens_allowed": 2787,
+            "rejected_by_next_token": 1914435,
+            "rejected_by_strict_prefix": 378,
+            "eos_allowed": 0,
+            "eos_blocked": 60,
+            "fallback_used_steps": 21,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "cron_backup_notify",
+      "prompt": "Generate a scheduled workflow that backs up records nightly and sends completion notification with counts.",
+      "lora": {
+        "nonempty": true,
+        "output": "Cr L * */*/*/*/* * * * L R L X Cr X Cr L S Cr X R L J DL X J R",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 27,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 10.893701791763306,
+            "compile_seconds": 0.0012218952178955078,
+            "repair_generate_seconds": 0.0,
+            "canonicalize_seconds": 0.00045108795166015625,
+            "prompt_total_seconds": 10.895538091659546
+          },
+          "repair_attempts_used": 0,
+          "constraint": {
+            "steps_processed": 30,
+            "tokens_considered": 958800,
+            "tokens_allowed": 181,
+            "rejected_by_next_token": 958612,
+            "rejected_by_strict_prefix": 7,
+            "eos_allowed": 0,
+            "eos_blocked": 30,
+            "fallback_used_steps": 20,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 1
+          }
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "S c a /\nS c a /\nS c a /\nS c a /\nS c a /\nS c a /",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": true,
+          "ainl_like_reason": "ok",
+          "strict_ainl_ok": true
+        },
+        "prompt_token_length": 27,
+        "prompt_bucket": "tok_000_064",
+        "diagnostics": {
+          "timing": {
+            "generate_seconds": 17.39073085784912,
+            "compile_seconds": 0.0005857944488525391,
+            "repair_generate_seconds": 14.717103004455566,
+            "canonicalize_seconds": 0.00012111663818359375,
+            "prompt_total_seconds": 32.10894012451172
+          },
+          "repair_attempts_used": 1,
+          "constraint": {
+            "steps_processed": 60,
+            "tokens_considered": 1917600,
+            "tokens_allowed": 7457,
+            "rejected_by_next_token": 1909777,
+            "rejected_by_strict_prefix": 366,
+            "eos_allowed": 0,
+            "eos_blocked": 60,
+            "fallback_used_steps": 7,
+            "vocab_size": 32000,
+            "fallback_size": 26,
+            "attempts_recorded": 2
+          }
+        }
+      }
+    }
+  ]
+}

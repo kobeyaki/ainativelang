@@ -1,0 +1,8 @@
+S core cron
+Cr L_scrape "0 0 * * *"
+
+L_scrape:
+  R http.Get "https://example.com/products" ->resp
+  R db.C Product * ->stored
+  J stored
+

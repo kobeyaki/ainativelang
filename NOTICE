@@ -1,0 +1,21 @@
+AINL
+Copyright (c) 2026 Steven Hooley and AINL contributors
+
+This repository uses an open-core model.
+
+Project-origin notice:
+- AINL was human-initiated by Steven Hooley.
+- Public attribution references:
+  - https://x.com/sbhooley
+  - https://stevenhooley.com
+  - https://linkedin.com/in/sbhooley
+
+Unless otherwise noted:
+
+- Core source code is licensed under the Apache License 2.0 (see LICENSE).
+- Non-code documentation and other content may be licensed separately (see LICENSE.docs).
+- Model weights, checkpoints, datasets, benchmark bundles, and other ML-related assets may be distributed under separate terms (see MODEL_LICENSE.md).
+- Commercial offerings (including proprietary modules, hosted services, premium assets, and enterprise features) are governed by separate commercial terms (see COMMERCIAL.md).
+- “AINL” and “AI Native Lang,” along with associated logos and branding, are trademarks or claimed marks of the project owner and are governed separately (see TRADEMARKS.md).
+
+This NOTICE file is provided for informational purposes and does not modify or replace the applicable license terms.

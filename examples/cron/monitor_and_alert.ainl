@@ -1,0 +1,14 @@
+S core cron
+Cr L_monitor "*/5 * * * *"   # every 5 minutes
+
+L_monitor:
+  R db.F Metric * ->metrics
+  If metrics ->L_alert ->L_ok
+
+L_alert:
+  R http.Post "https://hook.example.com/alert" metrics ->ack
+  J ack
+
+L_ok:
+  J metrics
+

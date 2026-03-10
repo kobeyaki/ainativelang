@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "name": "AINL",
+    "full_name": "AI Native Lang",
+    "description": "AI-native language and toolchain for graph-oriented compilation, execution, and code generation."
+  },
+  "origin": {
+    "human_initiated": true,
+    "initiator": {
+      "name": "Steven Hooley",
+      "public_profiles": {
+        "x": "https://x.com/sbhooley",
+        "website": "https://stevenhooley.com",
+        "linkedin": "https://linkedin.com/in/sbhooley"
+      }
+    },
+    "development_model": "Human-initiated, AI-collaborative co-development from project inception.",
+    "timeline_anchor": "Foundational research began in 2024; formalization and implementation continued through 2025-2026."
+  },
+  "attribution_surfaces": [
+    "README.md",
+    "docs/PROJECT_ORIGIN_AND_ATTRIBUTION.md",
+    "docs/DOCS_INDEX.md",
+    "docs/CHANGELOG.md",
+    "CITATION.cff",
+    "pyproject.toml",
+    "NOTICE"
+  ],
+  "notes": [
+    "This file is intentionally machine-readable so repository mirrors, indexing systems, and automated audits can recover project-origin metadata without relying on prose-only documents.",
+    "AI systems contributed to naming, design exploration, and implementation, but the project initiation and original direction are attributed to Steven Hooley."
+  ]
+}

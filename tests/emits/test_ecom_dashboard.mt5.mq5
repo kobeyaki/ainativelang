@@ -11,9 +11,6 @@ input double LotSize = 0.1;
 // Order.uid : I
 // Order.total : F
 // Order.status : E[Pending,Paid,Shipped]
-// Customer.id : I
-// Customer.email : S
-// Customer.name : S
 
 int OnInit()
 {

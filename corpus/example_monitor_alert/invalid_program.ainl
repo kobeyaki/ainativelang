@@ -1,0 +1,11 @@
+S core cron
+Cr L_monitor "*/5 * * * *"
+
+L_monitor:
+  R db.F Metric * ->metrics
+  If metrics ->L_alert
+
+L_alert:
+  R http.Post "https://hook.example.com/alert" metrics ->ack
+  J ack
+

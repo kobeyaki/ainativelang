@@ -1,0 +1,442 @@
+{
+  "base_model": "microsoft/phi-3-mini-4k-instruct",
+  "adapter_path": "models/ainl-phi3-lora-v4-regression",
+  "prompt_set": "corpus/curated/regression_prompts.jsonl",
+  "max_new_tokens": 40,
+  "device": "mps",
+  "constrained_decoding": false,
+  "sanity": {
+    "pass": true,
+    "first_prompt_id": "weather_email",
+    "first_prompt_runtime_ok": true,
+    "first_prompt_strict_ok": true
+  },
+  "summary": {
+    "lora": {
+      "total_prompts": 12,
+      "nonempty_outputs": 12,
+      "nonempty_rate": 1.0,
+      "runtime_compile_ok": 12,
+      "runtime_compile_rate": 1.0,
+      "strict_compile_ok": 11,
+      "strict_compile_rate": 0.9166666666666666,
+      "ainl_like_ok": 0,
+      "ainl_like_rate": 0.0,
+      "strict_ainl_ok": 0,
+      "strict_ainl_rate": 0.0
+    },
+    "base": {
+      "total_prompts": 12,
+      "nonempty_outputs": 12,
+      "nonempty_rate": 1.0,
+      "runtime_compile_ok": 12,
+      "runtime_compile_rate": 1.0,
+      "strict_compile_ok": 10,
+      "strict_compile_rate": 0.8333333333333334,
+      "ainl_like_ok": 0,
+      "ainl_like_rate": 0.0,
+      "strict_ainl_ok": 0,
+      "strict_ainl_rate": 0.0
+    },
+    "comparison": {
+      "lora_wins_runtime_compile": 0,
+      "base_wins_runtime_compile": 0,
+      "ties_runtime_compile": 12,
+      "lora_wins_strict_ainl": 0,
+      "base_wins_strict_ainl": 0,
+      "ties_strict_ainl": 12
+    }
+  },
+  "results": [
+    {
+      "id": "weather_email",
+      "prompt": "Generate a tiny valid AINL workflow that checks weather in Seattle and emails a short summary to ops@example.com.",
+      "lora": {
+        "nonempty": true,
+        "output": "AINL:\n\nR1: GET /weather/seattle -> weather_data\nR2: JO email ops@example.com weather_data.summary\nR",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "low_ainl_line_ratio:0.25",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\nimport requests\nimport smtplib\nfrom email.message import EmailMessage\n\n# Function to get weather summary\ndef get_weather_summary(api_key, city",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      }
+    },
+    {
+      "id": "api_status_alert",
+      "prompt": "Create a workflow that calls a REST status endpoint every 5 minutes and sends an alert when status is not ok.",
+      "lora": {
+        "nonempty": true,
+        "output": "```yaml\n- name: Check REST status\n  cron:\n    minute: '*/5'\n    job: python3 /path/to/check_status.py\n\n-",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "import requests\nimport time\nfrom datetime import datetime\n\n# Define the REST status endpoint URL\nSTATUS_ENDPOINT = \"http://example.com/api/status\"",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "non_ainl_code_prefix",
+          "strict_ainl_ok": false
+        }
+      }
+    },
+    {
+      "id": "rss_to_sqlite",
+      "prompt": "Build a workflow that polls an RSS feed, deduplicates items, and stores new entries in sqlite.",
+      "lora": {
+        "nonempty": true,
+        "output": "```python\nimport feedparser\nimport sqlite3\nimport time\n\n# Database setup\nconn = sqlite3.connect('rss.db')\nc = conn.cursor()\nc",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\nimport feedparser\nimport sqlite3\nimport time\n\n# Define the RSS feed URL\nRSS_FEED_URL = 'http://example.com/rss",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      }
+    },
+    {
+      "id": "daily_csv_report",
+      "prompt": "Generate a workflow that runs daily at 8am and writes a CSV report of yesterday's events.",
+      "lora": {
+        "nonempty": true,
+        "output": "0 0 * * * /usr/bin/python /path/to/script.py",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "low_ainl_line_ratio:0.00",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\n\nimport csv\n\nimport datetime\n\nfrom some_event_logging_library import get_yesterday_events\n\n\n# Define the path for the CSV report",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      }
+    },
+    {
+      "id": "webhook_ingest",
+      "prompt": "Create an endpoint workflow that accepts webhook payloads, validates required fields, and stores them to a database.",
+      "lora": {
+        "nonempty": true,
+        "output": "endpoint = app.post('/webhook', bodyParser.json(), (req, res) => {\n  const { event, data } = req.body;\n\n  if (!event",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "non_ainl_code_prefix",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "import json\nfrom flask import Flask, request, jsonify\nfrom flask_sqlalchemy import SQLAlchemy\n\napp = Flask(__name__)\napp.config",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": false,
+          "runtime_errors": [],
+          "strict_errors": [
+            "Line 6: unknown module 'app' in 'app.config'"
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "non_ainl_code_prefix",
+          "strict_ainl_ok": false
+        }
+      }
+    },
+    {
+      "id": "retry_on_http_fail",
+      "prompt": "Generate an AINL workflow that retries failed HTTP requests up to three times with backoff and logs failures.",
+      "lora": {
+        "nonempty": true,
+        "output": "INPUT: http_request_id\nOUTPUT:\n  R1: http_request -> http_request_id\n  R2: http_response -> http_response_id",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "low_ainl_line_ratio:0.00",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "import requests\nimport time\nimport logging\n\n# Configure logging\nlogging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": false,
+          "runtime_errors": [],
+          "strict_errors": [
+            "Line 6: unknown module 'logging' in 'logging.basicConfig(level=logging.INFO,'"
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "non_ainl_code_prefix",
+          "strict_ainl_ok": false
+        }
+      }
+    },
+    {
+      "id": "branch_on_risk",
+      "prompt": "Create a workflow that scores incoming records and branches to manual-review label when risk exceeds threshold.",
+      "lora": {
+        "nonempty": true,
+        "output": "```yaml\nworkflow:\n  - step: score_records\n    action: score_records\n    params:\n      source: incoming_records\n  - step:",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\n\nimport pandas as pd\n\n\n# Define the risk threshold\n\nrisk_threshold = 0.8\n\n\n# Sample data loading (assuming CSV format",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      }
+    },
+    {
+      "id": "queue_worker",
+      "prompt": "Build a queue worker workflow that reads queued jobs, processes each job, and writes success or error status.",
+      "lora": {
+        "nonempty": true,
+        "output": "```yaml\nworkflow:\n  process_jobs:\n    tasks:\n      - name: Read jobs\n        shell:\n          cmd: jq '.[]' jobs.json",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\nimport queue\nimport threading\nimport time\n\n# Define a simple job class\nclass Job:\n    def __init__(self, job_id, data):",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      }
+    },
+    {
+      "id": "db_to_email_digest",
+      "prompt": "Generate a workflow that queries open tickets from database and emails a digest to support lead.",
+      "lora": {
+        "nonempty": true,
+        "output": "```yaml\nworkflow:\n  - step: query_tickets\n    query: SELECT * FROM tickets WHERE status = 'open'\n  - step: prepare_email",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\nimport smtplib\nfrom email.mime.text import MIMEText\nfrom email.mime.multipart import MIMEMultipart\nimport psycopg2",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      }
+    },
+    {
+      "id": "auth_policy_gate",
+      "prompt": "Create a workflow that enforces auth policy before executing data fetch and returns an error path if unauthorized.",
+      "lora": {
+        "nonempty": true,
+        "output": "```yaml\nworkflow:\n  - step: authenticate\n    action: authenticate_user\n    next: data_fetch\n  - step: data_fetch\n    action:",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```javascript\n// Assuming Express.js and Passport.js are being used for authentication\n\nconst express = require('express');\nconst passport = require('passport');\nconst {",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      }
+    },
+    {
+      "id": "transform_and_post",
+      "prompt": "Build a workflow that fetches JSON data, transforms fields, and posts the transformed payload to another API.",
+      "lora": {
+        "nonempty": true,
+        "output": "```yaml\n- name: Fetch JSON data\n  http.get:\n    url: https://api.example.com/data\n  save_path: data.json",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": false,
+          "runtime_errors": [],
+          "strict_errors": [
+            "Line 3: unknown module 'http' in 'http.get:' Suggestion: Known modules: http, https"
+          ],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\nimport requests\nimport json\n\n# Define the source and target API URLs\nsource_api_url = 'https://source-api.example.com/data'\ntarget",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      }
+    },
+    {
+      "id": "cron_backup_notify",
+      "prompt": "Generate a scheduled workflow that backs up records nightly and sends completion notification with counts.",
+      "lora": {
+        "nonempty": true,
+        "output": "```yaml\n- cron:\n  job:\n    cron: '0 2 * * *'\n    command: python /path/to/backup_script.py",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      },
+      "base": {
+        "nonempty": true,
+        "output": "```python\nimport os\nimport shutil\nfrom datetime import datetime\nimport smtplib\nfrom email.message import EmailMessage\n\n# Configuration\nbackup_folder = '/path/",
+        "generation_error": null,
+        "compile": {
+          "runtime_ok": true,
+          "strict_ok": true,
+          "runtime_errors": [],
+          "strict_errors": [],
+          "ainl_like_ok": false,
+          "ainl_like_reason": "markdown_fence_detected",
+          "strict_ainl_ok": false
+        }
+      }
+    }
+  ]
+}

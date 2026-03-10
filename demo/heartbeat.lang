@@ -1,0 +1,11 @@
+# Heartbeat demo - single label with core ops.
+S core cron "*/30 * * * *"
+
+L0: Set threshold 1
+L1: R core.now ->now
+L2: R db.F "heartbeat_log" ->logs
+L3: X count len logs
+L4: X above gt count threshold
+L5: If above ->L6 ->L7
+L6: QueuePut notify "heartbeat" J ok
+L7: J done
