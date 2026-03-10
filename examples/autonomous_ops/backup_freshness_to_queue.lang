@@ -1,0 +1,23 @@
+S core cron "0 */6 * * *"
+S cache queue core
+
+# Backup Freshness Snapshot to Queue (extension/OpenClaw)
+# Purpose: gather current time and last backup timestamp, compute simple freshness, emit snapshot
+# Profile: extension_openclaw, non-strict-only
+
+L0: R core now ->ts J L1
+L1: R cache get "state" "last_backup" ->last_backup J L2
+
+L2: X age_seconds (core.sub ts last_backup) J L3
+L3: X age_hours (core.div age_seconds 3600) J L4
+
+L4: X snapshot {
+  "ts": ts,
+  "last_backup": last_backup,
+  "age_seconds": age_seconds,
+  "age_hours": age_hours
+} J L5
+
+L5: R queue Put "autonomous_ops_backup" snapshot ->msg_id J L6
+
+L6:

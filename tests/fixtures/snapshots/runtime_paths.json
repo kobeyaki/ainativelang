@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "cases": [
+    {
+      "name": "add_then_return",
+      "fixture": "tests/conformance_runtime/fixtures/add_then_return.json",
+      "expected_result": "x",
+      "expected_trace_ops": [
+        "R",
+        "J"
+      ]
+    },
+    {
+      "name": "if_call_flow",
+      "fixture": "tests/conformance_runtime/fixtures/if_call_flow.json",
+      "expected_result": "ans",
+      "expected_trace_ops": [
+        "Set",
+        "X",
+        "J",
+        "Call",
+        "J",
+        "If"
+      ]
+    },
+    {
+      "name": "err_handler_path",
+      "fixture": "tests/conformance_runtime/fixtures/err_handler_path.json",
+      "expected_result": "handled",
+      "expected_trace_ops": [
+        null,
+        "Set",
+        "J"
+      ]
+    },
+    {
+      "name": "retry_at_node",
+      "fixture": "tests/conformance_runtime/fixtures/retry_at_node.json",
+      "expected_result": "handled",
+      "expected_trace_ops": [
+        "R",
+        "R",
+        null,
+        "Set",
+        "J"
+      ]
+    }
+  ]
+}

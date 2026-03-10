@@ -22,6 +22,12 @@ def test_adapter_manifest_basic_shape():
         assert isinstance(name, str) and name
         assert isinstance(cfg.get("verbs"), list) and cfg["verbs"]
         assert cfg.get("effect_default") in {"pure", "io", "meta"}
+        tier = cfg.get("support_tier")
+        assert tier in {"core", "extension_openclaw", "compatibility"}
+        strict = cfg.get("strict_contract")
+        assert isinstance(strict, bool)
+        lane = cfg.get("recommended_lane")
+        assert lane in {"canonical", "noncanonical"}
 
 
 def test_adapter_manifest_covers_effect_analysis_keys():

@@ -25,6 +25,8 @@ For implementation and shipped-capability status, see:
 - [docs/CONFORMANCE.md](docs/CONFORMANCE.md)
 - [docs/RELEASE_READINESS.md](docs/RELEASE_READINESS.md)
 - [docs/TARGETS_ROADMAP.md](docs/TARGETS_ROADMAP.md)
+- [docs/AINL_CANONICAL_CORE.md](docs/AINL_CANONICAL_CORE.md)
+- [docs/EXAMPLE_SUPPORT_MATRIX.md](docs/EXAMPLE_SUPPORT_MATRIX.md)
 
 ## What AINL Is
 
@@ -65,6 +67,9 @@ Today, the project is strongest as:
 - **Artifact profile contract**
   - strict/non-strict/legacy expectations are explicitly defined in `tooling/artifact_profiles.json`
   - do not assume all examples are strict-valid
+- **Support-level contract**
+  - canonical/compatible/deprecated intent is declared in `tooling/support_matrix.json`
+  - public recommended language scope is described in `docs/AINL_CANONICAL_CORE.md`
 
 ## Project Origin and AI-Led Development
 
@@ -94,11 +99,17 @@ For full attribution context, see:
 
 - Audience guide: `docs/AUDIENCE_GUIDE.md`
 - Spec: `docs/AINL_SPEC.md`
+- Canonical core: `docs/AINL_CANONICAL_CORE.md`
+- Example support levels: `docs/EXAMPLE_SUPPORT_MATRIX.md`
+- Graph/IR introspection: `docs/GRAPH_INTROSPECTION.md`
+- Autonomous ops playbook: `docs/AUTONOMOUS_OPS_PLAYBOOK.md`
 - Grammar reference: `docs/grammar.md`
 - Conformance and strict policy: `docs/CONFORMANCE.md`
 - Runtime/compiler ownership: `docs/RUNTIME_COMPILER_CONTRACT.md`
 - Safe optimization guidance for benchmark/compaction work: `docs/SAFE_OPTIMIZATION_POLICY.md`
+- Machine-readable support levels: `tooling/support_matrix.json`
 - Release readiness matrix: `docs/RELEASE_READINESS.md`
+- No-break migration tracker: `docs/NO_BREAK_MIGRATION_PLAN.md`
 - Release notes draft (RC): `docs/RELEASE_NOTES_DRAFT.md`
 - Maintainer release execution guide: `docs/RELEASING.md`
 - Immediate post-release roadmap: `docs/POST_RELEASE_ROADMAP.md`
@@ -127,6 +138,14 @@ python -m pip install -e ".[dev,web]"
 .venv/bin/python scripts/run_test_profiles.py --profile core
 python scripts/validate_ainl.py examples/hello.ainl --strict
 ```
+
+For a quick look at the compiled graph/IR for any program:
+
+```bash
+ainl-validate examples/hello.ainl --strict --emit ir
+```
+
+See `docs/GRAPH_INTROSPECTION.md` for a full guide to IR/graph inspection and programmatic graph queries.
 
 ## Production deploy (Docker)
 
@@ -204,10 +223,12 @@ The emitted server also includes **openapi.json** for API docs, codegen, and gat
 - **Examples**: `python3 scripts/validate_ainl.py examples/blog.lang --emit ir`
 - **Artifact compile profiles**: `tooling/artifact_profiles.json` is the source of truth for strict-valid vs non-strict-only vs legacy-compat examples/corpus/fixtures.
 - **Strict example check**: `python3 scripts/validate_ainl.py examples/hello.ainl --strict`
+- **Compile-once / run-many proof pack**: see `docs/COMPILE_ONCE_RUN_MANY.md` for a minimal end-to-end recipe (compile → inspect IR → run with adapters → replay from recorded calls).
 - **Corpus layout checks**: `pytest tests/test_corpus_layout.py -v`
 - **Corpus eval modes**: `python scripts/evaluate_corpus.py --mode dual` (strict + runtime views)
 - **Corpus validation**: `python scripts/validate_corpus.py --include-negatives`
 - **Approximate size benchmark**: `.venv/bin/python scripts/benchmark_size.py` compares AINL source size vs per-target generated outputs; outputs are written to `tooling/benchmark_size.json` and `BENCHMARK.md` (default metric `approx_chunks`; tokenizer-accurate mode requires optional `--metric tiktoken`).
+- **Program summary helper**: `python scripts/inspect_ainl.py examples/hello.ainl` prints checksum, label/node counts, adapters, endpoints, and diagnostics for quick operator review.
 - **Fine-tune bootstrap**: `bash scripts/setup_finetune_env.sh`
 - **Fast fine-tune run**: `.venv-ci-smoke/bin/python scripts/finetune_ainl.py --profile fast --epochs 1 --seed 42`
 - **Post-train inference (stable)**: `.venv/bin/python scripts/infer_ainl_lora.py --adapter-path models/ainl-phi3-lora --max-new-tokens 120 --device cpu`

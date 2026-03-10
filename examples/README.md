@@ -9,6 +9,7 @@ Examples are intentionally split by compile profile for release safety:
 The machine-readable source of truth is:
 
 - `tooling/artifact_profiles.json`
+- `tooling/support_matrix.json`
 
 Quick checks:
 
@@ -28,6 +29,12 @@ Canonical strict-valid examples:
 - `examples/if_call_workflow.ainl` — canonical branching + modular call composition (`If` + `Call ... ->out`).
 - `examples/webhook_automation.ainl` — canonical webhook-style automation branch (`validate` -> `accepted/ignored`) plus external action (`R http.POST`).
 - `examples/monitor_escalation.ainl` — canonical scheduled monitoring/escalation (`Cr` + condition branch -> `escalate/noop`).
+- `examples/status_branching.ainl` — canonical status-branching example (`Set` + `If` -> `ok/alerted`).
+
+Canonical language scope reference:
+
+- `docs/AINL_CANONICAL_CORE.md`
+- `docs/EXAMPLE_SUPPORT_MATRIX.md`
 
 Recommended canonical learning order (small-model first):
 
@@ -54,6 +61,7 @@ Non-strict-only examples (intentional compatibility surface):
 - `examples/ticketing.lang`
 - `examples/cron/monitor_and_alert.ainl`
 - `examples/openclaw/*.lang`
+- `examples/autonomous_ops/*.lang`
 - `examples/golden/*.ainl`
 
 Use non-strict examples for runtime/backward-compat demonstrations, not as strict language conformance references.

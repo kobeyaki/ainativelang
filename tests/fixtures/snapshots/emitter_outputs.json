@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "cases": [
+    {
+      "name": "basic_web_api_server",
+      "path": "examples/web/basic_web_api.ainl",
+      "strict": true,
+      "emitter": "server",
+      "contains": [
+        "@api.get('/users')",
+        "_run_label(",
+        "health",
+        "ready",
+        "Steven Hooley"
+      ]
+    },
+    {
+      "name": "basic_web_api_openapi",
+      "path": "examples/web/basic_web_api.ainl",
+      "strict": true,
+      "emitter": "openapi_json",
+      "paths": [
+        "/api/health",
+        "/api/ready",
+        "/api/users"
+      ],
+      "path_methods": {
+        "/api/users": [
+          "get"
+        ]
+      },
+      "provenance_initiator": "Steven Hooley"
+    },
+    {
+      "name": "openclaw_daily_digest_prisma",
+      "path": "examples/openclaw/daily_digest.lang",
+      "strict": false,
+      "emitter": "prisma",
+      "contains": [
+        "model",
+        "Steven Hooley"
+      ]
+    },
+    {
+      "name": "openclaw_daily_digest_sql",
+      "path": "examples/openclaw/daily_digest.lang",
+      "strict": false,
+      "emitter": "sql",
+      "contains": [
+        "CREATE TABLE",
+        "Steven Hooley"
+      ]
+    }
+  ]
+}

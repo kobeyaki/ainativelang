@@ -55,6 +55,12 @@
       "path": "examples/monitor_escalation.ainl",
       "primary_pattern": "monitoring_escalation",
       "secondary_pattern": "scheduled_branch"
+    },
+    {
+      "order": 10,
+      "path": "examples/status_branching.ainl",
+      "primary_pattern": "status_branching",
+      "secondary_pattern": "if_branching"
     }
   ]
 }

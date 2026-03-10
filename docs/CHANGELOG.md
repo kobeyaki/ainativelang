@@ -1,5 +1,120 @@
 # Changelog
 
+## 1.0.9-autonomous-ops-and-http-envelopes (2026-03-09)
+
+### Autonomous Ops Docs and Examples
+- Added `docs/AUTONOMOUS_OPS_PLAYBOOK.md` as the central, truthful playbook for
+  autonomous-agent use of AINL (compile-once/run-many, cooldown patterns,
+  remediation flows, and current meta-monitoring limits).
+- Added `examples/autonomous_ops/` with a small extension/OpenClaw
+  autonomous-ops pack:
+  - `status_snapshot_to_queue.lang`
+  - `backup_freshness_to_queue.lang`
+  - `pipeline_readiness_snapshot.lang`
+  All are explicitly classified as `extension_openclaw`, non-canonical,
+  non-strict-only snapshot emitters.
+- Updated `examples/README.md`, `tooling/artifact_profiles.json`,
+  `tooling/support_matrix.json`, and `docs/EXAMPLE_SUPPORT_MATRIX.md` to
+  classify the autonomous-ops pack as compatible OpenClaw extension examples.
+
+### Graph/IR Introspection and Operator UX
+- Added `docs/GRAPH_INTROSPECTION.md` to document IR/graph emission, graph API
+  helpers, normalization, and diffs.
+- Added `scripts/inspect_ainl.py` as a tiny program-summary helper that prints
+  `graph_semantic_checksum`, label/node counts, adapters, endpoints, and
+  diagnostics without requiring users to read full IR JSON.
+- Updated `README.md` and `docs/DOCS_INDEX.md` to link to the new graph
+  introspection and inspect helper surfaces.
+
+### Compile-Once / Run-Many Proof Pack
+- Added `docs/COMPILE_ONCE_RUN_MANY.md` with a minimal, reproducible recipe to:
+  - compile a program once and inspect IR/graph + checksum,
+  - run with live adapters while recording calls,
+  - replay deterministically from recorded adapter traces.
+- Updated `README.md` and `docs/DOCS_INDEX.md` to expose the proof pack as the
+  primary evidence surface for compile-once/run-many and deterministic replay.
+
+### Adapter Result Envelopes (Descriptive Contracts)
+- Extended `tooling/adapter_manifest.json` with `result_envelope` metadata for:
+  - `http` (success envelope: `ok`, `status_code`, `error`, `body`, `headers`,
+    `url`)
+  - `queue` (enqueue envelope: `ok`, `message_id`, `queue_name`, `error`)
+  - `svc` (extension/OpenClaw health envelope: `ok`, `status`, `latency_ms`,
+    `error`)
+- Updated `docs/ADAPTER_REGISTRY.md` to document the same envelopes and clearly
+  mark `svc` as extension/OpenClaw-only (non-canonical).
+- Added `tests/test_adapter_result_envelopes.py` to keep the manifest and docs
+  aligned on result-envelope field sets.
+
+### HTTP Success-Envelope Normalization
+- Normalized the runtime HTTP adapter (`SimpleHttpAdapter`) to return an
+  additive success envelope on 2xx responses while preserving legacy fields:
+  - keep `status`, `body`, and `headers` behavior unchanged,
+  - add `ok`, `status_code`, `error=None`, and `url` fields on success.
+- Left non-2xx and transport failures unchanged: they still surface as
+  `AdapterError` / `Err` and do not return a failure envelope in this pass.
+- Updated `tests/test_http_adapter_contracts.py` to assert the new envelope
+  fields alongside the legacy `status`/`body` behavior.
+- Extended `docs/AUTONOMOUS_OPS_PLAYBOOK.md` with a small, truthful snippet
+  showing how to use the HTTP success envelope for monitoring-oriented flows.
+
+### Miscellaneous Operator-Facing Improvements
+- Updated `docs/EXAMPLE_SUPPORT_MATRIX.md` to tag canonical examples with
+  ops-oriented roles (branching, resilience, webhook remediation, cron/scraper).
+- Kept all compiler and core control-flow semantics unchanged; this release is a
+  packaging, documentation, and adapter-behavior-hardening pass for
+  autonomous-agent use.
+
+## 1.0.8-canonical-lane-classification (2026-03-09)
+
+### Canonical Lane Definition
+- Added `tooling/support_matrix.json` as the machine-readable support-level source
+  for:
+  - canonical vs compatible syntax intent
+  - canonical vs compatible example families
+  - current emitter support posture
+- Added `docs/AINL_CANONICAL_CORE.md` to define the recommended public AINL lane
+  separately from the full accepted compatibility surface.
+- Added `docs/EXAMPLE_SUPPORT_MATRIX.md` to classify canonical and compatible
+  repository examples for onboarding, training, and migration safety.
+
+### Documentation Wiring
+- Updated `README.md` to expose:
+  - the canonical core doc
+  - the example support matrix
+  - the machine-readable support matrix
+- Updated `docs/DOCS_INDEX.md` with canonical-lane entry points.
+- Updated `examples/README.md` to reference the canonical-core and example
+  support docs alongside the existing artifact profile contract.
+
+### Regression Safety Net
+- Added initial snapshot fixtures under `tests/fixtures/snapshots/` for:
+  - canonical and selected compatibility compile outputs
+  - selected emitter outputs
+  - selected runtime path envelopes
+- Added snapshot tests:
+  - `tests/test_snapshot_compile_outputs.py`
+  - `tests/test_snapshot_emitters.py`
+  - `tests/test_snapshot_runtime_paths.py`
+- Locked graph semantic checksums for current canonical examples plus one
+  OpenClaw compatibility example and one golden compatibility example to make
+  future compiler extraction/refactoring parity-visible.
+
+### Warning-Only Canonical Linting
+- Added compiler-side canonical guidance warnings without changing compile
+  success behavior.
+- Current warning-only lint coverage includes:
+  - inline executable content on label declaration lines
+  - split-token `R` request form instead of dotted `adapter.VERB`
+  - `Call` without explicit `->out`
+  - lowercase dotted adapter verbs in non-canonical request style
+  - accepted-but-noncanonical compatibility ops such as `X`, `Loop`, and cache/queue policy helpers
+- Added `scripts/validate_ainl.py --lint-canonical` to print warning diagnostics
+  without failing validation.
+- Added `tests/test_canonical_warning_lint.py` to lock the first guidance set.
+- Added `scripts/refresh_snapshot_fixtures.py` to intentionally regenerate the
+  compile/emitter/runtime snapshot baselines from current compiler/runtime behavior.
+
 ## 1.0.7-project-origin-attribution-hardening (2026-03-09)
 
 ### Provenance and Initiator Attribution
@@ -32,6 +147,12 @@
   - what is best supported today,
   - where users should still exercise caution.
 - Updated `docs/AUDIENCE_GUIDE.md` with a path for first-time public evaluators.
+- Added `docs/NO_BREAK_MIGRATION_PLAN.md` as the operator-grade milestone tracker
+  for compatibility-preserving canonical convergence.
+- Linked the no-break migration plan from:
+  - `README.md`
+  - `docs/DOCS_INDEX.md`
+  - `docs/POST_RELEASE_ROADMAP.md`
 
 ## 1.0.6-runtime-compiler-contract-canonicalization (2026-03-03)
 

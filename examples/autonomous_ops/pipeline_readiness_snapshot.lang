@@ -1,0 +1,27 @@
+S core cron "*/10 * * * *"
+S svc queue core
+
+# Pipeline Readiness Snapshot to Queue (extension/OpenClaw)
+# Purpose: gather readiness signals for a multi-step pipeline and emit a structured snapshot
+# Profile: extension_openclaw, non-strict-only
+
+L0: R core now ->ts J L1
+
+L1: R svc caddy ->caddy_status J L2
+L2: R svc cloudflared ->cloudflared_status J L3
+L3: R svc maddy ->maddy_status J L4
+L4: R svc crm ->crm_status J L5
+
+L5: X snapshot {
+  "ts": ts,
+  "pipeline": {
+    "caddy": caddy_status,
+    "cloudflared": cloudflared_status,
+    "maddy": maddy_status,
+    "crm": crm_status
+  }
+} J L6
+
+L6: R queue Put "autonomous_ops_pipeline" snapshot ->msg_id J L7
+
+L7:

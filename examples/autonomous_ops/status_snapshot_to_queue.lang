@@ -1,0 +1,26 @@
+S core cron "*/5 * * * *"
+S svc cache queue core
+
+# Status Snapshot to Queue (extension/OpenClaw)
+# Purpose: gather current service status and emit a structured snapshot to a queue
+# Profile: extension_openclaw, non-strict-only
+
+L0: R core now ->ts J L1
+L1: R svc caddy ->caddy_status J L2
+L2: R svc cloudflared ->cloudflared_status J L3
+L3: R svc maddy ->maddy_status J L4
+L4: R svc crm ->crm_status J L5
+
+L5: X snapshot {
+  "ts": ts,
+  "services": {
+    "caddy": caddy_status,
+    "cloudflared": cloudflared_status,
+    "maddy": maddy_status,
+    "crm": crm_status
+  }
+} J L6
+
+L6: R queue Put "autonomous_ops_status" snapshot ->msg_id J L7
+
+L7:

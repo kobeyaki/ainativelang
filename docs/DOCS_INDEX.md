@@ -20,21 +20,28 @@ Use it as the top-level entry point before touching code.
 - Open/commercial boundary map: `docs/OPEN_CORE_BOUNDARY_MAP.md`
 - Licensing/repo layout plan: `docs/LICENSING_AND_REPO_LAYOUT_PLAN.md`
 - Language specification: `docs/AINL_SPEC.md`
+- Canonical public language lane: `docs/AINL_CANONICAL_CORE.md`
+- Example support classification: `docs/EXAMPLE_SUPPORT_MATRIX.md`
+- Graph/IR introspection guide: `docs/GRAPH_INTROSPECTION.md`
 - Runtime semantics contract: `SEMANTICS.md`
 - Runtime/compiler execution contract: `docs/RUNTIME_COMPILER_CONTRACT.md`
+- Autonomous ops playbook: `docs/AUTONOMOUS_OPS_PLAYBOOK.md`
 - Safe optimization policy (language vs compiler optimization guardrails): `docs/SAFE_OPTIMIZATION_POLICY.md`
+- Machine-readable support levels: `tooling/support_matrix.json`
 - Runtime compatibility shim (`ExecutionEngine` facade): `runtime/compat.py`, `runtime.py`
 - Documentation maintenance contract: `docs/DOCS_MAINTENANCE.md`
 - Grammar quick reference: `docs/grammar.md`
 - Compiler/IR contracts: `docs/IR_SCHEMA.md`, `docs/GRAPH_SCHEMA.md`
 - Conformance status: `docs/CONFORMANCE.md`
 - Release readiness checklist: `docs/RELEASE_READINESS.md`
+- No-break migration tracker: `docs/NO_BREAK_MIGRATION_PLAN.md`
 - Release notes draft (GitHub-ready body): `docs/RELEASE_NOTES_DRAFT.md`
 - Post-release immediate roadmap: `docs/POST_RELEASE_ROADMAP.md`
 - Maintainer release operations: `docs/RELEASING.md`
 - Reproducible size benchmark report: `BENCHMARK.md`
 - Benchmark generator script: `scripts/benchmark_size.py`
 - Machine-readable benchmark output: `tooling/benchmark_size.json`
+- Compile-once / run-many proof pack: `docs/COMPILE_ONCE_RUN_MANY.md`
 - Launch copy pack: `docs/launch/SHORT_POST.md`, `docs/launch/TECHNICAL_POST.md`
 - Maintainer publish checklist snapshot: `docs/launch/PUBLISH_CHECKLIST.md`
 - Post-release issue drafts: `docs/issues/`

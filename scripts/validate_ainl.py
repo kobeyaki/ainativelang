@@ -31,6 +31,11 @@ def main():
     ap.add_argument("file", nargs="?", help="Path to .lang file (default: stdin)")
     ap.add_argument("--emit", choices=["ir", "server", "react", "openapi", "prisma", "sql"], default="ir",
                     help="Emit this artifact instead of IR JSON")
+    ap.add_argument(
+        "--lint-canonical",
+        action="store_true",
+        help="Print warning-only canonical-lint diagnostics to stderr without failing the compile",
+    )
     ap.add_argument("--no-json", action="store_true", help="Print IR as Python repr (for debugging)")
     ap.add_argument("--strict", action="store_true", help="Enable strict compiler validation")
     ap.add_argument(
@@ -57,6 +62,17 @@ def main():
         sys.exit(1)
 
     ir = result["ir"]
+
+    if args.lint_canonical:
+        warning_diags = [
+            d for d in (ir.get("diagnostics") or [])
+            if isinstance(d, dict) and d.get("severity") == "warning"
+        ]
+        for diag in warning_diags:
+            code = diag.get("code") or "AINL_COMPILE_WARNING"
+            lineno = diag.get("lineno")
+            prefix = f"Line {lineno}: " if isinstance(lineno, int) else ""
+            print(f"{prefix}{code}: {diag.get('message', '')}", file=sys.stderr)
 
     if args.emit == "ir":
         if args.no_json:

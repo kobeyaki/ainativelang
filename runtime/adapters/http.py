@@ -85,10 +85,16 @@ class SimpleHttpAdapter(HttpAdapter):
                 body = resp.read(self.max_response_bytes + 1)
                 if len(body) > self.max_response_bytes:
                     raise AdapterError("http response too large")
+                parsed_body = self._parse_response_body(resp_headers, body)
+                # Normalized monitoring envelope (additive; keeps legacy 'status' field for compatibility).
                 return {
+                    "ok": 200 <= status < 300,
                     "status": status,
+                    "status_code": status,
+                    "error": None,
+                    "body": parsed_body,
                     "headers": resp_headers,
-                    "body": self._parse_response_body(resp_headers, body),
+                    "url": url,
                 }
         except HTTPError as e:
             raise AdapterError(f"http status error: {e.code}") from e

@@ -2,6 +2,9 @@
   "schema_version": "1.0",
   "adapters": {
     "core": {
+      "support_tier": "core",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
       "verbs": [
         "ADD",
         "SUB",
@@ -27,79 +30,177 @@
       "notes": "Built-in deterministic helper operations."
     },
     "db": {
+      "support_tier": "core",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
       "verbs": ["F", "G", "P", "C", "U", "D"],
       "effect_default": "io",
       "notes": "Database CRUD style adapter."
     },
     "api": {
+      "support_tier": "compatibility",
+      "strict_contract": true,
+      "recommended_lane": "noncanonical",
       "verbs": ["G", "P", "POST"],
       "effect_default": "io",
       "notes": "HTTP/API adapter from legacy step forms."
     },
     "email": {
+      "support_tier": "extension_openclaw",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
       "verbs": ["G"],
       "effect_default": "io",
       "notes": "Email provider adapter used by monitoring workflows."
     },
     "calendar": {
+      "support_tier": "extension_openclaw",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
       "verbs": ["G"],
       "effect_default": "io",
       "notes": "Calendar provider adapter used by monitoring workflows."
     },
     "social": {
+      "support_tier": "extension_openclaw",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
       "verbs": ["G"],
       "effect_default": "io",
       "notes": "Social provider adapter used by monitoring workflows."
     },
     "ext": {
+      "support_tier": "compatibility",
+      "strict_contract": true,
+      "recommended_lane": "noncanonical",
       "verbs": ["G", "P", "NEXT", "ECHO", "OP"],
       "effect_default": "io",
       "notes": "External extension adapter namespace used in runtime tests."
     },
     "wasm": {
+      "support_tier": "core",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
       "verbs": ["CALL"],
       "effect_default": "pure",
       "notes": "Sandboxed compute adapter namespace."
     },
     "cache": {
+      "support_tier": "core",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
       "verbs": ["Get", "Set"],
       "effect_default": "io",
       "notes": "Cache namespace used by CacheGet/CacheSet and runtime adapter."
     },
     "queue": {
+      "support_tier": "core",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
       "verbs": ["Put"],
       "effect_default": "io",
-      "notes": "Queue write namespace."
+      "notes": "Queue write namespace.",
+      "result_envelope": {
+        "fields": {
+          "ok": "bool",
+          "message_id": "str|null",
+          "queue_name": "str",
+          "error": "str|null"
+        },
+        "notes": "Monitoring-oriented result envelope (descriptive only; runtime behavior unchanged)."
+      }
     },
     "txn": {
+      "support_tier": "core",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
       "verbs": ["Begin", "Commit", "Rollback"],
       "effect_default": "io",
       "notes": "Transaction namespace."
     },
     "auth": {
+      "support_tier": "core",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
       "verbs": ["Validate"],
       "effect_default": "io",
       "notes": "Authentication namespace."
     },
     "http": {
+      "support_tier": "core",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
       "verbs": ["Get", "Post", "Put", "Patch", "Delete", "Head", "Options"],
       "effect_default": "io",
-      "notes": "Runtime HTTP adapter namespace."
+      "notes": "Runtime HTTP adapter namespace.",
+      "result_envelope": {
+        "fields": {
+          "ok": "bool",
+          "status_code": "int|null",
+          "error": "str|null",
+          "body": "any",
+          "headers": "dict|none",
+          "url": "str"
+        },
+        "notes": "Monitoring-oriented HTTP result envelope (descriptive only; runtime behavior unchanged)."
+      }
     },
     "sqlite": {
+      "support_tier": "core",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
       "verbs": ["Execute", "Query"],
       "effect_default": "io",
       "notes": "Runtime SQLite adapter namespace."
     },
     "fs": {
+      "support_tier": "core",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
       "verbs": ["Read", "Write", "List", "Delete"],
       "effect_default": "io",
       "notes": "Runtime filesystem adapter namespace."
     },
     "tools": {
+      "support_tier": "core",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
       "verbs": ["Call"],
       "effect_default": "io",
       "notes": "Runtime tool bridge namespace."
+    },
+    "svc": {
+      "support_tier": "extension_openclaw",
+      "strict_contract": false,
+      "recommended_lane": "noncanonical",
+      "verbs": ["caddy", "cloudflared", "maddy", "crm"],
+      "effect_default": "io",
+      "notes": "OpenClaw service health adapter used by the monitor demo.",
+      "result_envelope": {
+        "fields": {
+          "ok": "bool",
+          "status": "str",
+          "latency_ms": "int|null",
+          "error": "str|null"
+        },
+        "notes": "Extension/OpenClaw service health envelope (non-canonical; descriptive only)."
+      }
+    },
+    "extras": {
+      "support_tier": "extension_openclaw",
+      "strict_contract": false,
+      "recommended_lane": "noncanonical",
+      "verbs": ["file_exists", "docker_image_exists", "http_status", "newest_backup_mtime"],
+      "effect_default": "io",
+      "notes": "OpenClaw monitor extras adapter for file, Docker, HTTP, and backup mtime checks."
+    },
+    "tiktok": {
+      "support_tier": "extension_openclaw",
+      "strict_contract": false,
+      "recommended_lane": "noncanonical",
+      "verbs": ["F", "recent", "videos"],
+      "effect_default": "io",
+      "notes": "OpenClaw TikTok monitoring adapter backed by the CRM SQLite database."
     }
   }
 }

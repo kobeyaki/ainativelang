@@ -15,7 +15,8 @@
       "examples/retry_error_resilience.ainl",
       "examples/if_call_workflow.ainl",
       "examples/webhook_automation.ainl",
-      "examples/monitor_escalation.ainl"
+      "examples/monitor_escalation.ainl",
+      "examples/status_branching.ainl"
     ],
     "non-strict-only": [
       "examples/api_only.lang",
@@ -35,7 +36,10 @@
       "examples/golden/02_dashboard.ainl",
       "examples/golden/03_scraper.ainl",
       "examples/golden/04_alerting_monitor.ainl",
-      "examples/golden/05_file_processor.ainl"
+      "examples/golden/05_file_processor.ainl",
+      "examples/autonomous_ops/status_snapshot_to_queue.lang",
+      "examples/autonomous_ops/backup_freshness_to_queue.lang",
+      "examples/autonomous_ops/pipeline_readiness_snapshot.lang"
     ],
     "legacy-compat": []
   },

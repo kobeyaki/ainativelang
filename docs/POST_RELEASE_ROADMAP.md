@@ -4,6 +4,7 @@ This roadmap captures immediate engineering priorities following the first publi
 It is intentionally narrow and contract-driven.
 
 GitHub-ready issue draft stubs for this roadmap live in `docs/issues/`.
+The operator-grade sequencing and breakage-control plan lives in `docs/NO_BREAK_MIGRATION_PLAN.md`.
 
 ## 1) Canonical Strict Surface Expansion (Contract-First)
 

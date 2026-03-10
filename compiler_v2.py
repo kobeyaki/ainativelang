@@ -809,7 +809,7 @@ class AICodeCompiler:
         if isinstance(item, dict):
             # Respect structured fields if callers already provided them.
             out["message"] = str(item.get("message", ""))
-            for k in ("label_id", "node_id", "op", "lineno", "span"):
+            for k in ("code", "label_id", "node_id", "op", "lineno", "span"):
                 if k in item:
                     out[k] = item[k]
             if not out["message"]:
@@ -866,6 +866,115 @@ class AICodeCompiler:
         for warn in list(self._warnings):
             out.append(self._to_structured_diag(warn, "warning", labels, cst_lines))
         return out
+
+    def _line_content_span(self, line_node: Dict[str, Any]) -> Optional[Dict[str, int]]:
+        tokens = [
+            t
+            for t in (line_node.get("tokens") or [])
+            if isinstance(t, dict) and t.get("kind") in ("bare", "string")
+        ]
+        if not tokens:
+            return None
+        first = tokens[0].get("span") or {}
+        last = tokens[-1].get("span") or {}
+        line = line_node.get("lineno")
+        if not isinstance(line, int):
+            return None
+        start = int(first.get("col_start", 0) or 0)
+        end = int(last.get("col_end", start) or start)
+        return {"line": line, "col_start": start, "col_end": end}
+
+    def _append_canonical_warning(
+        self,
+        message: str,
+        *,
+        code: str,
+        line_node: Dict[str, Any],
+        op: Optional[str] = None,
+    ) -> None:
+        item: Dict[str, Any] = {
+            "code": code,
+            "message": message,
+            "lineno": line_node.get("lineno"),
+            "op": op or line_node.get("op_canonical") or line_node.get("op_value"),
+        }
+        span = self._line_content_span(line_node)
+        if span is not None:
+            item["span"] = span
+        self._warnings.append(item)
+
+    def _append_canonical_lint_warnings(self, cst_lines: Sequence[Dict[str, Any]]) -> None:
+        compatible_ops = {
+            "Filt",
+            "Sort",
+            "X",
+            "Loop",
+            "While",
+            "CacheGet",
+            "CacheSet",
+            "QueuePut",
+            "Tx",
+            "Enf",
+        }
+        seen: Set[Tuple[str, int, str]] = set()
+
+        def warn(message: str, *, code: str, line_node: Dict[str, Any], op: Optional[str] = None) -> None:
+            lineno = int(line_node.get("lineno", 0) or 0)
+            key = (code, lineno, message)
+            if key in seen:
+                return
+            seen.add(key)
+            self._append_canonical_warning(message, code=code, line_node=line_node, op=op)
+
+        for line_node in cst_lines:
+            op = str(line_node.get("op_canonical") or line_node.get("op_value") or "").strip()
+            slots = list(line_node.get("slot_values") or [])
+            if not op and not slots:
+                continue
+
+            if op.startswith("L") and op.endswith(":") and slots:
+                warn(
+                    "Canonical lint: inline executable content after a label declaration is compatibility syntax; "
+                    "prefer a label-only line followed by indented step lines.",
+                    code="AINL_CANONICAL_INLINE_LABEL",
+                    line_node=line_node,
+                    op="L:",
+                )
+
+            if op == "R" and slots:
+                adapter = str(slots[0]).strip()
+                if adapter and "." not in adapter:
+                    warn(
+                        "Canonical lint: split-token request form is compatibility syntax; prefer "
+                        "`R adapter.VERB target [args...] ->out`.",
+                        code="AINL_CANONICAL_R_SPLIT_FORM",
+                        line_node=line_node,
+                    )
+                elif "." in adapter:
+                    _, verb = adapter.split(".", 1)
+                    if verb and verb != verb.upper():
+                        warn(
+                            "Canonical lint: prefer uppercase dotted adapter verbs in canonical examples "
+                            "(for example `core.ADD`, `http.GET`).",
+                            code="AINL_CANONICAL_LOWERCASE_VERB",
+                            line_node=line_node,
+                        )
+
+            if op == "Call":
+                has_out = any(isinstance(slot, str) and slot.startswith("->") for slot in slots[1:])
+                if not has_out:
+                    warn(
+                        "Canonical lint: prefer explicit `Call Lx ->out` binding over compatibility fallback behavior.",
+                        code="AINL_CANONICAL_CALL_EXPLICIT_OUT",
+                        line_node=line_node,
+                    )
+
+            if op in compatible_ops:
+                warn(
+                    f"Canonical lint: `{op}` is currently accepted as a compatibility surface, not the recommended canonical core.",
+                    code="AINL_CANONICAL_COMPAT_OP",
+                    line_node=line_node,
+                )
 
     def tokenize_line(self, line: str) -> List[str]:
         """Legacy/simple tokenizer (string tokens only).
@@ -2677,6 +2786,7 @@ class AICodeCompiler:
             self._warnings.append(f"meta contains {len(self.meta)} preserved unknown/invalid lines")
         if self.api_opts.get("deprecate"):
             self._warnings.append(f"api deprecations declared: {len(self.api_opts.get('deprecate', []))}")
+        self._append_canonical_lint_warnings(cst_lines)
 
         # Internal compile-time hints should not leak into emitted IR.
         for _lid, _body in self.labels.items():

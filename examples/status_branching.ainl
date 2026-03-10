@@ -1,0 +1,9 @@
+L1:
+  Set status "ok"
+  If status=ok ->L2 ->L3
+L2:
+  Set out "ok"
+  J out
+L3:
+  Set out "alerted"
+  J out

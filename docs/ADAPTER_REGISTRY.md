@@ -82,6 +82,19 @@ R http.Get "https://api.example.com/users" ->resp
 R http.Post "https://hook.example.com/metrics" metrics ->ack
 ```
 
+### 2.3 Result envelope (monitoring contract)
+
+For monitoring-oriented flows, the `http` adapter is described as returning a **result envelope** with these fields:
+
+- `ok: bool` — true if the HTTP call completed and the status code is considered successful (e.g. 2xx).
+- `status_code: int|null` — HTTP status code if a response was received; `null` on pure transport error.
+- `error: str|null` — transport-level error description (DNS failure, timeout, TLS error, etc.); `null` if none.
+- `body: any` — decoded response body (string/JSON/etc.), as today.
+- `headers: dict|none` — optional response headers, when available.
+- `url: str` — URL/path that was called (for correlation).
+
+This envelope is **descriptive metadata only** in this pass; it does not change current adapter behavior. Future monitoring patterns and agents can treat these fields as the canonical monitoring contract once runtime normalization is implemented.
+
 ---
 
 ## 3. Cache adapter – `cache`
@@ -131,9 +144,42 @@ R queue.Put queue_name payload ->msg_id
 R queue.Put "emails" email_job ->msg_id
 ```
 
+### 4.3 Result envelope (monitoring contract)
+
+For monitoring, the `queue` adapter is described as returning a **result envelope** with these fields:
+
+- `ok: bool` — true if the enqueue operation reached the underlying queue backend successfully.
+- `message_id: str|null` — backend-assigned message identifier, if available.
+- `queue_name: str` — queue name used for the call.
+- `error: str|null` — error description if enqueue failed at the adapter/backend layer.
+
+As with `http`, this envelope is **descriptive metadata only** for now and does not alter current adapter return behavior. Existing examples may continue to ignore the result (`->_`) safely.
+
 ---
 
-## 5. Adapter manifest (machine‑readable sketch)
+## 5. Service health adapter – `svc` (extension / OpenClaw)
+
+- **name**: `svc`
+- **verbs**: `caddy`, `cloudflared`, `maddy`, `crm`
+- **support_tier**: `extension_openclaw`
+- **lane**: non-canonical; OpenClaw-only extension adapter
+
+The `svc` adapter is used by OpenClaw examples to surface basic service health information.
+
+### 5.1 Result envelope (health contract, extension-only)
+
+For OpenClaw environments, the `svc` adapter is described as returning a **health envelope** with these fields:
+
+- `ok: bool` — true if the service is considered healthy enough under its own policy.
+- `status: str` — status string such as `"up"`, `"down"`, `"degraded"`, or `"unknown"`.
+- `latency_ms: int|null` — optional latency measurement in milliseconds, when available.
+- `error: str|null` — error description if probing the service fails (e.g. health endpoint unreachable).
+
+This is an **extension/OpenClaw-only contract** and is **not** part of the canonical AINL core. It is intended for monitoring and agent reasoning in OpenClaw deployments and is documented here for clarity; current runtime behavior is unchanged in this pass.
+
+---
+
+## 6. Adapter manifest (machine‑readable sketch and tiers)
 
 For small‑model training you can treat this as the canonical manifest:
 
@@ -159,4 +205,18 @@ For small‑model training you can treat this as the canonical manifest:
 ```
 
 This manifest matches the behavior enforced by `tooling/effect_analysis.py` and the runtime adapters.
+
+In the full `tooling/adapter_manifest.json`, each adapter also carries lightweight
+classification metadata:
+
+- `support_tier`: `core` \| `extension_openclaw` \| `compatibility`
+- `strict_contract`: `true` if the adapter/verbs are covered by the current strict
+  adapter/effect validation (`ADAPTER_EFFECT`), `false` otherwise
+- `recommended_lane`: `canonical` \| `noncanonical` to distinguish the preferred
+  canonical lane from accepted-but-noncanonical surfaces
+
+`ADAPTER_REGISTRY.json` is a richer OpenClaw/operator-facing view (descriptions,
+targets, config, side-effect notes). The overlapping adapter names/verbs are
+validated against `tooling/adapter_manifest.json` by
+`tests/test_adapter_registry_alignment.py` so they cannot silently diverge.
 

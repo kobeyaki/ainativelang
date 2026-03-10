@@ -1,0 +1,224 @@
+{
+  "schema_version": "1.0",
+  "support_levels": {
+    "canonical": "Recommended public path for docs, onboarding, training, and future convergence work.",
+    "compatible": "Supported for continuity and migration, but not the preferred path for new examples or canonical training.",
+    "deprecated": "Accepted temporarily through compatibility policy, but on a retirement path with warnings and migration guidance."
+  },
+  "syntax": {
+    "service_header": {
+      "form": "S <name> <mode> [path]",
+      "level": "canonical"
+    },
+    "endpoint_binding": {
+      "form": "E <path> <method> ->L<label> [->return_var]",
+      "level": "canonical"
+    },
+    "label_block": {
+      "form": "L<label>:",
+      "level": "canonical"
+    },
+    "adapter_call_dotted": {
+      "form": "R <adapter>.<VERB> <target> [args...] ->out",
+      "level": "canonical"
+    },
+    "adapter_call_split_tokens": {
+      "form": "R <adapter> <verb> ...",
+      "level": "compatible"
+    },
+    "strict_quoted_literals": {
+      "form": "Quote string literals in read positions under strict mode",
+      "level": "canonical"
+    },
+    "inline_multi_step_label_line": {
+      "form": "L1: Set flag true If flag ->L2 ->L3",
+      "level": "compatible"
+    }
+  },
+  "ops": {
+    "S": "canonical",
+    "D": "canonical",
+    "E": "canonical",
+    "L": "canonical",
+    "R": "canonical",
+    "J": "canonical",
+    "If": "canonical",
+    "Err": "canonical",
+    "Retry": "canonical",
+    "Call": "canonical",
+    "Set": "canonical",
+    "Cr": "canonical",
+    "Sc": "canonical",
+    "Filt": "compatible",
+    "Sort": "compatible",
+    "X": "compatible",
+    "Loop": "compatible",
+    "While": "compatible",
+    "CacheGet": "compatible",
+    "CacheSet": "compatible",
+    "QueuePut": "compatible",
+    "Tx": "compatible",
+    "Enf": "compatible"
+  },
+  "examples": {
+    "examples/hello.ainl": {
+      "level": "canonical",
+      "strict_profile": "strict-valid",
+      "role": "smallest compute-and-return starter"
+    },
+    "examples/crud_api.ainl": {
+      "level": "canonical",
+      "strict_profile": "strict-valid",
+      "role": "branching and explicit literals starter"
+    },
+    "examples/rag_pipeline.ainl": {
+      "level": "canonical",
+      "strict_profile": "strict-valid",
+      "role": "call-and-return binding starter"
+    },
+    "examples/retry_error_resilience.ainl": {
+      "level": "canonical",
+      "strict_profile": "strict-valid",
+      "role": "retry and error-handler starter"
+    },
+    "examples/if_call_workflow.ainl": {
+      "level": "canonical",
+      "strict_profile": "strict-valid",
+      "role": "branch plus sublabel composition"
+    },
+    "examples/webhook_automation.ainl": {
+      "level": "canonical",
+      "strict_profile": "strict-valid",
+      "role": "simple outbound HTTP automation"
+    },
+    "examples/monitor_escalation.ainl": {
+      "level": "canonical",
+      "strict_profile": "strict-valid",
+      "role": "scheduled monitor/escalation flow"
+    },
+    "examples/web/basic_web_api.ainl": {
+      "level": "canonical",
+      "strict_profile": "strict-valid",
+      "role": "basic API endpoint example"
+    },
+    "examples/scraper/basic_scraper.ainl": {
+      "level": "canonical",
+      "strict_profile": "strict-valid",
+      "role": "scraper and cron example"
+    },
+    "examples/status_branching.ainl": {
+      "level": "canonical",
+      "strict_profile": "strict-valid",
+      "role": "simple status-branching example (`ok` vs `alerted`)"
+    },
+    "examples/api_only.lang": {
+      "level": "compatible",
+      "strict_profile": "non-strict-only",
+      "role": "compatibility example"
+    },
+    "examples/blog.lang": {
+      "level": "compatible",
+      "strict_profile": "non-strict-only",
+      "role": "compatibility example"
+    },
+    "examples/ecom.lang": {
+      "level": "compatible",
+      "strict_profile": "non-strict-only",
+      "role": "compatibility example"
+    },
+    "examples/internal_tool.lang": {
+      "level": "compatible",
+      "strict_profile": "non-strict-only",
+      "role": "compatibility example"
+    },
+    "examples/ticketing.lang": {
+      "level": "compatible",
+      "strict_profile": "non-strict-only",
+      "role": "compatibility example"
+    },
+    "examples/cron/monitor_and_alert.ainl": {
+      "level": "compatible",
+      "strict_profile": "non-strict-only",
+      "role": "compatibility cron example"
+    },
+    "examples/openclaw/*.lang": {
+      "level": "compatible",
+      "strict_profile": "non-strict-only",
+      "role": "OpenClaw integration and compatibility examples"
+    },
+    "examples/autonomous_ops/status_snapshot_to_queue.lang": {
+      "level": "compatible",
+      "strict_profile": "non-strict-only",
+      "role": "extension/OpenClaw status snapshot → queue example"
+    },
+    "examples/autonomous_ops/backup_freshness_to_queue.lang": {
+      "level": "compatible",
+      "strict_profile": "non-strict-only",
+      "role": "extension/OpenClaw backup freshness snapshot → queue example"
+    },
+    "examples/autonomous_ops/pipeline_readiness_snapshot.lang": {
+      "level": "compatible",
+      "strict_profile": "non-strict-only",
+      "role": "extension/OpenClaw pipeline readiness snapshot → queue example"
+    },
+    "examples/golden/*.ainl": {
+      "level": "compatible",
+      "strict_profile": "non-strict-only",
+      "role": "golden compatibility and curriculum artifacts"
+    }
+  },
+  "emitters": {
+    "server": {
+      "level": "canonical",
+      "maturity": "best-supported"
+    },
+    "openapi": {
+      "level": "canonical",
+      "maturity": "best-supported"
+    },
+    "runtime_runner_service": {
+      "level": "canonical",
+      "maturity": "best-supported"
+    },
+    "react": {
+      "level": "compatible",
+      "maturity": "implemented"
+    },
+    "prisma": {
+      "level": "compatible",
+      "maturity": "implemented"
+    },
+    "sql": {
+      "level": "compatible",
+      "maturity": "implemented"
+    },
+    "docker": {
+      "level": "compatible",
+      "maturity": "implemented"
+    },
+    "next": {
+      "level": "compatible",
+      "maturity": "implemented"
+    },
+    "vue": {
+      "level": "compatible",
+      "maturity": "implemented"
+    },
+    "svelte": {
+      "level": "compatible",
+      "maturity": "implemented"
+    },
+    "cron": {
+      "level": "compatible",
+      "maturity": "implemented"
+    },
+    "scraper": {
+      "level": "compatible",
+      "maturity": "implemented"
+    },
+    "mt5": {
+      "level": "compatible",
+      "maturity": "implemented"
+    }
+  }
+}

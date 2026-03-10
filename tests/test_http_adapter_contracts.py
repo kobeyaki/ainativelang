@@ -59,11 +59,19 @@ def test_http_adapter_get_json_and_idempotent_calls():
     try:
         base = f"http://127.0.0.1:{srv.server_port}"
         adp = SimpleHttpAdapter(default_timeout_s=1.0)
-        r1 = adp.call("get", [f"{base}/ok"], {})
-        r2 = adp.call("get", [f"{base}/ok"], {})
+        url = f"{base}/ok"
+        r1 = adp.call("get", [url], {})
+        r2 = adp.call("get", [url], {})
+        # Legacy fields still behave as before.
         assert r1["status"] == 200 and r2["status"] == 200
         assert r1["body"]["calls"] == 1
         assert r2["body"]["calls"] == 2
+        # New success envelope fields are populated and consistent.
+        assert r1["ok"] is True and r2["ok"] is True
+        assert r1["status_code"] == r1["status"]
+        assert r2["status_code"] == r2["status"]
+        assert r1["error"] is None and r2["error"] is None
+        assert r1["url"] == url and r2["url"] == url
     finally:
         srv.shutdown()
 
@@ -73,9 +81,16 @@ def test_http_adapter_post_json_body_roundtrip():
     try:
         base = f"http://127.0.0.1:{srv.server_port}"
         adp = SimpleHttpAdapter(default_timeout_s=1.0)
-        r = adp.call("post", [f"{base}/post", {"x": 1}], {})
+        url = f"{base}/post"
+        r = adp.call("post", [url, {"x": 1}], {})
+        # Legacy fields.
         assert r["status"] == 200
         assert '"x": 1' in r["body"]["body"]
+        # Success envelope.
+        assert r["ok"] is True
+        assert r["status_code"] == r["status"]
+        assert r["error"] is None
+        assert r["url"] == url
     finally:
         srv.shutdown()
 

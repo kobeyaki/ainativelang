@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.0",
+  "cases": [
+    {
+      "path": "examples/hello.ainl",
+      "strict": true,
+      "graph_semantic_checksum": "sha256:ac24d8ec024ec14632baa412e9b416fe853baac49b5e7868b8c556da3b737164",
+      "labels": [
+        "1"
+      ],
+      "services": [],
+      "emit_capabilities": [
+        "needs_python_api"
+      ]
+    },
+    {
+      "path": "examples/crud_api.ainl",
+      "strict": true,
+      "graph_semantic_checksum": "sha256:b558e91545d7a907f8de3b32e104f342bb157acb34d037ef610b6eee22d1c08d",
+      "labels": [
+        "1",
+        "2",
+        "3"
+      ],
+      "services": [],
+      "emit_capabilities": [
+        "needs_python_api"
+      ]
+    },
+    {
+      "path": "examples/rag_pipeline.ainl",
+      "strict": true,
+      "graph_semantic_checksum": "sha256:d71d1158b04cff42218d971b1c4b1810877975a0606c7700a030002a28a567c3",
+      "labels": [
+        "1",
+        "9"
+      ],
+      "services": [],
+      "emit_capabilities": [
+        "needs_python_api"
+      ]
+    },
+    {
+      "path": "examples/retry_error_resilience.ainl",
+      "strict": true,
+      "graph_semantic_checksum": "sha256:830bb68c07a352e936201db857e8a3d6107611ae90bb54f23b012f9fd1a8565c",
+      "labels": [
+        "1",
+        "_fail"
+      ],
+      "services": [],
+      "emit_capabilities": [
+        "needs_python_api"
+      ]
+    },
+    {
+      "path": "examples/if_call_workflow.ainl",
+      "strict": true,
+      "graph_semantic_checksum": "sha256:98a946e0bb92413ffbf291cf276613942ef444f3eab7eb658653b5c328a8987f",
+      "labels": [
+        "1",
+        "2",
+        "3",
+        "8",
+        "9"
+      ],
+      "services": [],
+      "emit_capabilities": [
+        "needs_python_api"
+      ]
+    },
+    {
+      "path": "examples/webhook_automation.ainl",
+      "strict": true,
+      "graph_semantic_checksum": "sha256:2ca00a86fcf7a6497e4a6ba7ccc497e7cb121a404ad941e7b012166706aeb6c7",
+      "labels": [
+        "1",
+        "2",
+        "3"
+      ],
+      "services": [],
+      "emit_capabilities": [
+        "needs_python_api"
+      ]
+    },
+    {
+      "path": "examples/monitor_escalation.ainl",
+      "strict": true,
+      "graph_semantic_checksum": "sha256:8d90462acf32a99ba3fde378854740c5abd458a15f7022355211c6dd35717383",
+      "labels": [
+        "_escalate",
+        "_noop",
+        "_tick"
+      ],
+      "services": [
+        "core"
+      ],
+      "emit_capabilities": [
+        "needs_cron"
+      ]
+    },
+    {
+      "path": "examples/web/basic_web_api.ainl",
+      "strict": true,
+      "graph_semantic_checksum": "sha256:f02561ac1af814325abb2f3a079a7bcc48ac75c8a594c9ed24e2726fdf00c65c",
+      "labels": [
+        "_users"
+      ],
+      "services": [
+        "core"
+      ],
+      "emit_capabilities": [
+        "needs_python_api"
+      ]
+    },
+    {
+      "path": "examples/scraper/basic_scraper.ainl",
+      "strict": true,
+      "graph_semantic_checksum": "sha256:a57df139ba695e2776c00854a2775f6bccc9241fb18f4ba5bf719e79f740cf9f",
+      "labels": [
+        "_scrape"
+      ],
+      "services": [
+        "core",
+        "scrape"
+      ],
+      "emit_capabilities": [
+        "needs_cron",
+        "needs_scraper"
+      ]
+    },
+    {
+      "path": "examples/openclaw/daily_digest.lang",
+      "strict": false,
+      "graph_semantic_checksum": "sha256:b169f398e0508b6b9b097f41f855e374a4127199e0b41dd8491b22b26bb65256",
+      "labels": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "62",
+        "7",
+        "8",
+        "9"
+      ],
+      "services": [
+        "core"
+      ],
+      "emit_capabilities": [
+        "needs_cron",
+        "needs_prisma"
+      ]
+    },
+    {
+      "path": "examples/golden/01_web_server.ainl",
+      "strict": false,
+      "graph_semantic_checksum": "sha256:348acd043bd82e0d2c704e3392161c683c0d3d0f5527b06b505464542fe950cb",
+      "labels": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "404",
+        "5",
+        "6",
+        "7"
+      ],
+      "services": [
+        "core"
+      ],
+      "emit_capabilities": [
+        "needs_cron",
+        "needs_prisma"
+      ]
+    }
+  ]
+}
