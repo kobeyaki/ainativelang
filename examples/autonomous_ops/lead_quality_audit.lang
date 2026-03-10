@@ -1,0 +1,37 @@
+S db cron
+Cr L_tick "0 2 * * *"  # daily at 2 AM
+
+# Load all leads
+R db F ->leads
+X now (core.now)
+X last_audit_ts (cache.get "lead_audit" "last_run_ts")
+X force (core.eq last_audit_ts 0)
+
+# Skip if we ran in last 22 hours unless forced
+X run_ok (core.or force (core.gt (- now last_audit_ts) 79200))
+If (core.not run_ok) ->L_skip ->L_done
+
+# Compute quality score per lead: has phone? has website? recent review?
+X scored (map leads (lambda l ({
+  "name": l.name,
+  "city": l.city,
+  "phone_ok": (core.and (l.phone) (core.gt (len l.phone) 5)),
+  "website_ok": (l.website),
+  "rating_ok": (core.and (l.Rating) (core.gt l.Rating 0)),
+  "reviews_ok": (core.and (l.ReviewCount) (core.gt l.ReviewCount 0))
+})))
+
+X total (len scored)
+X phone_ok_cnt (core.sum (map scored (lambda x (ite x.phone_ok 1 0))))
+X website_ok_cnt (core.sum (map scored (lambda x (ite x.website_ok 1 0))))
+X rating_ok_cnt (core.sum (map scored (lambda x (ite x.rating_ok 1 0))))
+X reviews_ok_cnt (core.sum (map scored (lambda x (ite x.reviews_ok 1 0))))
+
+X summary ({"ts":now,"total":total,"phone_ok":phone_ok_cnt,"website_ok":website_ok_cnt,"rating_ok":rating_ok_cnt,"reviews_ok":reviews_ok_cnt})
+
+R queue Put "notify" summary
+X _ (cache.set "lead_audit" "last_run_ts" now)
+
+L_skip:
+L_done:
+Ret null

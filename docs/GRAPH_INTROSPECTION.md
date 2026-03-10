@@ -169,3 +169,28 @@ This, combined with graph inspection, lets agents:
 - observe **actual** executed paths via record/replay and logs
 - compare the two to detect unexpected behavior.
 
+### 6. DOT graph export (for visualizers)
+
+For a quick **graph visualization**, you can export the compiled IR as a DOT file and use Graphviz or similar tools:
+
+```bash
+python scripts/render_graph.py examples/status_branching.ainl > status_branching.dot
+dot -Tpng status_branching.dot -o status_branching.png
+```
+
+This helper:
+
+- compiles the program to graph IR (optionally strict),
+- renders a minimal DOT graph with:
+  - one subgraph per label (`L1`, `L2`, …),
+  - one node per IR node (labeled by op and adapter prefix, e.g. `R (http)`),
+  - edges labeled by their `port` (`next`, `then`, `else`, etc.).
+
+You can also feed it an existing IR JSON file instead of source:
+
+```bash
+python scripts/render_graph.py tests/emits/server/ir.json --from-ir > server.dot
+```
+
+`scripts/render_graph.py` is a thin, read‑only visualization helper; it does **not** change any compiler or runtime semantics.
+

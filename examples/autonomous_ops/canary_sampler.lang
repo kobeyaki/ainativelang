@@ -1,0 +1,90 @@
+S http cron
+Cr L_tick "*/5 * * * *"
+
+# Canary targets; augment with your critical endpoints
+X targets [
+  {"name":"CRM API","url":"http://localhost:3000/api/health","threshold_ms":2000},
+  {"name":"Leads API","url":"http://localhost:3000/api/leads","threshold_ms":1500}
+]
+
+# Cooldown: per-target slow‑response suppression (only alert after 3 consecutive slow hits)
+X now (core.now)
+X consecutive_key (lambda t (concat "canary:" t.name ":consecutive"))
+
+# Iterate over targets; record status and response time
+X results (map targets (lambda t ({
+  "name": t.name,
+  "url": t.url,
+  "threshold_ms": t.threshold_ms,
+  "status": 0,
+  "ms": 0,
+  "slow": false,
+  "consecutive": 0
+}))))
+
+# We'll use a loop‑unrolled approach in pure AINL: For simplicity, we check each target sequentially
+# Target 0
+X t0 (targets 0)
+R http GET t0.url ->resp0
+X status0 resp0.status
+# No precise timing in current adapters; assume status 200 is healthy. For true timing, use extras.http_status_time if available.
+If (core.ne status0 200) ->L_t0_slow ->L_t0_skip
+
+L_t0_skip:
+X _ (set results 0 "status" status0)
+X _ (set results 0 "slow" (core.ne status0 200))
+
+# Target 1 (same pattern)
+X t1 (targets 1)
+R http GET t1.url ->resp1
+X status1 resp1.status
+If (core.ne status1 200) ->L_t1_slow ->L_t1_skip
+J L_t1_ok
+L_t1_slow:
+L_t1_ok:
+X _ (set results 1 "status" status1)
+X _ (set results 1 "slow" (core.ne status1 200))
+
+# Evaluate slow consecutive hits: fetch consecutive count from cache and update
+# For each result where slow=true, increment consecutive count; otherwise reset to 0
+X r0 (results 0)
+If r0.slow ->L_inc0 ->L_reset0
+L_inc0:
+X prev0 (cache.get "canary" (consecutive_key r0.name))
+X cnt0 (core.add (or prev0 0) 1)
+X _ (cache.set "canary" (consecutive_key r0.name) cnt0)
+X _ (set results 0 "consecutive" cnt0)
+J L_next0
+L_reset0:
+X _ (cache.set "canary" (consecutive_key r0.name) 0)
+X _ (set results 0 "consecutive" 0)
+L_next0:
+
+X r1 (results 1)
+If r1.slow ->L_inc1 ->L_reset1
+L_inc1:
+X prev1 (cache.get "canary" (consecutive_key r1.name))
+X cnt1 (core.add (or prev1 0) 1)
+X _ (cache.set "canary" (consecutive_key r1.name) cnt1)
+X _ (set results 1 "consecutive" cnt1)
+J L_next1
+L_reset1:
+X _ (cache.set "canary" (consecutive_key r1.name) 0)
+X _ (set results 1 "consecutive" 0)
+L_next1:
+
+# Alert if any slow count >=3
+X any_breach (core.or (core.ge (results 0 "consecutive") 3) (core.ge (results 1 "consecutive") 3))
+If any_breach ->L_alert ->L_done
+J L_done
+
+L_alert:
+R queue Put "notify" ({
+  "module":"canary_sampler",
+  "breach":true,
+  "targets":results,
+  "ts":now
+})
+
+L_done:
+Ret null

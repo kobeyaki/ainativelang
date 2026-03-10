@@ -1,0 +1,43 @@
+S tiktok cron
+Cr L_tick "*/15 * * * *"
+
+# Checkpoints: freshness of reports and videos in last 24h, backup mtime <24h
+X now (core.now)
+X day_secs 86400
+
+# TikTok reports: any created in last 24h?
+R tiktok recent 24 ->recent_count
+R tiktok videos ->videos
+X latest_video_ts (core.max (map videos (lambda v (v.processedAt))))
+X video_fresh (core.and (> latest_video_ts 0) (core.gt (- now latest_video_ts) day_secs))
+
+# Backup mtime check (crud DB backups dir)
+X backup_dir "/Users/clawdbot/.openclaw/workspace/crm/backups"
+R extras newest_backup_mtime backup_dir ->latest_backup_ts
+X backup_fresh (core.and (> latest_backup_ts 0) (core.gt (- now latest_backup_ts) day_secs))
+
+# Cooldown: store last failure flags in cache; only alert once per hour if still failing
+X last_fail_ts (cache.get "tiktok_sla" "last_fail_ts")
+X should_alert (core.or (core.eq last_fail_ts 0) (core.gt (- now last_fail_ts) 3600))
+
+# Detect SLA breach: either no recent reports or video not fresh or backup not fresh
+X breach (core.or (core.eq recent_count 0) (core.not video_fresh) (core.not backup_fresh))
+
+If (core.and breach should_alert) ->L_breach ->L_finish
+J L_ok
+
+L_breach:
+R queue Put "notify" ({
+  "module":"tiktok_sla",
+  "breach":true,
+  "recent_count":recent_count,
+  "video_fresh":video_fresh,
+  "backup_fresh":backup_fresh,
+  "ts":now
+})
+X _ (cache.set "tiktok_sla" "last_fail_ts" now)
+J L_finish
+
+L_ok:
+L_finish:
+Ret null

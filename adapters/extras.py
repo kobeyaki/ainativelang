@@ -1,10 +1,13 @@
 # ExtrasAdapter for AINL monitor
 # Provides utility checks: file_exists, docker_image_exists, http_status, newest_backup_mtime
 
+import json
 import os
 import subprocess
 from datetime import datetime
+from pathlib import Path
 from typing import Any, List
+
 from runtime.adapters.base import RuntimeAdapter, AdapterError
 
 class ExtrasAdapter(RuntimeAdapter):
@@ -55,6 +58,45 @@ class ExtrasAdapter(RuntimeAdapter):
                 return int(newest)
             except Exception:
                 return 0
+        elif target == 'metrics':
+            if len(args) < 1:
+                raise AdapterError('metrics requires summary_path')
+            raw_path = str(args[0])
+            # Sandbox: restrict summaries to a configurable root, defaulting to /tmp/ainl_summaries.
+            root = Path(os.getenv("AINL_SUMMARY_ROOT", "/tmp/ainl_summaries")).resolve()
+            summary_path = (root / raw_path).resolve()
+            if summary_path != root and root not in summary_path.parents:
+                raise AdapterError("metrics summary_path escapes AINL_SUMMARY_ROOT sandbox")
+            try:
+                with open(summary_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            except Exception as e:
+                raise AdapterError(f'metrics failed to read {summary_path!r}: {e}') from e
+
+            if not isinstance(data, dict):
+                raise AdapterError('metrics expects JSON object summary')
+
+            run_count = int(data.get("run_count", 0) or 0)
+            ok_count = int(data.get("ok_count", 0) or 0)
+            error_count = int(data.get("error_count", 0) or 0)
+            ok_ratio = ok_count / run_count if run_count > 0 else None
+
+            runtime_versions = data.get("runtime_versions") or []
+            if not isinstance(runtime_versions, list):
+                runtime_versions = []
+
+            result = {
+                "run_count": run_count,
+                "ok_count": ok_count,
+                "error_count": error_count,
+                "ok_ratio": ok_ratio,
+                "runtime_versions": runtime_versions,
+                "result_kinds": data.get("result_kinds") or {},
+                "trace_op_counts": data.get("trace_op_counts") or {},
+                "label_counts": data.get("label_counts") or {},
+                "timestamps_present": bool(data.get("timestamps_present")),
+            }
+            return result
         else:
             raise AdapterError(f'extras unknown target: {target}')
 

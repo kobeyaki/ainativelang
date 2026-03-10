@@ -78,6 +78,11 @@ should not be treated as the canonical public language surface.
 | `examples/autonomous_ops/status_snapshot_to_queue.lang` | `non-strict-only` | Extension/OpenClaw status snapshot → queue example |
 | `examples/autonomous_ops/backup_freshness_to_queue.lang` | `non-strict-only` | Extension/OpenClaw backup freshness snapshot → queue example |
 | `examples/autonomous_ops/pipeline_readiness_snapshot.lang` | `non-strict-only` | Extension/OpenClaw pipeline readiness snapshot → queue example |
+| `examples/autonomous_ops/infrastructure_watchdog.lang` | `non-strict-only` | Extension/OpenClaw: service checks, cooldown, restart queue |
+| `examples/autonomous_ops/tiktok_sla_monitor.lang` | `non-strict-only` | Extension/OpenClaw: TikTok pipeline SLA + backup freshness |
+| `examples/autonomous_ops/lead_quality_audit.lang` | `non-strict-only` | Extension/OpenClaw: daily lead data quality audit |
+| `examples/autonomous_ops/token_cost_tracker.lang` | `non-strict-only` | Extension/OpenClaw: OpenRouter usage + spend alert |
+| `examples/autonomous_ops/canary_sampler.lang` | `non-strict-only` | Extension/OpenClaw: endpoint health + consecutive failure detection |
 
 ### Golden Compatibility Family
 

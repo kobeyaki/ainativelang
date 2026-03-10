@@ -157,12 +157,13 @@
       }
     },
     "extras": {
-      "description": "Utility health checks: file + Docker + HTTP + backup mtime",
+      "description": "Utility health checks: file + Docker + HTTP + backup mtime + metrics summaries",
       "targets": {
         "file_exists": { "args": ["path"], "returns": "number", "pure": false },
         "docker_image_exists": { "args": ["image"], "returns": "number", "pure": false },
         "http_status": { "args": ["url"], "returns": "number", "network": true },
-        "newest_backup_mtime": { "args": ["backup_dir"], "returns": "number", "pure": false }
+        "newest_backup_mtime": { "args": ["backup_dir"], "returns": "number", "pure": false },
+        "metrics": { "args": ["summary_path"], "returns": "{run_count, ok_count, error_count, ok_ratio, runtime_versions, result_kinds, trace_op_counts, label_counts, timestamps_present}", "pure": false }
       }
     },
     "tiktok": {

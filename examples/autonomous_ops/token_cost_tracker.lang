@@ -1,0 +1,54 @@
+S http cron
+Cr L_tick "0 * * * *"  # hourly
+
+# Configuration
+X api_key_env "OPENROUTER_API_KEY"
+X usage_url "https://openrouter.ai/api/v1/usage"
+X daily_limit 10.0  # USD
+
+# Get OpenRouter usage (requires proper Authorization header)
+X api_key (ops.Env api_key_env)
+X headers ({"Authorization":("Bearer "+api_key)})
+R http GET usage_url headers ->resp
+X status resp.status
+X body resp.body
+X data (parse body)
+
+If (core.ne status 200) ->L_fail ->L_parse
+
+# Expected JSON: {"usage":[{"timestamp":"...","cost":...}], ...}
+# We'll compute today's total cost
+X today_iso (core.iso)
+X today_date (sub today_iso 0 10)  # YYYY-MM-DD
+X todays_usage (filter data.usage (lambda u (core.eq (sub u.timestamp 0 10) today_date)))
+X day_cost (core.sum (map todays_usage (lambda u (u.cost or 0))))
+
+X limit_exceeded (core.gt day_cost daily_limit)
+
+# Send alert if exceeded; also summarize total tokens and cost
+If limit_exceeded ->L_alert ->L_done
+
+J L_done
+
+L_alert:
+R queue Put "notify" ({
+  "module":"token_cost",
+  "status":"limit_exceeded",
+  "date":today_date,
+  "cost_usd":day_cost,
+  "limit_usd":daily_limit,
+  "ts":(core.now)
+})
+J L_done
+
+L_fail:
+R queue Put "notify" ({
+  "module":"token_cost",
+  "status":"http_error",
+  "status_code":status,
+  "ts":(core.now)
+})
+
+L_parse:
+L_done:
+Ret null

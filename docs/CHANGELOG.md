@@ -1,5 +1,51 @@
 # Changelog
 
+## 1.0.11-extras-metrics-and-graph-dot (2026-03-09)
+
+### Observability Helper: `extras.metrics`
+- Extended the OpenClaw `extras` adapter with a new `metrics` verb that reads
+  **precomputed JSON summaries** (e.g. from `scripts/summarize_runs.py`) and
+  exposes a small, stable metrics envelope:
+  - `run_count`, `ok_count`, `error_count`
+  - `ok_ratio` (when `run_count > 0`)
+  - `runtime_versions`
+  - `result_kinds`, `trace_op_counts`, `label_counts`
+  - `timestamps_present`
+- Implemented `extras.metrics` as a **sandboxed, read-only** extension/OpenClaw
+  helper:
+  - summaries are resolved relative to `AINL_SUMMARY_ROOT` (default:
+    `/tmp/ainl_summaries`),
+  - attempts to escape the sandbox root raise `AdapterError`.
+- Kept `extras.metrics` clearly **non-canonical** and outside the strict core:
+  it is classified as `extension_openclaw`, `strict_contract: false`, and
+  documented in `docs/ADAPTER_REGISTRY.md`.
+- Added `tests/test_extras_metrics.py` to lock in the envelope shape and error
+  behavior for missing files, invalid JSON, and non-object summaries.
+
+### Graph DOT Export Helper
+- Added `scripts/render_graph.py` as a tiny helper to render compiled IR/graphs
+  to DOT for visualization:
+  - supports compiling `.ainl` / `.lang` files with `AICodeCompiler` or reading
+    existing IR JSON,
+  - groups IR nodes per label in DOT subgraphs,
+  - labels nodes by op and adapter prefix (e.g. `R (http)`), and edges by
+    control-flow port (`next`, `then`, `else`, etc.).
+- Documented the helper and example usage in `docs/GRAPH_INTROSPECTION.md`
+  without changing any compiler or runtime semantics.
+- Added `tests/test_render_graph.py` to assert basic DOT structure and labeling.
+
+### Autonomous Ops Example Pack Expansion
+- Expanded `examples/autonomous_ops/` with additional extension/OpenClaw
+  monitors:
+  - `infrastructure_watchdog.lang`
+  - `tiktok_sla_monitor.lang`
+  - `lead_quality_audit.lang`
+  - `token_cost_tracker.lang`
+  - `canary_sampler.lang`
+- Updated `examples/autonomous_ops/README.md`, `docs/EXAMPLE_SUPPORT_MATRIX.md`,
+  and `tooling/artifact_profiles.json` to classify these as non-strict,
+  extension/OpenClaw operational examples (not canonical core).
+
 ## 1.0.10-meta-monitoring-toolkits (2026-03-09)
 
 ### Run Summary Helper

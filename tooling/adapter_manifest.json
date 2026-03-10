@@ -190,9 +190,9 @@
       "support_tier": "extension_openclaw",
       "strict_contract": false,
       "recommended_lane": "noncanonical",
-      "verbs": ["file_exists", "docker_image_exists", "http_status", "newest_backup_mtime"],
+      "verbs": ["file_exists", "docker_image_exists", "http_status", "newest_backup_mtime", "metrics"],
       "effect_default": "io",
-      "notes": "OpenClaw monitor extras adapter for file, Docker, HTTP, and backup mtime checks."
+      "notes": "OpenClaw monitor extras adapter for file, Docker, HTTP, backup mtime checks, and metrics summaries."
     },
     "tiktok": {
       "support_tier": "extension_openclaw",

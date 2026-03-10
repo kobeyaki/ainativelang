@@ -220,3 +220,69 @@ targets, config, side-effect notes). The overlapping adapter names/verbs are
 validated against `tooling/adapter_manifest.json` by
 `tests/test_adapter_registry_alignment.py` so they cannot silently diverge.
 
+---
+
+## 7. Extras adapter – `extras` (extension / OpenClaw)
+
+- **name**: `extras`
+- **verbs**: `file_exists`, `docker_image_exists`, `http_status`, `newest_backup_mtime`, `metrics`
+- **support_tier**: `extension_openclaw`
+- **lane**: non-canonical; OpenClaw-only extension adapter
+
+The `extras` adapter provides utility health checks and a small metrics view for
+OpenClaw-oriented monitors:
+
+- `file_exists`: check whether a given path exists and is executable (returns `1`/`0`).
+- `docker_image_exists`: check whether a Docker image exists locally (returns `1`/`0`).
+- `http_status`: return an HTTP status code for a URL (best-effort, returns `0` on failure).
+- `newest_backup_mtime`: return the newest `.bak` file mtime in a directory as an integer timestamp (or `0` if none).
+- `metrics`: read a **precomputed JSON summary** file and expose a small metrics envelope.
+
+### 7.1 `metrics` verb (summary-based metrics, extension-only)
+
+`extras.metrics` is an **extension/OpenClaw-only observability helper**. It is:
+
+- **read-only** over the filesystem,
+- **sandboxed** to a summary root directory,
+- **not** part of the canonical AINL core or strict contract.
+
+Configuration and behavior:
+
+- The sandbox root is taken from `AINL_SUMMARY_ROOT` (environment variable), defaulting to:
+  - `/tmp/ainl_summaries`
+- The `summary_path` argument is interpreted as a **relative path** under this root.
+- Any attempt to escape the sandbox (e.g. `../..`) results in an `AdapterError`.
+
+Expected input:
+
+- A JSON file produced by tools such as `scripts/summarize_runs.py` with at least:
+  - `run_count: int`
+  - `ok_count: int`
+  - `error_count: int`
+  - `runtime_versions: [str]`
+  - `result_kinds: {type: count}`
+  - `trace_op_counts: {op: count}`
+  - `label_counts: {label: count}`
+  - `timestamps_present: bool`
+
+Returned envelope:
+
+- `run_count: int`
+- `ok_count: int`
+- `error_count: int`
+- `ok_ratio: float|null` — `ok_count / run_count` when `run_count > 0`, otherwise `null`
+- `runtime_versions: [str]`
+- `result_kinds: {str: int}`
+- `trace_op_counts: {str: int}`
+- `label_counts: {str: int}`
+- `timestamps_present: bool`
+
+Failure modes:
+
+- missing or unreadable file → `AdapterError("metrics failed to read ...")`
+- invalid JSON → `AdapterError("metrics failed to read ...")`
+- JSON top-level not an object → `AdapterError("metrics expects JSON object summary")`
+
+As with other `extras` verbs, this adapter is intended for OpenClaw monitors and
+agents; it does **not** change core language or runtime semantics.
+

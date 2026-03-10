@@ -1,0 +1,68 @@
+S svc cron
+Cr L_tick "*/5 * * * *"
+
+# Cooldown: only alert once per 30 minutes for each service
+X now (core.now)
+X last_caddy (cache.get "watchdog" "last_caddy_alert")
+X last_cloudflared (cache.get "watchdog" "last_cloudflared_alert")
+X last_maddy (cache.get "watchdog" "last_maddy_alert")
+X last_crm (cache.get "watchdog" "last_crm_alert")
+X caddy_ts (cache.get "watchdog" "last_caddy_ts")
+X cloudflared_ts (cache.get "watchdog" "last_cloudflared_ts")
+X maddy_ts (cache.get "watchdog" "last_maddy_ts")
+X crm_ts (cache.get "watchdog" "last_crm_ts")
+
+# Check services
+R svc caddy ->caddy_status
+R svc cloudflared ->cloudflared_status
+R svc maddy ->maddy_status
+R svc crm ->crm_status
+
+# Determine if any are down and whether we should alert based on cooldown
+X any_down ((core.eq caddy_status "down") | (core.eq cloudflared_status "down") | (core.eq maddy_status "down") | (core.eq crm_status "down"))
+X caddy_down (core.eq caddy_status "down")
+X cloudflared_down (core.eq cloudflared_status "down")
+X maddy_down (core.eq maddy_status "down")
+X crm_down (core.eq crm_status "down")
+
+# Cooldown logic: alert if down and either no previous alert or >1800s since last
+X caddy_alert (core.and caddy_down (core.or (core.eq last_caddy 0) (core.gt (- now caddy_ts) 1800)))
+X cloudflared_alert (core.and cloudflared_down (core.or (core.eq last_cloudflared 0) (core.gt (- now cloudflared_ts) 1800)))
+X maddy_alert (core.and maddy_down (core.or (core.eq last_maddy 0) (core.gt (- now maddy_ts) 1800)))
+X crm_alert (core.and crm_down (core.or (core.eq last_crm 0) (core.gt (- now crm_ts) 1800)))
+
+# Send alert if needed; update cache timestamps only when sending alert
+If caddy_alert ->L_caddy_alert ->L_after_alerts
+If cloudflared_alert ->L_cloudflared_alert ->L_after_alerts
+If maddy_alert ->L_maddy_alert ->L_after_alerts
+If crm_alert ->L_crm_alert ->L_after_alerts
+J L_no_alert
+
+L_caddy_alert:
+  R queue Put "notify" ({"service":"caddy","status":"down","ts":now,"attempt_restart":true})
+  X _ (cache.set "watchdog" "last_caddy_alert" 1)
+  X _ (cache.set "watchdog" "last_caddy_ts" now)
+  J L_continue
+
+L_cloudflared_alert:
+  R queue Put "notify" ({"service":"cloudflared","status":"down","ts":now,"attempt_restart":true})
+  X _ (cache.set "watchdog" "last_cloudflared_alert" 1)
+  X _ (cache.set "watchdog" "last_cloudflared_ts" now)
+  J L_continue
+
+L_maddy_alert:
+  R queue Put "notify" ({"service":"maddy","status":"down","ts":now,"attempt_restart":true})
+  X _ (cache.set "watchdog" "last_maddy_alert" 1)
+  X _ (cache.set "watchdog" "last_maddy_ts" now)
+  J L_continue
+
+L_crm_alert:
+  R queue Put "notify" ({"service":"crm","status":"down","ts":now,"attempt_restart":true})
+  X _ (cache.set "watchdog" "last_crm_alert" 1)
+  X _ (cache.set "watchdog" "last_crm_ts" now)
+  J L_continue
+
+L_after_alerts:
+L_continue:
+L_no_alert:
+Ret null

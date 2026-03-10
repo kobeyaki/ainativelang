@@ -1,28 +1,31 @@
-# Autonomous Ops Extension Examples
+# Autonomous Ops Example Pack
 
-These examples live in `examples/autonomous_ops/` and are **extension/OpenClaw autonomous-ops examples**, not part of the canonical strict-valid lane.
+These examples demonstrate practical, self‑contained operational monitors built with AINL. They are **extension‑OpenClaw** (non‑strict) to allow pragmatic use of all available adapters (`svc`, `extras`, `tiktok`, `db`, etc.).
 
-They demonstrate small, auditable **snapshot → queue** patterns that are useful for long-running autonomous agents:
+## Programs
 
-- sequential data gathering from existing adapters
-- minimal derived values where semantics are already used elsewhere
-- structured payload emission to a queue for downstream automation
+| File | Purpose | Schedule |
+|------|---------|----------|
+| `infrastructure_watchdog.lang` | Checks `svc.caddy`, `svc.cloudflared`, `svc.maddy`, `svc.crm`; cooldown 30 min; queue “restart attempt” jobs. | Every 5 min |
+| `tiktok_sla_monitor.lang` | Validates TikTok reports (<24h), video processing freshness, and DB backup mtime; cooldown 1 hour. | Every 15 min |
+| `lead_quality_audit.lang` | Daily audit of leads (`db.F`), computes quality metrics, sends summary to queue. | Daily 2 AM |
+| `token_cost_tracker.lang` | Polls OpenRouter usage endpoint; alerts when daily USD limit exceeded. | Hourly |
+| `canary_sampler.lang` | Pings critical HTTP endpoints; tracks consecutive failures; alerts after 3 in a row. | Every 5 min |
 
-## Examples in this pack
+## Usage
 
-- `examples/autonomous_ops/status_snapshot_to_queue.lang`
-  - **Purpose**: gather current service/dependency status (via `svc`) and emit a structured status snapshot to a queue.
-  - **Adapters**: `svc`, `queue`, `core`.
-  - **Classification**: `extension_openclaw`, non-canonical, profile `non-strict-only`.
+Copy any `.lang` file to your `demo/` or another active monitor directory. Ensure required adapters are enabled in `ADAPTER_REGISTRY.json`. Then either:
 
-- `examples/autonomous_ops/backup_freshness_to_queue.lang`
-  - **Purpose**: read current time and last backup timestamp from cache, compute simple freshness (age in seconds/hours), and emit a backup freshness snapshot to a queue.
-  - **Adapters**: `cache`, `queue`, `core`.
-  - **Classification**: `extension_openclaw`, non-canonical, profile `non-strict-only`.
+- Run manually: `python3 run_ainl.py path/to/file.lang`
+- Add to cron: `openclaw cron add ...` with `payload.kind="agentTurn"`
 
-- `examples/autonomous_ops/pipeline_readiness_snapshot.lang`
-  - **Purpose**: gather readiness/status signals for a multi-step pipeline from `svc` and emit a structured readiness snapshot to a queue.
-  - **Adapters**: `svc`, `queue`, `core`.
-  - **Classification**: `extension_openclaw`, non-canonical, profile `non-strict-only`.
+Cooldown state is stored in the cache (default `/tmp/monitor_state.json`). Queue messages are handled by the existing OpenClaw notification system.
 
-Use these as **operational extension examples** for autonomous agents, not as core language conformance references.
+## Patterns Demonstrated
+
+- **Snapshot → Queue:** Linear status collection followed by a single `queue.Put`.
+- **Cooldown windows:** Use `cache.Get/Set` with timestamps and TTL checks.
+- **Consecutive failure detection:** Increment a cached counter on failure; reset on success.
+- **Adapter composition:** Combine `svc`, `extras`, `tiktok`, `db`, `http`, `core` in one program.
+
+These are not canonical core AINL; they rely on OpenClaw‑specific extensions. For canonical examples, see `examples/status_branching.ainl` and `examples/retry_error_resilience.ainl`.

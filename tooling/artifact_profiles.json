@@ -39,7 +39,12 @@
       "examples/golden/05_file_processor.ainl",
       "examples/autonomous_ops/status_snapshot_to_queue.lang",
       "examples/autonomous_ops/backup_freshness_to_queue.lang",
-      "examples/autonomous_ops/pipeline_readiness_snapshot.lang"
+      "examples/autonomous_ops/pipeline_readiness_snapshot.lang",
+      "examples/autonomous_ops/infrastructure_watchdog.lang",
+      "examples/autonomous_ops/tiktok_sla_monitor.lang",
+      "examples/autonomous_ops/lead_quality_audit.lang",
+      "examples/autonomous_ops/token_cost_tracker.lang",
+      "examples/autonomous_ops/canary_sampler.lang"
     ],
     "legacy-compat": []
   },
