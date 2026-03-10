@@ -229,6 +229,7 @@ The emitted server also includes **openapi.json** for API docs, codegen, and gat
 - **Corpus validation**: `python scripts/validate_corpus.py --include-negatives`
 - **Approximate size benchmark**: `.venv/bin/python scripts/benchmark_size.py` compares AINL source size vs per-target generated outputs; outputs are written to `tooling/benchmark_size.json` and `BENCHMARK.md` (default metric `approx_chunks`; tokenizer-accurate mode requires optional `--metric tiktoken`).
 - **Program summary helper**: `python scripts/inspect_ainl.py examples/hello.ainl` prints checksum, label/node counts, adapters, endpoints, and diagnostics for quick operator review.
+- **Run summary helper**: `python scripts/summarize_runs.py run1.json run2.json` aggregates `RuntimeEngine.run(..., trace=True)` payloads into a small JSON health summary (run counts, op/label counts, result kinds, runtime versions).
 - **Fine-tune bootstrap**: `bash scripts/setup_finetune_env.sh`
 - **Fast fine-tune run**: `.venv-ci-smoke/bin/python scripts/finetune_ainl.py --profile fast --epochs 1 --seed 42`
 - **Post-train inference (stable)**: `.venv/bin/python scripts/infer_ainl_lora.py --adapter-path models/ainl-phi3-lora --max-new-tokens 120 --device cpu`

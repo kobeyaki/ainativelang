@@ -42,6 +42,7 @@ Use it as the top-level entry point before touching code.
 - Benchmark generator script: `scripts/benchmark_size.py`
 - Machine-readable benchmark output: `tooling/benchmark_size.json`
 - Compile-once / run-many proof pack: `docs/COMPILE_ONCE_RUN_MANY.md`
+  - Includes `scripts/summarize_runs.py` for aggregating `RuntimeEngine.run(..., trace=True)` JSON payloads into small health summaries.
 - Launch copy pack: `docs/launch/SHORT_POST.md`, `docs/launch/TECHNICAL_POST.md`
 - Maintainer publish checklist snapshot: `docs/launch/PUBLISH_CHECKLIST.md`
 - Post-release issue drafts: `docs/issues/`

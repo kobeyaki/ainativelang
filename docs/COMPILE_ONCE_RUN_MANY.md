@@ -134,6 +134,28 @@ Running just that test (when `pytest` is available) verifies that:
 - for a catalog of programs and inputs,
 - runtime results and traces remain stable over time.
 
+#### 2.5 Summarize multiple runs (optional)
+
+If you save one or more `RuntimeEngine.run(..., trace=True)` JSON payloads to disk,
+you can compute a small health summary across them with:
+
+```bash
+python scripts/summarize_runs.py run1.json run2.json ...
+```
+
+This prints a JSON object with:
+
+- `run_count` / `ok_count` / `error_count`
+- `runtime_versions`
+- `result_kinds` (Python type names of the `result` field)
+- `trace_op_counts` (how many times each `op` appeared in traces)
+- `label_counts` (how many trace events per label)
+- `timestamps_present` (currently `false`, since run payloads do not include timestamps)
+
+This script is tooling-only and does **not** change any language, compiler, or
+runtime semantics; it simply aggregates information already present in the
+saved run payloads.
+
 ---
 
 ### 3. How this relates to other evidence

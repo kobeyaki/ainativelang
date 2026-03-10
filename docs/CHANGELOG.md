@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.0.10-meta-monitoring-toolkits (2026-03-09)
+
+### Run Summary Helper
+- Added `scripts/summarize_runs.py` as a small meta-monitoring helper that
+  aggregates one or more `RuntimeEngine.run(..., trace=True)` JSON payloads into
+  a concise JSON summary:
+  - `run_count` / `ok_count` / `error_count`
+  - `runtime_versions`
+  - `result_kinds` (Python type names of `result`)
+  - `trace_op_counts` (per-op counts from traces)
+  - `label_counts` (per-label trace event counts)
+  - `timestamps_present` (currently `false`, since payloads do not include
+    wall-clock timestamps)
+- Kept the tool strictly read-only over existing payloads; it does not change
+  any language, compiler, or runtime semantics.
+- Added `tests/test_summarize_runs.py` to lock in the summary schema and basic
+  aggregation behavior for single/multiple runs and list-of-payloads JSON input.
+- Extended `docs/COMPILE_ONCE_RUN_MANY.md`, `README.md`, and `docs/DOCS_INDEX.md`
+  with small notes on how to use the new run-summary helper.
+
 ## 1.0.9-autonomous-ops-and-http-envelopes (2026-03-09)
 
 ### Autonomous Ops Docs and Examples
