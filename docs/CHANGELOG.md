@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.0.13-coordination-baseline-and-monitor-advisory (2026-03-09)
+
+### Coordination Baseline (docs-only)
+- Added a human-visible coordination baseline section to
+  `docs/AGENT_COORDINATION_CONTRACT.md`:
+  - records the current baseline id:
+    `coordination-baseline-2026-03-09-token-and-monitor-advisory`,
+  - lists the required coordination artifacts (docs, examples, and sample
+    result/snapshot JSON files) that both Cursor-side and OpenClaw-side
+    environments should have on disk before controlled validation.
+- Clarified usage guidance:
+  - missing or renamed coordination artifacts should be treated as
+    **repo-state drift**, not as a protocol change,
+  - protocol-shaping artifacts should not be silently recreated without
+    updating the documented baseline in a follow-up change.
+
+### Monitor-Status Advisory Review Workflow
+- Added extension/OpenClaw examples for a bounded monitor-status advisory loop
+  built on top of the existing `agent` coordination substrate:
+  - `examples/openclaw/monitor_status_advice_request.lang` — assembles a small
+    snapshot of monitor IDs, services, statuses, and recent `last_ok` /
+    `last_error` timestamps, wraps it in an `AgentTaskRequest`, and enqueues it
+    via `agent.send_task` (returning the `task_id`).
+  - `examples/openclaw/monitor_status_advice_read.lang` — reads a single
+    advisory `AgentTaskResult` for a known monitor-status task id via
+    `agent.read_result`.
+- Added `examples/openclaw/monitor_status_example_snapshot.json` as a small,
+  non-semantic JSON snapshot illustrating the payload shape used in the
+  request example.
+- Updated `docs/AGENT_COORDINATION_CONTRACT.md` and `docs/EXAMPLE_SUPPORT_MATRIX.md`
+  to describe and classify the new monitor-status advisory workflow as
+  extension/OpenClaw, noncanonical, local-first, file-backed, sandboxed, and
+  advisory-only.
+
 ## 1.0.12-local-agent-coordination-substrate (2026-03-09)
 
 ### Local Agent Coordination Substrate (extension/OpenClaw)

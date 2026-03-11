@@ -1,0 +1,9 @@
+// Monitor Status Advice Read (extension/OpenClaw)
+// Purpose: read a previously written advisory AgentTaskResult for a known
+// monitor-status review task id via `agent.read_result`. This is local-only and
+// advisory; result creation is external/orchestrator-driven.
+
+S agent
+
+L0: R agent read_result "monitor-status-advice-20260309" ->result J result
+

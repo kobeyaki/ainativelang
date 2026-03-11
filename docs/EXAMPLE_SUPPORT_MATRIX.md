@@ -74,6 +74,8 @@ should not be treated as the canonical public language surface.
 | `examples/openclaw/agent_read_result.lang` | `non-strict-only` | OpenClaw compatibility example: read AgentTaskResult envelope via agent.read_result |
 | `examples/openclaw/token_cost_advice_request.lang` | `non-strict-only` | OpenClaw compatibility example: enqueue token-cost advisory request via agent.send_task |
 | `examples/openclaw/token_cost_advice_read.lang` | `non-strict-only` | OpenClaw compatibility example: read token-cost advisory result via agent.read_result |
+| `examples/openclaw/monitor_status_advice_request.lang` | `non-strict-only` | OpenClaw compatibility example: enqueue monitor-status advisory request via agent.send_task |
+| `examples/openclaw/monitor_status_advice_read.lang` | `non-strict-only` | OpenClaw compatibility example: read monitor-status advisory result via agent.read_result |
 
 ### Autonomous Ops Extension Pack (OpenClaw)
 

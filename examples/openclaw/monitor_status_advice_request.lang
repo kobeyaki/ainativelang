@@ -1,0 +1,71 @@
+// Monitor Status Advice Request (extension/OpenClaw)
+// Purpose: assemble a bounded monitor-status snapshot and enqueue an advisory
+// request for a Cursor-side agent via `agent.send_task`. This example is
+// advisory-only and does not perform any remediation itself.
+
+S core agent
+
+L0: R core now ->ts J L1
+
+L1: X snapshot {
+  "date": "2026-03-09",
+  "monitors": [
+    {
+      "id": "autonomous_ops.infrastructure_watchdog",
+      "service": "core-infra",
+      "status": "ok",
+      "last_ok": "2026-03-09T01:23:45Z",
+      "last_error": "2026-03-08T22:10:00Z",
+      "recent_error_count": 1
+    },
+    {
+      "id": "autonomous_ops.token_cost_tracker",
+      "service": "ai-routing",
+      "status": "warning",
+      "last_ok": "2026-03-09T01:10:00Z",
+      "last_error": "2026-03-09T00:55:00Z",
+      "recent_error_count": 3
+    }
+  ],
+  "summary": {
+    "monitors_total": 2,
+    "monitors_ok": 1,
+    "monitors_warning": 1,
+    "monitors_error": 0
+  }
+} J L2
+
+L2: X task {
+  "schema_version": "1.0",
+  "task_id": "monitor-status-advice-20260309",
+  "requester_id": "openclaw.autonomous_ops",
+  "target_agent": "cursor.ops_advisor",
+  "target_role": "advisor",
+  "task_type": "advisory_monitor_status_review",
+  "description": "Review current monitor statuses and suggest next manual checks.",
+  "input": {
+    "refs": [],
+    "payload": snapshot
+  },
+  "required_output_contract": {
+    "format": "json",
+    "schema_ref": "schema://ainl/agent-output/v1",
+    "must_include_fields": ["status", "summary", "actions"]
+  },
+  "sensitivity": "internal",
+  "budget_limit": {
+    "tokens": 1500,
+    "usd_cents": 200
+  },
+  "allowed_tools": ["http", "fs.read-only"],
+  "approval_required": "none",
+  "callback": {
+    "file_append": "agents/openclaw.autonomous_ops/results.jsonl"
+  },
+  "metadata": {
+    "ainl.program_id": "monitor_status_advice_request.v1"
+  }
+} J L3
+
+L3: R agent send_task task ->task_id J task_id
+

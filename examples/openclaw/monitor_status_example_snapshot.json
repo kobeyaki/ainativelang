@@ -1,0 +1,28 @@
+{
+  "date": "2026-03-09",
+  "monitors": [
+    {
+      "id": "autonomous_ops.infrastructure_watchdog",
+      "service": "core-infra",
+      "status": "ok",
+      "last_ok": "2026-03-09T01:23:45Z",
+      "last_error": "2026-03-08T22:10:00Z",
+      "recent_error_count": 1
+    },
+    {
+      "id": "autonomous_ops.token_cost_tracker",
+      "service": "ai-routing",
+      "status": "warning",
+      "last_ok": "2026-03-09T01:10:00Z",
+      "last_error": "2026-03-09T00:55:00Z",
+      "recent_error_count": 3
+    }
+  ],
+  "summary": {
+    "monitors_total": 2,
+    "monitors_ok": 1,
+    "monitors_warning": 1,
+    "monitors_error": 0
+  }
+}
+

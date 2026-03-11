@@ -590,10 +590,15 @@ No swarm behavior, routing, discovery (`list_agents`), or task-reading helpers
 
 ---
 
-## 7. Real-world advisory example: token-cost review loop
+## 7. Real-world advisory examples
 
-As a small, practical use of the local mailbox protocol, the repository
-includes a **token-cost advisory loop**:
+This section collects small, practical uses of the local mailbox protocol built
+on top of the narrow shared adapter surface (`agent.send_task` /
+`agent.read_result`).
+
+### 7.1 Token-cost review loop (advisory)
+
+As a first example, the repository includes a **token-cost advisory loop**:
 
 - `examples/openclaw/token_cost_advice_request.lang` — assembles bounded
   token/cost usage facts and enqueues an `AgentTaskRequest` asking a
@@ -650,3 +655,113 @@ This example remains:
 - and fully aligned with the narrow shared protocol
   (`agent.send_task` / `agent.read_result`).
 
+### 7.2 Monitor-status advisory review loop
+
+As a second example, the repository includes a **monitor-status advisory review
+loop**:
+
+- `examples/openclaw/monitor_status_advice_request.lang` — assembles a bounded
+  snapshot of current monitor statuses (ids, services, `ok`/`warning`/`error`
+  flags, and recent `last_ok` / `last_error` timestamps) and enqueues an
+  `AgentTaskRequest` asking a Cursor-side advisor to review overall state and
+  suggest next manual checks.
+- `examples/openclaw/monitor_status_advice_read.lang` — reads a single
+  `AgentTaskResult` for a known monitor-status advisory `task_id` via
+  `agent.read_result`.
+
+The flow is:
+
+1. **AINL/OpenClaw writes an advisory request**
+
+   Run the request example:
+
+   ```bash
+   ainl-validate examples/openclaw/monitor_status_advice_request.lang
+   ainl run examples/openclaw/monitor_status_advice_request.lang --json
+   ```
+
+   This appends an `AgentTaskRequest` with `task_id:
+   "monitor-status-advice-20260309"` (or a similar id) to:
+
+   - `$AINL_AGENT_ROOT/tasks/openclaw_agent_tasks.jsonl`
+
+2. **Cursor/External agent writes the advisory result**
+
+   A Cursor-side workflow reads the tasks JSONL file, inspects the monitor
+   snapshot (for example, seeing which monitors are `warning` or `error` and
+   how recently they changed state), and writes an `AgentTaskResult` JSON file
+   with a short narrative summary plus suggested manual checks to:
+
+   - `$AINL_AGENT_ROOT/results/monitor-status-advice-20260309.json`
+
+   using the `AgentTaskResult` schema in this document.
+
+3. **AINL/OpenClaw reads the advisory result**
+
+   Run the result reader example:
+
+   ```bash
+   ainl-validate examples/openclaw/monitor_status_advice_read.lang
+   ainl run examples/openclaw/monitor_status_advice_read.lang --json
+   ```
+
+   This loads the advisory `AgentTaskResult` for
+   `task_id="monitor-status-advice-20260309"` and binds it to `result` within
+   the program.
+
+This example also remains:
+
+- local-only and file-backed under `AINL_AGENT_ROOT`,
+- advisory-only (no remediation or orchestration in AINL),
+- externally orchestrated (Cursor or another agent is responsible for routing
+  and writing the result),
+- and fully aligned with the narrow shared protocol
+  (`agent.send_task` / `agent.read_result`).
+
+---
+
+## 8. Coordination baseline (human-visible, docs-only)
+
+To reduce ambiguity between Cursor-side and OpenClaw-side environments, this
+section records the **currently accepted coordination artifact bundle** for the
+local mailbox substrate.
+
+### 8.1 Baseline id
+
+- **Baseline id**:
+  `coordination-baseline-2026-03-09-token-and-monitor-advisory`
+
+Both Cursor and OpenClaw validation runs should confirm they are testing
+against this baseline (or a descendant commit that still preserves the same
+artifacts) before drawing protocol-level conclusions.
+
+### 8.2 Required coordination artifacts (current bundle)
+
+For this baseline, the expected on-disk artifacts include at least:
+
+- `docs/AGENT_COORDINATION_CONTRACT.md` (this document)
+- `docs/ADAPTER_REGISTRY.md` (documents the `agent` adapter surface)
+- `docs/EXAMPLE_SUPPORT_MATRIX.md` (classifies the coordination examples as
+  extension/OpenClaw, noncanonical)
+
+Examples and sample artifacts:
+
+- `examples/openclaw/agent_send_task.lang`
+- `examples/openclaw/agent_read_result.lang`
+- `examples/openclaw/token_cost_advice_request.lang`
+- `examples/openclaw/token_cost_advice_read.lang`
+- `examples/openclaw/monitor_status_advice_request.lang`
+- `examples/openclaw/monitor_status_advice_read.lang`
+- `examples/openclaw/demo-openclaw-monitor-001.result.json`
+- `examples/openclaw/monitor_status_example_snapshot.json`
+
+### 8.3 Usage guidance
+
+- Before running controlled coordination validation, both sides should:
+  - ensure they are on a commit that includes the baseline id above, and
+  - verify that all listed files exist at the specified paths.
+- If any of the required artifacts are **missing or renamed**, treat that as
+  **repo-state drift**, not as a protocol change.
+- Do **not** silently recreate protocol-shaping examples or artifacts without
+  first recording the drift and, if appropriate, updating this baseline section
+  in a follow-up change.
