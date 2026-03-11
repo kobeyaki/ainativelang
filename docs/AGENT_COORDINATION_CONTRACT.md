@@ -588,6 +588,11 @@ The contract boundary is:
 No swarm behavior, routing, discovery (`list_agents`), or task-reading helpers
 (`read_task`) are part of the shared protocol at this time.
 
+For a release-facing discussion of **safe use**, **threat model**, and which
+coordination fields are **advisory vs enforced**, see:
+
+- `docs/SAFE_USE_AND_THREAT_MODEL.md`
+
 ---
 
 ## 7. Real-world advisory examples
@@ -765,3 +770,14 @@ Examples and sample artifacts:
 - Do **not** silently recreate protocol-shaping examples or artifacts without
   first recording the drift and, if appropriate, updating this baseline section
   in a follow-up change.
+
+For advanced coordination usage, you can also use the extension-only mailbox
+validator as a **release-check step**:
+
+- `python -m scripts.validate_coordination_mailbox --tasks-jsonl path/to/tasks.jsonl`
+- `python -m scripts.validate_coordination_mailbox --result-json path/to/result.json`
+
+This tool checks `AgentTaskRequest` and `AgentTaskResult` envelopes in JSON /
+JSONL files against the minimal upstream schema defined in this document. It is
+intended as a governance and compatibility helper; it does **not** change
+compiler or runtime semantics or enforce policy.

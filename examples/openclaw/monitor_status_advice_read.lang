@@ -1,7 +1,11 @@
-// Monitor Status Advice Read (extension/OpenClaw)
+// Monitor Status Advice Read (extension/OpenClaw, advanced)
 // Purpose: read a previously written advisory AgentTaskResult for a known
 // monitor-status review task id via `agent.read_result`. This is local-only and
 // advisory; result creation is external/orchestrator-driven.
+//
+// Advanced / operator-only:
+// - advisory-only; not a secure or autonomous remediation workflow
+// - not a safe default pattern for unsupervised agents or production changes
 
 S agent
 

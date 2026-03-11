@@ -5,6 +5,8 @@ Use it as the top-level entry point before touching code.
 
 ## Start Here
 
+### Core / safe-default docs
+
 - Project origin and attribution: `docs/PROJECT_ORIGIN_AND_ATTRIBUTION.md`
 - Machine-readable project provenance: `tooling/project_provenance.json`
 - Provenance and release evidence playbook: `docs/PROVENANCE_AND_RELEASE_EVIDENCE.md`
@@ -12,7 +14,6 @@ Use it as the top-level entry point before touching code.
 - Public initiator references: <https://x.com/sbhooley>, <https://stevenhooley.com>, <https://linkedin.com/in/sbhooley>
 - Project timeline + release milestones (2024 foundations; 2025-2026 formalization): `docs/PROJECT_ORIGIN_AND_ATTRIBUTION.md`, `docs/CHANGELOG.md`
 - **Consultant reports index**: `CONSULTANT_REPORTS.md` (see also `AI_CONSULTANT_REPORT_APOLLO.md`)
-- **OpenClaw agent quickstart**: `AI_AGENT_QUICKSTART_OPENCLAW.md`
 - Contributor entrypoint: `CONTRIBUTING.md`
 - Audience quickstart: `docs/AUDIENCE_GUIDE.md`
 - GitHub release checklist: `docs/GITHUB_RELEASE_CHECKLIST.md`
@@ -48,7 +49,17 @@ Use it as the top-level entry point before touching code.
 - Post-release issue drafts: `docs/issues/`
 - Architecture overview: `docs/ARCHITECTURE_OVERVIEW.md`
 - Glossary: `docs/GLOSSARY.md`
- - Agent coordination contract (multi-agent envelopes/spec): `docs/AGENT_COORDINATION_CONTRACT.md`
+
+### Advanced / operator-only / experimental docs
+
+These docs describe **advanced, extension/OpenClaw, and coordination** features.
+They are intended for operators and advanced users, not as the safe-default
+entry point for new users or unsupervised agents.
+
+- OpenClaw agent quickstart: `AI_AGENT_QUICKSTART_OPENCLAW.md`
+- Agent coordination contract (multi-agent envelopes/spec): `docs/AGENT_COORDINATION_CONTRACT.md`
+- Safe use and threat model: `docs/SAFE_USE_AND_THREAT_MODEL.md`
+- Adapter inventory and conventions (including extension/OpenClaw adapters): `docs/ADAPTER_REGISTRY.md`, `docs/OPENCLAW_ADAPTERS.md`
 
 ## Training and Model Quality
 

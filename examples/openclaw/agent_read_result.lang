@@ -1,6 +1,10 @@
-# Agent Result Reader Demo (extension/OpenClaw)
+# Agent Result Reader Demo (extension/OpenClaw, advanced)
 # Purpose: read a single AgentTaskResult envelope identified by task_id via
 # `agent.read_result`. This is a local-only, file-backed example.
+#
+# Advanced / operator-only:
+# - advisory-only; assumes an external orchestrator wrote the result
+# - not a safe default pattern for unsupervised agents or auto-remediation
 
 S agent
 

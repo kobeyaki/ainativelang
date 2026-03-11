@@ -61,21 +61,26 @@ should not be treated as the canonical public language surface.
 
 ### OpenClaw Compatibility Family
 
+These examples are **advanced**, **extension/OpenClaw-only**, and **not safe
+defaults for unsupervised agents**. They are intended for operator-controlled
+environments and should be treated as advisory patterns, not a secure or
+fully-automated agent fabric.
+
 | Example | Profile | Notes |
 |---------|---------|-------|
-| `examples/openclaw/backup_manager.lang` | `non-strict-only` | OpenClaw compatibility example |
-| `examples/openclaw/daily_digest.lang` | `non-strict-only` | OpenClaw compatibility example |
-| `examples/openclaw/daily_digest.strict.lang` | `non-strict-only` | Transitional compatibility artifact |
-| `examples/openclaw/daily_lead_summary.lang` | `non-strict-only` | OpenClaw compatibility example |
-| `examples/openclaw/infrastructure_watchdog.lang` | `non-strict-only` | OpenClaw compatibility example |
-| `examples/openclaw/lead_enrichment.lang` | `non-strict-only` | OpenClaw compatibility example |
-| `examples/openclaw/webhook_handler.lang` | `non-strict-only` | OpenClaw compatibility example |
-| `examples/openclaw/agent_send_task.lang` | `non-strict-only` | OpenClaw compatibility example: append AgentTaskRequest envelope via agent.send_task |
-| `examples/openclaw/agent_read_result.lang` | `non-strict-only` | OpenClaw compatibility example: read AgentTaskResult envelope via agent.read_result |
-| `examples/openclaw/token_cost_advice_request.lang` | `non-strict-only` | OpenClaw compatibility example: enqueue token-cost advisory request via agent.send_task |
-| `examples/openclaw/token_cost_advice_read.lang` | `non-strict-only` | OpenClaw compatibility example: read token-cost advisory result via agent.read_result |
-| `examples/openclaw/monitor_status_advice_request.lang` | `non-strict-only` | OpenClaw compatibility example: enqueue monitor-status advisory request via agent.send_task |
-| `examples/openclaw/monitor_status_advice_read.lang` | `non-strict-only` | OpenClaw compatibility example: read monitor-status advisory result via agent.read_result |
+| `examples/openclaw/backup_manager.lang` | `non-strict-only` | OpenClaw compatibility example (advanced / operator-oriented) |
+| `examples/openclaw/daily_digest.lang` | `non-strict-only` | OpenClaw compatibility example (advanced / operator-oriented) |
+| `examples/openclaw/daily_digest.strict.lang` | `non-strict-only` | Transitional compatibility artifact (advanced) |
+| `examples/openclaw/daily_lead_summary.lang` | `non-strict-only` | OpenClaw compatibility example (advanced / operator-oriented) |
+| `examples/openclaw/infrastructure_watchdog.lang` | `non-strict-only` | OpenClaw compatibility example (advanced / operator-oriented) |
+| `examples/openclaw/lead_enrichment.lang` | `non-strict-only` | OpenClaw compatibility example (advanced / operator-oriented) |
+| `examples/openclaw/webhook_handler.lang` | `non-strict-only` | OpenClaw compatibility example (advanced / operator-oriented) |
+| `examples/openclaw/agent_send_task.lang` | `non-strict-only` | Advanced coordination example: append AgentTaskRequest via agent.send_task (advisory-only, operator-controlled) |
+| `examples/openclaw/agent_read_result.lang` | `non-strict-only` | Advanced coordination example: read AgentTaskResult via agent.read_result (advisory-only, operator-controlled) |
+| `examples/openclaw/token_cost_advice_request.lang` | `non-strict-only` | Advanced coordination example: enqueue token-cost advisory request via agent.send_task (not for unsupervised auto-remediation) |
+| `examples/openclaw/token_cost_advice_read.lang` | `non-strict-only` | Advanced coordination example: read token-cost advisory result via agent.read_result (not for unsupervised auto-remediation) |
+| `examples/openclaw/monitor_status_advice_request.lang` | `non-strict-only` | Advanced coordination example: enqueue monitor-status advisory request via agent.send_task (not for unsupervised auto-remediation) |
+| `examples/openclaw/monitor_status_advice_read.lang` | `non-strict-only` | Advanced coordination example: read monitor-status advisory result via agent.read_result (not for unsupervised auto-remediation) |
 
 ### Autonomous Ops Extension Pack (OpenClaw)
 

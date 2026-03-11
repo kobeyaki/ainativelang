@@ -1,7 +1,11 @@
-# Token Cost Advice Request (extension/OpenClaw)
+# Token Cost Advice Request (extension/OpenClaw, advanced)
 # Purpose: assemble bounded token/cost usage facts and enqueue an advisory
 # request for a Cursor-side agent via `agent.send_task`. This example is
 # advisory-only and does not perform any remediation itself.
+#
+# Advanced / operator-only:
+# - intended as a bounded advisory pattern, not auto-remediation
+# - not a safe default pattern for unsupervised agents or production changes
 
 S core agent
 

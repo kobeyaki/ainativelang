@@ -27,6 +27,7 @@ For implementation and shipped-capability status, see:
 - [docs/TARGETS_ROADMAP.md](docs/TARGETS_ROADMAP.md)
 - [docs/AINL_CANONICAL_CORE.md](docs/AINL_CANONICAL_CORE.md)
 - [docs/EXAMPLE_SUPPORT_MATRIX.md](docs/EXAMPLE_SUPPORT_MATRIX.md)
+- [docs/SAFE_USE_AND_THREAT_MODEL.md](docs/SAFE_USE_AND_THREAT_MODEL.md)
 
 ## What AINL Is
 
@@ -53,6 +54,35 @@ Today, the project is strongest as:
 - Compatibility examples are retained intentionally; do not assume all public examples are strict-valid.
 - Some emitters are more mature than others; treat `docs/TARGETS_ROADMAP.md` as a capability map, not a promise that every target is equally production-ready.
 - Model-training and benchmark artifacts are included, but they should be read together with `BENCHMARK.md`, `docs/OLLAMA_EVAL.md`, and `docs/TEST_PROFILES.md` rather than as standalone proof of maturity.
+
+## Surfaces and usage lanes
+
+### Core / safe-default surface
+
+The core, safe-default entry path for AINL focuses on:
+
+- the canonical compiler/runtime and graph IR (`compiler_v2.py`, `runtime/engine.py`),
+- canonical language scope (`docs/AINL_CANONICAL_CORE.md`, `docs/AINL_SPEC.md`),
+- strict/compatible examples classified in `docs/EXAMPLE_SUPPORT_MATRIX.md`,
+- graph/IR tooling (`docs/GRAPH_INTROSPECTION.md`),
+- server/OpenAPI emission and basic workflows.
+
+### Advanced / operator-only / experimental surface
+
+AINL also includes **advanced, extension/OpenClaw-oriented** features that are
+**not** the safe-default entry path and are **not** a built-in secure
+orchestration or multi-agent safety layer. These are intended for operators who
+understand the risks and have added their own safeguards.
+
+Key docs and tooling in this lane:
+
+- `docs/SAFE_USE_AND_THREAT_MODEL.md` — safe use, threat model, and advisory vs enforced fields.
+- `docs/AGENT_COORDINATION_CONTRACT.md` — AgentTaskRequest/AgentTaskResult/AgentManifest envelopes and local mailbox contract.
+- `docs/EXAMPLE_SUPPORT_MATRIX.md` (OpenClaw compatibility family) — advanced coordination and OpenClaw examples.
+- `tooling/coordination_validator.py`, `scripts/validate_coordination_mailbox.py` — optional mailbox linter for advanced coordination usage.
+
+These features are **extension-only**, **noncanonical**, and **not** presented
+as the normal starting point for new users or unsupervised agents.
 
 ## Stability Boundaries
 

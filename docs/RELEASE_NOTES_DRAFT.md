@@ -56,6 +56,41 @@ CI and release verification now explicitly include:
 * compatibility-focused parser/OpenAPI gates
 * profile-aware validation for release-facing examples and fixtures
 
+### Advanced coordination (extension / OpenClaw, experimental)
+
+This release also includes a **local, file-backed coordination substrate** and
+OpenClaw-oriented examples. These features are:
+
+- **extension-only and noncanonical** — implemented via the `agent` adapter and
+  OpenClaw extension adapters (`extras`, `svc`, `tiktok`, etc.),
+- **advanced / operator-only** — intended for operators and advanced users who
+  understand the risks and have their own safety, approval, and policy layers,
+- **advisory and local-first** — built around local mailbox-style files under
+  `AINL_AGENT_ROOT`, with advisory `AgentTaskRequest` / `AgentTaskResult`
+  envelopes, and no built-in routing, authentication, or encryption.
+
+These coordination features are **not**:
+
+- a built-in secure multi-tenant messaging fabric,
+- a general-purpose orchestration engine,
+- a swarm/multi-agent safety layer,
+- or a policy/approval enforcement system.
+
+Upstream provides:
+
+- the minimal coordination contract in `docs/AGENT_COORDINATION_CONTRACT.md`,
+- explicit safe-use and threat-model guidance in `docs/SAFE_USE_AND_THREAT_MODEL.md`,
+- a coordination baseline and mailbox validator
+  (`tooling/coordination_validator.py`, `scripts/validate_coordination_mailbox.py`)
+  so advanced users can check that envelopes remain on upstream rails.
+
+Operators who choose to use these features are responsible for:
+
+- routing, retries, and scheduling,
+- authentication and authorization,
+- encryption and transport security,
+- human approvals, policy enforcement, and production safety.
+
 ## Known Non-Blocking Follow-Ups
 
 * some compatibility and legacy surfaces remain intentionally non-strict

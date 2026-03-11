@@ -1,7 +1,11 @@
-# Token Cost Advice Result Reader (extension/OpenClaw)
+# Token Cost Advice Result Reader (extension/OpenClaw, advanced)
 # Purpose: read a single AgentTaskResult for a known token-cost advisory task
 # via `agent.read_result`. This example assumes an external orchestrator or
 # Cursor-side agent has written the result file.
+#
+# Advanced / operator-only:
+# - advisory-only; not a secure or autonomous remediation workflow
+# - not a safe default pattern for unsupervised agents or production changes
 
 S agent
 

@@ -1,5 +1,54 @@
 # Changelog
 
+## 1.0.14-advanced-coordination-governance (2026-03-09)
+
+### Safe Use, Threat Model, and Advanced Framing
+- Added `docs/SAFE_USE_AND_THREAT_MODEL.md` to describe:
+  - what the local coordination substrate assumes (local-first, file-backed,
+    sandboxed roots, external orchestrator),
+  - what it does **not** provide (no built-in auth, encryption, policy, or
+    multi-tenant isolation),
+  - the threat model and trust assumptions for coordination usage,
+  - and a clear split between **supported safe-default use** and
+    **advanced/unsupported-by-default** patterns.
+- Updated `README.md` and `docs/DOCS_INDEX.md` to clearly separate:
+  - **core / safe-default** surfaces (compiler/runtime/IR, canonical examples),
+  - **advanced / operator-only / experimental** surfaces (OpenClaw extensions,
+    coordination docs, and examples).
+
+### Coordination Validator and Mailbox Linter (extension-only)
+- Added an extension-only coordination schema validator and mailbox linter:
+  - `tooling/coordination_validator.py`
+  - `scripts/validate_coordination_mailbox.py`
+- The validator checks `AgentTaskRequest` and `AgentTaskResult` envelopes in
+  JSON/JSONL files against the minimal upstream schema documented in
+  `docs/AGENT_COORDINATION_CONTRACT.md` and reports malformed or drifted
+  envelopes.
+- This tooling is **optional**, **additive**, and **non-semantic**: it does not
+  change compiler/runtime behavior and is intended as governance and
+  compatibility support for advanced coordination users.
+
+### Advanced Coordination Labeling and Release Checklist
+- Tightened framing for advanced coordination/OpenClaw examples:
+  - added "advanced / operator-only / advisory-only" notes to key examples under
+    `examples/openclaw/`,
+  - updated `docs/EXAMPLE_SUPPORT_MATRIX.md` to describe the OpenClaw family as
+    advanced, extension-only, and not a safe default for unsupervised agents.
+- Marked the `agent` adapter as **advanced, opt-in** in `docs/ADAPTER_REGISTRY.md`
+  and reiterated its extension-only, noncanonical status.
+- Extended `docs/RELEASE_NOTES_DRAFT.md` with a short "Advanced coordination"
+  section clarifying that:
+  - coordination is experimental/operator-only,
+  - coordination is local/file-backed and advisory,
+  - upstream does **not** claim it is a secure multi-agent or orchestration
+    platform by default.
+- Updated `docs/GITHUB_RELEASE_CHECKLIST.md` with coordination-specific items:
+  - protocol surface tests,
+  - baseline verification,
+  - mailbox validator run on baseline artifacts,
+  - and a check that core vs advanced framing remains intact in
+    `README.md` and `docs/DOCS_INDEX.md`.
+
 ## 1.0.13-coordination-baseline-and-monitor-advisory (2026-03-09)
 
 ### Coordination Baseline (docs-only)

@@ -1,7 +1,11 @@
-# Agent Task Enqueue Demo (extension/OpenClaw)
+# Agent Task Enqueue Demo (extension/OpenClaw, advanced)
 # Purpose: build a small AgentTaskRequest envelope and append it to a sandboxed
 # JSONL file via `agent.send_task`. This is a local-only, file-backed example
 # that returns just the task_id.
+#
+# Advanced / operator-only:
+# - advisory-only; not a secure or autonomous orchestration fabric
+# - not a safe default pattern for unsupervised agents or auto-remediation
 
 S core agent
 

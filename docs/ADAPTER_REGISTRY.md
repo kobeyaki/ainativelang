@@ -177,6 +177,11 @@ For OpenClaw environments, the `svc` adapter is described as returning a **healt
 
 This is an **extension/OpenClaw-only contract** and is **not** part of the canonical AINL core. It is intended for monitoring and agent reasoning in OpenClaw deployments and is documented here for clarity; current runtime behavior is unchanged in this pass.
 
+For safety and threat-model guidance on extension adapters and coordination, see
+also:
+
+- `docs/SAFE_USE_AND_THREAT_MODEL.md`
+
 ---
 
 ## 6. Adapter manifest (machine‑readable sketch and tiers)
@@ -288,17 +293,20 @@ agents; it does **not** change core language or runtime semantics.
 
 ---
 
-## 8. Agent coordination adapter – `agent` (extension / OpenClaw)
+## 8. Agent coordination adapter – `agent` (extension / OpenClaw, advanced)
 
 - **name**: `agent`
 - **verbs**: `send_task`, `read_result`
 - **support_tier**: `extension_openclaw`
 - **lane**: non-canonical; OpenClaw-only extension adapter
+- **intended audience**: advanced operators building local coordination loops;
+  **not** a safe default for unsupervised agents.
 
 The `agent` adapter provides a **minimal, local, file-backed** substrate for
 exchanging `AgentTaskRequest` and `AgentTaskResult` envelopes as defined in
 `docs/AGENT_COORDINATION_CONTRACT.md`. It does **not** implement a swarm engine
-or remote federation.
+or remote federation, and it should be treated as an **advanced, opt-in**
+coordination surface rather than a general-purpose production control plane.
 
 ### 8.1 `send_task` verb (append AgentTaskRequest to JSONL)
 
