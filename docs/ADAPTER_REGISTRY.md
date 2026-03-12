@@ -1,4 +1,4 @@
-# AI Native Lang (AINL) Adapter Registry (v0.9)
+# AI Native Lang (AINL) Adapter Registry (AINL 1.0)
 
 This document describes the **small‑model‑friendly adapter set** exposed by this implementation. It is a human + machine readable catalog for agents.
 
@@ -58,19 +58,26 @@ R db.C User * ->created_user
 ## 2. HTTP adapter – `http`
 
 - **name**: `http`
-- **verbs**: `Get`, `Post`
-- **effect**: `io-read` (GET), `io-write` (POST)
+- **verbs (runtime namespace)**: `Get`, `Post`, `Put`, `Patch`, `Delete`, `Head`, `Options`
+- **canonical effects**: `io-read` for `Get`/`Head`/`Options`, `io-write` for `Post`/`Put`/`Patch`/`Delete`
 
-### 2.1 Slot schema
+### 2.1 Slot schema (AINL `R` surface)
 
 ```text
-R http.Get /path_or_url ->resp
-R http.Post /path_or_url body_var ->resp
+R http.Get /path_or_url [headers_var] [timeout_s] ->resp
+R http.Post /path_or_url body_var [headers_var] [timeout_s] ->resp
+R http.Put /path_or_url body_var [headers_var] [timeout_s] ->resp
+R http.Patch /path_or_url body_var [headers_var] [timeout_s] ->resp
+R http.Delete /path_or_url [headers_var] [timeout_s] ->resp
+R http.Head /path_or_url [headers_var] [timeout_s] ->resp
+R http.Options /path_or_url [headers_var] [timeout_s] ->resp
 ```
 
 - `/path_or_url`: either an absolute URL or a service‑relative path.
-- `body_var`: frame var containing JSON‑serializable body.
-- `resp`: frame variable receiving the decoded response.
+- `body_var`: frame var containing JSON‑serializable body (for `Post`/`Put`/`Patch`).
+- `headers_var`: optional frame var containing a string‑keyed dict of headers.
+- `timeout_s`: optional float seconds override; defaults come from the adapter config.
+- `resp`: frame variable receiving the normalized response envelope.
 
 ### 2.2 Examples
 
@@ -184,41 +191,61 @@ also:
 
 ---
 
-## 6. Adapter manifest (machine‑readable sketch and tiers)
+## 6. Adapter manifest (machine‑readable catalog and tiers)
 
-For small‑model training you can treat this as the canonical manifest:
+For small‑model training and automation, the **canonical machine‑readable source** is:
+
+- `tooling/adapter_manifest.json`
+
+That file now describes the full adapter surface, including:
+
+- `core`, `db`, `api`, `email`, `calendar`, `social`, `ext`,
+- `wasm`, `cache`, `queue`, `txn`, `auth`,
+- `http`, `sqlite`, `fs`, `tools`,
+- `svc`, `extras`, `agent`, `tiktok`, `memory`.
+
+Each adapter entry carries:
+
+- `verbs`: list of supported verbs/targets.
+- `effect_default`: canonical default effect (`pure` \| `io`).
+- `support_tier`: `core` \| `extension_openclaw` \| `compatibility`.
+- `strict_contract`: `true` if covered by strict adapter/effect validation, else `false`.
+- `recommended_lane`: `canonical` \| `noncanonical` to distinguish preferred canonical lanes from accepted-but-noncanonical surfaces.
+- Optional `result_envelope` metadata for monitoring‑oriented adapters (e.g. `http`, `queue`, `svc`).
+
+A **partial sketch** of the manifest shape (not exhaustive) looks like:
 
 ```json
 {
-  "db": {
-    "verbs": ["F", "C", "U", "D"],
-    "effects": { "F": "io-read", "C": "io-write", "U": "io-write", "D": "io-write" }
-  },
-  "http": {
-    "verbs": ["Get", "Post"],
-    "effects": { "Get": "io-read", "Post": "io-write" }
-  },
-  "cache": {
-    "verbs": ["Get", "Set"],
-    "effects": { "Get": "io-read", "Set": "io-write" }
-  },
-  "queue": {
-    "verbs": ["Put"],
-    "effects": { "Put": "io-write" }
+  "adapters": {
+    "db": {
+      "support_tier": "core",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
+      "verbs": ["F", "G", "P", "C", "U", "D"],
+      "effect_default": "io"
+    },
+    "http": {
+      "support_tier": "core",
+      "strict_contract": true,
+      "recommended_lane": "canonical",
+      "verbs": ["Get", "Post", "Put", "Patch", "Delete", "Head", "Options"],
+      "effect_default": "io",
+      "result_envelope": {
+        "fields": {
+          "ok": "bool",
+          "status_code": "int|null",
+          "error": "str|null",
+          "body": "any",
+          "headers": "dict|none",
+          "url": "str"
+        }
+      }
+    }
+    // ... other adapters ...
   }
 }
 ```
-
-This manifest matches the behavior enforced by `tooling/effect_analysis.py` and the runtime adapters.
-
-In the full `tooling/adapter_manifest.json`, each adapter also carries lightweight
-classification metadata:
-
-- `support_tier`: `core` \| `extension_openclaw` \| `compatibility`
-- `strict_contract`: `true` if the adapter/verbs are covered by the current strict
-  adapter/effect validation (`ADAPTER_EFFECT`), `false` otherwise
-- `recommended_lane`: `canonical` \| `noncanonical` to distinguish the preferred
-  canonical lane from accepted-but-noncanonical surfaces
 
 `ADAPTER_REGISTRY.json` is a richer OpenClaw/operator-facing view (descriptions,
 targets, config, side-effect notes). The overlapping adapter names/verbs are
@@ -290,6 +317,29 @@ Failure modes:
 
 As with other `extras` verbs, this adapter is intended for OpenClaw monitors and
 agents; it does **not** change core language or runtime semantics.
+
+---
+
+## 9. Summary of additional adapters (see manifest and registry)
+
+The following adapters are fully specified in `tooling/adapter_manifest.json`
+and `ADAPTER_REGISTRY.json` but do not require long-form slot schemas here:
+
+- **`core`** (tier: `core`, lane: `canonical`): arithmetic, string, JSON, and time helpers (`ADD`, `SUB`, `MUL`, `DIV`, `MIN`, `MAX`, `CONCAT`, `SPLIT`, `JOIN`, `LOWER`, `UPPER`, `PARSE`, `STRINGIFY`, `NOW`, `ISO`, `SLEEP`, `ECHO`).
+- **`api`** (tier: `compatibility`, lane: `noncanonical`): legacy HTTP/API surface used by older step‑list forms (`G`, `P`, `POST`).
+- **`sqlite`** (tier: `core`, lane: `canonical`): direct SQLite access (`Execute`, `Query`) with allow‑list and timeout controls.
+- **`fs`** (tier: `core`, lane: `canonical`): sandboxed filesystem operations (`Read`, `Write`, `List`, `Delete`) with size and extension guards.
+- **`tools`** (tier: `core`, lane: `canonical`): bridge to external tool calls (`Call`) as defined in `docs/TOOL_API.md`.
+- **`txn`** (tier: `core`, lane: `canonical`): transaction namespace (`Begin`, `Commit`, `Rollback`) on supported backends.
+- **`auth`** (tier: `core`, lane: `canonical`): authentication namespace (`Validate`) wired into service middleware.
+- **`email`**, **`calendar`**, **`social`** (tier: `extension_openclaw`, lane: `canonical`): OpenClaw monitoring adapters for unread email, upcoming calendar events, and social/web mentions.
+- **`ext`** (tier: `compatibility`, lane: `noncanonical`): test‑only external extension namespace used in runtime tests.
+- **`tiktok`** (tier: `extension_openclaw`, lane: `noncanonical`): TikTok/CRM reporting surface (`F`, `recent`, `videos`) for OpenClaw monitors.
+- **`memory`** (tier: `extension_openclaw`, lane: `noncanonical`): explicit memory adapter (`put`, `get`, `append`) as specified in `docs/MEMORY_CONTRACT.md`.
+
+For exact argument lists, effect metadata, and envelopes, treat
+`tooling/adapter_manifest.json` as the source of truth and
+`ADAPTER_REGISTRY.json` as the operator‑level view.
 
 ---
 

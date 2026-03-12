@@ -16,12 +16,18 @@ Use it as the top-level entry point before touching code.
 - **Consultant reports index**: `CONSULTANT_REPORTS.md` (see also `AI_CONSULTANT_REPORT_APOLLO.md`)
 - Contributor entrypoint: `CONTRIBUTING.md`
 - Audience quickstart: `docs/AUDIENCE_GUIDE.md`
+- Install and environment setup: `docs/INSTALL.md`
 - GitHub release checklist: `docs/GITHUB_RELEASE_CHECKLIST.md`
 - Open core charter: `docs/OPEN_CORE_CHARTER.md`
 - Open/commercial boundary map: `docs/OPEN_CORE_BOUNDARY_MAP.md`
 - Licensing/repo layout plan: `docs/LICENSING_AND_REPO_LAYOUT_PLAN.md`
 - Language specification: `docs/AINL_SPEC.md`
 - Canonical public language lane: `docs/AINL_CANONICAL_CORE.md`
+- Core language and module structure: `docs/AINL_CORE_AND_MODULES.md`
+- Extension lanes and OpenClaw-specific surfaces: `docs/AINL_EXTENSIONS.md`
+- Canonical profile snapshot (v0.9): `docs/AINL_V0_9_PROFILE.md`
+- Runtime behavior specification (complement to `SEMANTICS.md`): `docs/ainl_runtime_spec.md`
+- Target/runtime support roadmap: `docs/TARGETS_ROADMAP.md`
 - Example support classification: `docs/EXAMPLE_SUPPORT_MATRIX.md`
 - Graph/IR introspection guide: `docs/GRAPH_INTROSPECTION.md`
 - Runtime semantics contract: `SEMANTICS.md`
@@ -32,6 +38,7 @@ Use it as the top-level entry point before touching code.
 - Runtime compatibility shim (`ExecutionEngine` facade): `runtime/compat.py`, `runtime.py`
 - Documentation maintenance contract: `docs/DOCS_MAINTENANCE.md`
 - Grammar quick reference: `docs/grammar.md`
+- Pattern cookbook and composition examples: `docs/PATTERNS.md`
 - Compiler/IR contracts: `docs/IR_SCHEMA.md`, `docs/GRAPH_SCHEMA.md`
 - Conformance status: `docs/CONFORMANCE.md`
 - Release readiness checklist: `docs/RELEASE_READINESS.md`
@@ -46,7 +53,14 @@ Use it as the top-level entry point before touching code.
   - Includes `scripts/summarize_runs.py` for aggregating `RuntimeEngine.run(..., trace=True)` JSON payloads into small health summaries.
 - Launch copy pack: `docs/launch/SHORT_POST.md`, `docs/launch/TECHNICAL_POST.md`
 - Maintainer publish checklist snapshot: `docs/launch/PUBLISH_CHECKLIST.md`
-- Post-release issue drafts: `docs/issues/`
+- Post-release issue drafts and migration templates:
+  - `docs/issues/README.md`
+  - `docs/issues/ISSUE_CREATION_PLAN.md`
+  - `docs/issues/01-structured-diagnostics-first-class-contract.md`
+  - `docs/issues/02-nonstrict-legacy-artifact-migration-plan.md`
+  - `docs/issues/03-compatibility-path-retirement-plan.md`
+  - `docs/issues/04-strict-adapter-contract-expansion-policy.md`
+  - `docs/issues/05-post-release-docs-onboarding-tightening.md`
 - Architecture overview: `docs/ARCHITECTURE_OVERVIEW.md`
 - Glossary: `docs/GLOSSARY.md`
 
@@ -60,6 +74,8 @@ entry point for new users or unsupervised agents.
 - Agent coordination contract (multi-agent envelopes/spec): `docs/AGENT_COORDINATION_CONTRACT.md`
 - Safe use and threat model: `docs/SAFE_USE_AND_THREAT_MODEL.md`
 - Adapter inventory and conventions (including extension/OpenClaw adapters): `docs/ADAPTER_REGISTRY.md`, `docs/OPENCLAW_ADAPTERS.md`
+- Memory contract and v1 adapter: `docs/MEMORY_CONTRACT.md`
+  - Memory v1 bridge and CLI tools: `tooling/memory_bridge.py`, `scripts/export_memory_records.py`, `scripts/import_memory_records.py`
 
 ## Training and Model Quality
 
