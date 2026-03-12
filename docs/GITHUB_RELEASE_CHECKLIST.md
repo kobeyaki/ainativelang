@@ -65,6 +65,11 @@ For the step-by-step maintainer flow, use `docs/RELEASING.md`.
       extension-only, advanced, and advisory-only in `docs/EXAMPLE_SUPPORT_MATRIX.md`
       and their file headers.
 
+Advanced memory and TTL hygiene:
+
+- [ ] Memory adapter contract and verbs (`put`, `get`, `append`, `list`, `delete`, `prune`) match `docs/MEMORY_CONTRACT.md`, `tooling/adapter_manifest.json`, and `ADAPTER_REGISTRY.json`.
+- [ ] For deployments that rely on TTLs or long-running memory usage, operators have an explicit plan or runbook entry to invoke `memory.prune` periodically as part of maintenance (no built-in scheduler is provided).
+
 ## 7) Final Publish Pass
 
 - [ ] Run a final docs link check (manual or scripted).

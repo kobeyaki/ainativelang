@@ -79,7 +79,7 @@ but validators and tooling can use them for light shape checks.
 
 ## 3. Verbs (v1)
 
-The `memory` adapter exposes five v1 verbs:
+The `memory` adapter exposes six v1 verbs:
 
 ### 3.1 `memory.put(namespace, record_kind, record_id, payload, ttl_seconds?)`
 
@@ -252,6 +252,52 @@ It is **not**:
 - a bulk or pattern-based delete API,
 - a replacement for possible future `memory.prune` tooling that might clean up
   expired records or apply policy-based retention.
+
+### 3.6 `memory.prune(namespace?)`
+
+`memory.prune` is an **admin/operator-oriented** helper that removes expired
+records based on TTL metadata:
+
+- only affects records with non-null `ttl_seconds`,
+- treats a record as expired when:
+  - `ttl_seconds is not null`, **and**
+  - `now > created_at + ttl_seconds` (using the same best-effort behavior as
+    `memory.get`),
+- never deletes records that do not meet the expiration condition.
+
+Arguments:
+
+- `namespace` (optional):
+  - when provided: only prune expired records in that namespace,
+  - when omitted: prune expired records across all namespaces.
+
+Return shape:
+
+```json
+{
+  "ok": true,
+  "pruned": 3
+}
+```
+
+- `pruned` is the number of records actually removed.
+
+`memory.prune` is:
+
+- **explicit and one-shot** (manual call, no scheduler or background worker),
+- **TTL-only** (no arbitrary predicates, no payload-based deletion),
+- intended for small lifecycle hygiene and admin tools that want to clean up
+  expired rows before running reports or migrations.
+
+In practice, operators should consider running `memory.prune` periodically as
+part of their own maintenance or cron tooling (at a cadence appropriate for
+their environment), especially in deployments that make heavy use of TTLs.
+
+It does **not**:
+
+- provide bulk deletion by pattern or arbitrary query,
+- change TTL semantics beyond what's already in `memory.get`,
+- act as a general-purpose retention or archival system.
 
 ---
 
