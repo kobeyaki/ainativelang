@@ -212,7 +212,11 @@
         "default_timeout_s": 5.0,
         "max_response_bytes": 1000000,
         "allow_hosts": []
-      }
+      },
+      "notes": [
+        "Performs up to 3 attempts with small exponential backoff on transport errors (URLError/timeouts) and 5xx HTTP status codes.",
+        "Does not retry 4xx client errors; those fail immediately with a status error."
+      ]
     },
     "sqlite": {
       "description": "SQLite database access with optional table allowlist",
@@ -411,8 +415,8 @@
         }
       },
       "rules": [
-        "Only queue 'notify' is implemented",
-        "Payload should include fields like email_count, cal_count, social_count, leads_count, health_score, failed_services, ts"
+        "Only queue 'notify' is implemented for the current monitors.",
+        "Payload is formatter-driven and tolerant; examples include fields like email_count, cal_count, social_count, leads_count, health_score, failed_services, ts, but this shape is advisory rather than a strict schema."
       ]
     },
     "wasm": {
@@ -546,6 +550,21 @@
         "append": {
           "args": ["namespace", "record_kind", "record_id", "entry", "ttl_seconds?"],
           "returns": "{ok, updated_at}",
+          "pure": false
+        },
+        "list": {
+          "args": ["namespace", "record_kind?", "record_id_prefix?", "updated_since?"],
+          "returns": "{items}",
+          "pure": false
+        },
+        "delete": {
+          "args": ["namespace", "record_kind", "record_id"],
+          "returns": "{ok, deleted}",
+          "pure": false
+        },
+        "prune": {
+          "args": ["namespace?"],
+          "returns": "{ok, pruned}",
           "pure": false
         }
       },

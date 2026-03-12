@@ -64,6 +64,16 @@
 - Kept this strictly **non-bulk** and **non-query**: no predicates, no
   wildcard/batch deletion, and no TTL/prune semantics in this pass.
 
+### TTL Pruning: `memory.prune`
+- Added an operator-oriented TTL prune helper:
+  - `memory.prune(namespace?)`
+- Removes only records whose `ttl_seconds` is set and whose `created_at +
+  ttl_seconds` lies strictly in the past, optionally scoped to a single
+  namespace.
+- Does **not** provide predicate-based/bulk deletion or broader retention
+  policy logic; it is a small explicit cleanup tool on top of the existing
+  TTL semantics.
+
 ## 1.0.14-advanced-coordination-governance (2026-03-09)
 
 ### Safe Use, Threat Model, and Advanced Framing

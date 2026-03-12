@@ -102,6 +102,13 @@ For monitoring-oriented flows, the `http` adapter is described as returning a **
 
 This envelope is **descriptive metadata only** in this pass; it does not change current adapter behavior. Future monitoring patterns and agents can treat these fields as the canonical monitoring contract once runtime normalization is implemented.
 
+The adapter also includes a **small built-in retry/backoff** layer:
+
+- up to 3 total attempts (1 initial + 2 retries),
+- exponential backoff with short delays between retries,
+- retries only on transport-level failures (DNS/timeout/TLS) and 5xx server errors,
+- **no retries** on 4xx client errors (those fail immediately).
+
 ---
 
 ## 3. Cache adapter – `cache`
@@ -161,6 +168,8 @@ For monitoring, the `queue` adapter is described as returning a **result envelop
 - `error: str|null` — error description if enqueue failed at the adapter/backend layer.
 
 As with `http`, this envelope is **descriptive metadata only** for now and does not alter current adapter return behavior. Existing examples may continue to ignore the result (`->_`) safely.
+
+For the current OpenClaw monitors, only queue `"notify"` is implemented. Its consumer is **formatter‑driven and tolerant**: payloads are typically objects that include fields like `email_count`, `cal_count`, `social_count`, `leads_count`, `health_score`, `failed_services`, and `ts`, but this shape is **advisory rather than a strict schema**. Downstream formatters handle missing or extra fields defensively.
 
 ---
 
@@ -335,7 +344,7 @@ and `ADAPTER_REGISTRY.json` but do not require long-form slot schemas here:
 - **`email`**, **`calendar`**, **`social`** (tier: `extension_openclaw`, lane: `canonical`): OpenClaw monitoring adapters for unread email, upcoming calendar events, and social/web mentions.
 - **`ext`** (tier: `compatibility`, lane: `noncanonical`): test‑only external extension namespace used in runtime tests.
 - **`tiktok`** (tier: `extension_openclaw`, lane: `noncanonical`): TikTok/CRM reporting surface (`F`, `recent`, `videos`) for OpenClaw monitors.
-- **`memory`** (tier: `extension_openclaw`, lane: `noncanonical`): explicit memory adapter (`put`, `get`, `append`, `list`, `delete`) as specified in `docs/MEMORY_CONTRACT.md`.
+- **`memory`** (tier: `extension_openclaw`, lane: `noncanonical`): explicit memory adapter (`put`, `get`, `append`, `list`, `delete`, `prune`) as specified in `docs/MEMORY_CONTRACT.md`.
 
 For exact argument lists, effect metadata, and envelopes, treat
 `tooling/adapter_manifest.json` as the source of truth and
