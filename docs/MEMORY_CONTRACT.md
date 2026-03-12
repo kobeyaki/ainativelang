@@ -79,7 +79,7 @@ but validators and tooling can use them for light shape checks.
 
 ## 3. Verbs (v1)
 
-The `memory` adapter exposes four v1 verbs:
+The `memory` adapter exposes five v1 verbs:
 
 ### 3.1 `memory.put(namespace, record_kind, record_id, payload, ttl_seconds?)`
 
@@ -219,6 +219,39 @@ Typical usage patterns:
 - an aid for humans and bots when combined with `memory.get`.
 
 It is **not** meant to replace bridge tooling or future search/index layers.
+
+### 3.5 `memory.delete(namespace, record_kind, record_id)`
+
+`memory.delete` provides a **narrow, exact-key lifecycle primitive**:
+
+- deletes at most one record identified by `(namespace, record_kind, record_id)`,
+- does not support bulk deletion, wildcards, or predicates,
+- does not change TTL behavior or pruning semantics.
+
+Return shape:
+
+```json
+{
+  "ok": true,
+  "deleted": true
+}
+```
+
+- `deleted: true` — a record existed and was removed.
+- `deleted: false` — no record existed at that exact key; the call is still ok.
+
+`memory.delete` is intended for:
+
+- operator- or workflow-triggered cleanup of known keys,
+- small lifecycle hygiene (e.g. removing obsolete checkpoints or facts),
+- providing a clear conceptual base for future admin-only pruning tools.
+
+It is **not**:
+
+- a general mutation surface for arbitrary payload rewriting,
+- a bulk or pattern-based delete API,
+- a replacement for possible future `memory.prune` tooling that might clean up
+  expired records or apply policy-based retention.
 
 ---
 

@@ -226,3 +226,47 @@ def test_list_updated_since_filters_records(tmp_path):
     res_none = adp.call("list", [ns, kind, None, "2026-03-11T00:00:00+00:00"], {})
     assert res_none["items"] == []
 
+
+def test_delete_existing_and_missing_record(tmp_path):
+    adp = _make_adapter(tmp_path)
+    ns = "workflow"
+    kind = "workflow.checkpoint"
+    rid = "cp-1"
+
+    payload = {"step": 1}
+    adp.call("put", [ns, kind, rid, payload], {})
+
+    # Delete existing record
+    res_del = adp.call("delete", [ns, kind, rid], {})
+    assert res_del["ok"] is True
+    assert res_del["deleted"] is True
+
+    # Subsequent get should report not found
+    res_get = adp.call("get", [ns, kind, rid], {})
+    assert res_get["found"] is False
+    assert res_get["record"] is None
+
+    # Deleting again should be ok but report deleted=False
+    res_del2 = adp.call("delete", [ns, kind, rid], {})
+    assert res_del2["ok"] is True
+    assert res_del2["deleted"] is False
+
+
+def test_delete_does_not_affect_neighbors(tmp_path):
+    adp = _make_adapter(tmp_path)
+    ns = "workflow"
+    kind = "workflow.checkpoint"
+    rid1 = "cp-1"
+    rid2 = "cp-2"
+
+    adp.call("put", [ns, kind, rid1, {"step": 1}], {})
+    adp.call("put", [ns, kind, rid2, {"step": 2}], {})
+
+    adp.call("delete", [ns, kind, rid1], {})
+
+    res1 = adp.call("get", [ns, kind, rid1], {})
+    res2 = adp.call("get", [ns, kind, rid2], {})
+    assert res1["found"] is False
+    assert res2["found"] is True
+    assert res2["record"]["payload"]["step"] == 2
+

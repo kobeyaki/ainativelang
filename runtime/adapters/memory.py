@@ -31,7 +31,8 @@ class MemoryAdapter(RuntimeAdapter):
     - put(namespace, record_kind, record_id, payload, ttl_seconds?)
     - get(namespace, record_kind, record_id)
     - append(namespace, record_kind, record_id, entry, ttl_seconds?)
-    - list(namespace, record_kind?, record_id_prefix?)
+    - list(namespace, record_kind?, record_id_prefix?, updated_since?)
+    - delete(namespace, record_kind, record_id)
 
     This adapter is local/SQLite-backed, explicit, and non-magical; it does not
     implement vector search, policy semantics, or implicit recall.
@@ -235,6 +236,24 @@ class MemoryAdapter(RuntimeAdapter):
         self._conn.commit()
         return {"ok": True, "updated_at": now}
 
+    def _delete_record(
+        self,
+        namespace: str,
+        record_kind: str,
+        record_id: str,
+    ) -> Dict[str, Any]:
+        cur = self._conn.cursor()
+        cur.execute(
+            """
+            DELETE FROM memory_records
+            WHERE namespace = ? AND record_kind = ? AND record_id = ?
+            """,
+            (namespace, record_kind, record_id),
+        )
+        deleted = cur.rowcount > 0
+        self._conn.commit()
+        return {"ok": True, "deleted": deleted}
+
     def _list_records(
         self,
         namespace: str,
@@ -283,7 +302,7 @@ class MemoryAdapter(RuntimeAdapter):
 
     def call(self, target: str, args: List[Any], context: Dict[str, Any]) -> Any:
         verb = (target or "").strip().lower()
-        if verb not in {"put", "get", "append", "list"}:
+        if verb not in {"put", "get", "append", "list", "delete"}:
             raise AdapterError(f"memory adapter unsupported verb: {target}")
 
         if verb == "list":
@@ -318,6 +337,9 @@ class MemoryAdapter(RuntimeAdapter):
 
         if verb == "get":
             return self._get_record(namespace, record_kind, record_id)
+
+        if verb == "delete":
+            return self._delete_record(namespace, record_kind, record_id)
 
         # append
         if len(args) < 4:

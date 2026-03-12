@@ -214,7 +214,7 @@
       "support_tier": "extension_openclaw",
       "strict_contract": false,
       "recommended_lane": "noncanonical",
-      "verbs": ["put", "get", "append", "list"],
+      "verbs": ["put", "get", "append", "list", "delete"],
       "effect_default": "io",
       "notes": "Extension-level memory adapter for explicit execution-facing records keyed by (namespace, record_kind, record_id)."
     }

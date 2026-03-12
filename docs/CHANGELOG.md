@@ -56,6 +56,14 @@
   updated tests and docs to keep the adapter manifest, registry, and contract
   aligned.
 
+### Lifecycle Cleanup: `memory.delete`
+- Added an exact-key lifecycle verb:
+  - `memory.delete(namespace, record_kind, record_id)`
+- Provides explicit deletion for a single record identified by its canonical
+  key, returning `{ok, deleted}` and leaving neighboring records untouched.
+- Kept this strictly **non-bulk** and **non-query**: no predicates, no
+  wildcard/batch deletion, and no TTL/prune semantics in this pass.
+
 ## 1.0.14-advanced-coordination-governance (2026-03-09)
 
 ### Safe Use, Threat Model, and Advanced Framing
