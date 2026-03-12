@@ -33,6 +33,7 @@ class MemoryAdapter(RuntimeAdapter):
     - append(namespace, record_kind, record_id, entry, ttl_seconds?)
     - list(namespace, record_kind?, record_id_prefix?, updated_since?)
     - delete(namespace, record_kind, record_id)
+    - prune(namespace?)
 
     This adapter is local/SQLite-backed, explicit, and non-magical; it does not
     implement vector search, policy semantics, or implicit recall.
@@ -254,6 +255,57 @@ class MemoryAdapter(RuntimeAdapter):
         self._conn.commit()
         return {"ok": True, "deleted": deleted}
 
+    def _prune(self, namespace: Optional[str]) -> Dict[str, Any]:
+        """
+        Remove expired records based on TTL and created_at, optionally scoped
+        to a single namespace.
+        """
+        cur = self._conn.cursor()
+        sql = """
+        SELECT namespace, record_kind, record_id, created_at, ttl_seconds
+        FROM memory_records
+        WHERE ttl_seconds IS NOT NULL
+        """
+        params: List[Any] = []
+        if namespace:
+            sql += " AND namespace = ?"
+            params.append(namespace)
+
+        cur.execute(sql, params)
+        rows = cur.fetchall()
+
+        now = datetime.now(timezone.utc)
+        keys_to_delete: List[tuple[str, str, str]] = []
+
+        for row in rows:
+            ttl = row["ttl_seconds"]
+            if ttl is None:
+                continue
+            try:
+                created = datetime.fromisoformat(row["created_at"])
+            except Exception:
+                # If timestamp parsing fails, skip pruning this record.
+                continue
+            age = (now - created).total_seconds()
+            if age > ttl:
+                keys_to_delete.append(
+                    (row["namespace"], row["record_kind"], row["record_id"])
+                )
+
+        pruned = 0
+        for ns, rk, rid in keys_to_delete:
+            cur.execute(
+                """
+                DELETE FROM memory_records
+                WHERE namespace = ? AND record_kind = ? AND record_id = ?
+                """,
+                (ns, rk, rid),
+            )
+            pruned += cur.rowcount
+
+        self._conn.commit()
+        return {"ok": True, "pruned": pruned}
+
     def _list_records(
         self,
         namespace: str,
@@ -302,7 +354,7 @@ class MemoryAdapter(RuntimeAdapter):
 
     def call(self, target: str, args: List[Any], context: Dict[str, Any]) -> Any:
         verb = (target or "").strip().lower()
-        if verb not in {"put", "get", "append", "list", "delete"}:
+        if verb not in {"put", "get", "append", "list", "delete", "prune"}:
             raise AdapterError(f"memory adapter unsupported verb: {target}")
 
         if verb == "list":
@@ -319,6 +371,14 @@ class MemoryAdapter(RuntimeAdapter):
             if updated_since is not None and (not isinstance(updated_since, str) or not updated_since):
                 raise AdapterError("memory.list updated_since, when provided, must be a non-empty ISO timestamp string")
             return self._list_records(namespace, record_kind, record_id_prefix, updated_since)
+
+        if verb == "prune":
+            ns_filter: Optional[str]
+            if len(args) >= 1 and args[0] is not None:
+                ns_filter = self._validate_namespace(args[0])
+            else:
+                ns_filter = None
+            return self._prune(ns_filter)
 
         if len(args) < 3:
             raise AdapterError("memory adapter requires at least namespace, record_kind, record_id arguments")

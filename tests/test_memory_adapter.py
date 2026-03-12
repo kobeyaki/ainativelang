@@ -270,3 +270,55 @@ def test_delete_does_not_affect_neighbors(tmp_path):
     assert res2["found"] is True
     assert res2["record"]["payload"]["step"] == 2
 
+
+def test_prune_expired_records_all_namespaces(tmp_path):
+    adp = _make_adapter(tmp_path)
+    ns = "workflow"
+    kind = "workflow.checkpoint"
+
+    # expired
+    adp.call("put", [ns, kind, "expired", {"step": 1}, 1], {})
+    # non-expired
+    adp.call("put", [ns, kind, "fresh", {"step": 2}, 1000000], {})
+    # no ttl
+    adp.call("put", [ns, kind, "nottl", {"step": 3}], {})
+
+    conn = adp._conn  # type: ignore[attr-defined]
+    conn.execute(
+        "UPDATE memory_records SET created_at = ? WHERE record_id = ?",
+        ("2026-01-01T00:00:00+00:00", "expired"),
+    )
+    conn.commit()
+
+    res_prune = adp.call("prune", [], {})
+    assert res_prune["ok"] is True
+    assert res_prune["pruned"] == 1
+
+    assert adp.call("get", [ns, kind, "expired"], {})["found"] is False
+    assert adp.call("get", [ns, kind, "fresh"], {})["found"] is True
+    assert adp.call("get", [ns, kind, "nottl"], {})["found"] is True
+
+
+def test_prune_scoped_to_namespace(tmp_path):
+    adp = _make_adapter(tmp_path)
+    ns1 = "workflow"
+    ns2 = "daily_log"
+
+    adp.call("put", [ns1, "workflow.checkpoint", "exp-wf", {"step": 1}, 1], {})
+    adp.call("put", [ns2, "daily_log.note", "exp-dl", {"entries": []}, 1], {})
+
+    conn = adp._conn  # type: ignore[attr-defined]
+    conn.execute(
+        "UPDATE memory_records SET created_at = ? WHERE record_id IN (?, ?)",
+        ("2026-01-01T00:00:00+00:00", "exp-wf", "exp-dl"),
+    )
+    conn.commit()
+
+    # Prune only workflow namespace
+    res_prune = adp.call("prune", [ns1], {})
+    assert res_prune["ok"] is True
+    assert res_prune["pruned"] == 1
+
+    assert adp.call("get", [ns1, "workflow.checkpoint", "exp-wf"], {})["found"] is False
+    assert adp.call("get", [ns2, "daily_log.note", "exp-dl"], {})["found"] is True
+

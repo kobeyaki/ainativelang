@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import socket
+import time
 from typing import Any, Dict, Iterable, List, Optional
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
@@ -78,25 +79,41 @@ class SimpleHttpAdapter(HttpAdapter):
                 headers.setdefault("Content-Type", "text/plain; charset=utf-8")
 
         req = Request(url=url, data=data, headers=headers, method=method)
-        try:
-            with urlopen(req, timeout=timeout_s) as resp:
-                status = int(getattr(resp, "status", 200))
-                resp_headers = {k.lower(): v for k, v in dict(resp.headers).items()}
-                body = resp.read(self.max_response_bytes + 1)
-                if len(body) > self.max_response_bytes:
-                    raise AdapterError("http response too large")
-                parsed_body = self._parse_response_body(resp_headers, body)
-                # Normalized monitoring envelope (additive; keeps legacy 'status' field for compatibility).
-                return {
-                    "ok": 200 <= status < 300,
-                    "status": status,
-                    "status_code": status,
-                    "error": None,
-                    "body": parsed_body,
-                    "headers": resp_headers,
-                    "url": url,
-                }
-        except HTTPError as e:
-            raise AdapterError(f"http status error: {e.code}") from e
-        except (URLError, socket.timeout, TimeoutError) as e:
-            raise AdapterError(f"http transport error: {e}") from e
+
+        max_attempts = 3
+        base_backoff_s = 0.1
+        attempt = 0
+
+        while attempt < max_attempts:
+            try:
+                with urlopen(req, timeout=timeout_s) as resp:
+                    status = int(getattr(resp, "status", 200))
+                    resp_headers = {k.lower(): v for k, v in dict(resp.headers).items()}
+                    body = resp.read(self.max_response_bytes + 1)
+                    if len(body) > self.max_response_bytes:
+                        raise AdapterError("http response too large")
+                    parsed_body = self._parse_response_body(resp_headers, body)
+                    # Normalized monitoring envelope (additive; keeps legacy 'status' field for compatibility).
+                    return {
+                        "ok": 200 <= status < 300,
+                        "status": status,
+                        "status_code": status,
+                        "error": None,
+                        "body": parsed_body,
+                        "headers": resp_headers,
+                        "url": url,
+                    }
+            except HTTPError as e:
+                status = getattr(e, "code", None)
+                # Retry only on 5xx once or twice, not on 4xx client errors.
+                if status is not None and 500 <= status < 600 and attempt < max_attempts - 1:
+                    attempt += 1
+                    time.sleep(base_backoff_s * (2 ** (attempt - 1)))
+                    continue
+                raise AdapterError(f"http status error: {e.code}") from e
+            except (URLError, socket.timeout, TimeoutError) as e:
+                if attempt < max_attempts - 1:
+                    attempt += 1
+                    time.sleep(base_backoff_s * (2 ** (attempt - 1)))
+                    continue
+                raise AdapterError(f"http transport error: {e}") from e

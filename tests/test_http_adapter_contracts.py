@@ -8,6 +8,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from urllib.error import HTTPError, URLError
+
 from runtime.adapters.base import AdapterError
 from runtime.adapters.http import SimpleHttpAdapter
 
@@ -122,3 +124,99 @@ def test_http_adapter_timeout_maps_to_adapter_error():
             assert "transport error" in str(e)
     finally:
         srv.shutdown()
+
+
+def test_http_adapter_retries_on_transport_error(monkeypatch):
+    calls = {"n": 0}
+
+    class _FakeResp:
+        def __init__(self):
+            self.status = 200
+            self.headers = {}
+
+        def read(self, n: int) -> bytes:
+            return b'{"ok": true}'
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    def _fake_urlopen(req, timeout=None):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise URLError("temporary")
+        return _FakeResp()
+
+    monkeypatch.setattr("runtime.adapters.http.urlopen", _fake_urlopen)
+    monkeypatch.setattr("runtime.adapters.http.time.sleep", lambda s: None)
+
+    adp = SimpleHttpAdapter(default_timeout_s=1.0)
+    # Host allowlist is empty by default; external URL is fine for this fake.
+    res = adp.call("get", ["https://example.com"], {})
+    assert res["ok"] is True
+    assert calls["n"] == 2
+
+
+def test_http_adapter_retries_and_eventually_fails(monkeypatch):
+    calls = {"n": 0}
+
+    def _always_fail(req, timeout=None):
+        calls["n"] += 1
+        raise URLError("temporary")
+
+    monkeypatch.setattr("runtime.adapters.http.urlopen", _always_fail)
+    monkeypatch.setattr("runtime.adapters.http.time.sleep", lambda s: None)
+
+    adp = SimpleHttpAdapter(default_timeout_s=1.0)
+    try:
+        adp.call("get", ["https://example.com"], {})
+        assert False, "expected transport error after retries"
+    except Exception as e:
+        assert isinstance(e, AdapterError)
+        assert "transport error" in str(e)
+        # 3 attempts total (1 initial + 2 retries).
+        assert calls["n"] == 3
+
+
+def test_http_adapter_does_not_retry_on_4xx(monkeypatch):
+    calls = {"n": 0}
+
+    def _fail_400(req, timeout=None):
+        calls["n"] += 1
+        raise HTTPError("https://example.com", 400, "bad request", {}, None)
+
+    monkeypatch.setattr("runtime.adapters.http.urlopen", _fail_400)
+    monkeypatch.setattr("runtime.adapters.http.time.sleep", lambda s: None)
+
+    adp = SimpleHttpAdapter(default_timeout_s=1.0)
+    try:
+        adp.call("get", ["https://example.com"], {})
+        assert False, "expected 4xx error"
+    except Exception as e:
+        assert isinstance(e, AdapterError)
+        assert "status error" in str(e)
+        # Only one attempt for 4xx.
+        assert calls["n"] == 1
+
+
+def test_http_adapter_retries_on_5xx_then_fails(monkeypatch):
+    calls = {"n": 0}
+
+    def _fail_500(req, timeout=None):
+        calls["n"] += 1
+        raise HTTPError("https://example.com", 500, "server error", {}, None)
+
+    monkeypatch.setattr("runtime.adapters.http.urlopen", _fail_500)
+    monkeypatch.setattr("runtime.adapters.http.time.sleep", lambda s: None)
+
+    adp = SimpleHttpAdapter(default_timeout_s=1.0)
+    try:
+        adp.call("get", ["https://example.com"], {})
+        assert False, "expected 5xx error after retries"
+    except Exception as e:
+        assert isinstance(e, AdapterError)
+        assert "status error" in str(e)
+        # 3 attempts total for retryable 5xx.
+        assert calls["n"] == 3
