@@ -31,6 +31,17 @@ Separate commercial offerings may include, for example:
 - premium model packs, checkpoints, or evaluation suites
 - SLA-backed support, onboarding, consulting, training, or custom engineering
 
+## Commercial offers (first deliverables)
+
+Draft offer documents for proposals and buyer conversations. **Scope, terms, and pricing are always defined in a separate commercial agreement**, not in these drafts.
+
+- **[Offer comparison](docs/OFFER_COMPARISON.md)** — Side-by-side comparison of the three offers (who it’s for, problem solved, what you get, what stays open, out of scope).
+- [Managed Alignment Pipeline](docs/OFFER_MANAGED_ALIGNMENT_PIPELINE.md) — We run the alignment cycle; you get run health and trend outputs with SLA.
+- [Supported Ops Monitor Pack](docs/OFFER_SUPPORTED_OPS_MONITOR_PACK.md) — Curated monitors with runbook, updates, and support; programs remain open.
+- [Implementation Review / Onboarding](docs/OFFER_IMPLEMENTATION_REVIEW.md) — Structured review of your AINL use; report and success plan.
+
+Each offer doc includes a short **proposal-ready summary** for pasting into proposals or emails. A reusable [proposal template](docs/PROPOSAL_TEMPLATE_COMMERCIAL_OFFERS.md) is available for drafting client proposals; filled examples: [Managed Alignment Pipeline](docs/EXAMPLE_PROPOSAL_MANAGED_ALIGNMENT_PIPELINE.md), [Supported Ops Monitor Pack](docs/EXAMPLE_PROPOSAL_SUPPORTED_OPS_MONITOR_PACK.md), [Implementation Review](docs/EXAMPLE_PROPOSAL_IMPLEMENTATION_REVIEW.md). A [services page draft](docs/SERVICES_PAGE_DRAFT.md) is available for website or landing-page use; a [sales deck outline](docs/SALES_DECK_OUTLINE.md) for founder/client or investor overviews. Internal [discovery call checklist](docs/DISCOVERY_CALL_CHECKLIST.md) for triage and scoping.
+
 ## Separate Terms Apply
 
 Any proprietary modules, hosted services, premium assets, enterprise features, support plans, or other non-open-core offerings are governed by separate commercial terms and are **not** included under the open-core licenses unless explicitly stated otherwise in writing.

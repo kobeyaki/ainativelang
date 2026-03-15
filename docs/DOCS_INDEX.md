@@ -135,6 +135,7 @@ entry point for new users or unsupervised agents.
 - Core code license: `LICENSE`
 - Docs/content license: `LICENSE.docs`
 - Commercial terms overview: `COMMERCIAL.md`
+- Commercial offers and sales (first deliverables): offer comparison `docs/OFFER_COMPARISON.md`; offer drafts `docs/OFFER_MANAGED_ALIGNMENT_PIPELINE.md`, `docs/OFFER_SUPPORTED_OPS_MONITOR_PACK.md`, `docs/OFFER_IMPLEMENTATION_REVIEW.md`; proposal template and filled examples `docs/PROPOSAL_TEMPLATE_COMMERCIAL_OFFERS.md`, `docs/EXAMPLE_PROPOSAL_*.md`; services page draft `docs/SERVICES_PAGE_DRAFT.md`; sales deck outline `docs/SALES_DECK_OUTLINE.md`; discovery checklist, intake form, mock workflow `docs/DISCOVERY_CALL_CHECKLIST.md`, `docs/DISCOVERY_INTAKE_FORM.md`, `docs/MOCK_DISCOVERY_WORKFLOW_EXAMPLE.md`.
 - Trademark policy: `TRADEMARKS.md`
 - Model/data terms: `MODEL_LICENSE.md`
 - Notice file: `NOTICE`
