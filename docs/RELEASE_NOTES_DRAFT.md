@@ -78,8 +78,8 @@ These coordination features are **not**:
 
 Upstream provides:
 
-- the minimal coordination contract in `docs/AGENT_COORDINATION_CONTRACT.md`,
-- explicit safe-use and threat-model guidance in `docs/SAFE_USE_AND_THREAT_MODEL.md`,
+- the minimal coordination contract in `docs/advanced/AGENT_COORDINATION_CONTRACT.md`,
+- explicit safe-use and threat-model guidance in `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md`,
 - a coordination baseline and mailbox validator
   (`tooling/coordination_validator.py`, `scripts/validate_coordination_mailbox.py`)
   so advanced users can check that envelopes remain on upstream rails.

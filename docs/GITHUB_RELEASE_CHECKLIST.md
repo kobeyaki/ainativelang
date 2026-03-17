@@ -56,7 +56,7 @@ For the step-by-step maintainer flow, use `docs/RELEASING.md`.
 
 - [ ] Coordination protocol lock tests pass (e.g. `tests/test_agent_protocol_surface.py`).
 - [ ] Coordination baseline artifacts and docs are in sync
-      (see `docs/AGENT_COORDINATION_CONTRACT.md` baseline section).
+      (see `docs/advanced/AGENT_COORDINATION_CONTRACT.md` baseline section).
 - [ ] Coordination mailbox validator has been run on baseline task/result artifacts
       (e.g. `python -m scripts.validate_coordination_mailbox --tasks-jsonl ...`).
 - [ ] `README.md` and `docs/DOCS_INDEX.md` still clearly separate

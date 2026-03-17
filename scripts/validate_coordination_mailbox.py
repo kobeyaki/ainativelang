@@ -4,7 +4,7 @@ Extension-only CLI for validating coordination mailbox envelopes.
 
 This script checks AgentTaskRequest and AgentTaskResult JSON/JSONL payloads
 against the minimal upstream coordination contract documented in
-`docs/AGENT_COORDINATION_CONTRACT.md`.
+`docs/advanced/AGENT_COORDINATION_CONTRACT.md`.
 
 It does not change compiler/runtime semantics and is intended as a governance
 and compatibility tool for advanced coordination usage.

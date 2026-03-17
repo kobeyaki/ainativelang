@@ -82,7 +82,7 @@
 ## 1.0.14-advanced-coordination-governance (2026-03-09)
 
 ### Safe Use, Threat Model, and Advanced Framing
-- Added `docs/SAFE_USE_AND_THREAT_MODEL.md` to describe:
+- Added `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md` to describe:
   - what the local coordination substrate assumes (local-first, file-backed,
     sandboxed roots, external orchestrator),
   - what it does **not** provide (no built-in auth, encryption, policy, or
@@ -101,7 +101,7 @@
   - `scripts/validate_coordination_mailbox.py`
 - The validator checks `AgentTaskRequest` and `AgentTaskResult` envelopes in
   JSON/JSONL files against the minimal upstream schema documented in
-  `docs/AGENT_COORDINATION_CONTRACT.md` and reports malformed or drifted
+  `docs/advanced/AGENT_COORDINATION_CONTRACT.md` and reports malformed or drifted
   envelopes.
 - This tooling is **optional**, **additive**, and **non-semantic**: it does not
   change compiler/runtime behavior and is intended as governance and
@@ -132,7 +132,7 @@
 
 ### Coordination Baseline (docs-only)
 - Added a human-visible coordination baseline section to
-  `docs/AGENT_COORDINATION_CONTRACT.md`:
+  `docs/advanced/AGENT_COORDINATION_CONTRACT.md`:
   - records the current baseline id:
     `coordination-baseline-2026-03-09-token-and-monitor-advisory`,
   - lists the required coordination artifacts (docs, examples, and sample
@@ -157,7 +157,7 @@
 - Added `examples/openclaw/monitor_status_example_snapshot.json` as a small,
   non-semantic JSON snapshot illustrating the payload shape used in the
   request example.
-- Updated `docs/AGENT_COORDINATION_CONTRACT.md` and `docs/EXAMPLE_SUPPORT_MATRIX.md`
+- Updated `docs/advanced/AGENT_COORDINATION_CONTRACT.md` and `docs/EXAMPLE_SUPPORT_MATRIX.md`
   to describe and classify the new monitor-status advisory workflow as
   extension/OpenClaw, noncanonical, local-first, file-backed, sandboxed, and
   advisory-only.
@@ -182,7 +182,7 @@
   `read_result` remain part of the coordination API.
 
 ### Agent Coordination Contract and Examples
-- Added `docs/AGENT_COORDINATION_CONTRACT.md` as the canonical design/spec for:
+- Added `docs/advanced/AGENT_COORDINATION_CONTRACT.md` as the canonical design/spec for:
   - `AgentManifest`
   - `AgentTaskRequest`
   - `AgentTaskResult`

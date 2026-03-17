@@ -25,7 +25,7 @@ Major layers/subsystems inspected and short description of each:
 | **Operator-only audit** | `scripts/operator_only_adapter_audit.py` | Scans capabilities.json + AINL source; reports where operator_only capabilities are used. Read-only governance visibility. |
 | **Memory contract** | `docs/adapters/MEMORY_CONTRACT.md`, memory adapter (extension) | Namespaces (session, long_term, daily_log, workflow); record kinds; TTL; v1 envelope. Extension-level, backend-agnostic. |
 | **Memory tooling** | `scripts/memory_retention_report.py`, `scripts/validate_memory_records.py`, `scripts/import_memory_records.py`, `scripts/export_memory_*`, `tooling/memory_bridge.py`, `tooling/memory_markdown_import.py` | Operator hygiene: retention report, validation, import/export, markdown bridge. |
-| **Agent coordination** | `docs/AGENT_COORDINATION_CONTRACT.md`, `tooling/coordination_validator.py`, `scripts/validate_coordination_mailbox.py` | AgentTaskRequest/Result/Manifest envelopes; mailbox validation; advisory-only fields (approval_required, budget_limit, etc.). |
+| **Agent coordination** | `docs/advanced/AGENT_COORDINATION_CONTRACT.md`, `tooling/coordination_validator.py`, `scripts/validate_coordination_mailbox.py` | AgentTaskRequest/Result/Manifest envelopes; mailbox validation; advisory-only fields (approval_required, budget_limit, etc.). |
 | **Autonomous ops** | `openclaw/AUTONOMOUS_OPS_EXTENSION_IMPLEMENTATION.md`, `docs/operations/AUTONOMOUS_OPS_MONITORS.md`, `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md`, `demo/*.lang`, `examples/autonomous_ops/*.lang`, `scripts/run_*.py` (e.g. run_infrastructure_watchdog.py, run_meta_monitor.py) | Monitor programs (infrastructure, TikTok SLA, canary, token cost, lead quality, session continuity, memory prune, meta monitor); standardized health envelope; cron deployment pattern. |
 | **Standardized health envelope** | `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md` | Common queue payload shape: envelope version, module, status, ts, metrics, history_24h, meta. For dashboards and downstream. |
 | **Graph / IR tooling** | `tooling/graph_api.py`, `tooling/graph_export.py`, `tooling/graph_rewrite.py`, `tooling/ir_canonical.py`, `tooling/ir_compact.py`, `tooling/step_focus.py`, `tooling/trace_focus.py` | Introspection, export, rewrite, canonicalization, compaction, focus filters. |
@@ -38,7 +38,7 @@ Major layers/subsystems inspected and short description of each:
 | **CLI / runner** | `cli/main.py`, `scripts/run_ainl_tests.py`, `scripts/runtime_runner_service.py` | Entrypoints for run/validate; runner service for deployed execution. |
 | **Release / conformance** | `docs/CONFORMANCE.md`, `docs/RELEASE_READINESS.md`, `docs/GITHUB_RELEASE_CHECKLIST.md`, `docs/RELEASING.md`, `docs/PROVENANCE_AND_RELEASE_EVIDENCE.md` | Conformance checklist, release readiness, publish steps. |
 | **Commercial / boundary (existing)** | `COMMERCIAL.md`, `docs/OPEN_CORE_CHARTER.md`, `docs/OPEN_CORE_BOUNDARY_MAP.md`, `docs/LICENSING_AND_REPO_LAYOUT_PLAN.md` | Already state open-core model; examples of commercial offerings (hosted, governance, connectors, premium eval/support). |
-| **Safety / threat model** | `docs/SAFE_USE_AND_THREAT_MODEL.md` | What coordination assumes/does not provide; advisory vs enforced; threat model. |
+| **Safety / threat model** | `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md` | What coordination assumes/does not provide; advisory vs enforced; threat model. |
 | **Bot onboarding / preflight** | `docs/BOT_ONBOARDING.md`, `docs/OPENCLAW_IMPLEMENTATION_PREFLIGHT.md`, `tooling/bot_bootstrap.json` | Agent entrypoint and implementation discipline; required steps before coding. |
 
 ---
@@ -147,7 +147,7 @@ Repo-grounded opportunities (point to actual subsystems or file groups):
   **Product form:** “Governance and safety audit” toolbox—where operator_only capabilities are used, capability discovery filtered by safety/domain. Sell as part of enterprise governance.
 
 - **Agent coordination + validation**  
-  **Where:** `docs/AGENT_COORDINATION_CONTRACT.md`, `tooling/coordination_validator.py`, `scripts/validate_coordination_mailbox.py`.  
+  **Where:** `docs/advanced/AGENT_COORDINATION_CONTRACT.md`, `tooling/coordination_validator.py`, `scripts/validate_coordination_mailbox.py`.
   **Product form:** “Coordination compliance” pack—typed envelopes, validation, and optional tooling/SLA for mailbox and task/result validation.
 
 - **Training alignment pipeline as a service**  

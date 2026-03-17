@@ -282,7 +282,7 @@ For implementation and shipped-capability status, see:
 - [docs/TARGETS_ROADMAP.md](docs/TARGETS_ROADMAP.md)
 - [docs/AINL_CANONICAL_CORE.md](docs/AINL_CANONICAL_CORE.md)
 - [docs/EXAMPLE_SUPPORT_MATRIX.md](docs/EXAMPLE_SUPPORT_MATRIX.md)
-- [docs/SAFE_USE_AND_THREAT_MODEL.md](docs/SAFE_USE_AND_THREAT_MODEL.md)
+- [docs/advanced/SAFE_USE_AND_THREAT_MODEL.md](docs/advanced/SAFE_USE_AND_THREAT_MODEL.md)
 
 ## What AINL Is
 
@@ -351,8 +351,8 @@ understand the risks and have added their own safeguards.
 
 Key docs and tooling in this lane:
 
-- `docs/SAFE_USE_AND_THREAT_MODEL.md` — safe use, threat model, and advisory vs enforced fields.
-- `docs/AGENT_COORDINATION_CONTRACT.md` — AgentTaskRequest/AgentTaskResult/AgentManifest envelopes and local mailbox contract.
+- `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md` — safe use, threat model, and advisory vs enforced fields.
+- `docs/advanced/AGENT_COORDINATION_CONTRACT.md` — AgentTaskRequest/AgentTaskResult/AgentManifest envelopes and local mailbox contract.
 - `docs/EXAMPLE_SUPPORT_MATRIX.md` (OpenClaw compatibility family) — advanced coordination and OpenClaw examples.
 - `tooling/coordination_validator.py`, `scripts/validate_coordination_mailbox.py` — optional mailbox linter for advanced coordination usage.
 

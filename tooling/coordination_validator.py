@@ -45,7 +45,7 @@ def _require_field(
 def validate_agent_task_request(obj: Any) -> List[ValidationIssue]:
     """
     Validate an AgentTaskRequest-like envelope according to the minimal
-    upstream contract documented in docs/AGENT_COORDINATION_CONTRACT.md.
+    upstream contract documented in docs/advanced/AGENT_COORDINATION_CONTRACT.md.
     """
     issues: List[ValidationIssue] = []
 
@@ -125,7 +125,7 @@ def validate_agent_task_request(obj: Any) -> List[ValidationIssue]:
 def validate_agent_task_result(obj: Any) -> List[ValidationIssue]:
     """
     Validate an AgentTaskResult-like envelope according to the minimal
-    upstream contract documented in docs/AGENT_COORDINATION_CONTRACT.md.
+    upstream contract documented in docs/advanced/AGENT_COORDINATION_CONTRACT.md.
     """
     issues: List[ValidationIssue] = []
 

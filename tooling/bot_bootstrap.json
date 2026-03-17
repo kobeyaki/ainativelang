@@ -17,11 +17,11 @@
   "advanced_docs": [
     "docs/adapters/OPENCLAW_ADAPTERS.md",
     "docs/adapters/MEMORY_CONTRACT.md",
-    "docs/SAFE_USE_AND_THREAT_MODEL.md",
+    "docs/advanced/SAFE_USE_AND_THREAT_MODEL.md",
     "docs/CAPABILITY_REGISTRY.md",
     "docs/operations/AUTONOMOUS_OPS_MONITORS.md",
     "docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md",
-    "docs/AGENT_COORDINATION_CONTRACT.md"
+    "docs/advanced/AGENT_COORDINATION_CONTRACT.md"
   ],
   "required_steps": [
     "Inspect relevant current files first",

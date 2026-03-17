@@ -82,8 +82,8 @@ They are intended for operators and advanced users, not as the safe-default
 entry point for new users or unsupervised agents.
 
 - OpenClaw agent quickstart: `AI_AGENT_QUICKSTART_OPENCLAW.md`
-- Agent coordination contract (multi-agent envelopes/spec): `docs/AGENT_COORDINATION_CONTRACT.md`
-- Safe use and threat model: `docs/SAFE_USE_AND_THREAT_MODEL.md`
+- Agent coordination contract (multi-agent envelopes/spec): `docs/advanced/AGENT_COORDINATION_CONTRACT.md`
+- Safe use and threat model: `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md`
 - Adapter inventory and conventions (including extension/OpenClaw adapters): `docs/ADAPTER_REGISTRY.md`, `docs/adapters/OPENCLAW_ADAPTERS.md`
 - Autonomous ops monitors index: `docs/operations/AUTONOMOUS_OPS_MONITORS.md`
 - Standardized health envelope (monitor payloads): `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`

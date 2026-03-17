@@ -196,7 +196,7 @@ This is an **extension/OpenClaw-only contract** and is **not** part of the canon
 For safety and threat-model guidance on extension adapters and coordination, see
 also:
 
-- `docs/SAFE_USE_AND_THREAT_MODEL.md`
+- `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md`
 
 ---
 
@@ -363,7 +363,7 @@ For exact argument lists, effect metadata, and envelopes, treat
 
 The `agent` adapter provides a **minimal, local, file-backed** substrate for
 exchanging `AgentTaskRequest` and `AgentTaskResult` envelopes as defined in
-`docs/AGENT_COORDINATION_CONTRACT.md`. It does **not** implement a swarm engine
+`docs/advanced/AGENT_COORDINATION_CONTRACT.md`. It does **not** implement a swarm engine
 or remote federation, and it should be treated as an **advanced, opt-in**
 coordination surface rather than a general-purpose production control plane.
 
