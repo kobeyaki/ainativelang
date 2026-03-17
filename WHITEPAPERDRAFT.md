@@ -541,7 +541,140 @@ Promising future work includes:
 
 ---
 
-## 16. Conclusion
+## 16. Competitive Landscape
+
+AINL sits at the intersection of several emerging directions in AI systems:
+
+- graph-based agent orchestration
+- deterministic workflow execution
+- AI-oriented programming languages
+- multi-target code generation
+
+No single existing system fully combines these concerns. Instead, the current ecosystem is fragmented across multiple layers.
+
+### 16.1 Agent Orchestration Frameworks
+
+Frameworks such as LangGraph and related agent libraries introduce graph-based execution models for AI agents.
+
+These systems validate the importance of:
+- explicit workflow structure
+- stateful execution
+- long-running agent processes
+
+However, they typically:
+- operate as runtime frameworks rather than compiled languages
+- lack a canonical intermediate representation
+- rely partially on prompt-driven reasoning for orchestration
+
+AINL differs by compiling workflows into a **canonical graph IR with strict validation guarantees**, rather than treating graphs as an execution convenience.
+
+---
+
+### 16.2 Durable Workflow Systems
+
+Systems such as Temporal and Restate focus on **deterministic, durable execution** of workflows.
+
+These platforms provide:
+- replayable execution
+- fault tolerance
+- state persistence
+- strong operational guarantees
+
+They are conceptually close to AINL’s runtime philosophy.
+
+However, they:
+- are not AI-native languages
+- do not provide compact DSLs optimized for model generation
+- do not integrate multi-target emission
+- do not treat workflows as AI-generated artifacts
+
+AINL extends this space by introducing a **language + compiler layer** designed specifically for AI-authored workflows.
+
+---
+
+### 16.3 Multi-Agent and Prompt-Oriented Systems
+
+Frameworks such as AutoGen emphasize multi-agent interaction and coordination.
+
+These systems:
+- enable flexible agent collaboration
+- support conversational tool usage
+- are effective for exploratory workflows
+
+However, they:
+- rely heavily on prompt-mediated orchestration
+- lack deterministic execution guarantees
+- embed state implicitly in conversation history
+
+AINL replaces prompt loops with **explicit graph structure**, making execution predictable and auditable.
+
+---
+
+### 16.4 Emerging Graph-Based Agent Platforms
+
+Recent systems, including typed agent workflow frameworks, are beginning to incorporate:
+
+- graph-based execution
+- type-aware routing
+- checkpointing and recovery
+
+This represents a broader industry shift toward structured orchestration.
+
+AINL aligns with this direction but differs in one key respect:
+
+> It defines a **standalone programming system**, not just a framework abstraction.
+
+---
+
+### 16.5 AINL’s Position
+
+AINL unifies multiple layers that are typically separate:
+
+1. Language (compact AI-native DSL)
+2. Compiler (canonical graph IR)
+3. Runtime (deterministic execution engine)
+4. Adapters (effect system)
+5. Emitters (multi-target outputs)
+
+This collapses:
+
+- orchestration
+- execution
+- generation
+
+into a single coherent system.
+
+---
+
+### 16.6 Key Insight
+
+Most existing systems split responsibilities:
+
+| Concern | Typical System |
+|--------|---------------|
+| Orchestration | LangGraph / agent frameworks |
+| Execution | Temporal / Restate |
+| Generation | LLM-based code tools |
+
+AINL combines all three into a **graph-native programming model**.
+
+---
+
+### 16.7 Positioning Summary
+
+AINL should not be viewed as:
+
+- only an agent framework
+- only a workflow engine
+- only a code generator
+
+It is best understood as:
+
+> **An AI-native programming system for deterministic, graph-based workflows with multi-target execution and generation capabilities.**
+
+---
+
+## 17. Conclusion
 
 AINL represents a distinct position in AI systems design.
 

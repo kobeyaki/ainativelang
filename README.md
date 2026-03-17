@@ -87,7 +87,7 @@ AINL programs compile to canonical graph IR. Execution follows graph semantics, 
 
 The surface language is intentionally compact and structured for parseability, determinism, and low-entropy generation by models.
 
-3. Strict-mode guarantees
+### 3. Strict-mode guarantees
 
 AINL’s strict mode enforces high-value invariants such as:
 
@@ -100,7 +100,7 @@ AINL’s strict mode enforces high-value invariants such as:
 - Validated call returns
 - Controlled exits
 
-4. Adapters separate “what” from “how”
+### 4. Adapters separate “what” from “how”
 
 AINL describes what should happen.
 Adapters implement how it happens.
@@ -163,6 +163,12 @@ These programs demonstrate that AINL is effective not only for toy examples, but
 ## Token Efficiency: What We Can Honestly Say
 
 AINL’s compactness and cost benefits should be described carefully.
+
+In production-oriented workflows, we found that AINL can materially reduce token usage compared to generating equivalent Python/TypeScript directly with an LLM.
+
+- **Token Cost Efficiency:** AINL can save tokens in two ways. First, at authoring time, because the DSL is denser than general-purpose code. Second, at runtime, because compiled AINL programs execute deterministically through adapters and do not require recurring model inference on each execution. In practice, this can significantly reduce prompt and code-generation volume for non-trivial workflows while also eliminating repeated model-generation cost during normal operation. Complex monitors and similar programs that take roughly 30k–70k tokens in AINL (including the program itself and relevant runtime context) are estimated to require 3–5× more tokens, depending on workload, when generated as equivalent Python or TypeScript by an LLM. Those equivalents would also typically lack AINL’s strict validation, graph introspection, and multi-target emission. After the initial learning curve, AINL is estimated to reduce per-task token burn by 2–5× for non-trivial automation. For simple tasks, the savings are smaller but still generally positive due to DSL density.
+
+Bottom line: AINL lowers overall token usage while increasing capability, predictability, and reliability.
 
 **What is supported today:**
 
@@ -231,6 +237,34 @@ The graph is the source of truth. The runtime is the orchestrator. The model is 
 
 > AINL is a compact, graph-canonical, AI-native programming system for building deterministic workflows, multi-target applications, and operational agents without relying on ever-growing prompt loops.
 
+## Competitive Landscape
+
+AINL sits at the intersection of:
+
+- graph-native agent orchestration
+- deterministic workflow execution
+- AI-native programming languages
+
+Several systems validate parts of this direction:
+
+| System | Focus | Difference vs AINL |
+|--------|------|-------------------|
+| LangGraph | Graph-based agent orchestration | No canonical IR or compiler layer |
+| Temporal | Durable workflow execution | Not AI-native, no DSL or emitters |
+| Restate | Durable agents & services | Runtime-focused, no language layer |
+| Microsoft Agent Framework | Typed graph workflows | Framework, not a compiled language |
+| AutoGen | Multi-agent coordination | Prompt/event-driven, not deterministic graphs |
+
+AINL uniquely combines:
+
+- graph-first canonical IR
+- strict validation & conformance
+- adapter-based effect system
+- compile-once, run-many execution
+- multi-target emission (API, UI, DB, infra)
+
+→ Treating AI systems as **deterministic programs**, not prompt loops.
+
 ## Status
 
 AI Native Lang is an actively developed open-core project. The core compiler/runtime and graph tooling are real and usable; some language surfaces, examples, targets, and evaluation workflows are still being stabilized.
@@ -259,14 +293,6 @@ Today, the project is strongest as:
 - a compiler front-end into multiple practical targets,
 - a runtime for graph-executed workflows,
 - and a training/evaluation surface for structured code generation systems.
-
-## Token Efficiency
-
-In production, we found that AINL greatly reduces token usage compared to generating Python/TypeScript directly:
-
-- **Token Cost Efficiency:** AINL can save tokens in two ways. First, at authoring time, because the DSL is denser than general-purpose code. Second, at runtime, because compiled AINL programs execute deterministically through adapters and do not require recurring model inference on each execution. In practice, this can significantly reduce prompt and code-generation volume for non-trivial workflows while also eliminating repeated model-generation cost during normal operation. Complex monitors and similar programs that take roughly 30k–70k tokens in AINL (including the program itself and relevant runtime context) are estimated to require 3–5× more tokens, depending on workload, when generated as equivalent Python or TypeScript by an LLM. Those equivalents would also typically lack AINL’s strict validation, graph introspection, and multi-target emission. After the initial learning curve, AINL is estimated to reduce per-task token burn by 2–5× for non-trivial automation. For simple tasks, the savings are smaller but still generally positive due to DSL density.
-
-Bottom line: AINL lowers overall token usage while increasing capability, predictability, and reliability.
 
 ## Standardized Health Envelope
 
