@@ -402,6 +402,7 @@ For full attribution context, see:
 
 ## Start Here
 
+- Primary docs hub: `docs/README.md`
 - **Bots / implementation discipline:** `docs/BOT_ONBOARDING.md` — onboarding for agents; **`docs/OPENCLAW_IMPLEMENTATION_PREFLIGHT.md`** is required before implementation work. Machine-readable pointers: `tooling/bot_bootstrap.json`.
 - Audience guide: `docs/AUDIENCE_GUIDE.md`
 - Spec: `docs/AINL_SPEC.md`
@@ -419,7 +420,7 @@ For full attribution context, see:
 - Release notes draft (RC): `docs/RELEASE_NOTES_DRAFT.md`
 - Maintainer release execution guide: `docs/RELEASING.md`
 - Immediate post-release roadmap: `docs/POST_RELEASE_ROADMAP.md`
-- Full docs map: `docs/DOCS_INDEX.md`
+- Full docs reference map: `docs/DOCS_INDEX.md`
 - Docs maintenance contract: `docs/DOCS_MAINTENANCE.md`
 - Contributor guide: `CONTRIBUTING.md`
 - Security and support: `SECURITY.md`, `SUPPORT.md`
@@ -591,3 +592,20 @@ commercial terms. See `COMMERCIAL.md`.
 `AINL` and `AI Native Lang` branding rights are governed separately from code
 licenses. See `TRADEMARKS.md`.
 
+## KEYWORDS
+- AI-native programming language
+- agent workflow language
+- deterministic agent workflows
+- graph-based agent orchestration
+- LLM orchestration
+- AI agent workflow engine
+- workflow language for AI agents
+- deterministic AI workflows
+- production AI agents
+- reliable AI agent workflows
+- auditable AI workflows
+- deterministic workflow engine for AI
+- compile-once run-many AI workflows
+- long-running AI agents
+- stateful AI agents
+- autonomous ops workflows

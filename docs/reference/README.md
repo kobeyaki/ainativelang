@@ -1,0 +1,18 @@
+# Reference
+
+Use this section for schemas, indexes, contracts, maintenance docs, and other reference-style material.
+
+All schema-level docs should live together here to avoid splitting closely related contracts across conceptual folders.
+
+## Key docs
+
+- [`../DOCS_INDEX.md`](../DOCS_INDEX.md) — exhaustive docs reference map
+- [`../DOCS_MAINTENANCE.md`](../DOCS_MAINTENANCE.md) — docs maintenance contract
+- [`../IR_SCHEMA.md`](../IR_SCHEMA.md) — canonical IR schema
+- [`../GRAPH_SCHEMA.md`](../GRAPH_SCHEMA.md) — graph schema
+
+## Related sections
+
+- Primary docs navigation: [`../README.md`](../README.md)
+- Architecture overview: [`../architecture/README.md`](../architecture/README.md)
+- Runtime/compiler contract: [`../RUNTIME_COMPILER_CONTRACT.md`](../RUNTIME_COMPILER_CONTRACT.md)

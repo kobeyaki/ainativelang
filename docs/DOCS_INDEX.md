@@ -1,9 +1,14 @@
 # AI Native Lang (AINL) Documentation Index (Human + Agent)
 
-This file is the quickest way to orient a new contributor (human or AI agent).
-Use it as the top-level entry point before touching code.
+This file is the detailed reference map for the documentation set.
+Use [`docs/README.md`](README.md) as the primary navigation hub, then use this file when you want the exhaustive inventory.
 
 ## Start Here
+
+### Primary navigation
+
+- **Primary docs hub:** `docs/README.md` — section-by-section navigation organized by user intent and conceptual layer.
+- **Reference map:** `docs/DOCS_INDEX.md` — this file; use it when you need the full inventory.
 
 ### Bot onboarding and implementation preflight
 
