@@ -27,24 +27,30 @@ It is designed for teams building AI workflows that need multiple steps, state a
 ## Get Started
 
 ```bash
-# 1. Clone and install
+# 1. Clone and create an isolated env
 git clone https://github.com/sbhooley/ainativelang.git
 cd ainativelang
+
+python -m venv .venv
+source .venv/bin/activate  # on Windows: .venv\Scripts\activate
+
+# 2. Install with dev + web extras
+python -m pip install --upgrade pip
 python -m pip install -e ".[dev,web]"
 
-# 2. Validate an example workflow
+# 3. Validate an example workflow
 python scripts/validate_ainl.py examples/hello.ainl --strict
 
-# 3. Inspect the compiled graph IR
+# 4. Inspect the compiled graph IR
 ainl-validate examples/hello.ainl --strict --emit ir
 
-# 4. Run the core test suite
-.venv/bin/python scripts/run_test_profiles.py --profile core
+# 5. Run the core test suite
+python scripts/run_test_profiles.py --profile core
 
-# 5. Start the runner service (optional — for API/orchestrator integration)
-.venv/bin/python scripts/runtime_runner_service.py
-# Then: GET http://localhost:8770/capabilities
-#        POST http://localhost:8770/run  {"code": "S app api /api\nL1:\nR core.ADD 2 3 ->sum\nJ sum"}
+# 6. Start the runner service (optional — for API/orchestrator integration)
+python scripts/runtime_runner_service.py
+# Then (in another shell): GET http://localhost:8770/capabilities
+#                          POST http://localhost:8770/run  {"code": "S app api /api\nL1:\nR core.ADD 2 3 ->sum\nJ sum"}
 ```
 
 **AI agents:** See `AI_AGENT_QUICKSTART_OPENCLAW.md` for a full agent onboarding guide, or `docs/BOT_ONBOARDING.md` for the machine-readable bootstrap path.
