@@ -3,8 +3,6 @@
 
 ## Why Deterministic Workflow Languages Scale Better
 
----
-
 # Overview
 
 Most early AI agent systems rely on **prompt loops**, where the language model itself orchestrates execution by repeatedly reasoning, calling tools, and appending results back into the prompt.

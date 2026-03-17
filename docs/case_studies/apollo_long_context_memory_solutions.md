@@ -2,8 +2,6 @@
 
 ## Managing Long-Context Challenges in LLM Systems Through Deterministic Workflow Graphs
 
----
-
 ## Overview
 
 Large language models (LLMs) are rapidly expanding toward hundreds of thousands and even million-token context windows. Models from companies such as Anthropic, Google, OpenAI, Mistral, and DeepSeek increasingly advertise extremely large context capacities in order to support:
