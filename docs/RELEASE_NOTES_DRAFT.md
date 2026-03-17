@@ -91,6 +91,40 @@ Operators who choose to use these features are responsible for:
 - encryption and transport security,
 - human approvals, policy enforcement, and production safety.
 
+### Security, sandbox, and operator deployment
+
+This release includes a structured security and operator deployment story:
+
+- **Adapter privilege-tier metadata** — every adapter in
+  `tooling/adapter_manifest.json` now carries a `privilege_tier` (`pure`,
+  `local_state`, `network`, `operator_sensitive`). This is advisory metadata
+  used by policy validators and security reports, not a runtime semantic.
+- **Policy-gated `/run`** — the runner service optionally validates compiled IR
+  against a declarative policy (`forbidden_adapters`, `forbidden_effects`,
+  `forbidden_effect_tiers`, `forbidden_privilege_tiers`) before execution.
+  Violations return HTTP 403 with structured errors.
+- **`/capabilities` endpoint** — exposes available adapters, verbs, effect
+  defaults, recommended lanes, and privilege tiers for orchestrator discovery.
+- **Named security profiles** — `tooling/security_profiles.json` packages
+  recommended adapter allowlists, privilege-tier restrictions, and runtime
+  limits for four common deployment scenarios: `local_minimal`,
+  `sandbox_compute_and_store`, `sandbox_network_restricted`, `operator_full`.
+- **Security/privilege report** — `tooling/security_report.py` generates a
+  per-label, per-graph privilege map (adapters, verbs, tiers) in both
+  human-readable and JSON formats.
+- **Sandbox and orchestration docs** —
+  `docs/operations/SANDBOX_EXECUTION_PROFILE.md`,
+  `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`,
+  `docs/operations/RUNTIME_CONTAINER_GUIDE.md`, and
+  `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md` provide prescriptive guidance
+  for deploying AINL in sandboxed, containerized, and operator-controlled
+  environments.
+
+AINL does **not** claim to be a sandbox, security platform, or hosted
+orchestration layer. Containment, network policy, process isolation,
+authentication, and multi-tenant isolation remain the responsibility of the
+hosting environment.
+
 ## Known Non-Blocking Follow-Ups
 
 * some compatibility and legacy surfaces remain intentionally non-strict

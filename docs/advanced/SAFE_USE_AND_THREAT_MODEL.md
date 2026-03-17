@@ -10,7 +10,8 @@ It describes:
 - what AINL and the local coordination substrate **assume**,
 - what they explicitly **do not** provide today,
 - the **threat model and trust assumptions**,
-- and which knobs are **enforced** vs **advisory-only**.
+- which knobs are **enforced** vs **advisory-only**,
+- and how to interpret adapter **privilege tiers** in metadata and tooling.
 
 This is a **docs-only** description; it does not change compiler/runtime
 semantics.
@@ -274,6 +275,11 @@ For operators deploying AINL inside sandboxed environments:
   `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`
 - **Sandbox execution profiles** (adapter allowlists, runtime limits,
   environment configuration): `docs/operations/SANDBOX_EXECUTION_PROFILE.md`
+- **Named security profiles** (`local_minimal`, `sandbox_compute_and_store`,
+  `sandbox_network_restricted`, `operator_full`) are packaged in
+  `tooling/security_profiles.json` as advisory metadata to help select
+  appropriate adapter allowlists and privilege-tier restrictions. These are
+  guidance artifacts, not enforced semantics.
 - **Runtime container guide** (Dockerfiles, probe configuration, integration
   patterns): `docs/operations/RUNTIME_CONTAINER_GUIDE.md`
 

@@ -21,9 +21,9 @@ AINL was designed to reduce these specific pains:
 | **Brittle tool orchestration** | Retry with fixed or exponential backoff, error handlers, adapter-level isolation | `SEMANTICS.md` (Retry), `runtime/engine.py` |
 | **Messy state handling** | Four explicit state tiers: frame, cache, memory, coordination | `docs/architecture/STATE_DISCIPLINE.md` |
 | **Poor reproducibility** | Deterministic graph execution, record/replay adapter calls, compile-once IR | `docs/architecture/GRAPH_INTROSPECTION.md`, runner `/run` with `record_calls`/`replay_log` |
-| **Difficult operator control** | Adapter allowlists, resource limits, optional policy validation at the runner boundary | `docs/operations/SANDBOX_EXECUTION_PROFILE.md`, `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md` |
+| **Difficult operator control** | Adapter allowlists, resource limits, optional policy validation at the runner boundary (including privilege tiers) | `docs/operations/SANDBOX_EXECUTION_PROFILE.md`, `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md` |
 | **Scattered memory conventions** | Unified memory contract with namespaces, record kinds, and export/import bridges | `docs/adapters/MEMORY_CONTRACT.md`, `docs/architecture/STATE_DISCIPLINE.md` |
-| **Weak interoperability between bots/tools/workflows** | Agent coordination envelopes, queue adapter, capability discovery endpoint | `docs/advanced/AGENT_COORDINATION_CONTRACT.md`, runner `GET /capabilities` |
+| **Weak interoperability between bots/tools/workflows** | Agent coordination envelopes, queue adapter, capability + privilege discovery endpoint | `docs/advanced/AGENT_COORDINATION_CONTRACT.md`, runner `GET /capabilities` |
 
 ---
 
@@ -95,8 +95,8 @@ GET /capabilities
 ```
 
 Returns the runtime version, available adapters (with verbs, support tiers,
-and effect defaults), and whether policy validation is supported. Use this to
-decide what adapter allowlist and policy to apply.
+effect defaults, and privilege tiers), and whether policy validation is supported.
+Use this to decide what adapter allowlist, privilege tiers, and policy to apply.
 
 ### 2. Submit a workflow
 
@@ -120,7 +120,8 @@ POST /run
   "code": "...",
   "policy": {
     "forbidden_adapters": ["http", "agent"],
-    "forbidden_effects": ["io-write"]
+    "forbidden_effects": ["io-write"],
+    "forbidden_privilege_tiers": ["network", "operator_sensitive"]
   }
 }
 ```
@@ -164,11 +165,14 @@ For the full state model, see `docs/architecture/STATE_DISCIPLINE.md`.
 ## Getting started (for platform integrators)
 
 1. **Query capabilities.** `GET /capabilities` returns what the runtime
-   supports. Use this to configure your allowlist and policy.
+   supports, including adapter privilege tiers. Use this to configure your
+   allowlist and policy.
 2. **Submit a workflow.** `POST /run` with source or IR, adapter allowlist,
    and optional policy.
 3. **Add policy if needed.** Include a `policy` object in `/run` to restrict
-   adapters and effects before execution.
+   adapters, effects, and privilege tiers before execution. For reusable
+   defaults, see the named security profiles in `tooling/security_profiles.json`
+   and the security report tool in `tooling/security_report.py`.
 
 For deployment patterns, see `docs/operations/RUNTIME_CONTAINER_GUIDE.md`.
 For sandbox profiles, see `docs/operations/SANDBOX_EXECUTION_PROFILE.md`.

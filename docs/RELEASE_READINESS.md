@@ -182,9 +182,33 @@ Release packaging expects these boundaries to stay explicit:
   - async execution: `POST /enqueue`, `GET /result/{id}`
   - health/readiness: `GET /health`, `GET /ready`
   - runtime metrics: `GET /metrics`
+  - capability discovery: `GET /capabilities` (adapters, verbs, effects, privilege tiers)
   - compile cache + structured logs + trace IDs
+  - optional policy validation before execution (`forbidden_adapters`, `forbidden_effects`, `forbidden_effect_tiers`, `forbidden_privilege_tiers`)
 - **Tests**
   - `tests/test_runner_service.py`
+  - `tests/test_runner_service_capabilities.py`
+
+### 13) Security and Operator Deployment Surface
+
+- **Code**
+  - `tooling/adapter_manifest.json` (privilege tiers per adapter)
+  - `tooling/security_profiles.json` (named deployment profiles)
+  - `tooling/security_report.py` (per-label/per-graph privilege map)
+  - `tooling/policy_validator.py` (privilege-tier-aware policy enforcement)
+- **Behavior**
+  - each adapter carries a `privilege_tier` (`pure`, `local_state`, `network`, `operator_sensitive`)
+  - security report generates human-readable and JSON privilege maps for compiled workflows
+  - named security profiles package adapter allowlists, privilege-tier restrictions, and runtime limits for deployment scenarios
+  - policy validator supports `forbidden_privilege_tiers` to reject workflows by privilege class
+- **Tests**
+  - `tests/test_security_report.py`
+  - `tests/test_policy_validator.py`
+  - `tests/test_runner_service_capabilities.py`
+- **Docs**
+  - `docs/operations/SANDBOX_EXECUTION_PROFILE.md`
+  - `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`
+  - `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md`
 
 ## CI / Verification Command Set
 
@@ -227,3 +251,9 @@ pytest tests/test_artifact_profiles.py -v
 - [x] Replay determinism covered
 - [x] CLI golden fixtures available
 - [x] Conformance suite passing
+- [x] Adapter privilege-tier metadata populated
+- [x] Policy validator supports privilege-tier restrictions
+- [x] Named security profiles packaged
+- [x] Security report tooling available
+- [x] `/capabilities` exposes privilege tiers
+- [x] Sandbox/orchestration/threat-model docs shipped

@@ -58,8 +58,19 @@ The AINL runtime uses an explicit adapter allowlist via `AdapterRegistry`. Only
 adapters in the allowlist can be called; all others raise `AdapterError`. This
 is the primary capability gating mechanism.
 
+Each adapter also has a **privilege tier** in metadata (e.g. `pure`,
+`local_state`, `network`, `operator_sensitive`). These tiers do **not** change
+runtime semantics; they exist to support policy validators and security reports
+when deciding which adapters are appropriate for a given sandbox profile.
+
 The following profiles are recommended starting points. Operators should adjust
 based on their environment's requirements.
+
+Named profile suggestions are also captured in `tooling/security_profiles.json`
+for use in CI or external policy tooling. That JSON is intentionally small and
+does not introduce a new policy language; it simply packages adapter
+allowlists, privilege tiers, and runtime limit suggestions under a few
+human-readable profile names.
 
 ### 3.1 Minimal sandbox profile
 
@@ -261,7 +272,8 @@ against a declarative policy **before** execution begins.
 {
   "forbidden_adapters": ["http", "fs", "agent"],
   "forbidden_effects": ["io-write"],
-  "forbidden_effect_tiers": ["network"]
+  "forbidden_effect_tiers": ["network"],
+  "forbidden_privilege_tiers": ["network", "operator_sensitive"]
 }
 ```
 

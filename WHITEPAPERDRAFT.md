@@ -311,6 +311,8 @@ Examples include:
 
 Adapters declare behavior through capability and metadata surfaces, including safety-oriented boundaries. The system makes operator-only or sensitive surfaces more explicit and easier to isolate.
 
+Each adapter carries a `privilege_tier` in its metadata (`pure`, `local_state`, `network`, `operator_sensitive`). This classification is used by the policy validator and security reporting tools to make privileged boundary crossings visible and enforceable without changing language semantics.
+
 ### 8.3 Why This Matters
 
 Without adapters, each new workflow often requires the model to regenerate API client code, state-handling logic, and integration boilerplate. With adapters, the workflow references a stable interface instead.
@@ -570,11 +572,13 @@ AINL includes a FastAPI-based runner service (`scripts/runtime_runner_service.py
 
 ### 15.2 Policy-Gated Execution
 
-The `/run` endpoint accepts an optional `policy` object that specifies forbidden adapters, effects, and effect tiers. If the compiled IR violates the policy, the runner responds with HTTP 403 and a structured list of violations **without executing**. This allows external orchestrators to enforce adapter and effect restrictions at the runner boundary without modifying AINL's compiler or runtime semantics.
+The `/run` endpoint accepts an optional `policy` object that specifies forbidden adapters, effects, effect tiers, and privilege tiers. If the compiled IR violates the policy, the runner responds with HTTP 403 and a structured list of violations **without executing**. This allows external orchestrators to enforce adapter, effect, and privilege-class restrictions at the runner boundary without modifying AINL's compiler or runtime semantics.
+
+Supported policy fields include `forbidden_adapters`, `forbidden_effects`, `forbidden_effect_tiers`, and `forbidden_privilege_tiers`.
 
 ### 15.3 Capability Discovery
 
-The `GET /capabilities` endpoint returns a machine-readable JSON response sourced from existing adapter metadata (`tooling/adapter_manifest.json`). External orchestrators use this to discover what a given AINL runtime instance supports before submitting workflows, enabling dynamic adapter allowlist configuration and policy construction.
+The `GET /capabilities` endpoint returns a machine-readable JSON response sourced from existing adapter metadata (`tooling/adapter_manifest.json`). Each adapter entry includes its verbs, support tier, effect default, recommended lane, and privilege tier. External orchestrators use this to discover what a given AINL runtime instance supports before submitting workflows, enabling dynamic adapter allowlist configuration and policy construction.
 
 ### 15.4 Sandbox and Operator Deployment
 
@@ -587,7 +591,11 @@ Prescriptive sandbox profiles are documented for:
 - **Network-restricted** — local + outbound HTTP, no agent coordination
 - **Operator-controlled** — full adapter access with operator governance
 
-See `docs/operations/SANDBOX_EXECUTION_PROFILE.md`, `docs/operations/RUNTIME_CONTAINER_GUIDE.md`, and `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`.
+These profiles are also packaged as machine-readable named security profiles in `tooling/security_profiles.json`, bundling recommended adapter allowlists, privilege-tier restrictions, runtime limits, and orchestrator expectations for each scenario.
+
+A security/privilege report tool (`tooling/security_report.py`) generates per-label, per-graph privilege maps showing which adapters, verbs, and privilege tiers a workflow uses. This supports pre-deployment review and audit without modifying the workflow itself.
+
+See `docs/operations/SANDBOX_EXECUTION_PROFILE.md`, `docs/operations/RUNTIME_CONTAINER_GUIDE.md`, `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`, and `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md`.
 
 ---
 
@@ -619,12 +627,15 @@ OpenClaw-specific adapters reflect a real deployment context and may require rei
 
 The following capabilities were listed as future work in earlier drafts and have since been implemented:
 
-- **Policy tooling** — declarative policy validation at the runner boundary (`/run` with optional `policy` parameter, HTTP 403 on violation)
+- **Policy tooling** — declarative policy validation at the runner boundary (`/run` with optional `policy` parameter, HTTP 403 on violation), including `forbidden_privilege_tiers` for privilege-class enforcement
 - **Runtime observability** — structured JSON logging, label-level tracing, adapter call recording and replay
-- **Capability discovery** — `GET /capabilities` endpoint for external orchestrators
+- **Capability discovery** — `GET /capabilities` endpoint for external orchestrators, now including adapter privilege tiers
 - **Tiered state discipline** — four-tier state model with documentation and sandbox profile mapping
 - **Exponential backoff** — optional `backoff_strategy` on the `Retry` operation with configurable cap
 - **Sandbox/operator deployment** — prescriptive profiles, container guide, external orchestration guide
+- **Adapter privilege-tier metadata** — each adapter in `tooling/adapter_manifest.json` carries a `privilege_tier` (`pure`, `local_state`, `network`, `operator_sensitive`)
+- **Named security profiles** — `tooling/security_profiles.json` packages adapter allowlists, privilege-tier restrictions, and runtime limits for four deployment scenarios
+- **Security/privilege introspection** — `tooling/security_report.py` generates per-label, per-graph privilege maps for pre-deployment review
 
 ### 17.2 Remaining Future Work
 
@@ -814,9 +825,11 @@ Paths are relative to the repository root.
 ### State and governance
 - `docs/architecture/STATE_DISCIPLINE.md` — four-tier state model
 - `docs/adapters/MEMORY_CONTRACT.md` — memory adapter contract
-- `tooling/policy_validator.py` — pre-execution policy validation
-- `tooling/adapter_manifest.json` — adapter metadata and capabilities
+- `tooling/policy_validator.py` — pre-execution policy validation (supports `forbidden_privilege_tiers`)
+- `tooling/adapter_manifest.json` — adapter metadata, capabilities, and privilege tiers
 - `tooling/capabilities.json` — capability definitions
+- `tooling/security_profiles.json` — named security profiles for deployment scenarios
+- `tooling/security_report.py` — per-workflow privilege/security map generator
 
 ### Deployment and operations
 - `docs/operations/SANDBOX_EXECUTION_PROFILE.md` — sandbox adapter profiles

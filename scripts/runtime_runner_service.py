@@ -436,6 +436,7 @@ def _load_capabilities() -> Dict[str, Any]:
             "verbs": info.get("verbs", []),
             "effect_default": info.get("effect_default"),
             "recommended_lane": info.get("recommended_lane"),
+            "privilege_tier": info.get("privilege_tier"),
         }
 
     return {

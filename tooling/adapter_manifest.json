@@ -27,6 +27,7 @@
         "ECHO"
       ],
       "effect_default": "pure",
+      "privilege_tier": "pure",
       "notes": "Built-in deterministic helper operations."
     },
     "db": {
@@ -35,6 +36,7 @@
       "recommended_lane": "canonical",
       "verbs": ["F", "G", "P", "C", "U", "D"],
       "effect_default": "io",
+      "privilege_tier": "local_state",
       "notes": "Database CRUD style adapter."
     },
     "api": {
@@ -43,6 +45,7 @@
       "recommended_lane": "noncanonical",
       "verbs": ["G", "P", "POST"],
       "effect_default": "io",
+      "privilege_tier": "network",
       "notes": "HTTP/API adapter from legacy step forms."
     },
     "email": {
@@ -51,6 +54,7 @@
       "recommended_lane": "canonical",
       "verbs": ["G"],
       "effect_default": "io",
+      "privilege_tier": "network",
       "notes": "Email provider adapter used by monitoring workflows."
     },
     "calendar": {
@@ -59,6 +63,7 @@
       "recommended_lane": "canonical",
       "verbs": ["G"],
       "effect_default": "io",
+      "privilege_tier": "network",
       "notes": "Calendar provider adapter used by monitoring workflows."
     },
     "social": {
@@ -67,6 +72,7 @@
       "recommended_lane": "canonical",
       "verbs": ["G"],
       "effect_default": "io",
+      "privilege_tier": "network",
       "notes": "Social provider adapter used by monitoring workflows."
     },
     "ext": {
@@ -75,6 +81,7 @@
       "recommended_lane": "noncanonical",
       "verbs": ["G", "P", "NEXT", "ECHO", "OP"],
       "effect_default": "io",
+      "privilege_tier": "operator_sensitive",
       "notes": "External extension adapter namespace used in runtime tests."
     },
     "wasm": {
@@ -83,6 +90,7 @@
       "recommended_lane": "canonical",
       "verbs": ["CALL"],
       "effect_default": "pure",
+      "privilege_tier": "pure",
       "notes": "Sandboxed compute adapter namespace."
     },
     "cache": {
@@ -91,6 +99,7 @@
       "recommended_lane": "canonical",
       "verbs": ["Get", "Set"],
       "effect_default": "io",
+      "privilege_tier": "local_state",
       "notes": "Cache namespace used by CacheGet/CacheSet and runtime adapter."
     },
     "queue": {
@@ -99,6 +108,7 @@
       "recommended_lane": "canonical",
       "verbs": ["Put"],
       "effect_default": "io",
+      "privilege_tier": "operator_sensitive",
       "notes": "Queue write namespace.",
       "result_envelope": {
         "fields": {
@@ -116,6 +126,7 @@
       "recommended_lane": "canonical",
       "verbs": ["Begin", "Commit", "Rollback"],
       "effect_default": "io",
+      "privilege_tier": "local_state",
       "notes": "Transaction namespace."
     },
     "auth": {
@@ -124,6 +135,7 @@
       "recommended_lane": "canonical",
       "verbs": ["Validate"],
       "effect_default": "io",
+      "privilege_tier": "operator_sensitive",
       "notes": "Authentication namespace."
     },
     "http": {
@@ -132,6 +144,7 @@
       "recommended_lane": "canonical",
       "verbs": ["Get", "Post", "Put", "Patch", "Delete", "Head", "Options"],
       "effect_default": "io",
+      "privilege_tier": "network",
       "notes": "Runtime HTTP adapter namespace.",
       "result_envelope": {
         "fields": {
@@ -151,6 +164,7 @@
       "recommended_lane": "canonical",
       "verbs": ["Execute", "Query"],
       "effect_default": "io",
+      "privilege_tier": "local_state",
       "notes": "Runtime SQLite adapter namespace."
     },
     "fs": {
@@ -159,6 +173,7 @@
       "recommended_lane": "canonical",
       "verbs": ["Read", "Write", "List", "Delete"],
       "effect_default": "io",
+      "privilege_tier": "local_state",
       "notes": "Runtime filesystem adapter namespace."
     },
     "tools": {
@@ -167,6 +182,7 @@
       "recommended_lane": "canonical",
       "verbs": ["Call"],
       "effect_default": "io",
+      "privilege_tier": "operator_sensitive",
       "notes": "Runtime tool bridge namespace."
     },
     "svc": {
@@ -175,6 +191,7 @@
       "recommended_lane": "noncanonical",
       "verbs": ["caddy", "cloudflared", "maddy", "crm"],
       "effect_default": "io",
+      "privilege_tier": "operator_sensitive",
       "notes": "OpenClaw service health adapter used by the monitor demo.",
       "result_envelope": {
         "fields": {
@@ -192,6 +209,7 @@
       "recommended_lane": "noncanonical",
       "verbs": ["file_exists", "docker_image_exists", "http_status", "newest_backup_mtime", "metrics"],
       "effect_default": "io",
+      "privilege_tier": "operator_sensitive",
       "notes": "OpenClaw monitor extras adapter for file, Docker, HTTP, backup mtime checks, and metrics summaries."
     },
     "agent": {
@@ -200,6 +218,7 @@
       "recommended_lane": "noncanonical",
       "verbs": ["send_task", "read_result"],
       "effect_default": "io",
+      "privilege_tier": "operator_sensitive",
       "notes": "Extension/OpenClaw agent coordination adapter for appending AgentTaskRequest envelopes to sandboxed JSONL files under AINL_AGENT_ROOT."
     },
     "tiktok": {
@@ -208,6 +227,7 @@
       "recommended_lane": "noncanonical",
       "verbs": ["F", "recent", "videos"],
       "effect_default": "io",
+      "privilege_tier": "network",
       "notes": "OpenClaw TikTok monitoring adapter backed by the CRM SQLite database."
     },
     "memory": {
@@ -216,6 +236,7 @@
       "recommended_lane": "noncanonical",
       "verbs": ["put", "get", "append", "list", "delete", "prune"],
       "effect_default": "io",
+      "privilege_tier": "local_state",
       "recommended_for": "stateful_workflows",
       "notes": "Recommended durable state adapter for any workflow needing persistence across runs. Keyed by (namespace, record_kind, record_id). Extension classification reflects packaging origin, not importance."
     }

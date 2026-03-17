@@ -43,3 +43,47 @@ L1: R db.F User * ->users J users
     res = validate_ir_against_policy(ir, policy)
     assert res["ok"], res.get("errors")
 
+
+def test_policy_forbids_network_privilege_tier():
+    code = """
+S core web /api
+E /ping G ->L1 ->out
+L1: R http.Get "https://example.com" ->out J out
+"""
+    ir = _compile(code)
+    policy = {"forbidden_privilege_tiers": ["network"]}
+    res = validate_ir_against_policy(ir, policy)
+    assert not res["ok"]
+    errs = res["errors"]
+    assert any(e["code"] == "POLICY_PRIVILEGE_TIER_FORBIDDEN" for e in errs)
+
+
+def test_policy_forbids_operator_sensitive_privilege_tier():
+    code = """
+L1: R svc.caddy status ->out J out
+"""
+    ir = _compile(code)
+    policy = {"forbidden_privilege_tiers": ["operator_sensitive"]}
+    res = validate_ir_against_policy(ir, policy)
+    assert not res["ok"]
+    errs = res["errors"]
+    assert any(e["code"] == "POLICY_PRIVILEGE_TIER_FORBIDDEN" for e in errs)
+
+
+def test_policy_mixed_privilege_tier_violations():
+    code = """
+S core web /api
+E /ping G ->L1 ->out
+L1:
+  R http.Get "https://example.com" ->h
+  R svc.caddy status ->s
+  J h
+"""
+    ir = _compile(code)
+    policy = {"forbidden_privilege_tiers": ["network", "operator_sensitive"]}
+    res = validate_ir_against_policy(ir, policy)
+    assert not res["ok"]
+    errs = res["errors"]
+    codes = {e["code"] for e in errs}
+    assert "POLICY_PRIVILEGE_TIER_FORBIDDEN" in codes
+

@@ -238,7 +238,9 @@ For implementation and shipped-capability status, see:
 - Graph normalization, diff, patch, and canonicalization tooling in `tooling/`
 - Server/OpenAPI emission and runtime-backed execution flow
 - Runtime-native adapters with contract tests: `http`, `sqlite`, `fs`, `tools`
-- Runner service: `scripts/runtime_runner_service.py`
+- Runner service with policy-gated `/run`, `/capabilities`, health/metrics: `scripts/runtime_runner_service.py`
+- Adapter privilege-tier metadata and security profiles: `tooling/adapter_manifest.json`, `tooling/security_profiles.json`
+- Security/privilege introspection tooling: `tooling/security_report.py`
 
 ### Use with care
 
@@ -274,6 +276,9 @@ For implementation and shipped-capability status, see:
 - External orchestration guide: `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`
 - Integration story (AINL in agent stacks): `docs/INTEGRATION_STORY.md`
 - Autonomous ops playbook: `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md`
+- Named security profiles: `tooling/security_profiles.json`
+- Security/privilege report: `tooling/security_report.py`
+- Safe use and threat model: `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md`
 
 ### Examples and case studies
 
@@ -323,12 +328,23 @@ AINL source is a compact surface language for producing the canonical graph. Tha
 
 **Sandboxed and operator-controlled deployments:** AINL is architecturally suited to run inside sandboxed, containerized, or operator-controlled execution environments. The runtime's adapter allowlist, resource limits, and policy validation tooling provide the configuration surface that external orchestrators and sandbox controllers need to restrict and govern AINL execution. AINL is the **workflow layer**, not the sandbox or security layer; containment, network policy, and process isolation are the responsibility of the hosting environment.
 
+Current security and operator capabilities:
+
+- **Adapter capability gating** — explicit allowlists via `AdapterRegistry`; only registered adapters can be called.
+- **Policy-gated execution** — the `/run` endpoint optionally validates compiled IR against a declarative policy before execution (forbidden adapters, effects, privilege tiers). Violations return HTTP 403 with structured errors.
+- **Capability discovery** — `GET /capabilities` exposes available adapters, verbs, effect defaults, and privilege tiers so orchestrators can make informed decisions before submitting workflows.
+- **Named security profiles** — `tooling/security_profiles.json` packages recommended adapter allowlists, privilege-tier restrictions, runtime limits, and orchestrator expectations for common deployment scenarios (`local_minimal`, `sandbox_compute_and_store`, `sandbox_network_restricted`, `operator_full`). These are guidance artifacts, not enforced semantics.
+- **Privilege-tier metadata** — each adapter carries a `privilege_tier` (`pure`, `local_state`, `network`, `operator_sensitive`) in `tooling/adapter_manifest.json`, used by the policy validator and security report tool.
+- **Security introspection** — `tooling/security_report.py` generates a per-label, per-graph privilege map showing which adapters, verbs, and privilege tiers a workflow uses.
+
+AINL does **not** provide container isolation, process sandboxing, network policy enforcement, authentication/encryption, or multi-tenant isolation. These remain the responsibility of the hosting environment.
+
 See:
 - `docs/INTEGRATION_STORY.md` — how AINL fits inside agent stacks, pain-to-solution map, integration surface
 - `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md` — capability discovery, policy-gated execution, integration checklist
-- `docs/operations/SANDBOX_EXECUTION_PROFILE.md` — adapter profiles, limit profiles, environment guidance
+- `docs/operations/SANDBOX_EXECUTION_PROFILE.md` — adapter profiles, limit profiles, environment guidance, named security profiles
 - `docs/operations/RUNTIME_CONTAINER_GUIDE.md` — containerized deployment patterns
-- `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md` — trust model and safe-use guidance
+- `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md` — trust model, safe-use guidance, and privilege-tier explanation
 
 **Advanced / operator-only / experimental surface:** AINL also includes advanced, extension/OpenClaw-oriented features that are not the safe-default entry path and are not a built-in secure orchestration or multi-agent safety layer. These are intended for operators who understand the risks and have added their own safeguards.
 

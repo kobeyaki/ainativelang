@@ -101,9 +101,10 @@ Key fields for orchestrators:
 |-------|---------|
 | `runtime_version` | The version of the AINL runtime |
 | `policy_support` | Whether the `/run` endpoint accepts an optional `policy` object |
-| `adapters` | Map of available adapter namespaces with verbs, tier, default effect, and lane |
+| `adapters` | Map of available adapter namespaces with verbs, tiers, default effect, and lane |
 | `adapters[name].support_tier` | `core` (canonical), `compatibility`, or `extension_openclaw` |
 | `adapters[name].recommended_lane` | `canonical` or `noncanonical` |
+| `adapters[name].privilege_tier` | Privilege tier hint such as `pure`, `local_state`, `network`, or `operator_sensitive` |
 
 The orchestrator can use this information to:
 
@@ -192,7 +193,8 @@ runner responds with HTTP 403 and does not execute.
   "policy": {
     "forbidden_adapters": ["http", "fs", "agent"],
     "forbidden_effects": ["io-write"],
-    "forbidden_effect_tiers": ["network"]
+    "forbidden_effect_tiers": ["network"],
+    "forbidden_privilege_tiers": ["network", "operator_sensitive"]
   }
 }
 ```
@@ -254,6 +256,18 @@ what AINL provides vs what the orchestrator must provide.
 | Coordination routing | No (file-backed mailbox only) | Routing, scheduling, retries, escalation |
 | Log aggregation | Structured JSON to stdout | Pipeline to logging system |
 | Approval workflows | Advisory envelope fields only | Enforce approval, budget, policy rules |
+
+Named security profiles in `tooling/security_profiles.json` (for example
+`local_minimal`, `sandbox_compute_and_store`, `sandbox_network_restricted`,
+`operator_full`) can be used by orchestrators as **inputs** when choosing:
+
+- which adapters to allow or forbid (`adapter_allowlist`, `forbidden_adapters`),
+- which privilege tiers to disallow (`forbidden_privilege_tiers`),
+- which runtime limits to apply.
+
+These profiles are packaging/guidance artifacts only; they do not change the
+behavior of `/run` and do not replace real sandboxing, network policy, or
+enterprise security controls.
 
 ---
 

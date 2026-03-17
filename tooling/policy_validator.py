@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
+from tooling.adapter_manifest import ADAPTER_MANIFEST  # type: ignore
 from tooling.graph_api import label_nodes
 
 
@@ -24,6 +25,15 @@ def _node_adapter_name(node: Dict[str, Any]) -> Optional[str]:
     return str(adapter).split(".")[0]
 
 
+def _adapter_privilege_tier(adapter_name: str) -> Optional[str]:
+    """Lookup privilege_tier for the adapter name from adapter metadata."""
+    info = (ADAPTER_MANIFEST.get("adapters") or {}).get(adapter_name) or {}
+    tier = info.get("privilege_tier")
+    if isinstance(tier, str) and tier:
+        return tier
+    return None
+
+
 def validate_ir_against_policy(ir: Dict[str, Any], policy: Dict[str, Any]) -> Dict[str, Any]:
     """
     Validate IR against a simple policy.
@@ -32,6 +42,7 @@ def validate_ir_against_policy(ir: Dict[str, Any], policy: Dict[str, Any]) -> Di
       - forbidden_adapters: [name, ...]
       - forbidden_effects: [effect, ...]
       - forbidden_effect_tiers: [tier, ...]
+      - forbidden_privilege_tiers: [tier, ...]
 
     Returns:
       {"ok": True} on success
@@ -41,6 +52,7 @@ def validate_ir_against_policy(ir: Dict[str, Any], policy: Dict[str, Any]) -> Di
     forbidden_adapters = set(policy.get("forbidden_adapters") or [])
     forbidden_effects = set(policy.get("forbidden_effects") or [])
     forbidden_tiers = set(policy.get("forbidden_effect_tiers") or [])
+    forbidden_priv_tiers = set(policy.get("forbidden_privilege_tiers") or [])
 
     errors: List[Dict[str, Any]] = []
 
@@ -74,6 +86,16 @@ def validate_ir_against_policy(ir: Dict[str, Any], policy: Dict[str, Any]) -> Di
                         "data": {"label_id": str(lid), "node_id": nid, "effect_tier": tier},
                     }
                 )
+            if adapter_name and forbidden_priv_tiers:
+                priv = _adapter_privilege_tier(adapter_name)
+                if priv and priv in forbidden_priv_tiers:
+                    errors.append(
+                        {
+                            "code": "POLICY_PRIVILEGE_TIER_FORBIDDEN",
+                            "message": f"Privilege tier {priv!r} is forbidden by policy",
+                            "data": {"label_id": str(lid), "node_id": nid, "adapter": adapter_name, "privilege_tier": priv},
+                        }
+                    )
 
     if errors:
         return {"ok": False, "errors": errors}

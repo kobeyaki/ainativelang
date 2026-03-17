@@ -52,6 +52,8 @@ def test_capabilities_adapter_entries_have_expected_shape():
         assert isinstance(info["verbs"], list), f"{name} verbs is not a list"
         assert "effect_default" in info, f"{name} missing effect_default"
         assert "recommended_lane" in info, f"{name} missing recommended_lane"
+        # privilege_tier is optional but should be present for known adapters.
+        assert "privilege_tier" in info, f"{name} missing privilege_tier"
 
 
 def test_capabilities_includes_extension_adapters():
