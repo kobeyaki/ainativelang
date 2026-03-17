@@ -59,7 +59,7 @@ An extension and operator-focused surface area built on top of canonical AINL, u
 The catalog of available runtime adapters, their identifiers, and supported capabilities as defined in `docs/ADAPTER_REGISTRY.md`.
 
 ## Memory Adapter
-An adapter responsible for durable memory operations (read, write, list, delete) over structured memory records, specified in `docs/MEMORY_CONTRACT.md`.
+An adapter responsible for durable memory operations (read, write, list, delete) over structured memory records, specified in `docs/adapters/MEMORY_CONTRACT.md`.
 
 ## Memory Record
 A structured, schema-validated unit of persisted memory (with fields such as id, kind, timestamps, and content) managed by the memory adapter.

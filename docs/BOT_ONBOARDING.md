@@ -24,7 +24,7 @@ Short entrypoint for bots (and other agents) newly exposed to this repo. Use thi
   These describe the main language, runtime, and which examples are canonical vs compatible.
 
 - **Advanced / operator-only:**  
-  `docs/OPENCLAW_ADAPTERS.md`, `docs/MEMORY_CONTRACT.md`, `docs/SAFE_USE_AND_THREAT_MODEL.md`, `docs/CAPABILITY_REGISTRY.md`.  
+  `docs/adapters/OPENCLAW_ADAPTERS.md`, `docs/adapters/MEMORY_CONTRACT.md`, `docs/SAFE_USE_AND_THREAT_MODEL.md`, `docs/CAPABILITY_REGISTRY.md`.  
   Extension adapters, memory, and operator-only capabilities are documented here. Do not assume all adapters or examples are safe-default; check the support matrix and capability metadata.
 
 - **Implementation discipline:**  
@@ -49,7 +49,7 @@ Skipping the preflight increases the risk of duplicate work, wrong assumptions, 
 
 - **Safe-default** — Canonical compiler/runtime, core adapters, strict-valid examples, graph/IR tooling. Documented in the “Core / safe-default” section of `docs/DOCS_INDEX.md` and in `docs/AINL_CANONICAL_CORE.md`. Safe for general use and unsupervised agents within the stated scope.
 
-- **Advanced / operator-only** — Extension adapters (memory, svc, extras, agent, etc.), OpenClaw monitors, coordination, and operator-only capability tags. Documented in “Advanced / operator-only” in `docs/DOCS_INDEX.md`, `docs/OPENCLAW_ADAPTERS.md`, `docs/CAPABILITY_REGISTRY.md`, and `docs/SAFE_USE_AND_THREAT_MODEL.md`. Intended for operators and controlled environments; not the default entry path for new users or unsupervised agents.
+- **Advanced / operator-only** — Extension adapters (memory, svc, extras, agent, etc.), OpenClaw monitors, coordination, and operator-only capability tags. Documented in “Advanced / operator-only” in `docs/DOCS_INDEX.md`, `docs/adapters/OPENCLAW_ADAPTERS.md`, `docs/CAPABILITY_REGISTRY.md`, and `docs/SAFE_USE_AND_THREAT_MODEL.md`. Intended for operators and controlled environments; not the default entry path for new users or unsupervised agents.
 
 When proposing or implementing work that touches adapters or examples, check the support matrix and capability registry to see whether the surface is safe-default or advanced/operator-only, and document that in your preflight output.
 
@@ -65,7 +65,7 @@ When proposing or implementing work that touches adapters or examples, check the
 | Canonical language / core | `docs/AINL_CANONICAL_CORE.md`, `docs/AINL_SPEC.md` |
 | Example classification | `docs/EXAMPLE_SUPPORT_MATRIX.md` |
 | Adapters / capabilities | `docs/CAPABILITY_REGISTRY.md`, `tooling/capabilities.json` |
-| Memory contract | `docs/MEMORY_CONTRACT.md` |
+| Memory contract | `docs/adapters/MEMORY_CONTRACT.md` |
 | Safe use / threat model | `docs/SAFE_USE_AND_THREAT_MODEL.md` |
 | OpenClaw / AI agent quickstart | `AI_AGENT_QUICKSTART_OPENCLAW.md` (see also `OPENCLAW_AI_AGENT.md`) |
 

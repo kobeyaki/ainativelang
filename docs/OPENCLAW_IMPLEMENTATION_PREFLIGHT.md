@@ -70,7 +70,7 @@ Emit the following **before** writing implementation code. This forces grounding
 ## Adapter / API verification rules
 
 - **Adapter verbs** — Confirm the verb name, arguments, and return shape from the adapter implementation (e.g. `runtime/adapters/memory.py`) or the capability registry (`tooling/capabilities.json`, `tooling/tool_api_v2.tools.json`). Do not assume from the verb name alone.
-- **List vs get** — Enumeration/list APIs may return only keys or metadata. Verify whether payloads are included by reading the adapter or contract (e.g. `docs/MEMORY_CONTRACT.md`).
+- **List vs get** — Enumeration/list APIs may return only keys or metadata. Verify whether payloads are included by reading the adapter or contract (e.g. `docs/adapters/MEMORY_CONTRACT.md`).
 - **Namespaces and record kinds** — Use the contract or schema for allowed values (e.g. memory namespace whitelist, record_kind conventions). Do not invent new namespaces or kinds without checking the contract.
 
 ---

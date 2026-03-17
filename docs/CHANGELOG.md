@@ -13,7 +13,7 @@
   - `memory.put(namespace, record_kind, record_id, payload, ttl_seconds?)`
   - `memory.get(namespace, record_kind, record_id)`
   - `memory.append(namespace, record_kind, record_id, entry, ttl_seconds?)`
-- Documented the v1 contract in `docs/MEMORY_CONTRACT.md`, including:
+- Documented the v1 contract in `docs/adapters/MEMORY_CONTRACT.md`, including:
   - namespace whitelist and recommended record kinds,
   - advisory TTL semantics,
   - validation expectations and backend schema.
@@ -614,7 +614,7 @@
   - `docs/CONTRIBUTING_AI_AGENTS.md`
   - `docs/reference/GLOSSARY.md`
   - `docs/PROJECT_ORIGIN_AND_ATTRIBUTION.md`
-- Added OpenClaw integration guide: `docs/OPENCLAW_ADAPTERS.md`
+- Added OpenClaw integration guide: `docs/adapters/OPENCLAW_ADAPTERS.md`
 - Added consultant report template and index:
   - `AI_CONSULTANT_REPORT_TEMPLATE.md`
   - `CONSULTANT_REPORTS.md`

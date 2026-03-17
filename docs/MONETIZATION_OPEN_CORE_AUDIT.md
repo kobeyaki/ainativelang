@@ -23,7 +23,7 @@ Major layers/subsystems inspected and short description of each:
 | **Capability registry** | `tooling/capabilities.json`, `tooling/capabilities.schema.json`, `docs/CAPABILITY_REGISTRY.md` | Metadata-only: support_tier (core / extension_openclaw), lane (canonical / noncanonical), safety_tags (e.g. operator_only). Used for Tool API v2 projection and discovery. |
 | **Policy validator** | `tooling/policy_validator.py` | IR-level policy: forbidden_adapters, forbidden_effects, forbidden_effect_tiers. Small, machine-friendly; no runtime change. |
 | **Operator-only audit** | `scripts/operator_only_adapter_audit.py` | Scans capabilities.json + AINL source; reports where operator_only capabilities are used. Read-only governance visibility. |
-| **Memory contract** | `docs/MEMORY_CONTRACT.md`, memory adapter (extension) | Namespaces (session, long_term, daily_log, workflow); record kinds; TTL; v1 envelope. Extension-level, backend-agnostic. |
+| **Memory contract** | `docs/adapters/MEMORY_CONTRACT.md`, memory adapter (extension) | Namespaces (session, long_term, daily_log, workflow); record kinds; TTL; v1 envelope. Extension-level, backend-agnostic. |
 | **Memory tooling** | `scripts/memory_retention_report.py`, `scripts/validate_memory_records.py`, `scripts/import_memory_records.py`, `scripts/export_memory_*`, `tooling/memory_bridge.py`, `tooling/memory_markdown_import.py` | Operator hygiene: retention report, validation, import/export, markdown bridge. |
 | **Agent coordination** | `docs/AGENT_COORDINATION_CONTRACT.md`, `tooling/coordination_validator.py`, `scripts/validate_coordination_mailbox.py` | AgentTaskRequest/Result/Manifest envelopes; mailbox validation; advisory-only fields (approval_required, budget_limit, etc.). |
 | **Autonomous ops** | `openclaw/AUTONOMOUS_OPS_EXTENSION_IMPLEMENTATION.md`, `docs/operations/AUTONOMOUS_OPS_MONITORS.md`, `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md`, `demo/*.lang`, `examples/autonomous_ops/*.lang`, `scripts/run_*.py` (e.g. run_infrastructure_watchdog.py, run_meta_monitor.py) | Monitor programs (infrastructure, TikTok SLA, canary, token cost, lead quality, session continuity, memory prune, meta monitor); standardized health envelope; cron deployment pattern. |
@@ -139,7 +139,7 @@ Repo-grounded opportunities (point to actual subsystems or file groups):
   **Product form:** “OpenClaw-style monitor pack” or “AINL ops pack”—curated, tested, deployable monitors + health envelope + runbooks. Sell as a supported package or as part of a hosted ops product.
 
 - **Memory + retention tooling**  
-  **Where:** `scripts/memory_retention_report.py`, `scripts/validate_memory_records.py`, `scripts/import_memory_records.py`, `scripts/export_memory_*.py`, `tooling/memory_bridge.py`, `docs/MEMORY_CONTRACT.md`.  
+  **Where:** `scripts/memory_retention_report.py`, `scripts/validate_memory_records.py`, `scripts/import_memory_records.py`, `scripts/export_memory_*.py`, `tooling/memory_bridge.py`, `docs/adapters/MEMORY_CONTRACT.md`.
   **Product form:** “Memory governance and hygiene” module—retention reports, TTL/namespace analytics, import/export, optional markdown bridge. Reduces operator labor and compliance risk.
 
 - **Operator-only audit and capability governance**  
@@ -159,7 +159,7 @@ Repo-grounded opportunities (point to actual subsystems or file groups):
   **Product form:** Premium dashboard product: health envelope aggregation, run health, trends, regression views—hosted or enterprise-installed.
 
 - **OpenClaw integration layer**  
-  **Where:** `adapters/openclaw_integration.py` (svc, queue, notifications), `examples/openclaw/`, `docs/OPENCLAW_ADAPTERS.md`.  
+  **Where:** `adapters/openclaw_integration.py` (svc, queue, notifications), `examples/openclaw/`, `docs/adapters/OPENCLAW_ADAPTERS.md`.  
   **Product form:** “Official OpenClaw connector” or “AINL for OpenClaw” pack—supported adapters and examples. Can stay open as adoption driver or be packaged as premium “supported integration.”
 
 - **Policy validator + policy packs**  

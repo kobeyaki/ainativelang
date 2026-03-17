@@ -77,4 +77,4 @@ Note: The `core.sub` trick on ISO strings is a bit hacky but works in practice f
 ## Related
 
 - `openclaw/SESSION_CONTINUITY_IMPLEMENTATION.md` — another example of `memory.list(updated_since?)` for session windows
-- `docs/MEMORY_CONTRACT.md` — specifies `memory.list` semantics including `updated_since`
+- `docs/adapters/MEMORY_CONTRACT.md` — specifies `memory.list` semantics including `updated_since`

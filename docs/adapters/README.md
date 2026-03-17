@@ -5,8 +5,8 @@ Use this section to understand how AINL reaches external systems and how capabil
 ## Key docs
 
 - [`../ADAPTER_REGISTRY.md`](../ADAPTER_REGISTRY.md) — adapter inventory and contracts
-- [`../OPENCLAW_ADAPTERS.md`](../OPENCLAW_ADAPTERS.md) — OpenClaw integration guide
-- [`../MEMORY_CONTRACT.md`](../MEMORY_CONTRACT.md) — memory contract and state surfaces
+- [`OPENCLAW_ADAPTERS.md`](OPENCLAW_ADAPTERS.md) — OpenClaw integration guide
+- [`MEMORY_CONTRACT.md`](MEMORY_CONTRACT.md) — memory contract and state surfaces
 
 ## Related sections
 

@@ -93,4 +93,4 @@ Original TikTok SLA monitor checks freshness of reports, videos, and backups eve
 
 - `openclaw/CANARY_SAMPLER_UPDATE.md`
 - `openclaw/INFRASTRUCTURE_WATCHDOG_UPDATE.md`
-- `docs/MEMORY_CONTRACT.md`
+- `docs/adapters/MEMORY_CONTRACT.md`

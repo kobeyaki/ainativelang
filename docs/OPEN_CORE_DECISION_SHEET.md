@@ -49,7 +49,7 @@
 | Graph / IR tooling | `tooling/graph_*.py`, `ir_canonical.py`, `ir_compact.py`, `step_focus.py`, `trace_focus.py` | **Commit open** | — | Introspection; simple utility | — | Dev tooling |
 | Tool API v2 (base projection) | `scripts/gen_tool_api_v2_tools.py`, `tooling/tool_api_v2.tools.json` (open subset) | **Commit open** | — | Agent discovery | — | Base open |
 | Capability report/filter scripts | `scripts/capabilities_report.py`, `scripts/capabilities_filter.py` | **Commit open** | — | Discovery; simple utility | High | Paid = packaged + SLA, not script |
-| Memory contract | `docs/MEMORY_CONTRACT.md` | **Commit open** | — | Extension contract | — | Interop |
+| Memory contract | `docs/adapters/MEMORY_CONTRACT.md` | **Commit open** | — | Extension contract | — | Interop |
 | Memory tooling (retention, validate, import/export) | `scripts/memory_retention_report.py`, validate/import/export, `tooling/memory_bridge.py`, etc. | **Commit open** | — | Operator hygiene; simple scripts | High | Paid = governance suite packaging |
 | Operator-only audit script | `scripts/operator_only_adapter_audit.py` | **Commit open** | — | Visibility; simple script | High | Paid = audit suite packaging |
 | Coordination validator, mailbox validation | `tooling/coordination_validator.py`, `scripts/validate_coordination_mailbox.py` | **Commit open** | — | Envelope validation; reference | High | Paid = compliance packaging |
@@ -97,7 +97,7 @@ We commit the following as **open** now. These surfaces will remain free and ope
 - **Extension adapters and examples (reference):** OpenClaw integration, agent adapter, examples (`adapters/openclaw_integration.py`, `adapters/agent.py`, `examples/openclaw/`).
 - **Graph/IR and capability scripts:** Graph API, export, rewrite, ir_canonical, ir_compact, step_focus, trace_focus; capability report and filter scripts; memory tooling (retention, validate, import/export); operator-only audit script; coordination validator and mailbox validation.
 - **Autonomous ops examples and run scripts:** Reference monitors and patterns (`examples/autonomous_ops/`, `demo/*.lang`, `scripts/run_*.py`, `docs/operations/AUTONOMOUS_OPS_MONITORS.md`).
-- **Memory contract:** `docs/MEMORY_CONTRACT.md`.
+- **Memory contract:** `docs/adapters/MEMORY_CONTRACT.md`.
 - **Tool API v2 base projection:** Open capability subset (`scripts/gen_tool_api_v2_tools.py`, `tooling/tool_api_v2.tools.json`).
 
 ---

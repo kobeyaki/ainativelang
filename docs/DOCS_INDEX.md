@@ -84,10 +84,10 @@ entry point for new users or unsupervised agents.
 - OpenClaw agent quickstart: `AI_AGENT_QUICKSTART_OPENCLAW.md`
 - Agent coordination contract (multi-agent envelopes/spec): `docs/AGENT_COORDINATION_CONTRACT.md`
 - Safe use and threat model: `docs/SAFE_USE_AND_THREAT_MODEL.md`
-- Adapter inventory and conventions (including extension/OpenClaw adapters): `docs/ADAPTER_REGISTRY.md`, `docs/OPENCLAW_ADAPTERS.md`
+- Adapter inventory and conventions (including extension/OpenClaw adapters): `docs/ADAPTER_REGISTRY.md`, `docs/adapters/OPENCLAW_ADAPTERS.md`
 - Autonomous ops monitors index: `docs/operations/AUTONOMOUS_OPS_MONITORS.md`
 - Standardized health envelope (monitor payloads): `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`
-- Memory contract and v1 adapter: `docs/MEMORY_CONTRACT.md`
+- Memory contract and v1 adapter: `docs/adapters/MEMORY_CONTRACT.md`
   - Memory v1 bridge and CLI tools (JSON/JSONL): `tooling/memory_bridge.py`, `scripts/export_memory_records.py`, `scripts/import_memory_records.py`
   - One-way markdown daily-log export (human-facing): `tooling/memory_markdown_bridge.py`, `scripts/export_memory_daily_log_markdown.py`
   - Curated markdown import (long-term facts/preferences): `tooling/memory_markdown_import.py`, `scripts/import_memory_markdown.py`
@@ -107,7 +107,7 @@ entry point for new users or unsupervised agents.
 - AI agent contribution guide: `docs/CONTRIBUTING_AI_AGENTS.md`
 - Docs update protocol: `docs/DOCS_MAINTENANCE.md`
 - Tool API contract for loop orchestration: `docs/reference/TOOL_API.md`
-- Adapter inventory and conventions: `docs/ADAPTER_REGISTRY.md`, `docs/OPENCLAW_ADAPTERS.md`
+- Adapter inventory and conventions: `docs/ADAPTER_REGISTRY.md`, `docs/adapters/OPENCLAW_ADAPTERS.md`
 
 ## Core Implementation Map
 

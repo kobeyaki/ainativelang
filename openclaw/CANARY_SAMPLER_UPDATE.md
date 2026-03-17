@@ -109,4 +109,4 @@ The alert path still sends immediately and returns without a separate summary to
 ## Related
 
 - `openclaw/INFRASTRUCTURE_WATCHDOG_UPDATE.md` — similar pattern of persisting events to memory for observability
-- `docs/MEMORY_CONTRACT.md` — `memory.list` semantics
+- `docs/adapters/MEMORY_CONTRACT.md` — `memory.list` semantics

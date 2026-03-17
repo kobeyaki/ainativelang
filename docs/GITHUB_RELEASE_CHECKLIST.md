@@ -67,7 +67,7 @@ For the step-by-step maintainer flow, use `docs/RELEASING.md`.
 
 Advanced memory and TTL hygiene:
 
-- [ ] Memory adapter contract and verbs (`put`, `get`, `append`, `list`, `delete`, `prune`) match `docs/MEMORY_CONTRACT.md`, `tooling/adapter_manifest.json`, and `ADAPTER_REGISTRY.json`.
+- [ ] Memory adapter contract and verbs (`put`, `get`, `append`, `list`, `delete`, `prune`) match `docs/adapters/MEMORY_CONTRACT.md`, `tooling/adapter_manifest.json`, and `ADAPTER_REGISTRY.json`.
 - [ ] For deployments that rely on TTLs or long-running memory usage, operators have an explicit plan or runbook entry to invoke `memory.prune` periodically as part of maintenance (no built-in scheduler is provided).
 
 ## 7) Final Publish Pass

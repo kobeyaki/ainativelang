@@ -15,8 +15,8 @@
     "docs/reference/GRAPH_SCHEMA.md"
   ],
   "advanced_docs": [
-    "docs/OPENCLAW_ADAPTERS.md",
-    "docs/MEMORY_CONTRACT.md",
+    "docs/adapters/OPENCLAW_ADAPTERS.md",
+    "docs/adapters/MEMORY_CONTRACT.md",
     "docs/SAFE_USE_AND_THREAT_MODEL.md",
     "docs/CAPABILITY_REGISTRY.md",
     "docs/operations/AUTONOMOUS_OPS_MONITORS.md",

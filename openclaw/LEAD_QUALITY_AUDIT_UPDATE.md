@@ -114,4 +114,4 @@ This provides immediate trend insight: is phone completeness trending up? Are re
 ## Related
 
 - `openclaw/TOKEN_BUDGET_TRACKER_IMPLEMENTATION.md` — rolling 7‑day cost using `memory.list`
-- `docs/MEMORY_CONTRACT.md` — time‑series query pattern
+- `docs/adapters/MEMORY_CONTRACT.md` — time‑series query pattern

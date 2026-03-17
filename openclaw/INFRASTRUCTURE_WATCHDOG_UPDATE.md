@@ -113,4 +113,4 @@ Key additions:
 ## Related
 
 - `openclaw/TOKEN_BUDGET_TRACKER_IMPLEMENTATION.md` — uses `memory.list(updated_since?)` for cost aggregation
-- `docs/MEMORY_CONTRACT.md` — `memory.list` parameters and semantics
+- `docs/adapters/MEMORY_CONTRACT.md` — `memory.list` parameters and semantics
