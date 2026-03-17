@@ -10,7 +10,7 @@
     "docs/AINL_CANONICAL_CORE.md",
     "docs/EXAMPLE_SUPPORT_MATRIX.md",
     "docs/RUNTIME_COMPILER_CONTRACT.md",
-    "docs/GRAPH_INTROSPECTION.md",
+    "docs/architecture/GRAPH_INTROSPECTION.md",
     "docs/IR_SCHEMA.md",
     "docs/GRAPH_SCHEMA.md"
   ],
@@ -19,8 +19,8 @@
     "docs/MEMORY_CONTRACT.md",
     "docs/SAFE_USE_AND_THREAT_MODEL.md",
     "docs/CAPABILITY_REGISTRY.md",
-    "docs/AUTONOMOUS_OPS_MONITORS.md",
-    "docs/STANDARDIZED_HEALTH_ENVELOPE.md",
+    "docs/operations/AUTONOMOUS_OPS_MONITORS.md",
+    "docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md",
     "docs/AGENT_COORDINATION_CONTRACT.md"
   ],
   "required_steps": [

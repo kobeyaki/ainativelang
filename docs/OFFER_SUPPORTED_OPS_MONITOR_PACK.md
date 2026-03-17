@@ -25,7 +25,7 @@ The first supported pack is expected to include a small set chosen from the moni
 - **Meta monitor** — Watchdog over the monitors themselves; alerts if any monitor is stale. Runner: `scripts/run_meta_monitor.py`.
 - **Token cost tracker** — OpenRouter (or similar) token spending vs budget; daily/weekly view. Runner: `scripts/run_token_cost_tracker.py`.
 
-Exact monitors and schedules are defined in the pack version and runbook. All use the **Standardized Health Envelope** (v1.0) for notifications and metrics. The full list of repo monitors is in `docs/AUTONOMOUS_OPS_MONITORS.md`; the supported pack is a subset with runbook and support.
+Exact monitors and schedules are defined in the pack version and runbook. All use the **Standardized Health Envelope** (v1.0) for notifications and metrics. The full list of repo monitors is in `docs/operations/AUTONOMOUS_OPS_MONITORS.md`; the supported pack is a subset with runbook and support.
 
 ---
 
@@ -42,7 +42,7 @@ Exact monitors and schedules are defined in the pack version and runbook. All us
 ## What remains open
 
 - The **AINL monitor source** (e.g. `examples/autonomous_ops/*.lang`, `demo/*.lang`) and **runner scripts** (`scripts/run_*.py`) remain part of the open project. You can run them yourself from the repo without buying the pack.
-- The **Standardized Health Envelope** schema and monitor index docs (`docs/AUTONOMOUS_OPS_MONITORS.md`, `docs/STANDARDIZED_HEALTH_ENVELOPE.md`) stay open.
+- The **Standardized Health Envelope** schema and monitor index docs (`docs/operations/AUTONOMOUS_OPS_MONITORS.md`, `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`) stay open.
 - The paid value is **runbook**, **packaging**, **updates**, and **support**—not exclusive access to the code.
 
 ---
@@ -80,7 +80,7 @@ Exact monitors and schedules are defined in the pack version and runbook. All us
 This offer is based on existing open assets:
 
 - **Monitors:** `examples/autonomous_ops/*.lang`, `demo/*.lang`; `scripts/run_infrastructure_watchdog.py`, `scripts/run_meta_monitor.py`, `scripts/run_token_cost_tracker.py`, and other `scripts/run_*.py` runners
-- **Docs:** `docs/AUTONOMOUS_OPS_MONITORS.md`, `docs/STANDARDIZED_HEALTH_ENVELOPE.md`, `openclaw/AUTONOMOUS_OPS_EXTENSION_IMPLEMENTATION.md`
+- **Docs:** `docs/operations/AUTONOMOUS_OPS_MONITORS.md`, `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`, `openclaw/AUTONOMOUS_OPS_EXTENSION_IMPLEMENTATION.md`
 - **Health envelope:** All monitors use the same queue payload shape (envelope version, module, status, ts, metrics, history_24h, meta)
 
 We do not claim to provide monitors or infrastructure that do not exist; the offer is runbook, packaging, updates, and support around these programs.

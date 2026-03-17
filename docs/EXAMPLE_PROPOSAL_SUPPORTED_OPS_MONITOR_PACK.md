@@ -64,7 +64,7 @@ We propose the **Supported Ops Monitor Pack**: a curated set of AINL autonomous 
 
 ## What remains open / repo-grounded
 
-The **AINL monitor source** (e.g. `examples/autonomous_ops/*.lang`, `demo/*.lang`) and **runner scripts** (`scripts/run_*.py`) remain part of the open AINL project. You can run them yourself from the repo without buying the pack. The **Standardized Health Envelope** schema and monitor index docs (`docs/AUTONOMOUS_OPS_MONITORS.md`, `docs/STANDARDIZED_HEALTH_ENVELOPE.md`) also stay open. The paid value of this offer is **runbook**, **packaging**, **guaranteed updates**, and **support**—not exclusive access to code. There is no lock-in; you keep full visibility into the open programs and schema.
+The **AINL monitor source** (e.g. `examples/autonomous_ops/*.lang`, `demo/*.lang`) and **runner scripts** (`scripts/run_*.py`) remain part of the open AINL project. You can run them yourself from the repo without buying the pack. The **Standardized Health Envelope** schema and monitor index docs (`docs/operations/AUTONOMOUS_OPS_MONITORS.md`, `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`) also stay open. The paid value of this offer is **runbook**, **packaging**, **guaranteed updates**, and **support**—not exclusive access to code. There is no lock-in; you keep full visibility into the open programs and schema.
 
 ---
 

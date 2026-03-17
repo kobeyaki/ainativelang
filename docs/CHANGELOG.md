@@ -4,7 +4,7 @@
 
 ### OpenClaw Autonomous Ops Programs and Docs
 - Added new autonomous ops programs (OpenClaw-created): `memory_prune`, `meta_monitor`, `session_continuity`, `token_budget_tracker`, and `monitor_system` (reference shape). Demo and `examples/autonomous_ops/` copies added; existing monitors (canary_sampler, infrastructure_watchdog, lead_quality_audit, tiktok_sla_monitor, token_cost_tracker) updated.
-- New docs: `docs/AUTONOMOUS_OPS_MONITORS.md` (monitor index and schedules), `docs/STANDARDIZED_HEALTH_ENVELOPE.md`. OpenClaw implementation notes: `openclaw/MEMORY_PRUNE_IMPLEMENTATION.md`, `openclaw/META_MONITOR_IMPLEMENTATION.md`, `openclaw/SESSION_CONTINUITY_IMPLEMENTATION.md`, `openclaw/TOKEN_BUDGET_TRACKER_IMPLEMENTATION.md`, plus update docs for existing monitors.
+- New docs: `docs/operations/AUTONOMOUS_OPS_MONITORS.md` (monitor index and schedules), `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`. OpenClaw implementation notes: `openclaw/MEMORY_PRUNE_IMPLEMENTATION.md`, `openclaw/META_MONITOR_IMPLEMENTATION.md`, `openclaw/SESSION_CONTINUITY_IMPLEMENTATION.md`, `openclaw/TOKEN_BUDGET_TRACKER_IMPLEMENTATION.md`, plus update docs for existing monitors.
 - Updated `docs/DOCS_INDEX.md` (links to autonomous ops monitors and standardized health envelope), `docs/EXAMPLE_SUPPORT_MATRIX.md` and `examples/autonomous_ops/README.md` (new programs table), `tooling/artifact_profiles.json` (new example paths). Config externalization and related OpenClaw notes in `openclaw/CONFIG_EXTERNALIZATION.md`, `openclaw/CANARY_SAMPLER_UPDATE.md`, etc.
 
 ### Extension-Level Memory Adapter and Contract (v1)
@@ -244,7 +244,7 @@
   - groups IR nodes per label in DOT subgraphs,
   - labels nodes by op and adapter prefix (e.g. `R (http)`), and edges by
     control-flow port (`next`, `then`, `else`, etc.).
-- Documented the helper and example usage in `docs/GRAPH_INTROSPECTION.md`
+- Documented the helper and example usage in `docs/architecture/GRAPH_INTROSPECTION.md`
   without changing any compiler or runtime semantics.
 - Added `tests/test_render_graph.py` to assert basic DOT structure and labeling.
 
@@ -298,7 +298,7 @@
   classify the autonomous-ops pack as compatible OpenClaw extension examples.
 
 ### Graph/IR Introspection and Operator UX
-- Added `docs/GRAPH_INTROSPECTION.md` to document IR/graph emission, graph API
+- Added `docs/architecture/GRAPH_INTROSPECTION.md` to document IR/graph emission, graph API
   helpers, normalization, and diffs.
 - Added `scripts/inspect_ainl.py` as a tiny program-summary helper that prints
   `graph_semantic_checksum`, label/node counts, adapters, endpoints, and

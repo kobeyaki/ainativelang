@@ -44,7 +44,7 @@
 | Baseline eval harness, report schemas | Concepts and open report schemas | **Commit open** | — | Reproducibility and contract | — | Research and community |
 | Bot onboarding, preflight | `docs/BOT_ONBOARDING.md`, `docs/OPENCLAW_IMPLEMENTATION_PREFLIGHT.md`, `tooling/bot_bootstrap.json` | **Commit open** | — | Universal implementation discipline | — | Must stay free |
 | Basic policy validator | `tooling/policy_validator.py` | **Commit open** | — | Lightweight governance; safe default | — | Simple utility; keep open |
-| Health envelope schema | `docs/STANDARDIZED_HEALTH_ENVELOPE.md` | **Commit open** | — | Interop for monitors/dashboards | — | Schema stays public |
+| Health envelope schema | `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md` | **Commit open** | — | Interop for monitors/dashboards | — | Schema stays public |
 | Extension adapters (OpenClaw, agent) | `adapters/openclaw_integration.py`, `adapters/agent.py`, `examples/openclaw/` | **Commit open** | — | Reference implementation; adoption | — | Paid = supported tier only |
 | Graph / IR tooling | `tooling/graph_*.py`, `ir_canonical.py`, `ir_compact.py`, `step_focus.py`, `trace_focus.py` | **Commit open** | — | Introspection; simple utility | — | Dev tooling |
 | Tool API v2 (base projection) | `scripts/gen_tool_api_v2_tools.py`, `tooling/tool_api_v2.tools.json` (open subset) | **Commit open** | — | Agent discovery | — | Base open |
@@ -53,7 +53,7 @@
 | Memory tooling (retention, validate, import/export) | `scripts/memory_retention_report.py`, validate/import/export, `tooling/memory_bridge.py`, etc. | **Commit open** | — | Operator hygiene; simple scripts | High | Paid = governance suite packaging |
 | Operator-only audit script | `scripts/operator_only_adapter_audit.py` | **Commit open** | — | Visibility; simple script | High | Paid = audit suite packaging |
 | Coordination validator, mailbox validation | `tooling/coordination_validator.py`, `scripts/validate_coordination_mailbox.py` | **Commit open** | — | Envelope validation; reference | High | Paid = compliance packaging |
-| Autonomous ops examples, run scripts | `examples/autonomous_ops/*.lang`, `demo/*.lang`, `scripts/run_*.py`, `docs/AUTONOMOUS_OPS_MONITORS.md` | **Commit open** | — | Reference monitors and patterns | — | Paid = supported pack / Managed |
+| Autonomous ops examples, run scripts | `examples/autonomous_ops/*.lang`, `demo/*.lang`, `scripts/run_*.py`, `docs/operations/AUTONOMOUS_OPS_MONITORS.md` | **Commit open** | — | Reference monitors and patterns | — | Paid = supported pack / Managed |
 | Hosted AINL runtime / managed ops | Hosted service (no repo code) | **Commit paid** | Managed | Run at scale; uptime; operator labor | Low | Operational guarantee |
 | Managed alignment pipeline | Builds on `run_alignment_cycle.sh`, sweep, eval, run health | **Commit paid** | Managed | We run sweep, eval gate, trends; SLA | Low | Operational guarantee |
 | Managed dashboard / ops platform | Builds on health envelope, run health; aggregation, alerts | **Commit paid** | Managed | Visibility; regression; run health | Medium | Only if it provides aggregation, trends, regression visibility, alerts, governance integration, or SLA-backed operational value—not just UI over open outputs |
@@ -88,7 +88,7 @@ We commit the following as **open** now. These surfaces will remain free and ope
 - **Core docs and examples:** Architecture, install, conformance, DOCS_INDEX, README; baseline examples and golden curriculum (`examples/golden/*.ainl`, `docs/EXAMPLE_SUPPORT_MATRIX.md`).
 - **Onboarding and preflight:** Bot onboarding and implementation preflight (`docs/BOT_ONBOARDING.md`, `docs/OPENCLAW_IMPLEMENTATION_PREFLIGHT.md`, `tooling/bot_bootstrap.json`).
 - **Basic policy validator:** IR-level policy check (`tooling/policy_validator.py`).
-- **Health envelope schema:** Standardized health envelope (`docs/STANDARDIZED_HEALTH_ENVELOPE.md`).
+- **Health envelope schema:** Standardized health envelope (`docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`).
 - **Core adapter discovery / registry / manifest:** Adapter registry and manifest for core adapters (`docs/ADAPTER_REGISTRY.md`, `tooling/adapter_manifest.json`, core entries in `ADAPTER_REGISTRY.json`).
 - **Capability registry (open subset):** Schema and canonical-lane capability entries (`tooling/capabilities.json`, `capabilities.schema.json`, `docs/CAPABILITY_REGISTRY.md`).
 - **Baseline eval harness and report schemas:** Concepts and open report schemas for reproducibility.
@@ -96,7 +96,7 @@ We commit the following as **open** now. These surfaces will remain free and ope
 - **Core runtime adapters:** http, sqlite, fs, tools, wasm, base, replay (`runtime/adapters/`).
 - **Extension adapters and examples (reference):** OpenClaw integration, agent adapter, examples (`adapters/openclaw_integration.py`, `adapters/agent.py`, `examples/openclaw/`).
 - **Graph/IR and capability scripts:** Graph API, export, rewrite, ir_canonical, ir_compact, step_focus, trace_focus; capability report and filter scripts; memory tooling (retention, validate, import/export); operator-only audit script; coordination validator and mailbox validation.
-- **Autonomous ops examples and run scripts:** Reference monitors and patterns (`examples/autonomous_ops/`, `demo/*.lang`, `scripts/run_*.py`, `docs/AUTONOMOUS_OPS_MONITORS.md`).
+- **Autonomous ops examples and run scripts:** Reference monitors and patterns (`examples/autonomous_ops/`, `demo/*.lang`, `scripts/run_*.py`, `docs/operations/AUTONOMOUS_OPS_MONITORS.md`).
 - **Memory contract:** `docs/MEMORY_CONTRACT.md`.
 - **Tool API v2 base projection:** Open capability subset (`scripts/gen_tool_api_v2_tools.py`, `tooling/tool_api_v2.tools.json`).
 

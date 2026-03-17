@@ -161,7 +161,7 @@ saved run payloads.
 ### 3. How this relates to other evidence
 
 - **Graph/IR introspection**  
-  - `docs/GRAPH_INTROSPECTION.md` shows how to:
+  - `docs/architecture/GRAPH_INTROSPECTION.md` shows how to:
     - emit IR/graph with `ainl-validate` / `scripts/validate_ainl.py`,
     - query graphs with `tooling/graph_api.py`,
     - normalize and diff graphs.

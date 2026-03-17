@@ -40,7 +40,7 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
 - Runtime behavior specification (complement to `SEMANTICS.md`): `docs/ainl_runtime_spec.md`
 - Target/runtime support roadmap: `docs/TARGETS_ROADMAP.md`
 - Example support classification: `docs/EXAMPLE_SUPPORT_MATRIX.md`
-- Graph/IR introspection guide: `docs/GRAPH_INTROSPECTION.md`
+- Graph/IR introspection guide: `docs/architecture/GRAPH_INTROSPECTION.md`
 - Runtime semantics contract: `SEMANTICS.md`
 - Runtime/compiler execution contract: `docs/RUNTIME_COMPILER_CONTRACT.md`
 - Autonomous ops playbook: `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md`
@@ -85,8 +85,8 @@ entry point for new users or unsupervised agents.
 - Agent coordination contract (multi-agent envelopes/spec): `docs/AGENT_COORDINATION_CONTRACT.md`
 - Safe use and threat model: `docs/SAFE_USE_AND_THREAT_MODEL.md`
 - Adapter inventory and conventions (including extension/OpenClaw adapters): `docs/ADAPTER_REGISTRY.md`, `docs/OPENCLAW_ADAPTERS.md`
-- Autonomous ops monitors index: `docs/AUTONOMOUS_OPS_MONITORS.md`
-- Standardized health envelope (monitor payloads): `docs/STANDARDIZED_HEALTH_ENVELOPE.md`
+- Autonomous ops monitors index: `docs/operations/AUTONOMOUS_OPS_MONITORS.md`
+- Standardized health envelope (monitor payloads): `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`
 - Memory contract and v1 adapter: `docs/MEMORY_CONTRACT.md`
   - Memory v1 bridge and CLI tools (JSON/JSONL): `tooling/memory_bridge.py`, `scripts/export_memory_records.py`, `scripts/import_memory_records.py`
   - One-way markdown daily-log export (human-facing): `tooling/memory_markdown_bridge.py`, `scripts/export_memory_daily_log_markdown.py`

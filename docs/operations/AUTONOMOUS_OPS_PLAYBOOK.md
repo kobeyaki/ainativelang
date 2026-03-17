@@ -104,7 +104,7 @@ The **Example Support Matrix** and **Canonical Curriculum**:
 
 For graph‑level introspection (before or instead of running):
 
-- see `docs/GRAPH_INTROSPECTION.md` for how to:
+- see `docs/architecture/GRAPH_INTROSPECTION.md` for how to:
   - emit IR/graph with `ainl-validate` / `scripts/validate_ainl.py`
   - query graphs with `tooling/graph_api.py`
   - use `graph_diff` / `graph_normalize` for audits.
@@ -281,7 +281,7 @@ If you are building an autonomous agent on top of AINL, the recommended reading 
 1. `README.md` — overview and positioning.
 2. `docs/AINL_CANONICAL_CORE.md` — canonical language surface.
 3. `docs/EXAMPLE_SUPPORT_MATRIX.md` + `tooling/canonical_curriculum.json` — examples and roles.
-4. `docs/GRAPH_INTROSPECTION.md` — how to inspect compiled IR/graphs.
+4. `docs/architecture/GRAPH_INTROSPECTION.md` — how to inspect compiled IR/graphs.
 5. `docs/GRAPH_SCHEMA.md` + `docs/IR_SCHEMA.md` — deeper IR/graph details if needed.
 6. `docs/ADAPTER_REGISTRY.md` — adapter capabilities and tiers.
 7. `docs/AGENT_COORDINATION_CONTRACT.md` — non-canonical, extension-level JSON envelopes for agent manifests, task requests, and task results (used over queues/files, not as core semantics).

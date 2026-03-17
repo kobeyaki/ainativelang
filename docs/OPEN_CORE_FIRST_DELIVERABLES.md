@@ -15,7 +15,7 @@
 - **Pipeline:** `scripts/run_alignment_cycle.sh`, `scripts/sweep_checkpoints.py`, `scripts/eval_finetuned_model.py`, `scripts/build_regression_supervision.py`; `docs/TRAINING_ALIGNMENT_RUNBOOK.md`, `docs/FINETUNE_GUIDE.md`.
 - **Run health:** `corpus/curated/alignment_run_health.json` (machine-readable gate output).
 - **Runner (for hosted runtime):** `scripts/runtime_runner_service.py` (FastAPI: `/run`, `/health`, `/ready`, `/metrics`); `services/runtime_runner/Dockerfile`, `services/runtime_runner/docker-compose.yml`.
-- **Monitors (for managed ops):** `scripts/run_*.py` (e.g. `run_infrastructure_watchdog.py`, `run_meta_monitor.py`), `docs/AUTONOMOUS_OPS_MONITORS.md`, `docs/STANDARDIZED_HEALTH_ENVELOPE.md`.
+- **Monitors (for managed ops):** `scripts/run_*.py` (e.g. `run_infrastructure_watchdog.py`, `run_meta_monitor.py`), `docs/operations/AUTONOMOUS_OPS_MONITORS.md`, `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`.
 
 ### Missing pieces
 - **Managed alignment:** Customer-specific dataset/config; secure execution environment; run scheduling; SLA monitoring and reporting; billing/entitlement.
@@ -40,7 +40,7 @@
 **Supported ops monitor pack** — Curated autonomous ops programs + runbooks + health envelope + updates and SLA. Examples stay open; paid = support, guaranteed updates, and runbook/SLA. Alternative first: **Governance audit package** — package existing scripts (operator_only audit, capability report, coordination validator, memory retention) with one curated policy pack and support.
 
 ### Repo grounding
-- **Monitors:** `examples/autonomous_ops/*.lang`, `demo/*.lang`, `scripts/run_*.py`, `docs/AUTONOMOUS_OPS_MONITORS.md`, `docs/STANDARDIZED_HEALTH_ENVELOPE.md`, `openclaw/AUTONOMOUS_OPS_EXTENSION_IMPLEMENTATION.md`.
+- **Monitors:** `examples/autonomous_ops/*.lang`, `demo/*.lang`, `scripts/run_*.py`, `docs/operations/AUTONOMOUS_OPS_MONITORS.md`, `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`, `openclaw/AUTONOMOUS_OPS_EXTENSION_IMPLEMENTATION.md`.
 - **Audit/governance scripts:** `scripts/operator_only_adapter_audit.py`, `scripts/capabilities_report.py`, `scripts/capabilities_filter.py`; `tooling/coordination_validator.py`, `scripts/validate_coordination_mailbox.py`; `scripts/memory_retention_report.py`, `scripts/validate_memory_records.py`; `tooling/policy_validator.py` (open; policy packs would be curated policies).
 - **Deployment:** Emitted `Dockerfile`, `docker-compose.yml`, `k8s.yaml` from `scripts/run_tests_and_emit.py`; `services/runtime_runner/` for runner.
 

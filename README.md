@@ -310,7 +310,7 @@ All production monitors use a common message envelope for notifications:
 }
 ```
 
-This ensures consistent parsing for Telegram, dashboards, and downstream processing. See [`docs/STANDARDIZED_HEALTH_ENVELOPE.md`](docs/STANDARDIZED_HEALTH_ENVELOPE.md).
+This ensures consistent parsing for Telegram, dashboards, and downstream processing. See [`docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`](docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md).
 
 ## Best Supported Today
 
@@ -337,7 +337,7 @@ The core, safe-default entry path for AINL focuses on:
 - the canonical compiler/runtime and graph IR (`compiler_v2.py`, `runtime/engine.py`),
 - canonical language scope (`docs/AINL_CANONICAL_CORE.md`, `docs/AINL_SPEC.md`),
 - strict/compatible examples classified in `docs/EXAMPLE_SUPPORT_MATRIX.md`,
-- graph/IR tooling (`docs/GRAPH_INTROSPECTION.md`),
+- graph/IR tooling (`docs/architecture/GRAPH_INTROSPECTION.md`),
 - server/OpenAPI emission and basic workflows.
 
 ### Advanced / operator-only / experimental surface
@@ -408,7 +408,7 @@ For full attribution context, see:
 - Spec: `docs/AINL_SPEC.md`
 - Canonical core: `docs/AINL_CANONICAL_CORE.md`
 - Example support levels: `docs/EXAMPLE_SUPPORT_MATRIX.md`
-- Graph/IR introspection: `docs/GRAPH_INTROSPECTION.md`
+- Graph/IR introspection: `docs/architecture/GRAPH_INTROSPECTION.md`
 - Autonomous ops playbook: `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md`
 - Grammar reference: `docs/language/grammar.md`
 - Conformance and strict policy: `docs/CONFORMANCE.md`
@@ -452,7 +452,7 @@ For a quick look at the compiled graph/IR for any program:
 ainl-validate examples/hello.ainl --strict --emit ir
 ```
 
-See `docs/GRAPH_INTROSPECTION.md` for a full guide to IR/graph inspection and programmatic graph queries.
+See `docs/architecture/GRAPH_INTROSPECTION.md` for a full guide to IR/graph inspection and programmatic graph queries.
 
 ## Production deploy (Docker)
 

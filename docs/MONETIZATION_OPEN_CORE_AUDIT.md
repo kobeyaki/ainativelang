@@ -26,8 +26,8 @@ Major layers/subsystems inspected and short description of each:
 | **Memory contract** | `docs/MEMORY_CONTRACT.md`, memory adapter (extension) | Namespaces (session, long_term, daily_log, workflow); record kinds; TTL; v1 envelope. Extension-level, backend-agnostic. |
 | **Memory tooling** | `scripts/memory_retention_report.py`, `scripts/validate_memory_records.py`, `scripts/import_memory_records.py`, `scripts/export_memory_*`, `tooling/memory_bridge.py`, `tooling/memory_markdown_import.py` | Operator hygiene: retention report, validation, import/export, markdown bridge. |
 | **Agent coordination** | `docs/AGENT_COORDINATION_CONTRACT.md`, `tooling/coordination_validator.py`, `scripts/validate_coordination_mailbox.py` | AgentTaskRequest/Result/Manifest envelopes; mailbox validation; advisory-only fields (approval_required, budget_limit, etc.). |
-| **Autonomous ops** | `openclaw/AUTONOMOUS_OPS_EXTENSION_IMPLEMENTATION.md`, `docs/AUTONOMOUS_OPS_MONITORS.md`, `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md`, `demo/*.lang`, `examples/autonomous_ops/*.lang`, `scripts/run_*.py` (e.g. run_infrastructure_watchdog.py, run_meta_monitor.py) | Monitor programs (infrastructure, TikTok SLA, canary, token cost, lead quality, session continuity, memory prune, meta monitor); standardized health envelope; cron deployment pattern. |
-| **Standardized health envelope** | `docs/STANDARDIZED_HEALTH_ENVELOPE.md` | Common queue payload shape: envelope version, module, status, ts, metrics, history_24h, meta. For dashboards and downstream. |
+| **Autonomous ops** | `openclaw/AUTONOMOUS_OPS_EXTENSION_IMPLEMENTATION.md`, `docs/operations/AUTONOMOUS_OPS_MONITORS.md`, `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md`, `demo/*.lang`, `examples/autonomous_ops/*.lang`, `scripts/run_*.py` (e.g. run_infrastructure_watchdog.py, run_meta_monitor.py) | Monitor programs (infrastructure, TikTok SLA, canary, token cost, lead quality, session continuity, memory prune, meta monitor); standardized health envelope; cron deployment pattern. |
+| **Standardized health envelope** | `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md` | Common queue payload shape: envelope version, module, status, ts, metrics, history_24h, meta. For dashboards and downstream. |
 | **Graph / IR tooling** | `tooling/graph_api.py`, `tooling/graph_export.py`, `tooling/graph_rewrite.py`, `tooling/ir_canonical.py`, `tooling/ir_compact.py`, `tooling/step_focus.py`, `tooling/trace_focus.py` | Introspection, export, rewrite, canonicalization, compaction, focus filters. |
 | **Tool API v2** | `scripts/gen_tool_api_v2_tools.py`, `tooling/tool_api_v2.tools.json` | Projection of capability registry into machine-readable tools descriptor for agents. |
 | **Capability scripts** | `scripts/capabilities_report.py`, `scripts/capabilities_filter.py` | Report by kind/lane/domain; filter by domain/safety for capability discovery. |
@@ -135,7 +135,7 @@ Concrete list with reasons:
 Repo-grounded opportunities (point to actual subsystems or file groups):
 
 - **Autonomous ops monitor pack**  
-  **Where:** `examples/autonomous_ops/*.lang`, `demo/*.lang` (watchdog, TikTok SLA, canary, token cost, lead quality, token budget, session continuity, memory prune, meta monitor), `scripts/run_*.py`, `docs/AUTONOMOUS_OPS_MONITORS.md`, `docs/STANDARDIZED_HEALTH_ENVELOPE.md`.  
+  **Where:** `examples/autonomous_ops/*.lang`, `demo/*.lang` (watchdog, TikTok SLA, canary, token cost, lead quality, token budget, session continuity, memory prune, meta monitor), `scripts/run_*.py`, `docs/operations/AUTONOMOUS_OPS_MONITORS.md`, `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`.
   **Product form:** “OpenClaw-style monitor pack” or “AINL ops pack”—curated, tested, deployable monitors + health envelope + runbooks. Sell as a supported package or as part of a hosted ops product.
 
 - **Memory + retention tooling**  

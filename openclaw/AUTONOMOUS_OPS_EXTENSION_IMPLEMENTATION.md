@@ -149,7 +149,7 @@ adapter calls.
 
 ## Standardized Health Envelope and Config
 
-All monitors use the envelope defined in `docs/STANDARDIZED_HEALTH_ENVELOPE.md`. Configuration is externalized via `memory` `config.<module>` records. Heartbeats are written to `cache` with key `monitor_heartbeat.<module>`.
+All monitors use the envelope defined in `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`. Configuration is externalized via `memory` `config.<module>` records. Heartbeats are written to `cache` with key `monitor_heartbeat.<module>`.
 
 ---
 
