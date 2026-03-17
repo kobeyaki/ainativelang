@@ -30,7 +30,7 @@ Release packaging expects these boundaries to stay explicit:
 - Compiler/strict semantic ownership: `compiler_v2.py`
 - Example/corpus/fixture strictness classes: `tooling/artifact_profiles.json`
 - Strict adapter contract allowlist ownership: `tooling/effect_analysis.py`
-- Safe optimization policy (benchmark/compaction without syntax drift): `docs/SAFE_OPTIMIZATION_POLICY.md`
+- Safe optimization policy (benchmark/compaction without syntax drift): `docs/runtime/SAFE_OPTIMIZATION_POLICY.md`
 
 ## Capability Map (Code + Tests)
 

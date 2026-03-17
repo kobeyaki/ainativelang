@@ -225,7 +225,7 @@ The table below expands the five items above with implementation notes.
 
 This workspace is **conformant with AINL 1.0** for surface syntax, IR schema (labels use `nodes`, `edges`, `entry`, `exits`, `legacy.steps`), lossless unknown-op preservation in `meta`, P declaration-only, deterministic graph emission, strict validation, and **graph execution**.
 
-Language-surface optimization guardrails for future compression/benchmark work are documented in `docs/SAFE_OPTIMIZATION_POLICY.md`.
+Language-surface optimization guardrails for future compression/benchmark work are documented in `docs/runtime/SAFE_OPTIMIZATION_POLICY.md`.
 
 **Current runtime execution:** When a label has `nodes`/`edges`/`entry`, the engine runs **graph traversal** (`_run_label_graph`); legacy step-list is used only when graph is absent or `execution_mode` is `steps-only`.
 

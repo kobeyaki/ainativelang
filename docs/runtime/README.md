@@ -6,7 +6,7 @@ Use this section to understand how compiled AINL graphs execute, what runtime gu
 
 - [`../ainl_runtime_spec.md`](../ainl_runtime_spec.md) — runtime behavior specification
 - [`../CONFORMANCE.md`](../CONFORMANCE.md) — current implementation conformance
-- [`../SAFE_OPTIMIZATION_POLICY.md`](../SAFE_OPTIMIZATION_POLICY.md) — optimization guardrails
+- [`SAFE_OPTIMIZATION_POLICY.md`](SAFE_OPTIMIZATION_POLICY.md) — optimization guardrails
 
 ## Related sections
 

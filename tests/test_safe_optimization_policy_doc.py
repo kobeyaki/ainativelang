@@ -2,11 +2,11 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-POLICY = ROOT / "docs" / "SAFE_OPTIMIZATION_POLICY.md"
+POLICY = ROOT / "docs" / "runtime" / "SAFE_OPTIMIZATION_POLICY.md"
 
 
 def test_safe_optimization_policy_exists_and_has_required_sections():
-    assert POLICY.exists(), "missing docs/SAFE_OPTIMIZATION_POLICY.md"
+    assert POLICY.exists(), "missing docs/runtime/SAFE_OPTIMIZATION_POLICY.md"
     text = POLICY.read_text(encoding="utf-8")
     required_headers = [
         "## Optimization Rule",

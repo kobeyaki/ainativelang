@@ -44,7 +44,7 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
 - Runtime semantics contract: `SEMANTICS.md`
 - Runtime/compiler execution contract: `docs/RUNTIME_COMPILER_CONTRACT.md`
 - Autonomous ops playbook: `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md`
-- Safe optimization policy (language vs compiler optimization guardrails): `docs/SAFE_OPTIMIZATION_POLICY.md`
+- Safe optimization policy (language vs compiler optimization guardrails): `docs/runtime/SAFE_OPTIMIZATION_POLICY.md`
 - Machine-readable support levels: `tooling/support_matrix.json`
 - Runtime compatibility shim (`ExecutionEngine` facade): `runtime/compat.py`, `runtime.py`
 - Documentation maintenance contract: `docs/DOCS_MAINTENANCE.md`

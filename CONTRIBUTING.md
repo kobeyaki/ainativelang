@@ -110,7 +110,7 @@ When making semantics-sensitive changes, treat these ownership boundaries as man
 - Grammar compatibility composition: `grammar_constraint.py` (non-authoritative)
 - Adapter strict contract allowlist/effects: `tooling/effect_analysis.py`
 - Artifact strict/non-strict/legacy classification: `tooling/artifact_profiles.json`
-- Safe optimization policy for language-vs-compiler tradeoffs: `docs/SAFE_OPTIMIZATION_POLICY.md`
+- Safe optimization policy for language-vs-compiler tradeoffs: `docs/runtime/SAFE_OPTIMIZATION_POLICY.md`
 
 If a change alters compiler/runtime/grammar behavior, update:
 

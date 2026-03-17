@@ -413,7 +413,7 @@ For full attribution context, see:
 - Grammar reference: `docs/language/grammar.md`
 - Conformance and strict policy: `docs/CONFORMANCE.md`
 - Runtime/compiler ownership: `docs/RUNTIME_COMPILER_CONTRACT.md`
-- Safe optimization guidance for benchmark/compaction work: `docs/SAFE_OPTIMIZATION_POLICY.md`
+- Safe optimization guidance for benchmark/compaction work: `docs/runtime/SAFE_OPTIMIZATION_POLICY.md`
 - Machine-readable support levels: `tooling/support_matrix.json`
 - Release readiness matrix: `docs/RELEASE_READINESS.md`
 - No-break migration tracker: `docs/NO_BREAK_MIGRATION_PLAN.md`
