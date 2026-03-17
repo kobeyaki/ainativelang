@@ -114,7 +114,7 @@ For graph‑level introspection (before or instead of running):
 Adapters are declared and validated via:
 
 - `tooling/adapter_manifest.json` (canonical machine‑readable metadata)
-- `ADAPTER_REGISTRY.json` + `docs/ADAPTER_REGISTRY.md` (richer operator view)
+- `ADAPTER_REGISTRY.json` + `docs/reference/ADAPTER_REGISTRY.md` (richer operator view)
 
 The current story:
 
@@ -283,7 +283,7 @@ If you are building an autonomous agent on top of AINL, the recommended reading 
 3. `docs/EXAMPLE_SUPPORT_MATRIX.md` + `tooling/canonical_curriculum.json` — examples and roles.
 4. `docs/architecture/GRAPH_INTROSPECTION.md` — how to inspect compiled IR/graphs.
 5. `docs/reference/GRAPH_SCHEMA.md` + `docs/reference/IR_SCHEMA.md` — deeper IR/graph details if needed.
-6. `docs/ADAPTER_REGISTRY.md` — adapter capabilities and tiers.
+6. `docs/reference/ADAPTER_REGISTRY.md` — adapter capabilities and tiers.
 7. `docs/advanced/AGENT_COORDINATION_CONTRACT.md` — non-canonical, extension-level JSON envelopes for agent manifests, task requests, and task results (used over queues/files, not as core semantics).
 
 When you need something AINL does **not** yet express cleanly (e.g. full meta‑monitoring), model it explicitly as “deferred” in your system design rather than assuming semantics that do not exist.

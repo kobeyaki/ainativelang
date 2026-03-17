@@ -19,7 +19,7 @@ Major layers/subsystems inspected and short description of each:
 | **Runtime adapters (core)** | `runtime/adapters/` — `http`, `sqlite`, `fs`, `tools`, `wasm`, `base`, `replay` | Built-in adapters with contract tests. No OpenClaw/agent/memory here; core only. |
 | **Adapters (extension)** | `adapters/` — `base`, `mock`, `agent`, `core_patch`, `openclaw_integration`, `tiktok`, `demo_mock` | Pluggable backends; OpenClaw integration (svc, queue, notifications); agent task send/read. |
 | **Spec / semantics** | `docs/AINL_SPEC.md`, `SEMANTICS.md`, `docs/AINL_CANONICAL_CORE.md`, `docs/RUNTIME_COMPILER_CONTRACT.md` | Normative language and execution model; compiler/runtime ownership. |
-| **Adapter registry** | `docs/ADAPTER_REGISTRY.md`, `tooling/adapter_manifest.json`, `ADAPTER_REGISTRY.json` (examples/golden) | Human + machine catalog of adapters, verbs, effects, examples. |
+| **Adapter registry** | `docs/reference/ADAPTER_REGISTRY.md`, `tooling/adapter_manifest.json`, `ADAPTER_REGISTRY.json` (examples/golden) | Human + machine catalog of adapters, verbs, effects, examples. |
 | **Capability registry** | `tooling/capabilities.json`, `tooling/capabilities.schema.json`, `docs/reference/CAPABILITY_REGISTRY.md` | Metadata-only: support_tier (core / extension_openclaw), lane (canonical / noncanonical), safety_tags (e.g. operator_only). Used for Tool API v2 projection and discovery. |
 | **Policy validator** | `tooling/policy_validator.py` | IR-level policy: forbidden_adapters, forbidden_effects, forbidden_effect_tiers. Small, machine-friendly; no runtime change. |
 | **Operator-only audit** | `scripts/operator_only_adapter_audit.py` | Scans capabilities.json + AINL source; reports where operator_only capabilities are used. Read-only governance visibility. |

@@ -84,7 +84,7 @@ entry point for new users or unsupervised agents.
 - OpenClaw agent quickstart: `AI_AGENT_QUICKSTART_OPENCLAW.md`
 - Agent coordination contract (multi-agent envelopes/spec): `docs/advanced/AGENT_COORDINATION_CONTRACT.md`
 - Safe use and threat model: `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md`
-- Adapter inventory and conventions (including extension/OpenClaw adapters): `docs/ADAPTER_REGISTRY.md`, `docs/adapters/OPENCLAW_ADAPTERS.md`
+- Adapter inventory and conventions (including extension/OpenClaw adapters): `docs/reference/ADAPTER_REGISTRY.md`, `docs/adapters/OPENCLAW_ADAPTERS.md`
 - Autonomous ops monitors index: `docs/operations/AUTONOMOUS_OPS_MONITORS.md`
 - Standardized health envelope (monitor payloads): `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`
 - Memory contract and v1 adapter: `docs/adapters/MEMORY_CONTRACT.md`
@@ -107,7 +107,7 @@ entry point for new users or unsupervised agents.
 - AI agent contribution guide: `docs/CONTRIBUTING_AI_AGENTS.md`
 - Docs update protocol: `docs/DOCS_MAINTENANCE.md`
 - Tool API contract for loop orchestration: `docs/reference/TOOL_API.md`
-- Adapter inventory and conventions: `docs/ADAPTER_REGISTRY.md`, `docs/adapters/OPENCLAW_ADAPTERS.md`
+- Adapter inventory and conventions: `docs/reference/ADAPTER_REGISTRY.md`, `docs/adapters/OPENCLAW_ADAPTERS.md`
 
 ## Core Implementation Map
 

@@ -56,7 +56,7 @@ Targeted dataset generated from failing prompt IDs to improve weak families.
 An extension and operator-focused surface area built on top of canonical AINL, used for advanced adapters, orchestration, and multi-agent workflows.
 
 ## Adapter Registry
-The catalog of available runtime adapters, their identifiers, and supported capabilities as defined in `docs/ADAPTER_REGISTRY.md`.
+The catalog of available runtime adapters, their identifiers, and supported capabilities as defined in `docs/reference/ADAPTER_REGISTRY.md`.
 
 ## Memory Adapter
 An adapter responsible for durable memory operations (read, write, list, delete) over structured memory records, specified in `docs/adapters/MEMORY_CONTRACT.md`.

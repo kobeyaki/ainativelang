@@ -23,7 +23,7 @@ def _load_registry():
 
 def _load_docs_adapter_registry() -> str:
   root = os.path.dirname(os.path.dirname(__file__))
-  p = os.path.join(root, "docs", "ADAPTER_REGISTRY.md")
+  p = os.path.join(root, "docs", "reference", "ADAPTER_REGISTRY.md")
   with open(p, "r", encoding="utf-8") as f:
     return f.read()
 

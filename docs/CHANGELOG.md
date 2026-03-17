@@ -18,7 +18,7 @@
   - advisory TTL semantics,
   - validation expectations and backend schema.
 - Marked the adapter as `extension_openclaw` / non-canonical in
-  `tooling/adapter_manifest.json` and `docs/ADAPTER_REGISTRY.md`.
+  `tooling/adapter_manifest.json` and `docs/reference/ADAPTER_REGISTRY.md`.
 
 ### Memory Validator/Linter and JSON Bridges
 - Added an extension-only validator/linter for memory envelopes:
@@ -113,7 +113,7 @@
     `examples/openclaw/`,
   - updated `docs/EXAMPLE_SUPPORT_MATRIX.md` to describe the OpenClaw family as
     advanced, extension-only, and not a safe default for unsupervised agents.
-- Marked the `agent` adapter as **advanced, opt-in** in `docs/ADAPTER_REGISTRY.md`
+- Marked the `agent` adapter as **advanced, opt-in** in `docs/reference/ADAPTER_REGISTRY.md`
   and reiterated its extension-only, noncanonical status.
 - Extended `docs/RELEASE_NOTES_DRAFT.md` with a short "Advanced coordination"
   section clarifying that:
@@ -199,7 +199,7 @@
     token-cost advisory request for a Cursor-side agent.
   - `examples/openclaw/token_cost_advice_read.lang` — read the advisory
     `AgentTaskResult` for a known token-cost task id.
-- Updated `docs/ADAPTER_REGISTRY.md` and `docs/EXAMPLE_SUPPORT_MATRIX.md` to
+- Updated `docs/reference/ADAPTER_REGISTRY.md` and `docs/EXAMPLE_SUPPORT_MATRIX.md` to
   classify the `agent` adapter and the new examples as extension/OpenClaw,
   noncanonical surfaces.
 
@@ -232,7 +232,7 @@
   - attempts to escape the sandbox root raise `AdapterError`.
 - Kept `extras.metrics` clearly **non-canonical** and outside the strict core:
   it is classified as `extension_openclaw`, `strict_contract: false`, and
-  documented in `docs/ADAPTER_REGISTRY.md`.
+  documented in `docs/reference/ADAPTER_REGISTRY.md`.
 - Added `tests/test_extras_metrics.py` to lock in the envelope shape and error
   behavior for missing files, invalid JSON, and non-object summaries.
 
@@ -321,7 +321,7 @@
   - `queue` (enqueue envelope: `ok`, `message_id`, `queue_name`, `error`)
   - `svc` (extension/OpenClaw health envelope: `ok`, `status`, `latency_ms`,
     `error`)
-- Updated `docs/ADAPTER_REGISTRY.md` to document the same envelopes and clearly
+- Updated `docs/reference/ADAPTER_REGISTRY.md` to document the same envelopes and clearly
   mark `svc` as extension/OpenClaw-only (non-canonical).
 - Added `tests/test_adapter_result_envelopes.py` to keep the manifest and docs
   aligned on result-envelope field sets.

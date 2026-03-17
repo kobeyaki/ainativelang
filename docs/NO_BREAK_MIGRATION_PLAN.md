@@ -117,7 +117,7 @@ Priority areas:
 - `tooling/adapter_manifest.json`
 - `ADAPTER_REGISTRY.json`
 - `tooling/effect_analysis.py`
-- `docs/ADAPTER_REGISTRY.md`
+- `docs/reference/ADAPTER_REGISTRY.md`
 - `tooling/artifact_profiles.json`
 
 Breakage risk:
@@ -211,7 +211,7 @@ Definition of done:
 - `tooling/artifact_profiles.json`
 - `scripts/validate_ainl.py`
 - `tooling/adapter_manifest.json`
-- `docs/ADAPTER_REGISTRY.md`
+- `docs/reference/ADAPTER_REGISTRY.md`
 
 ## Required Gates Before Tightening Anything
 

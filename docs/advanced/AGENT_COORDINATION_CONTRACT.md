@@ -745,7 +745,7 @@ artifacts) before drawing protocol-level conclusions.
 For this baseline, the expected on-disk artifacts include at least:
 
 - `docs/advanced/AGENT_COORDINATION_CONTRACT.md` (this document)
-- `docs/ADAPTER_REGISTRY.md` (documents the `agent` adapter surface)
+- `docs/reference/ADAPTER_REGISTRY.md` (documents the `agent` adapter surface)
 - `docs/EXAMPLE_SUPPORT_MATRIX.md` (classifies the coordination examples as
   extension/OpenClaw, noncanonical)
 
