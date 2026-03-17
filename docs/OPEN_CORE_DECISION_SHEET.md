@@ -34,7 +34,7 @@
 | Parser, compiler, canonical IR | `compiler_v2.py`, `compiler_grammar.py`, `grammar_constraint.py`, `grammar_priors.py` | **Commit open** | — | Single auditable compile path | — | Core of compile-once-run-many |
 | Reference runtime | `runtime/engine.py`, `runtime/compat.py`, `runtime/values.py`, `SEMANTICS.md`, `docs/RUNTIME_COMPILER_CONTRACT.md` | **Commit open** | — | Conformance and portability | — | Reference semantics |
 | Core runtime adapters | `runtime/adapters/` (http, sqlite, fs, tools, wasm, base, replay) | **Commit open** | — | Baseline usefulness | — | Required for local use |
-| IR schema, graph schema | `docs/IR_SCHEMA.md`, `docs/GRAPH_SCHEMA.md` | **Commit open** | — | Public contract for ecosystem | — | Never paywall |
+| IR schema, graph schema | `docs/reference/IR_SCHEMA.md`, `docs/reference/GRAPH_SCHEMA.md` | **Commit open** | — | Public contract for ecosystem | — | Never paywall |
 | CLI (validate, run, basic emit) | `cli/main.py`, validate/run/emit entrypoints | **Commit open** | — | Local dev and CI | — | Essential workflow |
 | Baseline validation | `scripts/validate_ainl.py`, conformance tests, `docs/CONFORMANCE.md` | **Commit open** | — | “Does this compile?” essential | — | Never paywall validation |
 | Core docs | `docs/DOCS_INDEX.md`, `ARCHITECTURE_OVERVIEW`, `INSTALL`, `CONFORMANCE`, `README.md` | **Commit open** | — | Onboarding and trust | — | Transparency |
@@ -83,7 +83,7 @@ We commit the following as **open** now. These surfaces will remain free and ope
 - **Spec and grammar:** AINL language spec, grammar references, core and profile docs (`docs/AINL_SPEC.md`, `docs/language/grammar.md`, `docs/AINL_CORE_AND_MODULES.md`, `docs/AINL_V0_9_PROFILE.md`).
 - **Compiler:** Parser, compiler, canonical IR generation (`compiler_v2.py`, `compiler_grammar.py`, `grammar_constraint.py`, `grammar_priors.py`).
 - **Runtime:** Reference runtime engine and execution semantics (`runtime/engine.py`, `runtime/compat.py`, `runtime/values.py`, `SEMANTICS.md`, `docs/RUNTIME_COMPILER_CONTRACT.md`).
-- **Schemas:** IR schema, graph schema (`docs/IR_SCHEMA.md`, `docs/GRAPH_SCHEMA.md`).
+- **Schemas:** IR schema, graph schema (`docs/reference/IR_SCHEMA.md`, `docs/reference/GRAPH_SCHEMA.md`).
 - **Baseline validation:** Validation and conformance tooling and tests (`scripts/validate_ainl.py`, conformance tests, `docs/CONFORMANCE.md`).
 - **Core docs and examples:** Architecture, install, conformance, DOCS_INDEX, README; baseline examples and golden curriculum (`examples/golden/*.ainl`, `docs/EXAMPLE_SUPPORT_MATRIX.md`).
 - **Onboarding and preflight:** Bot onboarding and implementation preflight (`docs/BOT_ONBOARDING.md`, `docs/OPENCLAW_IMPLEMENTATION_PREFLIGHT.md`, `tooling/bot_bootstrap.json`).

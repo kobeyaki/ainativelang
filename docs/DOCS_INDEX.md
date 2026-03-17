@@ -50,7 +50,7 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
 - Documentation maintenance contract: `docs/DOCS_MAINTENANCE.md`
 - Grammar quick reference: `docs/language/grammar.md`
 - Pattern cookbook and composition examples: `docs/PATTERNS.md`
-- Compiler/IR contracts: `docs/IR_SCHEMA.md`, `docs/GRAPH_SCHEMA.md`
+- Compiler/IR contracts: `docs/reference/IR_SCHEMA.md`, `docs/reference/GRAPH_SCHEMA.md`
 - Conformance status: `docs/CONFORMANCE.md`
 - Release readiness checklist: `docs/RELEASE_READINESS.md`
 - No-break migration tracker: `docs/NO_BREAK_MIGRATION_PLAN.md`
@@ -106,7 +106,7 @@ entry point for new users or unsupervised agents.
 - Agent handoff protocol and persistence checklist: `docs/AI_AGENT_CONTINUITY.md`
 - AI agent contribution guide: `docs/CONTRIBUTING_AI_AGENTS.md`
 - Docs update protocol: `docs/DOCS_MAINTENANCE.md`
-- Tool API contract for loop orchestration: `docs/TOOL_API.md`
+- Tool API contract for loop orchestration: `docs/reference/TOOL_API.md`
 - Adapter inventory and conventions: `docs/ADAPTER_REGISTRY.md`, `docs/OPENCLAW_ADAPTERS.md`
 
 ## Core Implementation Map

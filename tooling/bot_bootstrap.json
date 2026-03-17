@@ -11,8 +11,8 @@
     "docs/EXAMPLE_SUPPORT_MATRIX.md",
     "docs/RUNTIME_COMPILER_CONTRACT.md",
     "docs/architecture/GRAPH_INTROSPECTION.md",
-    "docs/IR_SCHEMA.md",
-    "docs/GRAPH_SCHEMA.md"
+    "docs/reference/IR_SCHEMA.md",
+    "docs/reference/GRAPH_SCHEMA.md"
   ],
   "advanced_docs": [
     "docs/OPENCLAW_ADAPTERS.md",

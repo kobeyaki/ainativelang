@@ -25,8 +25,8 @@ For any semantic/runtime/compiler behavior change, update all applicable:
 
 If IR/graph shapes change, also update:
 
-- `IR_SCHEMA.md`
-- `GRAPH_SCHEMA.md`
+- `reference/IR_SCHEMA.md`
+- `reference/GRAPH_SCHEMA.md`
 - `AINL_SPEC.md` (if normative language changes)
 
 If strict-mode behavior changes, also update:

@@ -7,8 +7,8 @@ It is a **profile of the full spec** in `AINL_SPEC.md`. Everything here is backw
 Related references:
 
 - `RUNTIME_COMPILER_CONTRACT.md` (runtime/compiler ownership and compatibility)
-- `IR_SCHEMA.md` (machine-readable IR shape)
-- `GRAPH_SCHEMA.md` (canonical graph shape)
+- `reference/IR_SCHEMA.md` (machine-readable IR shape)
+- `reference/GRAPH_SCHEMA.md` (canonical graph shape)
 - `CONFORMANCE.md` (current shipped behavior)
 
 ---

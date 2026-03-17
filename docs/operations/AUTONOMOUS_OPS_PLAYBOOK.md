@@ -12,7 +12,7 @@ Use this as a starting point for building:
 
 AINL programs are compiled to a **graph IR** that runtimes execute without any language‑model in the loop:
 
-- `compiler_v2.AICodeCompiler(strict_mode=...)` produces IR (see `docs/IR_SCHEMA.md`).
+- `compiler_v2.AICodeCompiler(strict_mode=...)` produces IR (see `docs/reference/IR_SCHEMA.md`).
 - Runtimes execute **label graphs** (`labels[*].nodes` / `labels[*].edges`) according to `runtime_policy.execution_mode = "graph-preferred"`.
 - There is **no requirement** to call an LLM at runtime once the program is compiled.
 
@@ -85,8 +85,8 @@ without requiring any runtime language-model inference.
 
 Canonical execution is defined by the **graph IR**:
 
-- `docs/GRAPH_SCHEMA.md` describes the node/edge schema.
-- `docs/IR_SCHEMA.md` shows how labels, endpoints, and checksums are laid out.
+- `docs/reference/GRAPH_SCHEMA.md` describes the node/edge schema.
+- `docs/reference/IR_SCHEMA.md` shows how labels, endpoints, and checksums are laid out.
 - `graph_semantic_checksum` gives a stable hash of the graph semantics.
 
 For **branching and exits**, see these canonical examples (all strict‑valid):
@@ -282,7 +282,7 @@ If you are building an autonomous agent on top of AINL, the recommended reading 
 2. `docs/AINL_CANONICAL_CORE.md` — canonical language surface.
 3. `docs/EXAMPLE_SUPPORT_MATRIX.md` + `tooling/canonical_curriculum.json` — examples and roles.
 4. `docs/architecture/GRAPH_INTROSPECTION.md` — how to inspect compiled IR/graphs.
-5. `docs/GRAPH_SCHEMA.md` + `docs/IR_SCHEMA.md` — deeper IR/graph details if needed.
+5. `docs/reference/GRAPH_SCHEMA.md` + `docs/reference/IR_SCHEMA.md` — deeper IR/graph details if needed.
 6. `docs/ADAPTER_REGISTRY.md` — adapter capabilities and tiers.
 7. `docs/AGENT_COORDINATION_CONTRACT.md` — non-canonical, extension-level JSON envelopes for agent manifests, task requests, and task results (used over queues/files, not as core semantics).
 

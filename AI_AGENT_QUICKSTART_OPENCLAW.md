@@ -74,7 +74,7 @@ E /health G ->L1
 L1: J {"status":"ok"}' | ainl-tool-api --action emit --target openapi
 ```
 
-The Tool API (`docs/TOOL_API.md`) is your primary programmatic interface. Use it from your agent loop:
+The Tool API (`docs/reference/TOOL_API.md`) is your primary programmatic interface. Use it from your agent loop:
 - `compile` → get IR
 - `validate` → check errors
 - `emit` → generate artifacts
@@ -215,7 +215,7 @@ This ensures smooth continuity.
 | `docs/AINL_SPEC.md` | Formal language spec |
 | `docs/AI_AGENT_CONTINUITY.md` | Handoff protocol |
 | `docs/TRAINING_ALIGNMENT_RUNBOOK.md` | Quality gates and eval |
-| `docs/TOOL_API.md` | Structured tool interface |
+| `docs/reference/TOOL_API.md` | Structured tool interface |
 | `OPENCLAW_AI_AGENT.md` | OpenClaw agent index and integration |
 | `AI_CONSULTANT_REPORT_APOLLO.md` | OpenClaw-specific recommendations |
 | `CONSULTANT_REPORTS.md` | Index of all consultant reports |

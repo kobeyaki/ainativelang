@@ -361,7 +361,7 @@ No implementation was required because adapters were already present. I verified
 
 ### Tool API for Agent Loops
 
-Use the structured AINL Tool API (`docs/TOOL_API.md`) for programmatic access:
+Use the structured AINL Tool API (`docs/reference/TOOL_API.md`) for programmatic access:
 
 ```bash
 # Compile to IR
@@ -606,7 +606,7 @@ All integrated into `demo/monitor_system.lang` and verified via cron runs.
 | Consultant index | `CONSULTANT_REPORTS.md` |
 | Consultant template | `AI_CONSULTANT_REPORT_TEMPLATE.md` |
 | OpenClaw integration guide | `OPENCLAW_AI_AGENT.md` |
-| Tool API contract | `docs/TOOL_API.md` |
+| Tool API contract | `docs/reference/TOOL_API.md` |
 | Quality runbook | `docs/TRAINING_ALIGNMENT_RUNBOOK.md` |
 | Monitor system implementation | `openclaw/MONITOR_SYSTEM_IMPLEMENTATION.md` |
 | Infrastructure enhancements | `openclaw/INFRASTRUCTURE_ENHANCEMENTS.md` |

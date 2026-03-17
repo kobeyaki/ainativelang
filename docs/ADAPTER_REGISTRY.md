@@ -338,7 +338,7 @@ and `ADAPTER_REGISTRY.json` but do not require long-form slot schemas here:
 - **`api`** (tier: `compatibility`, lane: `noncanonical`): legacy HTTP/API surface used by older step‑list forms (`G`, `P`, `POST`).
 - **`sqlite`** (tier: `core`, lane: `canonical`): direct SQLite access (`Execute`, `Query`) with allow‑list and timeout controls.
 - **`fs`** (tier: `core`, lane: `canonical`): sandboxed filesystem operations (`Read`, `Write`, `List`, `Delete`) with size and extension guards.
-- **`tools`** (tier: `core`, lane: `canonical`): bridge to external tool calls (`Call`) as defined in `docs/TOOL_API.md`.
+- **`tools`** (tier: `core`, lane: `canonical`): bridge to external tool calls (`Call`) as defined in `docs/reference/TOOL_API.md`.
 - **`txn`** (tier: `core`, lane: `canonical`): transaction namespace (`Begin`, `Commit`, `Rollback`) on supported backends.
 - **`auth`** (tier: `core`, lane: `canonical`): authentication namespace (`Validate`) wired into service middleware.
 - **`email`**, **`calendar`**, **`social`** (tier: `extension_openclaw`, lane: `canonical`): OpenClaw monitoring adapters for unread email, upcoming calendar events, and social/web mentions.

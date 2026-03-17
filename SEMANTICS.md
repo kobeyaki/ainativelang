@@ -118,7 +118,7 @@ Related tests:
 
 ## 9) Canonical Graph Node Schema (Agent-Facing)
 
-See **docs/GRAPH_SCHEMA.md** for the full Agent Graph v1 schema. Summary:
+See **docs/reference/GRAPH_SCHEMA.md** for the full Agent Graph v1 schema. Summary:
 
 - `id`: canonical node id (`"n1"`, `"n2"`, …), contiguous per-label
 - `op`: core control/effect op (`R`, `If`, `Call`, `Loop`, `While`, `J`, `Retry`, `Err`, `Set`, `X`, `Filt`, `Sort`, `CacheGet`, `CacheSet`, `QueuePut`, `Tx`, `Enf`)

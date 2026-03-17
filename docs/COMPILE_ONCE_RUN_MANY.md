@@ -17,7 +17,7 @@ It does **not** introduce new semantics; it only packages existing tools and tes
 - **Compiler / IR emission**
   - `compiler_v2.AICodeCompiler` — graph-first compiler.
   - `scripts/validate_ainl.py` / `ainl-validate` — CLI validator/IR emitter.
-  - `docs/IR_SCHEMA.md`, `docs/GRAPH_SCHEMA.md` — IR + graph schema.
+  - `docs/reference/IR_SCHEMA.md`, `docs/reference/GRAPH_SCHEMA.md` — IR + graph schema.
   - `graph_semantic_checksum` — canonical semantic checksum (see `tooling/ir_canonical.py` and `tests/test_snapshot_compile_outputs.py`).
 
 - **Runtime / deterministic graph execution**

@@ -50,8 +50,8 @@ python scripts/validate_ainl.py examples/status_branching.ainl --emit ir --no-js
 
 Cross-reference:
 
-- `../IR_SCHEMA.md` - top-level IR overview
-- `../GRAPH_SCHEMA.md` - canonical graph/label/edge schema
+- `../reference/IR_SCHEMA.md` - top-level IR overview
+- `../reference/GRAPH_SCHEMA.md` - canonical graph/label/edge schema
 
 Key fields for control-flow and effects:
 
@@ -74,7 +74,7 @@ For autonomous agents, the recommended pattern is:
 
 ### 3. Programmatic graph API
 
-For more structured queries, use the graph helpers described in `../GRAPH_SCHEMA.md`:
+For more structured queries, use the graph helpers described in `../reference/GRAPH_SCHEMA.md`:
 
 - `tooling/graph_api.py` (implementation)
   - `label_nodes(ir, label_id)`
@@ -138,7 +138,7 @@ The following helpers are available for more advanced workflows (all already exi
 - **Diff:** `tooling/graph_diff.graph_diff(old_ir, new_ir)`
   - machine-readable summary of added/removed/changed nodes and edges.
 
-- **Safe edits:** helpers mentioned in `../GRAPH_SCHEMA.md`:
+- **Safe edits:** helpers mentioned in `../reference/GRAPH_SCHEMA.md`:
   - `insert_node_after`, `rewire_edge`, `wrap_r_with_retry`, `attach_err_handler`
   - pattern: clone IR -> edit clone -> validate -> inspect diff -> accept or discard.
 

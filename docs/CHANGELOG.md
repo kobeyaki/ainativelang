@@ -497,11 +497,11 @@
   - `docs/CONTRIBUTING_AI_AGENTS.md`
 - Added long-term docs governance contract: `docs/DOCS_MAINTENANCE.md`.
 - Expanded schema/profile cross-linking for small and large agents:
-  - `docs/IR_SCHEMA.md`
-  - `docs/GRAPH_SCHEMA.md`
+  - `docs/reference/IR_SCHEMA.md`
+  - `docs/reference/GRAPH_SCHEMA.md`
   - `docs/AINL_V0_9_PROFILE.md`
   - `docs/PATTERNS.md`
-  - `docs/TOOL_API.md`
+  - `docs/reference/TOOL_API.md`
   - `docs/INSTALL.md`
   - `docs/AINL_CORE_AND_MODULES.md`
   - `docs/AINL_EXTENSIONS.md`

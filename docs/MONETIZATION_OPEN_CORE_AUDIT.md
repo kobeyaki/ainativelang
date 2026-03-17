@@ -59,7 +59,7 @@ Concrete list with reasons:
 - **Core runtime adapters** (`runtime/adapters/`: http, sqlite, fs, tools, wasm, replay)  
   **Why:** Baseline usefulness without paid pieces. Developers and agents need to run real I/O locally.
 
-- **IR schema and graph schema** (`docs/IR_SCHEMA.md`, `docs/GRAPH_SCHEMA.md`)  
+- **IR schema and graph schema** (`docs/reference/IR_SCHEMA.md`, `docs/reference/GRAPH_SCHEMA.md`)
   **Why:** Public contract for tooling, emitters, and third-party runtimes.
 
 - **CLI fundamentals** (e.g. validate, run, basic emit)  
