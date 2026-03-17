@@ -40,7 +40,7 @@
 | Core docs | `docs/DOCS_INDEX.md`, `ARCHITECTURE_OVERVIEW`, `INSTALL`, `CONFORMANCE`, `README.md` | **Commit open** | — | Onboarding and trust | — | Transparency |
 | Baseline examples, golden | `examples/golden/*.ainl`, `docs/EXAMPLE_SUPPORT_MATRIX.md` | **Commit open** | — | Learning and training | — | Canonical path |
 | Adapter registry, manifest (core) | `docs/ADAPTER_REGISTRY.md`, `tooling/adapter_manifest.json`, core in `ADAPTER_REGISTRY.json` | **Commit open** | — | “What can I call?” is language surface | — | Discovery stays open |
-| Capability registry (schema + canonical) | `tooling/capabilities.json`, `capabilities.schema.json`, `docs/CAPABILITY_REGISTRY.md` (core subset) | **Commit open** | — | Tool API v2 and agent discovery | — | Open subset for open core |
+| Capability registry (schema + canonical) | `tooling/capabilities.json`, `capabilities.schema.json`, `docs/reference/CAPABILITY_REGISTRY.md` (core subset) | **Commit open** | — | Tool API v2 and agent discovery | — | Open subset for open core |
 | Baseline eval harness, report schemas | Concepts and open report schemas | **Commit open** | — | Reproducibility and contract | — | Research and community |
 | Bot onboarding, preflight | `docs/BOT_ONBOARDING.md`, `docs/OPENCLAW_IMPLEMENTATION_PREFLIGHT.md`, `tooling/bot_bootstrap.json` | **Commit open** | — | Universal implementation discipline | — | Must stay free |
 | Basic policy validator | `tooling/policy_validator.py` | **Commit open** | — | Lightweight governance; safe default | — | Simple utility; keep open |
@@ -90,7 +90,7 @@ We commit the following as **open** now. These surfaces will remain free and ope
 - **Basic policy validator:** IR-level policy check (`tooling/policy_validator.py`).
 - **Health envelope schema:** Standardized health envelope (`docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`).
 - **Core adapter discovery / registry / manifest:** Adapter registry and manifest for core adapters (`docs/ADAPTER_REGISTRY.md`, `tooling/adapter_manifest.json`, core entries in `ADAPTER_REGISTRY.json`).
-- **Capability registry (open subset):** Schema and canonical-lane capability entries (`tooling/capabilities.json`, `capabilities.schema.json`, `docs/CAPABILITY_REGISTRY.md`).
+- **Capability registry (open subset):** Schema and canonical-lane capability entries (`tooling/capabilities.json`, `capabilities.schema.json`, `docs/reference/CAPABILITY_REGISTRY.md`).
 - **Baseline eval harness and report schemas:** Concepts and open report schemas for reproducibility.
 - **CLI fundamentals:** Validate, run, basic emit (`cli/main.py` and related entrypoints).
 - **Core runtime adapters:** http, sqlite, fs, tools, wasm, base, replay (`runtime/adapters/`).

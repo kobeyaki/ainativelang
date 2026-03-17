@@ -18,7 +18,7 @@
     "docs/adapters/OPENCLAW_ADAPTERS.md",
     "docs/adapters/MEMORY_CONTRACT.md",
     "docs/advanced/SAFE_USE_AND_THREAT_MODEL.md",
-    "docs/CAPABILITY_REGISTRY.md",
+    "docs/reference/CAPABILITY_REGISTRY.md",
     "docs/operations/AUTONOMOUS_OPS_MONITORS.md",
     "docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md",
     "docs/advanced/AGENT_COORDINATION_CONTRACT.md"
