@@ -12,6 +12,21 @@
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License: Apache-2.0" />
   </a>
+  <a href="https://github.com/sbhooley/ainativelang/releases/tag/v1.1.0">
+    <img src="https://img.shields.io/github/v/release/sbhooley/ainativelang?label=release" alt="Latest Release" />
+  </a>
+  <a href="https://github.com/sbhooley/ainativelang">
+    <img src="https://img.shields.io/github/stars/sbhooley/ainativelang?style=social" alt="GitHub Stars" />
+  </a>
+  <a href="https://github.com/sbhooley/ainativelang/issues">
+    <img src="https://img.shields.io/github/issues/sbhooley/ainativelang" alt="Open Issues" />
+  </a>
+  <a href="https://github.com/sbhooley/ainativelang/commits/main">
+    <img src="https://img.shields.io/github/last-commit/sbhooley/ainativelang" alt="Last Commit" />
+  </a>
+  <img src="https://img.shields.io/badge/MCP-v1%20server-blueviolet" alt="MCP v1" />
+  <img src="https://img.shields.io/badge/graph--first-deterministic%20IR-orange" alt="Graph-first deterministic IR" />
+  <img src="https://img.shields.io/badge/AI%20workflow-language-brightgreen" alt="AI workflow language" />
 </p>
 
 > AI-led co-development project, human-initiated by Steven Hooley (`x.com/sbhooley`, `stevenhooley.com`, `linkedin.com/in/sbhooley`). Attribution details: `docs/PROJECT_ORIGIN_AND_ATTRIBUTION.md` and `tooling/project_provenance.json`.
