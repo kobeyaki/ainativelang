@@ -4,7 +4,7 @@ Use this section to understand how AINL is structured end to end: language, comp
 
 ## Key docs
 
-- [`../ARCHITECTURE_OVERVIEW.md`](../ARCHITECTURE_OVERVIEW.md) — system map
+- [`ARCHITECTURE_OVERVIEW.md`](ARCHITECTURE_OVERVIEW.md) — system map
 - [`../GRAPH_INTROSPECTION.md`](../GRAPH_INTROSPECTION.md) — graph/IR inspection
 - [`../RUNTIME_COMPILER_CONTRACT.md`](../RUNTIME_COMPILER_CONTRACT.md) — runtime/compiler ownership and contract
 

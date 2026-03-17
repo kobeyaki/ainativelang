@@ -43,12 +43,12 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
 - Graph/IR introspection guide: `docs/GRAPH_INTROSPECTION.md`
 - Runtime semantics contract: `SEMANTICS.md`
 - Runtime/compiler execution contract: `docs/RUNTIME_COMPILER_CONTRACT.md`
-- Autonomous ops playbook: `docs/AUTONOMOUS_OPS_PLAYBOOK.md`
+- Autonomous ops playbook: `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md`
 - Safe optimization policy (language vs compiler optimization guardrails): `docs/SAFE_OPTIMIZATION_POLICY.md`
 - Machine-readable support levels: `tooling/support_matrix.json`
 - Runtime compatibility shim (`ExecutionEngine` facade): `runtime/compat.py`, `runtime.py`
 - Documentation maintenance contract: `docs/DOCS_MAINTENANCE.md`
-- Grammar quick reference: `docs/grammar.md`
+- Grammar quick reference: `docs/language/grammar.md`
 - Pattern cookbook and composition examples: `docs/PATTERNS.md`
 - Compiler/IR contracts: `docs/IR_SCHEMA.md`, `docs/GRAPH_SCHEMA.md`
 - Conformance status: `docs/CONFORMANCE.md`
@@ -72,7 +72,7 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
   - `docs/issues/03-compatibility-path-retirement-plan.md`
   - `docs/issues/04-strict-adapter-contract-expansion-policy.md`
   - `docs/issues/05-post-release-docs-onboarding-tightening.md`
-- Architecture overview: `docs/ARCHITECTURE_OVERVIEW.md`
+- Architecture overview: `docs/architecture/ARCHITECTURE_OVERVIEW.md`
 - Glossary: `docs/GLOSSARY.md`
 
 ### Advanced / operator-only / experimental docs

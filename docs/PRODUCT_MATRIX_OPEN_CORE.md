@@ -21,14 +21,14 @@ Paid offerings are grouped into three buckets: **Managed**, **Enterprise**, **Ex
 
 | Repo surface / feature / area | Current repo grounding | Category | Paid bucket | Why | Replication risk | Buyer / user | Notes |
 |------------------------------|-------------------------|----------|-------------|-----|-------------------|--------------|--------|
-| AINL language spec, grammar | `docs/AINL_SPEC.md`, `docs/grammar.md`, `docs/AINL_CORE_AND_MODULES.md`, `docs/AINL_V0_9_PROFILE.md` | **Never paywall** | — | Language legitimacy; ecosystem compatibility | N/A | Everyone | Must stay open for trust and adoption |
+| AINL language spec, grammar | `docs/AINL_SPEC.md`, `docs/language/grammar.md`, `docs/AINL_CORE_AND_MODULES.md`, `docs/AINL_V0_9_PROFILE.md` | **Never paywall** | — | Language legitimacy; ecosystem compatibility | N/A | Everyone | Must stay open for trust and adoption |
 | Parser, compiler, canonical IR | `compiler_v2.py`, `compiler_grammar.py`, `grammar_constraint.py`, `grammar_priors.py` | **Open** | — | Single auditable compile path; adoption | N/A | Developers, agents | Core of “compile once, run many” |
 | Reference runtime engine | `runtime/engine.py`, `runtime/compat.py`, `runtime/values.py`, `SEMANTICS.md`, `docs/RUNTIME_COMPILER_CONTRACT.md` | **Open** | — | Conformance and portability | N/A | Everyone | Reference semantics must stay open |
 | Core runtime adapters | `runtime/adapters/` (http, sqlite, fs, tools, wasm, base, replay) | **Open** | — | Baseline usefulness without paid pieces | N/A | Developers, agents | Needed for local/dev use |
 | IR schema, graph schema | `docs/IR_SCHEMA.md`, `docs/GRAPH_SCHEMA.md` | **Never paywall** | — | Public contract for tooling and runtimes | N/A | Ecosystem | Paywalling blocks third-party runtimes |
 | CLI fundamentals | `cli/main.py`, validate, run, basic emit | **Open** | — | Local dev and CI must work | N/A | Developers | Essential workflow |
 | Baseline validation | `scripts/validate_ainl.py`, conformance tests in `docs/CONFORMANCE.md` | **Open** | — | “Does this compile?” is essential | N/A | Developers, agents | Never paywall validation |
-| Core docs (architecture, spec, install, conformance) | `docs/DOCS_INDEX.md`, `docs/ARCHITECTURE_OVERVIEW.md`, `docs/INSTALL.md`, `docs/CONFORMANCE.md`, `README.md` | **Open** | — | Onboarding and trust | N/A | Everyone | Transparency |
+| Core docs (architecture, spec, install, conformance) | `docs/DOCS_INDEX.md`, `docs/architecture/ARCHITECTURE_OVERVIEW.md`, `docs/INSTALL.md`, `docs/CONFORMANCE.md`, `README.md` | **Open** | — | Onboarding and trust | N/A | Everyone | Transparency |
 | Baseline examples, golden curriculum | `examples/golden/*.ainl`, `docs/EXAMPLE_SUPPORT_MATRIX.md` | **Open** | — | Learning and model training | N/A | Developers, agents | Canonical learning path |
 | Adapter registry (core), adapter manifest | `docs/ADAPTER_REGISTRY.md`, `tooling/adapter_manifest.json`, core entries in `ADAPTER_REGISTRY.json` | **Open** | — | “What can I call?” is language surface | N/A | Everyone | Discovery stays open |
 | Capability registry (schema + canonical lane) | `tooling/capabilities.json`, `tooling/capabilities.schema.json`, `docs/CAPABILITY_REGISTRY.md` (core/canonical subset) | **Open** | — | Tool API v2 and agent discovery | N/A | Developers, agents | Open subset for open core |

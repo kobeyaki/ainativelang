@@ -283,7 +283,7 @@
 ## 1.0.9-autonomous-ops-and-http-envelopes (2026-03-09)
 
 ### Autonomous Ops Docs and Examples
-- Added `docs/AUTONOMOUS_OPS_PLAYBOOK.md` as the central, truthful playbook for
+- Added `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md` as the central, truthful playbook for
   autonomous-agent use of AINL (compile-once/run-many, cooldown patterns,
   remediation flows, and current meta-monitoring limits).
 - Added `examples/autonomous_ops/` with a small extension/OpenClaw
@@ -335,7 +335,7 @@
   `AdapterError` / `Err` and do not return a failure envelope in this pass.
 - Updated `tests/test_http_adapter_contracts.py` to assert the new envelope
   fields alongside the legacy `status`/`body` behavior.
-- Extended `docs/AUTONOMOUS_OPS_PLAYBOOK.md` with a small, truthful snippet
+- Extended `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md` with a small, truthful snippet
   showing how to use the HTTP success envelope for monitoring-oriented flows.
 
 ### Miscellaneous Operator-Facing Improvements
@@ -489,9 +489,9 @@
 - Updated cross-links and status docs to reflect canonical runtime ownership and strict literal policy:
   - `README.md`
   - `docs/DOCS_INDEX.md`
-  - `docs/ARCHITECTURE_OVERVIEW.md`
+  - `docs/architecture/ARCHITECTURE_OVERVIEW.md`
   - `docs/CONFORMANCE.md`
-  - `docs/grammar.md`
+  - `docs/language/grammar.md`
   - `docs/RELEASE_READINESS.md`
   - `docs/AI_AGENT_CONTINUITY.md`
   - `docs/CONTRIBUTING_AI_AGENTS.md`
@@ -545,7 +545,7 @@
 - Added/updated ownership contract references across:
   - `README.md`
   - `docs/DOCS_INDEX.md`
-  - `docs/ARCHITECTURE_OVERVIEW.md`
+  - `docs/architecture/ARCHITECTURE_OVERVIEW.md`
   - `docs/RUNTIME_COMPILER_CONTRACT.md`
   - `docs/RELEASE_READINESS.md`
   - `docs/CONTRIBUTING_AI_AGENTS.md`
@@ -563,7 +563,7 @@
   - `README.md`
   - `CONTRIBUTING.md`
   - `docs/AUDIENCE_GUIDE.md`
-  - `docs/ARCHITECTURE_OVERVIEW.md`
+  - `docs/architecture/ARCHITECTURE_OVERVIEW.md`
   - `docs/RELEASE_READINESS.md`
   - `docs/CONFORMANCE.md`
   - `docs/AINL_SPEC.md`
@@ -610,7 +610,7 @@
 - Added `docs/AI_AGENT_CONTINUITY.md` for handoff and persistence protocol.
 - Added `docs/TRAINING_ALIGNMENT_RUNBOOK.md` for full train/sweep/gate operations.
 - Added publication-layer docs:
-  - `docs/ARCHITECTURE_OVERVIEW.md`
+  - `docs/architecture/ARCHITECTURE_OVERVIEW.md`
   - `docs/CONTRIBUTING_AI_AGENTS.md`
   - `docs/GLOSSARY.md`
   - `docs/PROJECT_ORIGIN_AND_ATTRIBUTION.md`

@@ -32,7 +32,7 @@ If IR/graph shapes change, also update:
 If strict-mode behavior changes, also update:
 
 - `AINL_SPEC.md` strict guarantees
-- `grammar.md` quick-reference rules
+- `language/grammar.md` quick-reference rules
 - profile docs (`AINL_V0_9_PROFILE.md`) when affected
 
 ## Deep-Linking Standard

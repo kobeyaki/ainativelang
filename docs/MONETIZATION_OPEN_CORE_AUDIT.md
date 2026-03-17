@@ -26,7 +26,7 @@ Major layers/subsystems inspected and short description of each:
 | **Memory contract** | `docs/MEMORY_CONTRACT.md`, memory adapter (extension) | Namespaces (session, long_term, daily_log, workflow); record kinds; TTL; v1 envelope. Extension-level, backend-agnostic. |
 | **Memory tooling** | `scripts/memory_retention_report.py`, `scripts/validate_memory_records.py`, `scripts/import_memory_records.py`, `scripts/export_memory_*`, `tooling/memory_bridge.py`, `tooling/memory_markdown_import.py` | Operator hygiene: retention report, validation, import/export, markdown bridge. |
 | **Agent coordination** | `docs/AGENT_COORDINATION_CONTRACT.md`, `tooling/coordination_validator.py`, `scripts/validate_coordination_mailbox.py` | AgentTaskRequest/Result/Manifest envelopes; mailbox validation; advisory-only fields (approval_required, budget_limit, etc.). |
-| **Autonomous ops** | `openclaw/AUTONOMOUS_OPS_EXTENSION_IMPLEMENTATION.md`, `docs/AUTONOMOUS_OPS_MONITORS.md`, `docs/AUTONOMOUS_OPS_PLAYBOOK.md`, `demo/*.lang`, `examples/autonomous_ops/*.lang`, `scripts/run_*.py` (e.g. run_infrastructure_watchdog.py, run_meta_monitor.py) | Monitor programs (infrastructure, TikTok SLA, canary, token cost, lead quality, session continuity, memory prune, meta monitor); standardized health envelope; cron deployment pattern. |
+| **Autonomous ops** | `openclaw/AUTONOMOUS_OPS_EXTENSION_IMPLEMENTATION.md`, `docs/AUTONOMOUS_OPS_MONITORS.md`, `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md`, `demo/*.lang`, `examples/autonomous_ops/*.lang`, `scripts/run_*.py` (e.g. run_infrastructure_watchdog.py, run_meta_monitor.py) | Monitor programs (infrastructure, TikTok SLA, canary, token cost, lead quality, session continuity, memory prune, meta monitor); standardized health envelope; cron deployment pattern. |
 | **Standardized health envelope** | `docs/STANDARDIZED_HEALTH_ENVELOPE.md` | Common queue payload shape: envelope version, module, status, ts, metrics, history_24h, meta. For dashboards and downstream. |
 | **Graph / IR tooling** | `tooling/graph_api.py`, `tooling/graph_export.py`, `tooling/graph_rewrite.py`, `tooling/ir_canonical.py`, `tooling/ir_compact.py`, `tooling/step_focus.py`, `tooling/trace_focus.py` | Introspection, export, rewrite, canonicalization, compaction, focus filters. |
 | **Tool API v2** | `scripts/gen_tool_api_v2_tools.py`, `tooling/tool_api_v2.tools.json` | Projection of capability registry into machine-readable tools descriptor for agents. |
@@ -47,7 +47,7 @@ Major layers/subsystems inspected and short description of each:
 
 Concrete list with reasons:
 
-- **AINL language spec and grammar references** (`docs/AINL_SPEC.md`, `docs/grammar.md`, `docs/AINL_CORE_AND_MODULES.md`, `docs/AINL_V0_9_PROFILE.md`)  
+- **AINL language spec and grammar references** (`docs/AINL_SPEC.md`, `docs/language/grammar.md`, `docs/AINL_CORE_AND_MODULES.md`, `docs/AINL_V0_9_PROFILE.md`)
   **Why:** Language legitimacy and ecosystem compatibility. Paywalling the spec would fragment the language and kill trust and adoption.
 
 - **Parser, compiler, and canonical IR generation** (`compiler_v2.py`, `compiler_grammar.py`, core of `grammar_constraint.py` / `grammar_priors.py` for open grammar surface)  
@@ -68,7 +68,7 @@ Concrete list with reasons:
 - **Baseline validation and conformance tooling** (e.g. `scripts/validate_ainl.py`, conformance tests referenced in `docs/CONFORMANCE.md`)  
   **Why:** Community and agents need to verify “is this valid AINL?” without paying.
 
-- **Public docs for architecture, spec, runtime contract, conformance, install** (`docs/DOCS_INDEX.md`, `docs/ARCHITECTURE_OVERVIEW.md`, `docs/INSTALL.md`, `docs/CONFORMANCE.md`, `README.md` as entrypoint)  
+- **Public docs for architecture, spec, runtime contract, conformance, install** (`docs/DOCS_INDEX.md`, `docs/architecture/ARCHITECTURE_OVERVIEW.md`, `docs/INSTALL.md`, `docs/CONFORMANCE.md`, `README.md` as entrypoint)
   **Why:** Onboarding and trust require transparent, free documentation.
 
 - **Baseline examples and golden curriculum** (e.g. `examples/golden/` 01–05, `docs/EXAMPLE_SUPPORT_MATRIX.md` for classification)  

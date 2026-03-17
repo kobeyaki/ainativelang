@@ -31,7 +31,7 @@ It does **not** introduce new semantics; it only packages existing tools and tes
 - **Record / replay (no live side effects)**
   - `ainl run ... --record-adapters calls.json`
   - `ainl run ... --replay-adapters calls.json`
-  - Documented in `docs/INSTALL.md` and `docs/AUTONOMOUS_OPS_PLAYBOOK.md`.
+  - Documented in `docs/INSTALL.md` and `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md`.
 
 - **Size benchmark (optional)**
   - `BENCHMARK.md`, `scripts/benchmark_size.py`, `tooling/benchmark_size.json`.
@@ -167,7 +167,7 @@ saved run payloads.
     - normalize and diff graphs.
 
 - **Autonomous ops playbook**  
-  - `docs/AUTONOMOUS_OPS_PLAYBOOK.md` documents:
+  - `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md` documents:
     - compile-once / run-many patterns,
     - deterministic replay (`--record-adapters`, `--replay-adapters`),
     - cooldown and remediation patterns using existing adapters.

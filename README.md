@@ -409,8 +409,8 @@ For full attribution context, see:
 - Canonical core: `docs/AINL_CANONICAL_CORE.md`
 - Example support levels: `docs/EXAMPLE_SUPPORT_MATRIX.md`
 - Graph/IR introspection: `docs/GRAPH_INTROSPECTION.md`
-- Autonomous ops playbook: `docs/AUTONOMOUS_OPS_PLAYBOOK.md`
-- Grammar reference: `docs/grammar.md`
+- Autonomous ops playbook: `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md`
+- Grammar reference: `docs/language/grammar.md`
 - Conformance and strict policy: `docs/CONFORMANCE.md`
 - Runtime/compiler ownership: `docs/RUNTIME_COMPILER_CONTRACT.md`
 - Safe optimization guidance for benchmark/compaction work: `docs/SAFE_OPTIMIZATION_POLICY.md`
@@ -474,7 +474,7 @@ The emitted server also includes **openapi.json** for API docs, codegen, and gat
 | `docs/AINL_SPEC.md` | AINL 1.0 formal spec: principles, grammar, execution, targets |
 | `docs/CONFORMANCE.md` | Implementation conformance vs spec (IR shape, graph emission, P, meta) |
 | `docs/TARGETS_ROADMAP.md` | Expanded targets for production and adoption |
-| `docs/grammar.md` | Ops/slots reference (v1.0) |
+| `docs/language/grammar.md` | Ops/slots reference (v1.0) |
 | `compiler_v2.py` | Parser + IR + all emitters (OpenAPI, Docker, K8s, Next/Vue/Svelte, SQL, env) |
 | `runtime/engine.py` | `RuntimeEngine` (graph-first execution; step fallback) |
 | `runtime/compat.py` | `ExecutionEngine` compatibility shim over canonical runtime |
@@ -500,7 +500,7 @@ The emitted server also includes **openapi.json** for API docs, codegen, and gat
 - **Validator web**: `uvicorn scripts.validator_app:app --port 8766` then open http://127.0.0.1:8766/ to paste and validate.
 - **Installed CLIs**: `ainl-validate`, `ainl-validator-web`, `ainl-generate-dataset`, `ainl-compat-report`, `ainl-tool-api`, `ainl-ollama-eval`, `ainl-ollama-benchmark`, `ainl-validate-examples`, `ainl-check-viability`, `ainl-playbook-retrieve`, `ainl-test-runtime`, `ainl`.
 - **Runtime modes**: `ainl run ... --execution-mode graph-preferred|steps-only|graph-only --unknown-op-policy skip|error`.
-- **Strict literal policy**: in strict mode, bare identifier-like tokens in read positions are treated as variable refs; quote string literals explicitly (see `docs/RUNTIME_COMPILER_CONTRACT.md` and `docs/grammar.md`).
+- **Strict literal policy**: in strict mode, bare identifier-like tokens in read positions are treated as variable refs; quote string literals explicitly (see `docs/RUNTIME_COMPILER_CONTRACT.md` and `docs/language/grammar.md`).
 - **Golden fixtures**: `ainl golden` validates `examples/*.ainl` against `*.expected.json`.
 - **Replay tooling**: `ainl run ... --record-adapters calls.json` and `ainl run ... --replay-adapters calls.json` for deterministic adapter replay.
 - **Reference adapters**: `http`, `sqlite`, `fs` (sandboxed), and `tools` bridge with contract tests.

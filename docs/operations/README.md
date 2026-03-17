@@ -4,7 +4,7 @@ Use this section for real deployment-style operational docs: monitors, playbooks
 
 ## Key docs
 
-- [`../AUTONOMOUS_OPS_PLAYBOOK.md`](../AUTONOMOUS_OPS_PLAYBOOK.md) — current autonomous ops reality
+- [`AUTONOMOUS_OPS_PLAYBOOK.md`](AUTONOMOUS_OPS_PLAYBOOK.md) — current autonomous ops reality
 - [`../AUTONOMOUS_OPS_MONITORS.md`](../AUTONOMOUS_OPS_MONITORS.md) — monitor index
 - [`../STANDARDIZED_HEALTH_ENVELOPE.md`](../STANDARDIZED_HEALTH_ENVELOPE.md) — common message envelope
 

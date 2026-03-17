@@ -11,7 +11,7 @@ workstreams were rebuilt, retested, and formalized in overlapping phases through
 
 - Start with: `README.md`
 - Then read:
-  - `docs/ARCHITECTURE_OVERVIEW.md`
+  - `docs/architecture/ARCHITECTURE_OVERVIEW.md`
   - `CONTRIBUTING.md`
   - `docs/DOCS_INDEX.md`
 - Run baseline checks:
@@ -84,5 +84,5 @@ If unsure, use this sequence:
 
 1. `README.md`
 2. `docs/DOCS_INDEX.md`
-3. `docs/ARCHITECTURE_OVERVIEW.md`
+3. `docs/architecture/ARCHITECTURE_OVERVIEW.md`
 4. `CONTRIBUTING.md`
