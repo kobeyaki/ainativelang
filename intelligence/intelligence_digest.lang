@@ -1,0 +1,44 @@
+# Intelligence Digest - runs 3x daily
+S core cron "0 8,12,18 * * *"
+
+# The SOCIAL_MONITOR_QUERY environment variable must be set to a comprehensive query.
+# Example (adjust as needed):
+# ("U.S. Iran war" OR "Strait of Hormuz" OR "oil prices" OR "ICE" OR "Palantir" OR "Anthropic" OR "Federal Reserve" OR "immigration enforcement" OR "surveillance AI") site:reuters.com OR site:apnews.com OR site:bbc.com OR site:iea.org OR site:federalreserve.gov OR site:dhs.gov OR site:ice.gov OR site:palantir.com OR site:anthropic.com OR site:defense.gov OR site:aljazeera.com OR site:dw.com OR site:fr24news.com
+
+L0: R core now ->ts
+
+# Fetch social mentions (web search)
+L1: R social G ->mentions
+
+# TikTok: recent report count (last 24h)
+L2: R tiktok recent 24 ->tiktok_recent
+
+# Build report
+X header (core.concat "Intelligence Digest — " (core.iso ts) "\n\n")
+X body header
+
+# Section: Web Search Mentions
+X count (len mentions)
+X sec1_header (core.concat "## Web Search Mentions (" (core.stringify count) " results)\n\n")
+X body (core.concat body sec1_header)
+X formatted (map mentions (lambda m (core.concat "- " m.text "\n  URL: " m.id "\n")))
+X sec1_body (core.join "\n\n" formatted)
+X body (core.concat body sec1_body "\n\n")
+
+# Section: TikTok Activity
+X sec2_header "## TikTok Activity (last 24h)\n\n"
+X body (core.concat body sec2_header)
+X sec2_line (core.concat "Recent processed reports: " (core.stringify tiktok_recent) "\n")
+X body (core.concat body sec2_line "\n")
+
+# Prepare Telegram payload with 'text' field
+X payload (obj "text" body)
+
+# Send notification
+R queue Put "notify" payload
+
+# Store in memory (7d TTL) - store raw body string directly
+X report_id (core.concat "digest-" (core.iso ts))
+R memory put "intel" "digest" report_id body 604800 ->_
+
+Ret null

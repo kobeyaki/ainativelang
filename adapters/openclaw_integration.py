@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional
 from runtime.adapters.base import RuntimeAdapter, AdapterError
 from .extras import ExtrasAdapter
 from .agent import AgentAdapter
+from runtime.adapters.memory import MemoryAdapter
 import sqlite3
 from datetime import datetime, timezone
 
@@ -498,7 +499,7 @@ def openclaw_monitor_registry(ir_types: Optional[Dict] = None):
     from runtime.adapters.base import AdapterRegistry
     reg = AdapterRegistry(allowed=[
         'core', 'db', 'email', 'calendar', 'social',
-        'svc', 'cache', 'queue', 'wasm', 'extras', 'tiktok', 'agent'
+        'svc', 'cache', 'queue', 'wasm', 'extras', 'tiktok', 'agent', 'memory'
     ])
     from runtime.adapters.builtins import CoreBuiltinAdapter
     reg.register('core', CoreBuiltinAdapter())
@@ -512,6 +513,8 @@ def openclaw_monitor_registry(ir_types: Optional[Dict] = None):
     reg.register('extras', ExtrasAdapter())
     reg.register('tiktok', TiktokAdapter())
     reg.register('agent', AgentAdapter())
+    # Memory adapter with extra 'intel' namespace for intelligence storage
+    reg.register('memory', MemoryAdapter(valid_namespaces={'intel', 'workflow', 'session', 'long_term', 'daily_log'}))
 
     # Optional WASM adapter if wasmtime is available and demo modules exist
     try:
