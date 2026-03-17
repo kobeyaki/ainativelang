@@ -2,16 +2,6 @@
 
 > AI-led co-development project, human-initiated by Steven Hooley (`x.com/sbhooley`, `stevenhooley.com`, `linkedin.com/in/sbhooley`). Attribution details: `docs/PROJECT_ORIGIN_AND_ATTRIBUTION.md` and `tooling/project_provenance.json`.
 
-AI Native Lang (AINL) is a compact language and toolchain for agent-oriented workflows. The compiler emits canonical graph IR and compatibility `legacy.steps`; the runtime executes graph-first semantics through `runtime/engine.py`.
-
-AINL is best understood as a **graph-canonical intermediate programming system** with:
-- a compact textual surface for generation and transport,
-- a compiler/runtime pair designed around deterministic IR,
-- emitters for practical targets,
-- and tooling for constrained decoding, diffing, patching, and evaluation.
-
-The repository also includes advanced, noncanonical extension surfaces for operator-oriented workflows, but those are not the core/safe-default entry point.
-
 ## In Plain English
 
 AINL helps turn AI from “a smart conversation” into “a structured worker.”
@@ -23,6 +13,18 @@ It is designed for teams building AI workflows that need:
 - repeatable execution
 - validation and control
 - lower dependence on long prompt loops
+
+## TECHNICAL
+
+AI Native Lang (AINL) is a compact language and toolchain for agent-oriented workflows. The compiler emits canonical graph IR and compatibility `legacy.steps`; the runtime executes graph-first semantics through `runtime/engine.py`.
+
+AINL is best understood as a **graph-canonical intermediate programming system** with:
+- a compact textual surface for generation and transport,
+- a compiler/runtime pair designed around deterministic IR,
+- emitters for practical targets,
+- and tooling for constrained decoding, diffing, patching, and evaluation.
+
+The repository also includes advanced, noncanonical extension surfaces for operator-oriented workflows, but those are not the core/safe-default entry point.
 
 ## Who AINL Is For
 
