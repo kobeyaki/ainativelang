@@ -409,3 +409,9 @@ envelopes, see `docs/advanced/AGENT_COORDINATION_CONTRACT.md`.
 - **Adapter manifest (machine-readable):** `tooling/adapter_manifest.json`
 - **Capabilities schema (machine-readable):** `tooling/capabilities.json`
 - **Support matrix (machine-readable):** `tooling/support_matrix.json`
+- **MCP server for MCP-compatible hosts:** `scripts/ainl_mcp_server.py`
+  (documented in `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`, section **9**)
+  exposes the same workflow/policy surfaces over Model Context Protocol. It is
+  stdio-only, runs with safe-default restrictions (core-only adapters,
+  conservative limits, `local_minimal`-style policy), and does *not* change
+  the sandbox assumptions described in this document.

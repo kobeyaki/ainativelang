@@ -7,7 +7,7 @@ name = "ainl-lang"
 version = "1.0.0"
 description = "AINL compiler, runtime, validator, and tooling"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = []
 authors = [
   { name = "Steven Hooley" },
@@ -29,6 +29,7 @@ InitiatorLinkedIn = "https://linkedin.com/in/sbhooley"
 [project.optional-dependencies]
 dev = ["pytest>=7.0.0", "hypothesis>=6.0.0", "httpx>=0.27.0", "pre-commit>=3.7.0"]
 web = ["fastapi", "uvicorn[standard]"]
+mcp = ["mcp[cli]>=1.0.0"]
 
 [project.scripts]
 ainl-validate = "scripts.validate_ainl:main"
@@ -46,6 +47,7 @@ ainl-test-runtime = "scripts.run_runtime_tests:main"
 ainl-runner-service = "scripts.runtime_runner_service:main"
 ainl-test-profiles = "scripts.run_test_profiles:main"
 ainl-check-docs = "scripts.check_docs_contracts:main"
+ainl-mcp = "scripts.ainl_mcp_server:main"
 
 [tool.setuptools]
 py-modules = [

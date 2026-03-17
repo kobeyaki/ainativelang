@@ -350,7 +350,128 @@ For orchestrators integrating with the AINL runner service:
 
 ---
 
-## 9. Relationship to other docs
+## 9. MCP server for AI coding agents
+
+AINL includes an MCP (Model Context Protocol) server that exposes workflow
+compilation, validation, execution, capability discovery, and security
+introspection as MCP tools.  Any MCP-compatible host — Gemini CLI, Claude
+Code, Codex Agents SDK, or a custom agent platform — can discover and call
+AINL without custom integration code.
+
+### Quick start
+
+**Requirements:**
+
+- Python 3.10+
+- AINL installed with the MCP extra
+
+```bash
+pip install -e ".[mcp]"
+
+# Start the stdio-based MCP server (no HTTP transport)
+ainl-mcp
+```
+
+From an MCP-compatible host (for example, Gemini CLI, Claude Code, or another
+MCP tool), configure a stdio transport pointing at the `ainl-mcp` command. The
+host can then call the tools below.
+
+### Exposed MCP tools
+
+| Tool | Side effects | Description |
+|------|-------------|-------------|
+| `ainl_validate` | None | Check AINL source for syntax/semantic validity |
+| `ainl_compile` | None | Compile AINL source to canonical graph IR |
+| `ainl_capabilities` | None | Discover available adapters, verbs, and privilege tiers |
+| `ainl_security_report` | None | Generate a per-label privilege/security map |
+| `ainl_run` | Adapter calls (restricted) | Compile, policy-validate, and execute a workflow |
+
+### Exposed MCP resources
+
+| URI | Description |
+|-----|-------------|
+| `ainl://adapter-manifest` | Full adapter metadata (verbs, tiers, effects, privileges) |
+| `ainl://security-profiles` | Named security profiles for deployment scenarios |
+
+### Default security posture
+
+`ainl_run` is restricted by default to the `core` adapter only, with
+conservative resource limits and forbidden privilege tiers (`local_state`,
+`network`, `operator_sensitive`). Callers can add further restrictions via
+the `policy` parameter but cannot widen beyond the server defaults; they also
+cannot enable raw adapter execution, advanced coordination, or memory mutation
+tools over MCP v1.
+
+### Minimal end-to-end example
+
+The following sequence illustrates a minimal MCP interaction flow from a host
+perspective:
+
+1. **Validate** AINL source:
+
+   ```json
+   {
+     "tool": "ainl_validate",
+     "params": {
+       "code": "S app api /api\nL1:\nR core.ADD 2 3 ->x\nJ x"
+     }
+   }
+   ```
+
+2. **Compile** to canonical IR:
+
+   ```json
+   {
+     "tool": "ainl_compile",
+     "params": {
+       "code": "S app api /api\nL1:\nR core.ADD 2 3 ->x\nJ x"
+     }
+   }
+   ```
+
+3. **Run** under the safe-default profile:
+
+   ```json
+   {
+     "tool": "ainl_run",
+     "params": {
+       "code": "S app api /api\nL1:\nR core.ADD 2 3 ->x\nJ x",
+       "strict": true
+     }
+   }
+   ```
+
+The host is responsible for wiring these calls into its own UI, prompts, and
+policy layers; AINL’s MCP server provides only a thin, stdio-based workflow
+surface with safe defaults.
+
+### Source
+
+`scripts/ainl_mcp_server.py`
+
+### Relationship to the runner service and architecture
+
+- The MCP server is a **peer** to the HTTP runner service
+  (`scripts/runtime_runner_service.py`), not a replacement. Both reuse the same
+  compiler, runtime engine, adapter metadata, policy validator, and
+  security-report tooling.
+- The runner service remains the primary **deployable product surface** for
+  HTTP-based orchestrators (`/run`, `/enqueue`, `/result/{id}`, `/capabilities`,
+  `/health`, `/ready`, `/metrics`).
+- The MCP server exists to make AINL **workflow-level capabilities available to
+  MCP-compatible AI coding agents** (Gemini CLI, Claude Code, Codex-style agent
+  SDKs, generic MCP hosts) via stdio transport.
+- v1 MCP intentionally **does not**:
+  - expose raw adapter execution
+  - expose advanced coordination tools
+  - expose memory mutation tools
+  - provide HTTP/SSE transport
+  - load startup config/profile files
+  - turn AINL into an agent host or orchestration platform
+
+---
+
+## 10. Relationship to other docs
 
 - **Sandbox adapter and limit profiles:**
   `docs/operations/SANDBOX_EXECUTION_PROFILE.md`

@@ -39,6 +39,78 @@ ainl-validate examples/hello.ainl --strict --emit ir
 
 ---
 
+## Choose Your Path
+
+AINL can be used through three integration surfaces. All three run the same
+compiler and runtime; they differ in how you connect.
+
+The canonical "hello world" workflow used below:
+
+```
+S app api /api
+L1:
+R core.ADD 2 3 ->x
+J x
+```
+
+### Path A — CLI only (fastest start)
+
+```bash
+# Validate and inspect
+ainl-validate examples/hello.ainl --strict --emit ir
+
+# Run directly
+ainl run examples/hello.ainl --json
+```
+
+No server needed. Good for local development, scripting, and CI.
+
+### Path B — HTTP runner (orchestrator integration)
+
+```bash
+# Start the runner service
+ainl-runner-service
+# default: http://localhost:8770
+
+# Discover capabilities
+curl http://localhost:8770/capabilities
+
+# Execute a workflow
+curl -X POST http://localhost:8770/run \
+  -H "Content-Type: application/json" \
+  -d '{"code": "S app api /api\nL1:\nR core.ADD 2 3 ->x\nJ x", "strict": true}'
+```
+
+Best for container deployments, sandbox controllers, and external orchestrators.
+See `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`.
+
+### Path C — MCP host (AI coding agents)
+
+```bash
+# Install with MCP extra
+pip install -e ".[mcp]"
+
+# Start the stdio MCP server
+ainl-mcp
+```
+
+Then configure your MCP-compatible host (Gemini CLI, Claude Code, Codex, etc.)
+to use the `ainl-mcp` stdio transport. The host can call `ainl_validate`,
+`ainl_compile`, `ainl_capabilities`, `ainl_security_report`, and `ainl_run`.
+
+MCP v1 runs with safe defaults (core-only adapters, conservative limits). See
+section 9 of `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md` for the full
+quickstart and example payloads.
+
+> **Core first, advanced later.** The paths above use the core compiler and
+> runtime only. Advanced/operator-only surfaces (agent coordination, memory
+> migration, OpenClaw extensions) are documented separately under
+> `docs/advanced/` and are not the recommended starting point for new users.
+
+For the full getting-started guide, see `docs/getting_started/README.md`.
+
+---
+
 ## Why AINL Exists
 
 Modern AI systems are increasingly powerful at reasoning, but still unreliable and expensive when forced to orchestrate whole workflows through long prompt loops. Long prompt loops create:
@@ -254,6 +326,7 @@ For implementation and shipped-capability status, see:
 
 ### Essential reading
 
+- Getting started (3 integration paths): `docs/getting_started/README.md`
 - Primary docs hub: `docs/README.md`
 - Audience guide: `docs/AUDIENCE_GUIDE.md`
 - Spec: `docs/AINL_SPEC.md`
@@ -279,6 +352,8 @@ For implementation and shipped-capability status, see:
 - Named security profiles: `tooling/security_profiles.json`
 - Security/privilege report: `tooling/security_report.py`
 - Safe use and threat model: `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md`
+- MCP server overview: section **9** of `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`
+- MCP server for AI coding agents: `scripts/ainl_mcp_server.py` (see external orchestration guide, section 9)
 
 ### Examples and case studies
 
@@ -295,7 +370,7 @@ For implementation and shipped-capability status, see:
 
 - Release readiness matrix: `docs/RELEASE_READINESS.md`
 - No-break migration tracker: `docs/NO_BREAK_MIGRATION_PLAN.md`
-- Release notes draft (RC): `docs/RELEASE_NOTES_DRAFT.md`
+- Release notes: `docs/RELEASE_NOTES.md`
 - Maintainer release execution guide: `docs/RELEASING.md`
 - Immediate post-release roadmap: `docs/POST_RELEASE_ROADMAP.md`
 - Docs maintenance contract: `docs/DOCS_MAINTENANCE.md`
@@ -403,7 +478,7 @@ The emitted server includes **structured logging** (request_id, method, path, st
 
 ### Requirements
 
-See [docs/INSTALL.md](docs/INSTALL.md) for full setup details. At a minimum: Python 3.x, pip and virtual environment support, Docker for container-based deployment flows.
+See [docs/INSTALL.md](docs/INSTALL.md) for full setup details. At a minimum: Python 3.10+, pip and virtual environment support, Docker for container-based deployment flows.
 
 ---
 
@@ -446,6 +521,7 @@ See [docs/INSTALL.md](docs/INSTALL.md) for full setup details. At a minimum: Pyt
 - **Replay tooling**: `ainl run ... --record-adapters calls.json` and `ainl run ... --replay-adapters calls.json` for deterministic adapter replay.
 - **Reference adapters**: `http`, `sqlite`, `fs` (sandboxed), and `tools` bridge with contract tests.
 - **Runner service**: `ainl-runner-service` (FastAPI) with `/run`, `/enqueue`, `/result/{id}`, `/capabilities`, `/health`, `/ready`, and `/metrics`.
+- **MCP server**: `ainl-mcp` (stdio-only) exposes `ainl_validate`, `ainl_compile`, `ainl_run`, `ainl_capabilities`, `ainl_security_report` as MCP tools for Gemini CLI, Claude Code, Codex, and other MCP-compatible agents. It is a thin workflow-level surface over the existing compiler/runtime, not a replacement for the runner service, and currently runs with safe-default restrictions (core-only adapters, hardcoded conservative limits). Requires `pip install -e ".[mcp]"`.
 - **Tool API schema**: `tooling/ainl_tool_api.schema.json` (structured compile/validate/emit loop contract).
 - **Synthetic dataset**: `python3 scripts/generate_synthetic_dataset.py --count 10000 --out data/synthetic` — writes only programs that compile.
 - **Formal prefix grammar (compiler-owned)**: `compiler_grammar.py` is the source of truth for prefix lexical/syntactic/scope admissibility.

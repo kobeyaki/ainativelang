@@ -6,7 +6,7 @@ the human founder began in **2024**. After partial loss of early artifacts, AINL
 workstreams were rebuilt, retested, and formalized in overlapping phases through
 **2025-2026**.
 
-Release communication draft for tagging is maintained at `docs/RELEASE_NOTES_DRAFT.md`.
+Release communication for tagging is maintained at `docs/RELEASE_NOTES.md`.
 Immediate post-release engineering priorities are tracked in `docs/POST_RELEASE_ROADMAP.md`.
 Maintainer release execution steps are documented in `docs/RELEASING.md`.
 
@@ -210,6 +210,35 @@ Release packaging expects these boundaries to stay explicit:
   - `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`
   - `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md`
 
+### 14) MCP Server (Workflow-Level Integration Surface)
+
+- **Code**
+  - `scripts/ainl_mcp_server.py`
+- **Behavior**
+  - exposes a thin, stdio-only MCP server (`ainl-mcp`) that registers:
+    - tools: `ainl_validate`, `ainl_compile`, `ainl_capabilities`,
+      `ainl_security_report`, `ainl_run`
+    - resources: `ainl://adapter-manifest`, `ainl://security-profiles`
+  - reuses existing compiler, policy validator, security-report tooling, and
+    runtime engine rather than adding new semantics
+  - `ainl_run` executes with safe-default restrictions:
+    - core-only adapter allowlist
+    - hardcoded, conservative runtime limits
+    - `local_minimal`-style policy (forbidden `local_state`, `network`,
+      `operator_sensitive` privilege tiers), with caller policies only allowed
+      to add further restrictions
+  - designed as a workflow-level integration surface for MCP-compatible hosts
+    (e.g. Gemini CLI, Claude Code, Codex-style agent SDKs, generic MCP hosts),
+    not as an agent host or orchestration platform
+  - no HTTP transport, startup config/profile loading, raw adapter execution,
+    advanced coordination exposure, or memory mutation tools in this release
+- **Tests**
+  - `tests/test_mcp_server.py` (tool shapes, policy/limit defaults, resource
+    access)
+- **Docs**
+  - `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md` (section **9**)
+  - `README.md` (operations and tooling reference sections)
+
 ## CI / Verification Command Set
 
 Core confidence suite:
@@ -257,3 +286,9 @@ pytest tests/test_artifact_profiles.py -v
 - [x] Security report tooling available
 - [x] `/capabilities` exposes privilege tiers
 - [x] Sandbox/orchestration/threat-model docs shipped
+- [x] MCP v1 server implemented, tested, and documented
+- [x] Python 3.10+ baseline aligned across metadata, docs, bootstrap, and CI
+- [x] Core test profile fully green (403/0)
+- [x] FastAPI deprecation warnings resolved (lifespan handlers)
+- [x] Getting-started guide with three integration paths (CLI / runner / MCP)
+- [x] Release notes finalized

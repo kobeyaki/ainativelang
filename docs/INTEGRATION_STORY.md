@@ -157,8 +157,17 @@ For the full state model, see `docs/architecture/STATE_DISCIPLINE.md`.
   or process sandboxing.
 - **Not an agent platform.** AINL is a workflow execution layer, not a
   full agent framework with built-in planning, tool discovery, or autonomy.
-- **Not MCP or A2A.** AINL does not implement Model Context Protocol or
-  Agent-to-Agent protocol. It can sit alongside or underneath systems that do.
+- **Not an MCP host or A2A fabric.** AINL itself is not an agent host or
+  Model Context Protocol provider in the sense of owning multi-agent session
+  state. It now ships a **thin, stdio-only MCP server** (`ainl-mcp`) that
+  exposes workflow-level tools and resources (validation, compilation,
+  capabilities, security reports, safe-default `ainl_run`) to MCP-compatible
+  hosts such as Gemini CLI, Claude Code, Codex-style agent SDKs, and other MCP
+  hosts. This MCP surface is vendor-neutral, workflow-focused, and runs with
+  safe-default restrictions (core-only adapters, conservative limits,
+  `local_minimal`-style policy). It does *not* turn AINL into an agent
+  platform or control plane; it is an integration surface that sits alongside
+  or underneath systems that do own sessions and policy.
 
 ---
 

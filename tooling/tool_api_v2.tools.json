@@ -687,6 +687,7 @@
       "lane": "canonical",
       "support_tier": "core",
       "usage_model": "composite",
+      "common_pattern": "example composite math skill",
       "adapter_dependencies": [
         "core"
       ],
@@ -722,6 +723,7 @@
       "lane": "noncanonical",
       "support_tier": "extension_openclaw",
       "usage_model": "composite",
+      "common_pattern": "advisory coordination workflow",
       "adapter_dependencies": [
         "core",
         "agent"

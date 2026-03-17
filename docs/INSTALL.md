@@ -8,7 +8,7 @@ See also:
 
 ## Requirements
 
-- Python 3.9+
+- Python 3.10+
 - pip
 
 ## Linux / macOS

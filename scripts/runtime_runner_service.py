@@ -21,6 +21,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 
 from runtime.adapters.base import AdapterRegistry, RuntimeAdapter
@@ -39,8 +40,6 @@ if not logger.handlers:
     handler.setFormatter(logging.Formatter("%(message)s"))
     logger.addHandler(handler)
 logger.setLevel(logging.INFO)
-
-app = FastAPI(title="AINL Runtime Runner", version="1.0.0")
 
 _COMPILE_CACHE: Dict[str, Dict[str, Any]] = {}
 _JOBS: Dict[str, Dict[str, Any]] = {}
@@ -382,14 +381,18 @@ def _ensure_worker() -> None:
         _WORKER.start()
 
 
-@app.on_event("startup")
-def _startup() -> None:
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    # Start background worker on application startup.
     _ensure_worker()
+    try:
+        yield
+    finally:
+    # Signal worker loop to stop on application shutdown.
+        _STOP.set()
 
 
-@app.on_event("shutdown")
-def _shutdown() -> None:
-    _STOP.set()
+app = FastAPI(title="AINL Runtime Runner", version="1.0.0", lifespan=_lifespan)
 
 
 @app.get("/health")

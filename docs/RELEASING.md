@@ -20,7 +20,7 @@ If any command fails, resolve before tagging.
 
 ## 2) Finalize release text and version
 
-- Use `docs/RELEASE_NOTES_DRAFT.md` as the GitHub Releases body.
+- Use `docs/RELEASE_NOTES.md` as the GitHub Releases body.
 - Confirm release-scoped docs are current:
   - `README.md`
   - `CONTRIBUTING.md`
@@ -36,7 +36,7 @@ GitHub-native flow:
 2. Click **Draft a new release**.
 3. Create/select the tag (for this release, recommended: `v1.1.0`).
 4. Set title (recommended from release notes draft).
-5. Paste body from `docs/RELEASE_NOTES_DRAFT.md`.
+5. Paste body from `docs/RELEASE_NOTES.md`.
 6. Mark as latest release (if appropriate).
 7. Publish release.
 

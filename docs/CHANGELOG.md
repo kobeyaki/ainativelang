@@ -1,5 +1,50 @@
 # Changelog
 
+## 1.1.0 — First Public Release Candidate (2026-03-09)
+
+### Baseline
+- Official Python minimum raised to **3.10+**; metadata, docs, bootstrap, and CI
+  (3.10 + 3.11) aligned.
+- Core test profile fully green (403 tests, 0 failures).
+
+### MCP Server (v1)
+- Added `scripts/ainl_mcp_server.py` — a thin, stdio-only MCP server exposing
+  `ainl_validate`, `ainl_compile`, `ainl_capabilities`, `ainl_security_report`,
+  and `ainl_run` as MCP tools, plus `ainl://adapter-manifest` and
+  `ainl://security-profiles` as MCP resources.
+- Safe-default posture: core-only adapters, conservative limits, hardcoded
+  `local_minimal`-style policy.
+- Quickstart and end-to-end example in
+  `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md` section 9.
+
+### Security & Operator Surfaces
+- Adapter privilege-tier metadata in `tooling/adapter_manifest.json`.
+- Policy validator supports `forbidden_privilege_tiers`.
+- Named security profiles in `tooling/security_profiles.json`.
+- Security/privilege introspection via `tooling/security_report.py`.
+- Sandbox, orchestration, and threat-model docs shipped.
+
+### Documentation
+- `docs/` reorganized into intent-based sections (overview, fundamentals,
+  getting_started, architecture, runtime, language, adapters, emitters,
+  examples, case_studies, competitive, operations, advanced, reference) with
+  section READMEs, compatibility stubs, and a root navigation hub.
+- README: added "Choose Your Path" mode chooser (CLI / runner / MCP) with a
+  single canonical example shown three ways.
+- Getting-started guide enriched with integration paths and core-first guidance.
+- Release notes finalized with current milestone summary.
+
+### Polish
+- Runner service migrated from deprecated `@app.on_event` to FastAPI lifespan
+  handlers.
+- Memory tooling migrated from `datetime.utcnow()` to timezone-aware UTC
+  helpers.
+- Repo hygiene: scratch files removed, `.gitignore` tightened.
+
+Full details: `docs/RELEASE_NOTES.md`.
+
+---
+
 ## 1.0.15-memory-v1-and-interoperability (2026-03-09)
 
 ### OpenClaw Autonomous Ops Programs and Docs

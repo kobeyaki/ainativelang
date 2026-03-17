@@ -62,7 +62,7 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
 - Conformance status: `docs/CONFORMANCE.md`
 - Release readiness checklist: `docs/RELEASE_READINESS.md`
 - No-break migration tracker: `docs/NO_BREAK_MIGRATION_PLAN.md`
-- Release notes draft (GitHub-ready body): `docs/RELEASE_NOTES_DRAFT.md`
+- Release notes: `docs/RELEASE_NOTES.md`
 - Post-release immediate roadmap: `docs/POST_RELEASE_ROADMAP.md`
 - Maintainer release operations: `docs/RELEASING.md`
 - Reproducible size benchmark report: `BENCHMARK.md`
@@ -96,6 +96,7 @@ entry point for new users or unsupervised agents.
 - Sandbox execution profiles: `docs/operations/SANDBOX_EXECUTION_PROFILE.md`
 - Runtime container guide: `docs/operations/RUNTIME_CONTAINER_GUIDE.md`
 - External orchestration guide: `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`
+- MCP server (workflow-level integration for MCP-compatible hosts): `scripts/ainl_mcp_server.py`
 - Autonomous ops monitors index: `docs/operations/AUTONOMOUS_OPS_MONITORS.md`
 - Standardized health envelope (monitor payloads): `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`
 - Memory contract and v1 adapter: `docs/adapters/MEMORY_CONTRACT.md`

@@ -17,10 +17,10 @@ class AgentAdapter(RuntimeAdapter):
 
   def _root(self) -> Path:
     raw = os.getenv("AINL_AGENT_ROOT", "/tmp/ainl_agents")
-    root = Path(raw).resolve()
     # Disallow using filesystem root as sandbox; that defeats the boundary.
-    if root == root.root:
+    if os.path.abspath(raw) == os.path.sep:
       raise AdapterError("AINL_AGENT_ROOT must not be filesystem root")
+    root = Path(raw).resolve()
     root.mkdir(parents=True, exist_ok=True)
     return root
 
@@ -41,6 +41,12 @@ class AgentAdapter(RuntimeAdapter):
       envelope = args[0]
       if not isinstance(envelope, dict):
         raise AdapterError("agent.send_task expects first argument to be a JSON object envelope")
+
+      # Optional second argument must not be treated as an arbitrary path; reject
+      # attempts to override the tasks file location to preserve the AINL_AGENT_ROOT
+      # sandbox boundary.
+      if len(args) > 1:
+        raise AdapterError("agent.send_task does not accept explicit path arguments; tasks file is fixed under AINL_AGENT_ROOT")
 
       # Tasks file path is fixed by convention; callers should not control it.
       path = self._safe_path("tasks/openclaw_agent_tasks.jsonl")
@@ -63,7 +69,7 @@ class AgentAdapter(RuntimeAdapter):
       task_id = str(args[0])
       # Treat task_id as an identifier, not a path fragment.
       if "/" in task_id or ".." in task_id:
-        raise AdapterError("agent.read_result task_id must not contain path separators")
+        raise AdapterError("agent.read_result task_id must not contain path separators or escape AINL_AGENT_ROOT sandbox")
       rel_path = f"results/{task_id}.json"
       path = self._safe_path(rel_path)
       if not path.exists() or not path.is_file():

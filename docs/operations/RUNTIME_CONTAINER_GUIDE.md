@@ -333,5 +333,10 @@ The AINL runtime is the **workflow execution layer**. It does not provide:
   `docs/reference/ADAPTER_REGISTRY.md`
 - **Runner service source:**
   `scripts/runtime_runner_service.py`
+- **MCP server (for MCP-compatible agent hosts):**
+  `scripts/ainl_mcp_server.py` (see `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`,
+  section **9**). The MCP server is a thin, stdio-only integration surface over
+  the same compiler/runtime described here, not a replacement for the runner
+  service or a standalone agent platform.
 - **Emitted server Dockerfile (application mode):**
   `tests/emits/server/Dockerfile`

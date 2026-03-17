@@ -54,7 +54,8 @@ def _bool_from_frontmatter(val: Optional[str]) -> Optional[bool]:
 
 
 def _now_iso() -> str:
-    return _dt.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    # Use an explicit UTC-aware timestamp for portability.
+    return _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def _frontmatter_to_envelope(
@@ -147,5 +148,18 @@ def import_markdown_to_memory(
             md_paths.append(inp)
 
     envs = collect_markdown_envelopes(md_paths)
+    # If we collected nothing but there were candidate files, report a validation-style
+    # failure rather than silently succeeding. This helps catch misconfigured frontmatter
+    # such as unsupported namespaces or record kinds.
+    if md_paths and not envs:
+        from tooling.memory_bridge import ImportResult
+
+        return ImportResult(
+            ok=False,
+            inserted=0,
+            updated=0,
+            errors=["No valid AINL memory envelopes found in markdown inputs."],
+        )
+
     return import_records(db_path or DEFAULT_DB_PATH, envs)
 

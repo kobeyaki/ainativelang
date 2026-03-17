@@ -1,5 +1,0 @@
-L0:
-    R core now ->ts
-    X total len rows
-    R cache get "state" "last_run" ->last_run
-    X dummy add 1 2

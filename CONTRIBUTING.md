@@ -95,7 +95,7 @@ python scripts/check_docs_contracts.py --scope all
 ```
 
 This checklist aligns with current public CI/release expectations.
-For scope and messaging context, also review `README.md`, `docs/RELEASE_NOTES_DRAFT.md`, and `docs/RELEASE_READINESS.md`.
+For scope and messaging context, also review `README.md`, `docs/RELEASE_NOTES.md`, and `docs/RELEASE_READINESS.md`.
 
 Maintainers preparing a public release should use `docs/RELEASING.md`.
 

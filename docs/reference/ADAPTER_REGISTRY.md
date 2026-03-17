@@ -332,7 +332,7 @@ agents; it does **not** change core language or runtime semantics.
 ## 8. Agent coordination adapter – `agent` (extension / OpenClaw, advanced)
 
 - **name**: `agent`
-- **verbs**: `send_task`, `read_result`
+- **verbs**: `send_task, read_result`
 - **support_tier**: `extension_openclaw`
 - **lane**: non-canonical; OpenClaw-only extension adapter
 - **intended audience**: advanced operators building local coordination loops;

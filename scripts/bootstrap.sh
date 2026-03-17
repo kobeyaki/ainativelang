@@ -3,7 +3,7 @@ set -euo pipefail
 
 echo "==> AINL bootstrap (Unix/macOS)"
 if ! command -v python3 >/dev/null 2>&1; then
-  echo "python3 is required (>=3.9)." >&2
+  echo "python3 is required (>=3.10)." >&2
   exit 1
 fi
 

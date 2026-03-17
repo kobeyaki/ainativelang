@@ -63,6 +63,7 @@ def main() -> None:
         "lane": ms.get("lane"),
         "support_tier": ms.get("support_tier"),
         "usage_model": ms.get("usage_model"),
+        "common_pattern": ms.get("common_pattern"),
         "adapter_dependencies": ms.get("adapter_dependencies", []),
         "safety_tags": ms.get("safety_tags", []),
       }

@@ -282,6 +282,14 @@ For operators deploying AINL inside sandboxed environments:
   guidance artifacts, not enforced semantics.
 - **Runtime container guide** (Dockerfiles, probe configuration, integration
   patterns): `docs/operations/RUNTIME_CONTAINER_GUIDE.md`
+- **MCP server for MCP-compatible hosts** (`ainl-mcp`, stdio-only) exposes the
+  same workflow, capability, and security-report surfaces over Model Context
+  Protocol for integrations with Gemini CLI, Claude Code, Codex-style agent
+  SDKs, and other MCP hosts. It is a thin, workflow-level peer to the runner
+  service, not a sandbox or agent platform, and currently runs with
+  safe-default restrictions (core-only adapters, conservative limits,
+  `local_minimal`-style policy, no raw adapter execution, no advanced
+  coordination exposure, no memory mutation tools).
 
 These guides are **framework-agnostic** and apply to any container
 orchestrator or agent host.

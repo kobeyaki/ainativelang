@@ -597,6 +597,31 @@ A security/privilege report tool (`tooling/security_report.py`) generates per-la
 
 See `docs/operations/SANDBOX_EXECUTION_PROFILE.md`, `docs/operations/RUNTIME_CONTAINER_GUIDE.md`, `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`, and `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md`.
 
+### 15.5 MCP Server and MCP-Compatible Hosts
+
+AINL now includes a thin, stdio-only MCP (Model Context Protocol) server that
+exposes workflow-level tools and resources to MCP-compatible agent hosts such
+as Gemini CLI, Claude Code, Codex-style agent SDKs, and generic MCP servers.
+The MCP server:
+
+- is implemented in `scripts/ainl_mcp_server.py` (CLI entrypoint `ainl-mcp`)
+- reuses the existing compiler, policy validator, security-report tooling, and
+  runtime engine rather than introducing new semantics
+- exposes tools: `ainl_validate`, `ainl_compile`, `ainl_capabilities`,
+  `ainl_security_report`, `ainl_run`
+- exposes resources: `ainl://adapter-manifest`, `ainl://security-profiles`
+- runs with safe-default restrictions:
+  - core-only adapter allowlist
+  - conservative runtime limits
+  - `local_minimal`-style policy (forbidden `local_state`, `network`,
+    `operator_sensitive` privilege tiers), with caller policies only allowed
+    to add further restrictions
+
+This MCP surface is **workflow-level and vendor-neutral**. It does not turn
+AINL into an agent host, orchestration platform, or sandbox; it is an
+integration boundary that allows existing MCP-compatible tools to call into
+AINL’s structured workflow layer.
+
 ---
 
 ## 16. Limitations
@@ -636,6 +661,11 @@ The following capabilities were listed as future work in earlier drafts and have
 - **Adapter privilege-tier metadata** — each adapter in `tooling/adapter_manifest.json` carries a `privilege_tier` (`pure`, `local_state`, `network`, `operator_sensitive`)
 - **Named security profiles** — `tooling/security_profiles.json` packages adapter allowlists, privilege-tier restrictions, and runtime limits for four deployment scenarios
 - **Security/privilege introspection** — `tooling/security_report.py` generates per-label, per-graph privilege maps for pre-deployment review
+- **MCP integration surface (v1)** — a thin, stdio-only MCP server (`ainl-mcp`)
+  that exposes workflow-level tools and resources (validation, compilation,
+  capabilities, security reports, safe-default `ainl_run`) to MCP-compatible
+  hosts. It is workflow-focused, safe-default restricted, and reuses existing
+  compiler/runtime semantics rather than widening the language.
 
 ### 17.2 Remaining Future Work
 
@@ -646,7 +676,8 @@ Promising future work includes:
 - Broader emitter maturity across additional target platforms
 - Tokenizer-aware benchmark lanes for more precise cost modeling
 - Circuit breaker patterns and retryable vs non-retryable error classification
-- MCP and A2A protocol bridges (when standards stabilize)
+- Deeper MCP and A2A protocol bridges (beyond the current thin workflow-level
+  MCP server) as standards and host ecosystems stabilize
 - Continued small-model alignment and constrained decoding work
 - Deeper AI-agent onboarding and continuity tooling
 

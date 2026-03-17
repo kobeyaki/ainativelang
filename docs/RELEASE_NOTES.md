@@ -119,18 +119,51 @@ This release includes a structured security and operator deployment story:
   `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md` provide prescriptive guidance
   for deploying AINL in sandboxed, containerized, and operator-controlled
   environments.
+- **MCP server (workflow-level integration)** — a thin, stdio-only MCP server
+  (`scripts/ainl_mcp_server.py`, CLI entrypoint `ainl-mcp`) exposes
+  workflow-focused tools (`ainl_validate`, `ainl_compile`, `ainl_capabilities`,
+  `ainl_security_report`, `ainl_run`) and resources
+  (`ainl://adapter-manifest`, `ainl://security-profiles`) to MCP-compatible
+  hosts such as Gemini CLI, Claude Code, Codex-style agent SDKs, and other
+  MCP hosts. It is vendor-neutral, runs with safe-default restrictions
+  (core-only adapters, conservative limits, hardcoded `local_minimal`-style
+  policy), and does not add HTTP transport, raw adapter execution, advanced
+  coordination, or memory mutation semantics in this release.
 
 AINL does **not** claim to be a sandbox, security platform, or hosted
 orchestration layer. Containment, network policy, process isolation,
 authentication, and multi-tenant isolation remain the responsibility of the
 hosting environment.
 
+## Current Milestone Summary
+
+This release represents a stable, green, release-candidate baseline:
+
+- **Python 3.10+** is the official minimum; metadata, docs, bootstrap, and CI
+  (3.10 + 3.11) are aligned.
+- **Core test profile is fully green** (403 tests, 0 failures).
+- **MCP v1 server** is implemented, tested, and documented with a quickstart
+  and minimal example flow.
+- **Runner service** uses modern FastAPI lifespan handlers; no deprecation
+  warnings remain in the core profile.
+- **Security/operator surfaces** (privilege tiers, policy validator, named
+  security profiles, security report) are coherent and cross-linked.
+- **Docs IA** is reorganized by user intent with section READMEs, compatibility
+  stubs, and a root navigation hub (`docs/README.md`).
+
+### Start here
+
+| Path | First step | Details |
+|------|-----------|---------|
+| **CLI only** | `ainl-validate examples/hello.ainl --strict` | See `docs/INSTALL.md` |
+| **HTTP runner** | `POST /run` with `{"code": "S app api /api\nL1:\nR core.ADD 2 3 ->x\nJ x"}` | See `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md` |
+| **MCP host** | `pip install -e ".[mcp]" && ainl-mcp` | See section 9 of the external orchestration guide |
+
 ## Known Non-Blocking Follow-Ups
 
-* some compatibility and legacy surfaces remain intentionally non-strict
-* FastAPI `on_event` deprecation warnings still appear in some test paths
-* structured diagnostics can continue improving as a first-class compiler contract
-* compatibility retirement remains future roadmap work, not part of this release
+* Some compatibility and legacy surfaces remain intentionally non-strict.
+* Structured diagnostics can continue improving as a first-class compiler contract.
+* Compatibility retirement remains future roadmap work, not part of this release.
 
 ## Recommended Next Priorities
 
@@ -142,6 +175,7 @@ See:
 ## Project Entry Points
 
 * Project overview: `README.md`
+* Getting started: `docs/getting_started/README.md`
 * Contributor guide: `CONTRIBUTING.md`
 * Release readiness: `docs/RELEASE_READINESS.md`
 * Release operations: `docs/RELEASING.md`

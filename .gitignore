@@ -1,14 +1,38 @@
 # Synthetic dataset output
 data/
+
+# Python
 *.pyc
 __pycache__/
-.venv/
-venv/
-.env
-.pytest_cache/
-.hypothesis/
-# Build artifacts
 *.egg-info/
 dist/
 build/
+
+# Virtual environments
+.venv/
+.venv-*/
+venv/
+
+# Environment / secrets
+.env
+
+# Test / cache
+.pytest_cache/
+.hypothesis/
+
+# SQLite scratch databases
+*.db
+
+# Temp / scratch files
+tmp_*
+
+# OS artifacts
 .DS_Store
+Thumbs.db
+
+# Editor artifacts
+*.swp
+*.swo
+*~
+.idea/
+.vscode/

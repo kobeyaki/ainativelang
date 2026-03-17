@@ -10,7 +10,8 @@ JsonObject = Dict[str, Any]
 
 
 def _now_iso() -> str:
-    return _dt.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    # Use an explicit UTC-aware timestamp for portability.
+    return _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def _slugify_heading(text: str) -> str:
