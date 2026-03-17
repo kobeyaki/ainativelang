@@ -6,6 +6,7 @@ Use this section to understand how AINL is structured end to end: language, comp
 
 - [`ARCHITECTURE_OVERVIEW.md`](ARCHITECTURE_OVERVIEW.md) — system map
 - [`GRAPH_INTROSPECTION.md`](GRAPH_INTROSPECTION.md) — graph/IR inspection
+- [`COMPILE_ONCE_RUN_MANY.md`](COMPILE_ONCE_RUN_MANY.md) — compile-once/run-many proof pack
 - [`../RUNTIME_COMPILER_CONTRACT.md`](../RUNTIME_COMPILER_CONTRACT.md) — runtime/compiler ownership and contract
 
 ## Related sections

@@ -1,5 +1,5 @@
 # Moved
 
-This folder has been superseded by [`../case_studies/README.md`](../case_studies/README.md).
+Canonical case studies now live under [`../case_studies/README.md`](../case_studies/README.md).
 
-`docs/case_studies/` is the canonical home for current case-study content. Files that remain here are compatibility stubs kept to preserve old deep links during the migration.
+This `docs/case-studies/` folder is retained for compatibility with older paths and deep links. Files that remain here are compatibility stubs; new or updated case-study content should use `docs/case_studies/` instead.

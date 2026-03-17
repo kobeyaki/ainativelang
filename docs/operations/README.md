@@ -7,6 +7,9 @@ Use this section for real deployment-style operational docs: monitors, playbooks
 - [`AUTONOMOUS_OPS_PLAYBOOK.md`](AUTONOMOUS_OPS_PLAYBOOK.md) — current autonomous ops reality
 - [`AUTONOMOUS_OPS_MONITORS.md`](AUTONOMOUS_OPS_MONITORS.md) — monitor index
 - [`STANDARDIZED_HEALTH_ENVELOPE.md`](STANDARDIZED_HEALTH_ENVELOPE.md) — common message envelope
+- [`RUNTIME_CONTAINER_GUIDE.md`](RUNTIME_CONTAINER_GUIDE.md) — running AINL services in containers
+- [`SANDBOX_EXECUTION_PROFILE.md`](SANDBOX_EXECUTION_PROFILE.md) — sandbox execution profile and constraints
+- [`EXTERNAL_ORCHESTRATION_GUIDE.md`](EXTERNAL_ORCHESTRATION_GUIDE.md) — orchestrating AINL from external systems
 
 ## Related sections
 
