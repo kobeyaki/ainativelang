@@ -344,6 +344,49 @@ class RuntimeEngine:
             frame[dst] = truthy(args[0] if len(args) > 0 else False) or truthy(args[1] if len(args) > 1 else False)
         elif fn == "not":
             frame[dst] = not truthy(args[0] if len(args) > 0 else False)
+        elif fn == "ite" or fn == "if":
+            # ite cond then_val else_val
+            frame[dst] = (args[1] if len(args) > 1 else None) if truthy(args[0] if len(args) > 0 else False) else (args[2] if len(args) > 2 else None)
+        elif fn.startswith("core."):
+            # Support core.* functions in X expressions
+            sub_fn = fn[5:]  # strip "core."
+            if sub_fn == "concat":
+                frame[dst] = "".join(str(a) for a in args)
+            elif sub_fn == "len":
+                frame[dst] = len(args[0]) if args else 0
+            elif sub_fn == "add":
+                frame[dst] = (args[0] if len(args) > 0 else 0) + (args[1] if len(args) > 1 else 0)
+            elif sub_fn == "sub":
+                frame[dst] = (args[0] if len(args) > 0 else 0) - (args[1] if len(args) > 1 else 0)
+            elif sub_fn == "mul":
+                frame[dst] = (args[0] if len(args) > 0 else 0) * (args[1] if len(args) > 1 else 0)
+            elif sub_fn == "div":
+                b = args[1] if len(args) > 1 else 1
+                frame[dst] = (args[0] if len(args) > 0 else 0) / b
+            elif sub_fn == "gt":
+                frame[dst] = (args[0] if len(args) > 0 else None) > (args[1] if len(args) > 1 else None)
+            elif sub_fn == "gte":
+                frame[dst] = (args[0] if len(args) > 0 else None) >= (args[1] if len(args) > 1 else None)
+            elif sub_fn == "lt":
+                frame[dst] = (args[0] if len(args) > 0 else None) < (args[1] if len(args) > 1 else None)
+            elif sub_fn == "lte":
+                frame[dst] = (args[0] if len(args) > 0 else None) <= (args[1] if len(args) > 1 else None)
+            elif sub_fn == "eq":
+                frame[dst] = (args[0] if len(args) > 0 else None) == (args[1] if len(args) > 1 else None)
+            elif sub_fn == "ne":
+                frame[dst] = (args[0] if len(args) > 0 else None) != (args[1] if len(args) > 1 else None)
+            elif sub_fn == "join":
+                delim = str(args[0]) if args else ""
+                arr = args[1] if len(args) > 1 and isinstance(args[1], list) else args[1:]
+                frame[dst] = delim.join(str(x) for x in (arr if isinstance(arr, list) else [arr]))
+            elif sub_fn == "or":
+                frame[dst] = truthy(args[0] if len(args) > 0 else False) or truthy(args[1] if len(args) > 1 else False)
+            elif sub_fn == "and":
+                frame[dst] = truthy(args[0] if len(args) > 0 else False) and truthy(args[1] if len(args) > 1 else False)
+            elif sub_fn == "not":
+                frame[dst] = not truthy(args[0] if len(args) > 0 else False)
+            else:
+                raise AinlRuntimeError(f"unknown core fn: {sub_fn}", lid, idx, "X", stack, code=ERROR_CODE_X_UNKNOWN_FN)
         else:
             raise AinlRuntimeError(f"unknown X fn: {fn}", lid, idx, "X", stack, code=ERROR_CODE_X_UNKNOWN_FN)
         return frame.get(dst)
@@ -507,8 +550,8 @@ class RuntimeEngine:
                 return {"action": "return", "out": out}
             return {"action": if_none_action, "out": out}
         if op == "J":
-            # Unconditional jump: target label stored in 'var' (or 'data').
-            out = step.get("var") or step.get("data")
+            # Return the resolved value of the named variable (or literal).
+            out = self._resolve(step.get("var") or step.get("data"), frame)
             return {"action": "return", "out": out}
         if op == "Call":
             tgt = _norm_lid(step.get("label"))

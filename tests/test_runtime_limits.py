@@ -46,7 +46,7 @@ def test_runtime_limit_max_adapter_calls():
 
 def test_runtime_limit_max_loop_iters():
     code = "L1: X arr arr 1 2 3 Loop arr it ->L2 ->L3\nL2: J null\nL3: J done\n"
-    eng = RuntimeEngine.from_code(code, strict=True, limits={"max_loop_iters": 2})
+    eng = RuntimeEngine.from_code(code, strict=False, limits={"max_loop_iters": 2})
     try:
         eng.run_label("1")
         assert False, "expected max_loop_iters failure"

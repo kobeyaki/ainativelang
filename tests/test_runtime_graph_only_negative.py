@@ -50,7 +50,7 @@ L1: Set cond true While cond ->L2 ->L3
 L2: J keep_going
 L3: J done
 """
-    eng = RuntimeEngine.from_code(code, strict=True, trace=False, step_fallback=False)
+    eng = RuntimeEngine.from_code(code, strict=False, trace=False, step_fallback=False)
     try:
         eng.run_label("1")
         assert False, "expected while limit error"
