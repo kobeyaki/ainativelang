@@ -445,14 +445,32 @@ The host is responsible for wiring these calls into its own UI, prompts, and
 policy layers; AINL’s MCP server provides only a thin, stdio-based workflow
 surface with safe defaults.
 
+For hosts that want a small, stable summary wrapper for review queues or
+“assign task, read result later” flows, the repository provides an optional
+helper in `tooling/result_summary.py`:
+
+- input: the raw structured result from MCP `ainl_run` or the HTTP runner
+  `/run` endpoint
+- output: a compact JSON object with `task_id`, `status`, `summary`, `result`,
+  `trace_id`, `policy_errors`, `artifacts`, and `review_hint` fields
+
+This helper does not change the underlying result schema or execution
+semantics; it is a convenience layer for MCP hosts, Dispatch-style batch
+systems, and similar orchestrators.
+
 ### Source
 
 `scripts/ainl_mcp_server.py`
 
+For example MCP agent role templates (validator, inspector, safe runner, docs
+researcher), see `docs/INTEGRATION_STORY.md`.
+
 ### MCP exposure scoping
 
 Operators can control which tools and resources the MCP server registers
-at startup. This affects what MCP hosts can discover and call.
+at startup. This affects what MCP hosts can discover and call. Exposure is
+resolved at server startup from `AINL_MCP_EXPOSURE_PROFILE` and related env
+vars; changing exposure requires updating config/env and restarting the server.
 
 **Environment variables:**
 
@@ -508,6 +526,73 @@ workflow execution.
 Exposure scoping is **additive to** security. Hiding `ainl_run` from the
 host surface prevents discovery; the capability grant and policy still
 enforce restrictions even when `ainl_run` is exposed.
+
+### Desktop-bound and Cowork/Dispatch-style environments
+
+Desktop-bound AI agents (e.g. Claude Cowork/Dispatch-style environments) that
+can access local files and connectors should usually start with
+**`inspect_only`** or **`validate_only`** MCP exposure profiles. These
+minimize the visible tool surface and avoid workflow execution by default.
+Use **`safe_workflow`** only after explicit operator review of grants,
+policies, limits, and adapter exposure. AINL remains a scoped tool provider
+and deterministic runtime layer — not the host, not Cowork, not a gateway,
+not the enterprise auth/governance plane. Remember: MCP exposure profile
+controls what the host can discover; security profile / capability grant
+controls what execution is allowed; policy and limits constrain each run.
+
+**Desktop-safe recipe (Cowork/Dispatch-style hosts):**
+
+1. **Start read-only.** Configure `AINL_MCP_EXPOSURE_PROFILE` to
+   `inspect_only` (or `validate_only` if you only need syntax/IR checks).
+2. **Bind narrow roles.** In your MCP host, create an AINL validator/inspector
+   agent that can only call `ainl_validate`, `ainl_compile`,
+   `ainl_capabilities`, and `ainl_security_report`.
+3. **Review before execution.** Treat any use of `ainl_run` as an explicit,
+   reviewed action. Only enable `safe_workflow` after operators have reviewed
+   the security profile / capability grant, policy, limits, and adapter
+   exposure for that environment.
+4. **Keep host in control.** Let the desktop host own user identity, file
+   access, and approvals. AINL stays a scoped tool provider and deterministic
+   workflow layer inside that sandbox.
+
+### End-to-end example: validator, inspector, safe runner
+
+This example shows how a Claude Code / Cowork / Dispatch-style host can use
+AINL in three roles with progressively wider capabilities.
+
+1. **AINL Validator (read-only syntax/IR checks)**
+   - Start `ainl-mcp` with:
+     - `AINL_MCP_EXPOSURE_PROFILE=validate_only`
+   - The host configures an AINL validator agent that can only call
+     `ainl_validate` (and optionally `ainl_compile`).
+   - The agent’s job is to check AINL source in issues/PRs or local files
+     before any execution is possible.
+
+2. **AINL Inspector / Security Reporter (read-only posture)**
+   - Start `ainl-mcp` with:
+     - `AINL_MCP_EXPOSURE_PROFILE=inspect_only`
+   - The host configures a second agent that can call `ainl_capabilities`,
+     `ainl_security_report`, and optionally `ainl_compile`, but not `ainl_run`.
+   - This agent inspects which adapters/verbs a workflow uses and summarizes
+     privilege tiers and effects so operators can decide whether execution is
+     acceptable in a given desktop or batch context.
+
+3. **AINL Safe Runner (approved execution only)**
+   - After operators approve a workflow and environment, start `ainl-mcp` (or a
+     separate instance) with:
+     - `AINL_MCP_EXPOSURE_PROFILE=safe_workflow`
+     - `AINL_MCP_PROFILE=<reviewed security profile name>`
+   - The host configures a runner agent that can call `ainl_run` for explicitly
+     approved tasks only. Policy and limits are enforced server-side by the
+     capability grant and any caller-supplied additional restrictions.
+   - For queued or asynchronous runs, the host can wrap each `ainl_run` or
+     runner `/run` result using `tooling/result_summary.py:summarize_run_result`
+     to produce a compact envelope with `task_id`, `status`, `summary`,
+     `result`, and `trace_id` for dashboards or review queues.
+
+In all three roles, AINL remains a scoped tool provider and deterministic
+workflow engine. The MCP host (or gateway) owns user identity, file access,
+approvals, and any higher-level orchestration.
 
 ### Deploying behind a gateway or proxy
 

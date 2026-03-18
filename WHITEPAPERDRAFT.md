@@ -680,7 +680,11 @@ The MCP server:
 This MCP surface is **workflow-level and vendor-neutral**. It does not turn
 AINL into an agent host, orchestration platform, sandbox, or MCP gateway; it
 is an integration boundary that allows existing MCP-compatible tools and
-gateways to call into AINL’s structured workflow layer.
+gateways to call into AINL’s structured workflow layer. In Claude Code,
+Claude Cowork / Dispatch, or Dispatch-style environments, operators should
+typically start with `validate_only` or `inspect_only` MCP exposure profiles
+and only enable `safe_workflow` after reviewing security profiles, capability
+grants, policies, limits, and adapter exposure.
 
 ---
 

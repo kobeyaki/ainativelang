@@ -9,7 +9,8 @@ Use this section for real deployment-style operational docs: monitors, playbooks
 - [`STANDARDIZED_HEALTH_ENVELOPE.md`](STANDARDIZED_HEALTH_ENVELOPE.md) — common message envelope
 - [`RUNTIME_CONTAINER_GUIDE.md`](RUNTIME_CONTAINER_GUIDE.md) — running AINL services in containers
 - [`SANDBOX_EXECUTION_PROFILE.md`](SANDBOX_EXECUTION_PROFILE.md) — sandbox execution profile and constraints
-- [`EXTERNAL_ORCHESTRATION_GUIDE.md`](EXTERNAL_ORCHESTRATION_GUIDE.md) — orchestrating AINL from external systems
+- [`EXTERNAL_ORCHESTRATION_GUIDE.md`](EXTERNAL_ORCHESTRATION_GUIDE.md) — orchestrating AINL from external systems (includes MCP agent role templates, desktop-safe recipe, and end-to-end validator/inspector/runner example)
+- [`BATCH_AUTOMATION_GUIDE.md`](BATCH_AUTOMATION_GUIDE.md) — batch issue-solving and Dispatch-style repo automation: inspect-first, worktree-safe, deterministic, auditable
 
 ## Related sections
 

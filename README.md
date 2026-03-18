@@ -124,6 +124,20 @@ profiles (`AINL_MCP_EXPOSURE_PROFILE`) or env-var inclusion/exclusion lists.
 See section 9 of `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md` for the
 full quickstart, exposure scoping, and gateway deployment guidance.
 
+**Three layers:** *MCP exposure profile* → what tools/resources the host can
+discover. *Security profile / capability grant* → what execution is allowed.
+*Policy / limits* → what each run is constrained by.
+
+> **For Claude Code / Cowork / Dispatch users:** Treat AINL as a scoped MCP
+> tool provider and deterministic workflow/runtime layer underneath your host.
+> Start with `validate_only` or `inspect_only` exposure profiles, and only
+> enable `safe_workflow` after operators have reviewed security profiles,
+> grants, policies, limits, and adapter exposure. AINL is not the host, not
+> Cowork, not a gateway, and not a control plane. For a concrete
+> validator → inspector → safe-runner walkthrough, see the
+> *End-to-end example* section of
+> `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`.
+
 > **Core first, advanced later.** The paths above use the core compiler and
 > runtime only. Advanced/operator-only surfaces (agent coordination, memory
 > migration, OpenClaw extensions) are documented separately under

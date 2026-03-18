@@ -167,10 +167,12 @@ For the full state model, see `docs/architecture/STATE_DISCIPLINE.md`.
   safe-default restrictions (core-only adapters, conservative limits,
   `local_minimal`-style policy). Operators can further scope which tools and
   resources are exposed using MCP exposure profiles and env vars, especially
-  when placing AINL behind an MCP gateway/manager. It does *not* turn AINL
-  into an agent platform, gateway, or control plane; it is an integration
-  surface that sits alongside or underneath systems that do own sessions and
-  policy.
+  when placing AINL behind an MCP gateway/manager. For desktop-bound agents
+  (e.g. Cowork/Dispatch-style), start with **`inspect_only`** or
+  **`validate_only`**; use **`safe_workflow`** only after operator review of
+  grants, policies, and adapter exposure. It does *not* turn AINL into an
+  agent platform, gateway, or control plane; it is an integration surface
+  that sits alongside or underneath systems that do own sessions and policy.
 
 ---
 
@@ -190,6 +192,50 @@ For deployment patterns, see `docs/operations/RUNTIME_CONTAINER_GUIDE.md`.
 For sandbox profiles, see `docs/operations/SANDBOX_EXECUTION_PROFILE.md`.
 For the full external orchestrator guide, see
 `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`.
+
+---
+
+## Claude Code / MCP agent role templates
+
+The following MCP agent roles are intentionally narrow and map cleanly onto
+AINL’s existing MCP tools and exposure profiles. They are written for Claude
+Code and similar MCP-compatible hosts, but remain vendor-neutral.
+
+- **AINL Validator Agent**
+  - **Purpose**: validate AINL source only (syntax, graph IR).
+  - **Recommended MCP exposure profile**: `validate_only`.
+  - **Expected MCP tools**: `ainl_validate` (and optionally `ainl_compile`).
+
+- **AINL Inspector / Security Reporter Agent**
+  - **Purpose**: inspect capabilities, generate security reports, and explain
+    runtime posture without executing workflows.
+  - **Recommended MCP exposure profile**: `inspect_only`.
+  - **Expected MCP tools**: `ainl_capabilities`, `ainl_security_report`,
+    optionally `ainl_compile`.
+
+- **AINL Safe Workflow Runner Agent**
+  - **Purpose**: execute workflows only when explicitly intended and under
+    safe-default restrictions.
+  - **Recommended MCP exposure profile**: `safe_workflow`.
+  - **Notes**: always pair with a reviewed security profile / capability grant,
+    explicit policy, and limits. Operators must review adapter exposure and
+    grants before enabling this role in desktop-bound or Cowork/Dispatch-style
+    environments.
+
+- **AINL Docs / Spec Researcher Agent**
+  - **Purpose**: help reason about AINL docs, spec, and runtime contracts
+    without executing workflows.
+  - **Recommended MCP exposure profile**: `inspect_only` or a custom profile
+    that exposes only read-only tools and resources.
+  - **Expected surfaces**: AINL documentation, adapter manifest, and security
+    profiles as read-only context; no `ainl_run` exposure.
+
+In Claude Code, Claude Cowork / Dispatch, and Dispatch-style environments, AINL
+fits best as a scoped MCP tool provider and deterministic workflow/runtime
+layer beneath the host. Start with `validate_only` or `inspect_only` exposure
+profiles, and only enable `safe_workflow` for explicitly approved runs after
+operators have reviewed security profiles, capability grants, policies, limits,
+and adapter exposure.
 
 ---
 
