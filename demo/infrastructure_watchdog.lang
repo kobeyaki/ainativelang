@@ -1,156 +1,124 @@
-S svc cron
-Cr L_tick "*/5 * * * *"
+# Infrastructure Watchdog — every 15 minutes
+# Checks caddy, cloudflared, maddy, crm services and alerts on down/stale.
+S svc cron "*/15 * * * *"
 
-# Optional external config: read config from memory; fall back to defaults
-R memory F "config" "infrastructure_watchdog" ->cfg
-X cooldown_seconds (ite cfg (or (cfg.cooldown_seconds) 1800) 1800)
-X ttl_seconds (ite cfg (or (cfg.ttl_seconds) 604800) 604800)
+L0:
+  R core now ->ts
+  R cache get "monitor_heartbeat" "watchdog_cooldown" ->cooldown
+  Set cooldown_seconds 1800
 
-X now (core.now)
-X last_caddy (cache.get "watchdog" "last_caddy_alert"))
-X last_cloudflared (cache.get "watchdog" "last_cloudflared_alert"))
-X last_maddy (cache.get "watchdog" "last_maddy_alert"))
-X last_crm (cache.get "watchdog" "last_crm_alert"))
-X caddy_ts (cache.get "watchdog" "last_caddy_ts"))
-X cloudflared_ts (cache.get "watchdog" "last_cloudflared_ts"))
-X maddy_ts (cache.get "watchdog" "last_maddy_ts"))
-X crm_ts (cache.get "watchdog" "last_crm_ts"))
+  # Check caddy
+  R svc caddy ->caddy_status
+  R svc cloudflared ->cf_status
+  R svc maddy ->maddy_status
+  R svc crm ->crm_status
 
-# Check services
-R svc caddy ->caddy_status
-R svc cloudflared ->cloudflared_status
-R svc maddy ->maddy_status
-R svc crm ->crm_status
+  X caddy_down eq caddy_status "down"
+  X cf_down eq cf_status "down"
+  X maddy_down eq maddy_status "down"
+  X crm_down eq crm_status "down"
 
-# Persist each service check to memory for trend analysis (7d TTL)
-X caddy_id (core.join ["svc-", "caddy", "-", now])
-X caddy_rec {"service":"caddy","status":caddy_status,"ts":now}
-R memory.put "workflow" "workflow.service_check" caddy_id caddy_rec ttl_seconds ->_
-X cloudflared_id (core.join ["svc-", "cloudflared", "-", now])
-X cloudflared_rec {"service":"cloudflared","status":cloudflared_status,"ts":now}
-R memory.put "workflow" "workflow.service_check" cloudflared_id cloudflared_rec ttl_seconds ->_
-X maddy_id (core.join ["svc-", "maddy", "-", now])
-X maddy_rec {"service":"maddy","status":maddy_status,"ts":now}
-R memory.put "workflow" "workflow.service_check" maddy_id maddy_rec ttl_seconds ->_
-X crm_id (core.join ["svc-", "crm", "-", now])
-X crm_rec {"service":"crm","status":crm_status,"ts":now}
-R memory.put "workflow" "workflow.service_check" crm_id crm_rec ttl_seconds ->_
+  X any_down or caddy_down cf_down
+  X any_down2 or any_down maddy_down
+  X any_down3 or any_down2 crm_down
 
-X caddy_down (core.eq caddy_status "down")
-X cloudflared_down (core.eq cloudflared_status "down")
-X maddy_down (core.eq maddy_status "down")
-X crm_down (core.eq crm_status "down")
+  # Build status summary
+  R core concat "caddy:" caddy_status " cloudflared:" cf_status " maddy:" maddy_status " crm:" crm_status ->svc_summary
 
-# Cooldown decision: alert if down and either no previous alert or >cooldown_seconds since last
-X caddy_alert (core.and caddy_down (core.or (core.eq last_caddy 0) (core.gt (- now caddy_ts) cooldown_seconds)))
-X cloudflared_alert (core.and cloudflared_down (core.or (core.eq last_cloudflared 0) (core.gt (- now cloudflared_ts) cooldown_seconds)))
-X maddy_alert (core.and maddy_down (core.or (core.eq last_maddy 0) (core.gt (- now maddy_ts) cooldown_seconds)))
-X crm_alert (core.and crm_down (core.or (core.eq last_crm 0) (core.gt (- now crm_ts) cooldown_seconds)))
+  # Track consecutive failures per service
+  R cache get "watchdog" "caddy_consec" ->caddy_prev
+  R cache get "watchdog" "cf_consec" ->cf_prev
+  R cache get "watchdog" "maddy_consec" ->maddy_prev
+  R cache get "watchdog" "crm_consec" ->crm_prev
 
-If caddy_alert ->L_caddy_alert ->L_after_alerts
-If cloudflared_alert ->L_cloudflared_alert ->L_after_alerts
-If maddy_alert ->L_maddy_alert ->L_after_alerts
-If crm_alert ->L_crm_alert ->L_after_alerts
-J L_no_alert
+  # Default None to 0
+  If caddy_prev ->L_caddy_prev_ok ->L_caddy_prev_init
+L_caddy_prev_init:
+  Set caddy_prev 0
+  J L_caddy_prev_ok
+L_caddy_prev_ok:
+  If cf_prev ->L_cf_prev_ok ->L_cf_prev_init
+L_cf_prev_init:
+  Set cf_prev 0
+  J L_cf_prev_ok
+L_cf_prev_ok:
+  If maddy_prev ->L_maddy_prev_ok ->L_maddy_prev_init
+L_maddy_prev_init:
+  Set maddy_prev 0
+  J L_maddy_prev_ok
+L_maddy_prev_ok:
+  If crm_prev ->L_crm_prev_ok ->L_crm_prev_init
+L_crm_prev_init:
+  Set crm_prev 0
+  J L_crm_prev_ok
+L_crm_prev_ok:
 
-L_caddy_alert:
-  X restart_ok (svc.restart "caddy")
-  X alert_payload ({
-    "envelope": {"version":"1.0","generated_at":now},
-    "module":"infrastructure_watchdog",
-    "status":"alert",
-    "ts":now,
-    "metrics": {"service":"caddy","status":"down","restart_attempted":true,"restart_ok":restart_ok},
-    "history_24h": {},
-    "meta": {}
-  })
-  R queue Put "notify" alert_payload
-  X _ (cache.set "watchdog" "last_caddy_alert" 1)
-  X _ (cache.set "watchdog" "last_caddy_ts" now)
-  X event_id (core.join ["evt-", "caddy", "-", now])
-  R memory.put "ops" "infrastructure.restart" event_id {"service":"caddy","restart_ok":restart_ok,"ts":now} ttl_seconds ->_
-  J L_continue
+  If caddy_down ->L_caddy_inc ->L_caddy_ok
+L_caddy_inc:
+  X caddy_consec add caddy_prev 1
+  R cache set "watchdog" "caddy_consec" caddy_consec ->_
+  J L_check_cf
+L_caddy_ok:
+  R cache set "watchdog" "caddy_consec" 0 ->_
+  Set caddy_consec 0
 
-L_cloudflared_alert:
-  X restart_ok (svc.restart "cloudflared")
-  X alert_payload ({
-    "envelope": {"version":"1.0","generated_at":now},
-    "module":"infrastructure_watchdog",
-    "status":"alert",
-    "ts":now,
-    "metrics": {"service":"cloudflared","status":"down","restart_attempted":true,"restart_ok":restart_ok},
-    "history_24h": {},
-    "meta": {}
-  })
-  R queue Put "notify" alert_payload
-  X _ (cache.set "watchdog" "last_cloudflared_alert" 1)
-  X _ (cache.set "watchdog" "last_cloudflared_ts" now)
-  X event_id (core.join ["evt-", "cloudflared", "-", now])
-  R memory.put "ops" "infrastructure.restart" event_id {"service":"cloudflared","restart_ok":restart_ok,"ts":now} ttl_seconds ->_
-  J L_continue
+L_check_cf:
+  If cf_down ->L_cf_inc ->L_cf_ok
+L_cf_inc:
+  X cf_consec add cf_prev 1
+  R cache set "watchdog" "cf_consec" cf_consec ->_
+  J L_check_maddy
+L_cf_ok:
+  R cache set "watchdog" "cf_consec" 0 ->_
+  Set cf_consec 0
 
-L_maddy_alert:
-  X restart_ok (svc.restart "maddy")
-  X alert_payload ({
-    "envelope": {"version":"1.0","generated_at":now},
-    "module":"infrastructure_watchdog",
-    "status":"alert",
-    "ts":now,
-    "metrics": {"service":"maddy","status":"down","restart_attempted":true,"restart_ok":restart_ok},
-    "history_24h": {},
-    "meta": {}
-  })
-  R queue Put "notify" alert_payload
-  X _ (cache.set "watchdog" "last_maddy_alert" 1)
-  X _ (cache.set "watchdog" "last_maddy_ts" now)
-  X event_id (core.join ["evt-", "maddy", "-", now])
-  R memory.put "ops" "infrastructure.restart" event_id {"service":"maddy","restart_ok":restart_ok,"ts":now} ttl_seconds ->_
-  J L_continue
+L_check_maddy:
+  If maddy_down ->L_maddy_inc ->L_maddy_ok
+L_maddy_inc:
+  X maddy_consec add maddy_prev 1
+  R cache set "watchdog" "maddy_consec" maddy_consec ->_
+  J L_check_crm
+L_maddy_ok:
+  R cache set "watchdog" "maddy_consec" 0 ->_
+  Set maddy_consec 0
 
-L_crm_alert:
-  X restart_ok (svc.restart "crm")
-  X alert_payload ({
-    "envelope": {"version":"1.0","generated_at":now},
-    "module":"infrastructure_watchdog",
-    "status":"alert",
-    "ts":now,
-    "metrics": {"service":"crm","status":"down","restart_attempted":true,"restart_ok":restart_ok},
-    "history_24h": {},
-    "meta": {}
-  })
-  R queue Put "notify" alert_payload
-  X _ (cache.set "watchdog" "last_crm_alert" 1)
-  X _ (cache.set "watchdog" "last_crm_ts" now)
-  X event_id (core.join ["evt-", "crm", "-", now])
-  R memory.put "ops" "infrastructure.restart" event_id {"service":"crm","restart_ok":restart_ok,"ts":now} ttl_seconds ->_
-  J L_continue
+L_check_crm:
+  If crm_down ->L_crm_inc ->L_crm_ok
+L_crm_inc:
+  X crm_consec add crm_prev 1
+  R cache set "watchdog" "crm_consec" crm_consec ->_
+  J L_eval
+L_crm_ok:
+  R cache set "watchdog" "crm_consec" 0 ->_
+  Set crm_consec 0
 
-L_after_alerts:
-L_continue:
-L_no_alert:
-  # Compute overall any_down now (re-evaluate from current statuses)
-  X any_down (core.or caddy_down (core.or cloudflared_down (core.or maddy_down crm_down)))
-  # Restart count last 24h (server-side filtering)
-  X day_ago (core.sub now 0 1)
-  R memory.list "ops" "infrastructure.restart" "" day_ago ->hist
-  X restarts_24h (len hist.items)
+L_eval:
+  X caddy_breach gte caddy_consec 3
+  X cf_breach gte cf_consec 3
+  X maddy_breach gte maddy_consec 3
+  X crm_breach gte crm_consec 3
+  X breach1 or caddy_breach cf_breach
+  X breach2 or maddy_breach crm_breach
+  X any_breach or breach1 breach2
+  If any_breach ->L_alert ->L_ok
 
-  X summary_payload ({
-    "envelope": {"version":"1.0","generated_at":now},
-    "module":"infrastructure_watchdog",
-    "status": (core.ite any_down "alert" "ok"),
-    "ts":now,
-    "metrics": {
-      "services": {
-        "caddy": caddy_status,
-        "cloudflared": cloudflared_status,
-        "maddy": maddy_status,
-        "crm": crm_status
-      }
-    },
-    "history_24h": {"restart_count": restarts_24h},
-    "meta": {}
-  })
-  R queue Put "notify" summary_payload
-  X _ (cache.set "monitor_heartbeat" "infrastructure_watchdog" now)
+L_alert:
+  # Check cooldown
+  X since_alert sub ts cooldown
+  X cd_elapsed gt since_alert cooldown_seconds
+  X no_prev eq cooldown 0
+  X should_alert or cd_elapsed no_prev
+  If should_alert ->L_send ->L_ok
+
+L_send:
+  R core concat "🚨 Infrastructure Down\n\nCaddy: " caddy_status " (consec: " caddy_consec ")\nCloudflared: " cf_status " (consec: " cf_consec ")\nMaddy: " maddy_status " (consec: " maddy_consec ")\nCRM: " crm_status " (consec: " crm_consec ")" ->alert_msg
+  QueuePut notify alert_msg
+  R cache set "monitor_heartbeat" "watchdog_cooldown" ts ->_
+  R core concat "infra-down-" ts ->evt_id
+  R cache set "monitor_heartbeat" "infrastructure_watchdog" ts ->_
+  Ret null
+
+L_ok:
+  R core concat "✅ Infrastructure OK — " svc_summary ->ok_msg
+  R cache set "monitor_heartbeat" "infrastructure_watchdog" ts ->_
   Ret null

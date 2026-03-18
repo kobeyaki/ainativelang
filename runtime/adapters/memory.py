@@ -13,7 +13,7 @@ from runtime.adapters.base import AdapterError, RuntimeAdapter
 DEFAULT_DB_PATH = os.getenv("AINL_MEMORY_DB", "/tmp/ainl_memory.sqlite3")
 
 # v1 namespace whitelist
-_VALID_NAMESPACES: Set[str] = {"session", "long_term", "daily_log", "workflow"}
+_VALID_NAMESPACES: Set[str] = {"session", "long_term", "daily_log", "workflow", "ops"}
 
 
 def _utc_now_iso() -> str:

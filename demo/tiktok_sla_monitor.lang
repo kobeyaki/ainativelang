@@ -1,93 +1,44 @@
-S tiktok cron
-Cr L_tick "*/15 * * * *"
+# TikTok SLA Monitor — every 15 minutes
+# Checks if TikTok pipeline has run recently; alerts if stale beyond SLA.
+S tiktok cron "*/15 * * * *"
 
-# Optional external config
-R memory F "config" "tiktok_sla" ->cfg
-X sla_hours (ite cfg (or (cfg.sla_hours) 24) 24)
-X cooldown_seconds (ite cfg (or (cfg.cooldown_seconds) 3600) 3600)
-X backup_dir (ite cfg (or (cfg.backup_dir) "/Users/clawdbot/.openclaw/workspace/crm/backups") "/Users/clawdbot/.openclaw/workspace/crm/backups")
+L0:
+  R core now ->ts
+  R cache get "tiktok" "last_pipeline_run" ->last_run
+  R cache get "tiktok" "sla_hours" ->cfg_sla
+  X sla_unset eq cfg_sla 0
+  If sla_unset ->L_default_sla ->L_have_sla
+L_default_sla:
+  Set sla_seconds 86400
+  J L_check
+L_have_sla:
+  X sla_seconds mul cfg_sla 3600
 
-# Checkpoints
-X now (core.now)
-X day_secs 86400
-X sla_seconds (* sla_hours 3600)
+L_check:
+  X no_last eq last_run 0
+  If no_last ->L_no_data ->L_check_age
 
-R tiktok recent 24 ->recent_count
-R tiktok videos ->videos
-X latest_video_ts (core.max (map videos (lambda v (v.processedAt))))
-X video_fresh (core.and (> latest_video_ts 0) (core.gt (- now latest_video_ts) sla_seconds))
+L_no_data:
+  R core concat "⚠️ TikTok SLA — no pipeline run recorded yet" ->warn_msg
+  QueuePut notify warn_msg
+  R cache set "monitor_heartbeat" "tiktok_sla_monitor" ts ->_
+  Ret null
 
-R extras newest_backup_mtime backup_dir ->latest_backup_ts
-X backup_fresh (core.and (> latest_backup_ts 0) (core.gt (- now latest_backup_ts) day_secs))
+L_check_age:
+  X age sub ts last_run
+  X overdue gt age sla_seconds
+  If overdue ->L_alert ->L_ok
 
-X last_fail_ts (cache.get "tiktok_sla" "last_fail_ts"))
-X should_alert (core.or (core.eq last_fail_ts 0) (core.gt (- now last_fail_ts) cooldown_seconds)))
-
-X breach (core.or (core.eq recent_count 0) (core.not video_fresh) (core.not backup_fresh))
-
-If (core.and breach should_alert) ->L_breach ->L_finish
-J L_ok
-
-L_breach:
-  # Determine breach reason(s) for granular alert
-  X reasons []
-  If (core.eq recent_count 0) ->L_add_reports
-  J L_next1
-  L_add_reports:
-    X _ (set reasons (concat reasons ["reports"]))
-  L_next1:
-  If (core.not video_fresh) ->L_add_video
-  J L_next2
-  L_add_video:
-    X _ (set reasons (concat reasons ["video"]))
-  L_next2:
-  If (core.not backup_fresh) ->L_add_backup
-  J L_next3
-  L_add_backup:
-    X _ (set reasons (concat reasons ["backup"]))
-  L_next3:
-
-  X breach_id (core.join ["breach-", now])
-  R memory.put "ops" "tiktok_sla.breach" breach_id {"recent_count":recent_count,"video_fresh":video_fresh,"backup_fresh":backup_fresh,"reasons":reasons,"ts":now} 604800 ->_
-
-  X alert_payload ({
-    "envelope": {"version":"1.0","generated_at":now},
-    "module":"tiktok_sla",
-    "status":"alert",
-    "ts":now,
-    "metrics": {
-      "recent_count": recent_count,
-      "video_fresh": video_fresh,
-      "backup_fresh": backup_fresh
-    },
-    "history_24h": {},
-    "meta": {}
-  })
-  R queue Put "notify" alert_payload
-  X _ (cache.set "tiktok_sla" "last_fail_ts" now))
-  J L_finish
+L_alert:
+  X hours idiv age 3600
+  R core concat "🚨 TikTok Pipeline SLA Breach\n\nLast run: " hours " hours ago\nSLA: " cfg_sla " hours\n\nPipeline may be stalled." ->alert_msg
+  QueuePut notify alert_msg
+  R core concat "tiktok-sla-" ts ->evt_id
+  R cache set "monitor_heartbeat" "tiktok_sla_monitor" ts ->_
+  Ret null
 
 L_ok:
-L_finish:
-  X day_ago (core.sub now 0 1)
-  R memory.list "ops" "tiktok_sla.breach" "" day_ago ->hist
-  X breaches_24h (len hist.items)
-
-  X status (core.ite breach "alert" "ok")
-  X summary_payload ({
-    "envelope": {"version":"1.0","generated_at":now},
-    "module":"tiktok_sla",
-    "status": status,
-    "ts":now,
-    "metrics": {
-      "recent_count": recent_count,
-      "video_fresh": video_fresh,
-      "backup_fresh": backup_fresh,
-      "breach": breach
-    },
-    "history_24h": {"breaches": breaches_24h},
-    "meta": {}
-  })
-  R queue Put "notify" summary_payload
-  X _ (cache.set "monitor_heartbeat" "tiktok_sla" now)
+  X mins idiv age 60
+  R core concat "✅ TikTok SLA OK — last run " mins " min ago" ->ok_msg
+  R cache set "monitor_heartbeat" "tiktok_sla_monitor" ts ->_
   Ret null

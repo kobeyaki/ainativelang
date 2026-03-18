@@ -1,129 +1,55 @@
-S db cron
-Cr L_tick "0 2 * * *"  # daily at 2 AM
+# Lead Quality Audit — daily at 2 AM
+# Checks CRM leads for completeness, score distribution, and data issues.
+S db cron "0 2 * * *"
 
-# Optional external config
-R memory F "config" "lead_quality_audit" ->cfg
-X window_days (ite cfg (or (cfg.window_days) 7) 7)
-X drop_threshold_pct (ite cfg (or (cfg.drop_threshold_pct) 0.05) 0.05)
+L0:
+  R core now ->ts
+  R db F "Lead" ->leads
+  X total len leads
+  R core idiv ts 86400 ->day
 
-# Load all leads
-R db F ->leads
-X now (core.now)
-X last_audit_ts (cache.get "lead_audit" "last_run_ts"))
-X force (core.eq last_audit_ts 0)
+  # Check for empty phone
+  R db F "Lead" {phone: ""} ->no_phone
+  X missing_phone len no_phone
 
-X run_ok (core.or force (core.gt (- now last_audit_ts) 79200))
-If (core.not run_ok) ->L_skip ->L_done
+  # Check for empty website
+  R db F "Lead" {website: ""} ->no_website
+  X missing_website len no_website
 
-X scored (map leads (lambda l ({
-  "name": l.name,
-  "city": l.city,
-  "phone_ok": (core.and (l.phone) (core.gt (len l.phone) 5)),
-  "website_ok": (l.website),
-  "rating_ok": (core.and (l.Rating) (core.gt l.Rating 0)),
-  "reviews_ok": (core.and (l.ReviewCount) (core.gt l.ReviewCount 0))
-})))
+  # Check for empty email
+  R db F "Lead" {email: ""} ->no_email
+  X missing_email len no_email
 
-X total (len scored)
-X phone_ok_cnt (core.sum (map scored (lambda x (ite x.phone_ok 1 0))))
-X website_ok_cnt (core.sum (map scored (lambda x (ite x.website_ok 1 0))))
-X rating_ok_cnt (core.sum (map scored (lambda x (ite x.rating_ok 1 0))))
-X reviews_ok_cnt (core.sum (map scored (lambda x (ite x.reviews_ok 1 0))))
+  # Check for empty name
+  R db F "Lead" {name: ""} ->no_name
+  X missing_name len no_name
 
-X today_date (sub (core.iso) 0 10)
-X daily ({
-  "date": today_date,
-  "total": total,
-  "phone_ok": phone_ok_cnt,
-  "website_ok": website_ok_cnt,
-  "rating_ok": rating_ok_cnt,
-  "reviews_ok": reviews_ok_cnt
-})
+  # Score distribution: high score leads
+  R db F "Lead" {scoreV2: 8} ->high_score
+  X high_count len high_score
 
-X record_id (core.join ["audit-", today_date])
-R memory.put "workflow" "lead_quality_audit.daily" record_id daily 7776000 ->_  # 90d
+  # Thresholds: alert if >10% missing critical fields
+  X thresh_float mul total 0.10
+  R core stringify thresh_float ->thresh_str
 
-# Compute rolling window using server-side filter
-X window_days_iso (core.sub (core.iso) 0 window_days)
-R memory.list "workflow" "lead_quality_audit.daily" "" window_days_iso ->hist
-X hist_items hist.items
-X hist_count (len hist_items)
+  X phone_bad gt missing_phone thresh_float
+  X email_bad gt missing_email thresh_float
+  X any_bad or phone_bad email_bad
 
-If (core.gt hist_count 0) ->L_has_history ->L_no_history
-L_has_history:
-  X sum_total (core.sum (map hist_items (lambda i (i.record_id.payload.total or 0))))
-  X sum_phone (core.sum (map hist_items (lambda i (i.record_id.payload.phone_ok or 0))))
-  X sum_website (core.sum (map hist_items (lambda i (i.record_id.payload.website_ok or 0))))
-  X sum_rating (core.sum (map hist_items (lambda i (i.record_id.payload.rating_ok or 0))))
-  X sum_reviews (core.sum (map hist_items (lambda i (i.record_id.payload.reviews_ok or 0))))
+  If any_bad ->L_alert ->L_ok
 
-  X avg_total (core.div sum_total hist_count)
-  X avg_phone (core.div sum_phone hist_count)
-  X avg_website (core.div sum_website hist_count)
-  X avg_rating (core.div sum_rating hist_count)
-  X avg_reviews (core.div sum_reviews hist_count)
+L_alert:
+  R core concat "🔍 Lead Quality Audit\n\nTotal leads: " total "\nMissing phone: " missing_phone "\nMissing email: " missing_email "\nMissing website: " missing_website "\nMissing name: " missing_name "\nHigh score (≥8): " high_count "\n\nThreshold: " thresh_str " (10%)" ->report
+  QueuePut notify report
+  J L_record
 
-  # Compute drops vs average (positive means improvement, negative means decline)
-  X phone_delta (core.sub phone_ok_cnt avg_phone)
-  X phone_drop (core.and (core.lt phone_delta 0) (core.gt (core.div (- phone_delta) avg_phone) drop_threshold_pct))
-  X website_delta (core.sub website_ok_cnt avg_website)
-  X website_drop (core.and (core.lt website_delta 0) (core.gt (core.div (- website_delta) avg_website) drop_threshold_pct))
-  X rating_delta (core.sub rating_ok_cnt avg_rating)
-  X rating_drop (core.and (core.lt rating_delta 0) (core.gt (core.div (- rating_delta) avg_rating) drop_threshold_pct))
-  X reviews_delta (core.sub reviews_ok_cnt avg_reviews)
-  X reviews_drop (core.and (core.lt reviews_delta 0) (core.gt (core.div (- reviews_delta) avg_reviews) drop_threshold_pct))
+L_ok:
+  R core concat "✅ Lead Quality OK — " total " leads, " missing_phone " missing phone, " missing_email " missing email" ->ok_msg
+  QueuePut notify ok_msg
+  J L_record
 
-  J L_prep_notify
-
-L_no_history:
-  X avg_total 0
-  X avg_phone 0
-  X avg_website 0
-  X avg_rating 0
-  X avg_reviews 0
-  X phone_drop false
-  X website_drop false
-  X rating_drop false
-  X reviews_drop false
-
-L_prep_notify:
-  X payload_metrics ({
-    "date": today_date,
-    "total": total,
-    "phone_ok": phone_ok_cnt,
-    "website_ok": website_ok_cnt,
-    "rating_ok": rating_ok_cnt,
-    "reviews_ok": reviews_ok_cnt,
-    "rolling_avg": {
-      "days": hist_count,
-      "avg_total": avg_total,
-      "avg_phone_ok": avg_phone,
-      "avg_website_ok": avg_website,
-      "avg_rating_ok": avg_rating,
-      "avg_reviews_ok": avg_reviews
-    },
-    "drops": {
-      "phone": phone_drop,
-      "website": website_drop,
-      "rating": rating_drop,
-      "reviews": reviews_drop
-    }
-  })
-  X has_alert (core.or phone_drop (core.or website_drop (core.or rating_drop reviews_drop)))
-  X status (core.ite has_alert "alert" "ok")
-  X envelope_payload ({
-    "envelope": {"version":"1.0","generated_at":now},
-    "module":"lead_quality_audit",
-    "status": status,
-    "ts": now,
-    "metrics": payload_metrics,
-    "history_24h": {},  # not applicable; rolling window is in metrics
-    "meta": {}
-  })
-  R queue Put "notify" envelope_payload
-  X _ (cache.set "lead_audit" "last_run_ts" now)
-
-L_skip:
-L_done:
-  X _ (cache.set "monitor_heartbeat" "lead_quality_audit" now)
+L_record:
+  R core concat "audit-" day ->rec_id
+  R core concat "{\"total\":" total ",\"phone\":" missing_phone ",\"email\":" missing_email ",\"website\":" missing_website ",\"name\":" missing_name ",\"high_score\":" high_count ",\"ts\":" ts "}" ->payload
+  R cache set "monitor_heartbeat" "lead_quality_audit" ts ->_
   Ret null

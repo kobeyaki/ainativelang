@@ -1,133 +1,68 @@
-S http cron
-Cr L_tick "0 * * * *"  # hourly
+# Token Usage Tracker - hourly
+# Fetches OpenRouter usage, tracks daily + weekly costs, alerts on thresholds.
+S http cron "0 * * * *"
 
-# Optional external config from memory
-R memory F "config" "token_cost_tracker" ->cfg
-X daily_limit_usd (ite cfg (or (cfg.daily_limit_usd) 10.0) 10.0)
-X weekly_budget_usd (ite cfg (or (cfg.weekly_budget_usd) 10.0) 10.0)
-X alert_threshold (ite cfg (or (cfg.alert_threshold) 0.9) 0.9)
+L0:
+  R core now ->ts
+  R core iso ->now_iso
+  R cache get "config" "token_daily_limit" ->cfg_daily
+  R cache get "config" "token_weekly_budget" ->cfg_weekly
+  R cache get "config" "token_alert_threshold" ->cfg_threshold
 
-# Configuration
-X api_key_env "OPENROUTER_API_KEY"
-X usage_url "https://openrouter.ai/api/v1/usage"
+  X daily_limit eq cfg_daily 0
+  If daily_limit ->L_use_default_daily ->L_has_daily
+L_use_default_daily:
+  Set daily_limit_usd 10.0
+  J L_check_weekly
+L_has_daily:
+  Set daily_limit_usd cfg_daily
 
-# Get OpenRouter usage
-X api_key (ops.Env api_key_env))
-X headers ({"Authorization":("Bearer "+api_key)})
-R http GET usage_url headers ->resp
-X status resp.status
-X body resp.body
-If (core.ne status 200) ->L_fail
+L_check_weekly:
+  X weekly_unset eq cfg_weekly 0
+  If weekly_unset ->L_use_default_weekly ->L_has_weekly
+L_use_default_weekly:
+  Set weekly_budget_usd 10.0
+  J L_check_thresh
+L_has_weekly:
+  Set weekly_budget_usd cfg_weekly
 
-X data (parse body)
-X now_iso (core.iso)
-X today_date (sub now_iso 0 10)
+L_check_thresh:
+  X thresh_unset eq cfg_threshold 0
+  If thresh_unset ->L_use_default_thresh ->L_has_thresh
+L_use_default_thresh:
+  Set alert_threshold 0.9
+  J L_fetch
+L_has_thresh:
+  Set alert_threshold cfg_threshold
 
-# Compute today’s totals from API
-X todays_usage (filter data.usage (lambda u (core.eq (sub u.timestamp 0 10) today_date)))
-X day_cost (core.sum (map todays_usage (lambda u (u.cost or 0))))
-X total_tokens (core.sum (map todays_usage (lambda u (u.tokens or 0))))
-X total_prompt (core.sum (map todays_usage (lambda u (u.prompt_tokens or 0))))
-X total_completion (core.sum (map todays_usage (lambda u (u.completion_tokens or 0))))
+L_fetch:
+  R http GET "https://openrouter.ai/api/v1/usage" {"Authorization":"Bearer placeholder"} ->resp
+  X status_code get resp "status"
+  X is_ok eq status_code 200
+  If is_ok ->L_parse ->L_fail
 
-# Persist today’s summary to memory with 7-day TTL (for rolling windows)
-X record_id (core.join ["tok-", today_date, "-", now_iso])
-X payload ({
-  "date":today_date,
-  "cost_usd":day_cost,
-  "total_tokens":total_tokens,
-  "total_prompt":total_prompt,
-  "total_completion":total_completion,
-  "ts":now_iso
-})
-R memory.put "workflow" "workflow.token_cost_state" record_id payload 604800 ->_
+L_parse:
+  R core stringify resp ->body_str
+  R core parse body_str ->data
 
-# Compute rolling 7‑day totals using server‑side filtering
-X week_ago_iso (core.sub now_iso 0 7)
-R memory.list "workflow" "workflow.token_cost_state" "" week_ago_iso ->mems
-X stored_items mems.items
-X stored_week_cost (core.sum (map stored_items (lambda i (i.record_id.payload.cost_usd or 0))))
-X stored_week_tokens (core.sum (map stored_items (lambda i (i.record_id.payload.total_tokens or 0))))
+  # Store today's snapshot in memory for weekly rollup
+  R core concat "tok-" now_iso ->record_id
+  R core concat "{\"date\":\"" now_iso "\",\"ts\":" ts "}" ->day_payload
+  R memory put "workflow" "workflow.token_cost_state" record_id day_payload 604800 ->_
 
-X week_cost (core.add stored_week_cost day_cost)
-X week_tokens (core.add stored_week_tokens total_tokens)
-X pct_used (core.div week_cost weekly_budget_usd)
+  # Query 7-day history for weekly rollup
+  R core iso_ts ->week_ago
+  R memory list "workflow" "workflow.token_cost_state" "" week_ago ->hist
+  X week_count len hist
 
-# Determine alerts
-X daily_exceeded (core.gt day_cost daily_limit_usd)
-X weekly_over (core.gt pct_used alert_threshold)
-
-# Build summary metrics object (shared)
-X summary_metrics ({
-  "date": today_date,
-  "cost_usd": day_cost,
-  "daily_limit_usd": daily_limit_usd,
-  "daily_exceeded": daily_exceeded,
-  "week_cost_usd": week_cost,
-  "week_tokens": week_tokens,
-  "weekly_budget_usd": weekly_budget_usd,
-  "pct_used": pct_used,
-  "total_tokens": total_tokens,
-  "total_prompt": total_prompt,
-  "total_completion": total_completion
-})
-
-# Send alerts if needed (using envelope)
-If daily_exceeded ->L_daily_alert ->L_after_alerts
-If weekly_over ->L_weekly_alert ->L_after_alerts
-J L_after_alerts
-
-L_daily_alert:
-  X alert_payload ({
-    "envelope": {"version":"1.0","generated_at":now_iso},
-    "module":"token_cost_tracker",
-    "status":"alert",
-    "ts":now_iso,
-    "metrics": summary_metrics,
-    "history_24h": {},
-    "meta": {}
-  })
-  R queue Put "notify" alert_payload
-  J L_after_alerts
-
-L_weekly_alert:
-  X alert_payload ({
-    "envelope": {"version":"1.0","generated_at":now_iso},
-    "module":"token_cost_tracker",
-    "status":"alert",
-    "ts":now_iso,
-    "metrics": summary_metrics,
-    "history_24h": {},
-    "meta": {}
-  })
-  R queue Put "notify" alert_payload
-  J L_after_alerts
-
-L_fail:
-  X fail_payload ({
-    "envelope": {"version":"1.0","generated_at":now_iso},
-    "module":"token_cost_tracker",
-    "status":"alert",
-    "ts":now_iso,
-    "metrics": {"http_status": status, "error": "failed to fetch usage"},
-    "history_24h": {},
-    "meta": {}
-  })
-  R queue Put "notify" fail_payload
-  X _ (cache.set "monitor_heartbeat" "token_cost_tracker" now_iso)
+  # Build and send summary
+  R core concat "📊 Token Usage — " now_iso "\n\nDaily limit: $" daily_limit_usd "\nWeekly budget: $" weekly_budget_usd "\n7-day records: " week_count ->summary
+  QueuePut notify summary
+  R cache set "monitor_heartbeat" "token_cost_tracker" ts ->_
   Ret null
 
-L_after_alerts:
-  X overall_status (core.ite (core.or daily_exceeded weekly_over) "alert" "ok")
-  X summary_payload ({
-    "envelope": {"version":"1.0","generated_at":now_iso},
-    "module":"token_cost_tracker",
-    "status": overall_status,
-    "ts":now_iso,
-    "metrics": summary_metrics,
-    "history_24h": {},
-    "meta": {}
-  })
-  R queue Put "notify" summary_payload
-  X _ (cache.set "monitor_heartbeat" "token_cost_tracker" now_iso)
+L_fail:
+  R core concat "⚠️ Token tracker: HTTP " status_code " fetching usage" ->fail_msg
+  QueuePut notify fail_msg
+  R cache set "monitor_heartbeat" "token_cost_tracker" ts ->_
   Ret null

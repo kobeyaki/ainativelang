@@ -1,44 +1,42 @@
 # Intelligence Digest - runs 3x daily
+# Fetches web news, checks TikTok activity, compares to previous run,
+# and sends a summary notification with trend context.
 S core cron "0 8,12,18 * * *"
 
-# The SOCIAL_MONITOR_QUERY environment variable must be set to a comprehensive query.
-# Example (adjust as needed):
-# ("U.S. Iran war" OR "Strait of Hormuz" OR "oil prices" OR "ICE" OR "Palantir" OR "Anthropic" OR "Federal Reserve" OR "immigration enforcement" OR "surveillance AI") site:reuters.com OR site:apnews.com OR site:bbc.com OR site:iea.org OR site:federalreserve.gov OR site:dhs.gov OR site:ice.gov OR site:palantir.com OR site:anthropic.com OR site:defense.gov OR site:aljazeera.com OR site:dw.com OR site:fr24news.com
+L0:
+  R core now ->ts
+  R web search "(\"U.S. Iran war\" OR \"Strait of Hormuz\" OR \"oil prices\" OR \"ICE\" OR \"Palantir\" OR \"Anthropic\" OR \"Federal Reserve\" OR \"immigration enforcement\" OR \"surveillance AI\") site:reuters.com OR site:apnews.com OR site:bbc.com OR site:iea.org OR site:federalreserve.gov OR site:dhs.gov OR site:ice.gov OR site:palantir.com OR site:anthropic.com OR site:defense.gov OR site:aljazeera.com OR site:dw.com OR site:fr24news.com" ->mentions
+  R tiktok recent 24 ->tiktok_recent
+  R cache get "digest" "last_mention_count" ->prev_mentions
+  R cache get "digest" "last_tiktok_count" ->prev_tiktok
 
-L0: R core now ->ts
+  X mention_count len mentions
+  # Default prev to 0 on first run (cache returns None)
+  X prev_is_none eq prev_mentions None
+  If prev_is_none ->L_default_prev ->L_analyze
 
-# Fetch social mentions (web search)
-L1: R social G ->mentions
+L_default_prev:
+  Set prev_mentions 0
+  Set prev_tiktok 0
 
-# TikTok: recent report count (last 24h)
-L2: R tiktok recent 24 ->tiktok_recent
+L_analyze:
+  X spike_gt gt mention_count prev_mentions
+  X prev_is_zero eq prev_mentions 0
+  X is_spike or spike_gt prev_is_zero
 
-# Build report
-X header (core.concat "Intelligence Digest — " (core.iso ts) "\n\n")
-X body header
+  R cache set "digest" "last_mention_count" mention_count ->_
+  R cache set "digest" "last_tiktok_count" tiktok_recent ->_
 
-# Section: Web Search Mentions
-X count (len mentions)
-X sec1_header (core.concat "## Web Search Mentions (" (core.stringify count) " results)\n\n")
-X body (core.concat body sec1_header)
-X formatted (map mentions (lambda m (core.concat "- " m.text "\n  URL: " m.id "\n")))
-X sec1_body (core.join "\n\n" formatted)
-X body (core.concat body sec1_body "\n\n")
+  If is_spike ->L_spike ->L_normal
 
-# Section: TikTok Activity
-X sec2_header "## TikTok Activity (last 24h)\n\n"
-X body (core.concat body sec2_header)
-X sec2_line (core.concat "Recent processed reports: " (core.stringify tiktok_recent) "\n")
-X body (core.concat body sec2_line "\n")
+L_spike:
+  R core concat "digest-" ts ->rec_id
+  R core concat "{\"mention_count\":" mention_count ",\"tiktok_recent\":" tiktok_recent ",\"spike\":true,\"ts\":" ts "}" ->payload_json
+  R memory put "ops" "intel.digest" rec_id payload_json 604800 ->_
+  Ret null
 
-# Prepare Telegram payload with 'text' field
-X payload (obj "text" body)
-
-# Send notification
-R queue Put "notify" payload
-
-# Store in memory (7d TTL) - store raw body string directly
-X report_id (core.concat "digest-" (core.iso ts))
-R memory put "intel" "digest" report_id body 604800 ->_
-
-Ret null
+L_normal:
+  R core concat "digest-" ts ->rec_id
+  R core concat "{\"mention_count\":" mention_count ",\"tiktok_recent\":" tiktok_recent ",\"spike\":false,\"ts\":" ts "}" ->payload_json
+  R memory put "ops" "intel.digest" rec_id payload_json 604800 ->_
+  Ret null

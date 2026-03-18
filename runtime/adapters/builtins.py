@@ -40,6 +40,11 @@ class CoreBuiltinAdapter(RuntimeAdapter):
             if b == 0:
                 raise RuntimeError("division by zero")
             return _num(args[0]) / b
+        if t == "idiv":
+            b = _num(args[1])
+            if b == 0:
+                raise RuntimeError("division by zero")
+            return int(_num(args[0]) // b)
         if t == "min":
             return min(args)
         if t == "max":

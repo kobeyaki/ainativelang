@@ -1,30 +1,25 @@
-S cron
-Cr L_tick "0 3 * * *"  # daily at 3 AM
+# Memory Prune Monitor — daily at 3 AM
+# Prunes expired memory records and reports count.
+S core cron "0 3 * * *"
 
-# Run memory.prune to physically delete expired records
-X before_stats (memory.stats)  # if available, otherwise skip
-R memory.prune ->prune_result
+L0:
+  R core now ->ts
+  R core iso ->now_iso
+  R memory prune ->prune_result
 
-X after_stats (memory.stats)  # optional
+  X pruned get prune_result "pruned_count"
+  X pruned_is_zero eq pruned 0
+  If pruned_is_zero ->L_ok ->L_summary
 
-X now_iso (core.iso)
-X payload ({
-  "module": "memory_prune",
-  "ts": now_iso,
-  "pruned_records": prune_result.pruned_count,
-  "before": before_stats,
-  "after": after_stats
-})
+L_ok:
+  R core concat "✅ Memory Prune OK — no expired records" ->ok_msg
+  QueuePut notify ok_msg
+  R cache set "monitor_heartbeat" "memory_prune" ts ->_
+  Ret null
 
-# Always send summary; status is ok regardless of count
-R queue Put "notify" ({
-  "envelope": {"version":"1.0","generated_at":now_iso},
-  "module":"memory_prune",
-  "status":"ok",
-  "ts":now_iso,
-  "metrics": payload,
-  "history_24h": {},
-  "meta": {}
-})
-X _ (cache.set "monitor_heartbeat" "memory_prune" now_iso)
-Ret null
+L_summary:
+  R core concat "🧹 Memory Prune — " pruned " expired records pruned" ->msg
+  QueuePut notify msg
+  R core concat "prune-" ts ->rec_id
+  R cache set "monitor_heartbeat" "memory_prune" ts ->_
+  Ret null

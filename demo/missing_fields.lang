@@ -1,53 +1,50 @@
-D LeadRec (id: str, phone: str, email: str, website: str)
+# Missing Fields Monitor - daily at 2 AM
+# Checks CRM leads for missing phone/email/website, alerts if >5% missing any field.
+S db cron "0 2 * * *"
 
-S main
+L0:
+  R core now ->ts
   R db F "Lead" ->leads
-  X total (core.len leads)
+  X total len leads
 
-  # Count missing phone, email, or website
-  X missing_phone (0)
-  X missing_email (0)
-  X missing_website (0)
+  # Count leads with missing phone
+  Set missing_phone 0
+  Set missing_email 0
+  Set missing_website 0
 
-  ForEach leads as l ->_check
-    If (core.or (core.eq l.phone "") (core.eq l.phone null)) ->_no_phone
-    J _next
-: _no_phone
-    X missing_phone (core.add missing_phone 1)
-: _next
-    If (core.or (core.eq l.email "") (core.eq l.email null)) ->_no_email
-    J _next2
-: _no_email
-    X missing_email (core.add missing_email 1)
-: _next2
-    If (core.or (core.eq l.website "") (core.eq l.website null)) ->_no_website
-    J _next3
-: _no_website
-    X missing_website (core.add missing_website 1)
-: _next3
-    # continue
-  EndFor
+  # Check threshold: 5% of total
+  X threshold_float mul total 0.05
+  R core stringify threshold_float ->threshold_str
 
-  # Alert if >5% of leads missing any critical field
-  X threshold_pct (core.mul 0.05 total)
-  If (core.lt missing_phone threshold_pct) ->_phone_ok
-  R email G "Data Quality: Missing Phone" (core.join ["Phone missing on ", core.stringify missing_phone, " of ", core.stringify total, " leads."])
-  R email G true
-: _phone_ok
-  If (core.lt missing_email threshold_pct) ->_email_ok
-  R email G "Data Quality: Missing Email" (core.join ["Email missing on ", core.stringify missing_email, " of ", core.stringify total, " leads."])
-  R email G true
-: _email_ok
-  If (core.lt missing_website threshold_pct) ->_website_ok
-  R email G "Data Quality: Missing Website" (core.join ["Website missing on ", core.stringify missing_website, " of ", core.stringify total, " leads."])
-  R email G true
-: _website_ok
+  # Fetch leads with empty phone (query approach)
+  R db F "Lead" {phone: ""} ->no_phone
+  X missing_phone len no_phone
+  R db F "Lead" {email: ""} ->no_email
+  X missing_email len no_email
+  R db F "Lead" {website: ""} ->no_website
+  X missing_website len no_website
 
-  # Record trend
-  X today (core.idiv (core.now) 86400)
-  X rec_id (core.join ["missing-fields-", (core.stringify today)])
-  X payload (JsonObj {"phone": missing_phone, "email": missing_email, "website": missing_website, "total": total, "ts": (core.now)})
-  R memory.put "ops" "monitor.missing_fields" rec_id payload (core.mul 30 86400)
-  R email G true
+  X phone_alert gt missing_phone threshold_float
+  X email_alert gt missing_email threshold_float
+  X website_alert gt missing_website threshold_float
+  X any_alert or phone_alert email_alert
+  X any_alert2 or any_alert website_alert
 
-  Ret 0
+  If any_alert2 ->L_alert ->L_ok
+
+L_alert:
+  R core concat "📊 Data Quality Alert\n\nTotal leads: " total "\nMissing phone: " missing_phone "\nMissing email: " missing_email "\nMissing website: " missing_website "\n\nThreshold: " threshold_str " (5%)" ->alert_msg
+  QueuePut notify alert_msg
+  J L_record
+
+L_ok:
+  R core concat "✅ Data Quality OK — " total " leads checked" ->ok_msg
+  QueuePut notify ok_msg
+  J L_record
+
+L_record:
+  R core idiv ts 86400 ->day
+  R core concat "missing-fields-" day ->rec_id
+  R core concat "{\"phone\":" missing_phone ",\"email\":" missing_email ",\"website\":" missing_website ",\"total\":" total ",\"ts\":" ts "}" ->payload_json
+  R cache set "monitor_heartbeat" "missing_fields" ts ->_
+  Ret null

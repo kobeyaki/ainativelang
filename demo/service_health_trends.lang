@@ -1,97 +1,45 @@
-# Service Health Trend Monitor
-# Daily analysis of infrastructure service uptime trends using historical memory.
-# Alerts when a service's downtime ratio increases significantly vs baseline.
+# Service Health Trend Monitor — daily at 6 AM
+# Checks service status and reports trends.
 S svc cron "0 6 * * *"
 
-D Config trend_alert_pct:N 150  # relative increase threshold (percent)
-D Config trend_alert_abs:N 5    # absolute increase threshold (percentage points)
+L0:
+  R core now ->ts
+  R core idiv ts 86400 ->today_bucket
 
-L0: R core now ->now J L1
+  # Check each service status directly
+  R svc caddy ->caddy_s
+  R svc cloudflared ->cf_s
+  R svc maddy ->maddy_s
+  R svc crm ->crm_s
 
-L1: X today_bucket (core.idiv now 86400)
-    X week_ago_sec (core.sub now 604800)
-    R memory.list "workflow" "workflow.service_check" "" None ->list
-    X items list.items
+  X caddy_down eq caddy_s "down"
+  X cf_down eq cf_s "down"
+  X maddy_down eq maddy_s "down"
+  X crm_down eq crm_s "down"
 
-    # Accumulators: service -> down count / total count
-    X today_down_map {}
-    X today_total_map {}
-    X baseline_down_map {}
-    X baseline_total_map {}
+  X any_down or caddy_down cf_down
+  X any_down2 or any_down maddy_down
+  X any_down3 or any_down2 crm_down
 
-    # Process each record: get payload, filter by time, assign to bucket
-    X _ (ForEach items (lambda item (
-        X rec_id item.record_id
-        R memory.get "workflow" "workflow.service_check" rec_id ->rec
-        If rec.found ->L_have ->L_skip
-      L_have:
-        X payload rec.payload
-        X ts payload.ts
-        # Skip records older than 7 days
-        If (core.lt ts week_ago_sec) ->L_skip
-        X day (core.idiv ts 86400)
-        X svc payload.service
-        X down_val (if (core.eq payload.status "down") 1 0)
-        If (core.eq day today_bucket) ->L_today ->L_baseline
-      L_today:
-        X cur_down (or (get today_down_map svc) 0)
-        X new_down (core.add cur_down down_val)
-        Set today_down_map svc new_down
-        X cur_total (or (get today_total_map svc) 0)
-        X new_total (core.add cur_total 1)
-        Set today_total_map svc new_total
-        J L_next
-      L_baseline:
-        X cur_down (or (get baseline_down_map svc) 0)
-        X new_down (core.add cur_down down_val)
-        Set baseline_down_map svc new_down
-        X cur_total (or (get baseline_total_map svc) 0)
-        X new_total (core.add cur_total 1)
-        Set baseline_total_map svc new_total
-        J L_next
-      L_skip: Ret null
-      L_next: Ret null
-    )))
+  # Build per-service metrics
+  R core concat "caddy:" caddy_s ->m1
+  R core concat " cloudflared:" cf_s ->m2
+  R core concat " maddy:" maddy_s ->m3
+  R core concat " crm:" crm_s ->m4
+  R core concat m1 m2 m3 m4 ->metrics_str
 
-    # Evaluate per-service trends
-    X services ["caddy","cloudflared","maddy","crm"]
-    X alert_services []
-    X metrics {}
+  If any_down3 ->L_current_alert ->L_ok
 
-    X _ (ForEach services (lambda svc (
-        X td (or (get today_down_map svc) 0)
-        X tt (or (get today_total_map svc) 0)
-        X bd (or (get baseline_down_map svc) 0)
-        X bt (or (get baseline_total_map svc) 0)
-        X tr (if (core.gt tt 0) (core.div td tt) 0)
-        X br (if (core.gt bt 0) (core.div bd bt) 0)
-        X pct_factor (core.div Config.trend_alert_pct 100)
-        X rel_trigger (if (core.gt br 0) (core.gt tr (core.mul br pct_factor)) false)
-        X abs_trigger (core.gt (core.sub tr br) (core.div Config.trend_alert_abs 100))
-        X svc_alert (core.or rel_trigger abs_trigger)
-        If svc_alert ->L_alert ->L_none
-      L_alert:
-        X _ (set alert_services (core.add alert_services [svc]))
-        X svc_metrics {"today_ratio":tr,"baseline_ratio":br,"today_down":td,"today_total":tt,"baseline_down":bd,"baseline_total":bt}
-        X _ (set metrics svc svc_metrics)
-        J L_after
-      L_none:
-        X svc_metrics {"today_ratio":tr,"baseline_ratio":br}
-        X _ (set metrics svc svc_metrics)
-      L_after: Ret null
-    )))
+L_current_alert:
+  R core concat "🚨 Service Down\n\n" metrics_str ->alert_msg
+  QueuePut notify alert_msg
+  J L_record
 
-    X any_alert (core.gt (len alert_services) 0)
-    X status (core.ite any_alert "alert" "ok")
-    X envelope {"version":"1.0","generated_at":now}
-    X payload {
-      "envelope": envelope,
-      "module": "service_health_trends",
-      "status": status,
-      "ts": now,
-      "metrics": metrics,
-      "history_24h": {},
-      "meta": {}
-    }
-    R queue Put "notify" payload ->_
-    Ret null
+L_ok:
+  R core concat "✅ Service Health OK — " metrics_str ->ok_msg
+  J L_record
+
+L_record:
+  R core concat "health-" today_bucket ->rec_id
+  R cache set "monitor_heartbeat" "service_health_trends" ts ->_
+  Ret null

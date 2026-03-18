@@ -1,56 +1,87 @@
-S cron
-Cr L_tick "*/15 * * * *"  # every 15 minutes
+# Meta Monitor — every 15 minutes
+# Monitors all AINL monitors for staleness; alerts if any haven't reported.
+S cache cron "*/15 * * * *"
 
-# Optional config: override monitored modules and thresholds
-R memory F "config" "meta_monitor" ->cfg
-X default_modules [
-  {"name":"infrastructure_watchdog","interval_seconds":300},
-  {"name":"tiktok_sla_monitor","interval_seconds":900},
-  {"name":"canary_sampler","interval_seconds":300},
-  {"name":"token_cost_tracker","interval_seconds":3600},
-  {"name":"lead_quality_audit","interval_seconds":86400},
-  {"name":"token_budget_tracker","interval_seconds":3600},
-  {"name":"session_continuity","interval_seconds":7200},
-  {"name":"memory_prune","interval_seconds":86400},
-  {"name":"meta_monitor","interval_seconds":900}
-]
-X modules (ite cfg (or (cfg.modules) default_modules) default_modules)
+L0:
+  R core now ->ts
+  Set stale_threshold 1800
+  Set stale_monitors 0
+  Set stale_names ""
 
-X now (core.now)
-X stale_list []
-X ok_count 0
+  # Check infrastructure_watchdog heartbeat
+  R cache get "monitor_heartbeat" "infrastructure_watchdog" ->hb_infra
+  If hb_infra ->L_has_infra_hb ->L_infra_stale_init
+L_infra_stale_init:
+  Set hb_infra 0
+  J L_has_infra_hb
+L_has_infra_hb:
+  X age_infra sub ts hb_infra
+  X stale_infra gt age_infra stale_threshold
+  X has_infra gt hb_infra 0
+  X infra_stale and stale_infra has_infra
+  If infra_stale ->L_flag_infra ->L_check_canary
+L_flag_infra:
+  X stale_monitors add stale_monitors 1
+  R core concat stale_names "infrastructure_watchdog," ->stale_names
 
-ForEach modules (lambda m (
-  X last_ts (cache.get "monitor_heartbeat" m.name)
-  X age (ite last_ts (- now last_ts) -1)
-  X stale (core.or (core.eq age -1) (core.gt age (* m.interval_seconds 2)))
-  If stale ->L_stale_append ->L_ok_inc
-  J L_next_mod
-  L_stale_append:
-    X stale_list (push stale_list {"name":m.name,"age":age,"interval":m.interval_seconds})
-    J L_next_mod
-  L_ok_inc:
-    X ok_count (core.add ok_count 1)
-  L_next_mod:
-))
+L_check_canary:
+  R cache get "monitor_heartbeat" "canary_sampler" ->hb_canary
+  If hb_canary ->L_has_canary_hb ->L_canary_init
+L_canary_init:
+  Set hb_canary 0
+  J L_has_canary_hb
+L_has_canary_hb:
+  X age_canary sub ts hb_canary
+  X stale_canary gt age_canary stale_threshold
+  X has_canary gt hb_canary 0
+  X canary_stale and stale_canary has_canary
+  If canary_stale ->L_flag_canary ->L_check_token
+L_flag_canary:
+  X stale_monitors add stale_monitors 1
+  R core concat stale_names "canary_sampler," ->stale_names
 
-X stale_count (len stale_list)
-X any_stale (core.gt stale_count 0)
-X meta_status (core.ite any_stale "alert" "ok")
+L_check_token:
+  R cache get "monitor_heartbeat" "token_cost_tracker" ->hb_token
+  If hb_token ->L_has_token_hb ->L_token_init
+L_token_init:
+  Set hb_token 0
+  J L_has_token_hb
+L_has_token_hb:
+  X age_token sub ts hb_token
+  X stale_token gt age_token stale_threshold
+  X has_token gt hb_token 0
+  X token_stale and stale_token has_token
+  If token_stale ->L_flag_token ->L_check_quality
+L_flag_token:
+  X stale_monitors add stale_monitors 1
+  R core concat stale_names "token_cost_tracker," ->stale_names
 
-X summary_payload ({
-  "envelope": {"version":"1.0","generated_at":now},
-  "module":"meta_monitor",
-  "status": meta_status,
-  "ts": now,
-  "metrics": {
-    "monitors_ok": ok_count,
-    "monitors_stale": stale_count,
-    "stale_details": stale_list
-  },
-  "history_24h": {},
-  "meta": {}
-})
-R queue Put "notify" summary_payload
-X _ (cache.set "monitor_heartbeat" "meta_monitor" now)
-Ret null
+L_check_quality:
+  R cache get "monitor_heartbeat" "lead_quality_audit" ->hb_quality
+  If hb_quality ->L_has_quality_hb ->L_quality_init
+L_quality_init:
+  Set hb_quality 0
+  J L_has_quality_hb
+L_has_quality_hb:
+  X age_quality sub ts hb_quality
+  X stale_quality gt age_quality stale_threshold
+  X has_quality gt hb_quality 0
+  X quality_stale and stale_quality has_quality
+  If quality_stale ->L_flag_quality ->L_eval
+L_flag_quality:
+  X stale_monitors add stale_monitors 1
+  R core concat stale_names "lead_quality_audit," ->stale_names
+
+L_eval:
+  X has_stale gt stale_monitors 0
+  If has_stale ->L_alert ->L_ok
+
+L_alert:
+  R core concat "🚨 Meta Monitor — " stale_monitors " stale monitors\n\n" stale_names ->alert_msg
+  QueuePut notify alert_msg
+  R cache set "monitor_heartbeat" "meta_monitor" ts ->_
+  Ret null
+
+L_ok:
+  R cache set "monitor_heartbeat" "meta_monitor" ts ->_
+  Ret null

@@ -4,6 +4,7 @@ import json
 import subprocess
 import time
 import logging
+import requests
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from runtime.adapters.base import RuntimeAdapter, AdapterError
@@ -270,10 +271,101 @@ class TiktokAdapter(RuntimeAdapter):
                         'processedAt_ts': processed_ts,
                     })
                 return result
+            elif target == 'recent':
+                # Return count of TiktokVideo records processed in the last 24 hours
+                cur.execute("SELECT COUNT(*) FROM TiktokVideo WHERE processedAt >= datetime('now', '-24 hours')")
+                (count,) = cur.fetchone()
+                return int(count or 0)
             else:
                 raise AdapterError(f'tiktok adapter unsupported target: {target}')
+        except Exception as e:
+            logger.warning(f'TiktokAdapter error: {e}')
+            raise
         finally:
             conn.close()
+
+
+class WebAdapter(RuntimeAdapter):
+    group = 'web'
+    def __init__(self, model: Optional[str] = None):
+        self.api_key = os.getenv('OPENROUTER_API_KEY')
+        if not self.api_key:
+            raise AdapterError('OPENROUTER_API_KEY not set')
+        self.model = model or os.getenv('AINL_WEB_MODEL', 'perplexity/sonar')
+    def call(self, target: str, args: List[Any], context: Dict[str, Any]):
+        if target != 'search':
+            raise AdapterError(f'web adapter unsupported target: {target}')
+        if len(args) != 1 or not isinstance(args[0], str):
+            raise AdapterError('web search requires a single string query')
+        query = args[0]
+
+        def do_request():
+            resp = requests.post(
+                'https://openrouter.ai/api/v1/chat/completions',
+                headers={
+                    'Authorization': f'Bearer {self.api_key}',
+                    'HTTP-Referer': 'https://openclaw.ai',
+                    'X-Title': 'OpenClaw Intelligence',
+                },
+                json={
+                    'model': self.model,
+                    'messages': [
+                        {'role': 'system', 'content': 'You are a news search assistant. Return ONLY a valid JSON array of results. Each result is an object with keys "id" (source URL), "title" (headline), and "text" (snippet). No extra text, markdown, or formatting.'},
+                        {'role': 'user', 'content': f'Search the web for: {query}. Provide 10 results as a pure JSON array.'}
+                    ],
+                    'temperature': 0.3,
+                    'max_tokens': 1536,
+                },
+                timeout=60
+            )
+            return resp
+
+        # Attempt once with extended timeout
+        try:
+            resp = do_request()
+            resp.raise_for_status()
+        except requests.RequestException as e:
+            raise AdapterError(f'web search request failed: {e}')
+
+        data = resp.json()
+        content = data['choices'][0]['message']['content']
+        # Strip markdown code fences if present
+        content = content.strip()
+        if content.startswith('```json'):
+            content = content[7:]
+        if content.endswith('```'):
+            content = content[:-3]
+        content = content.strip()
+
+        # Parse JSON array
+        try:
+            results = json.loads(content)
+        except json.JSONDecodeError as e:
+            # Extract first array if wrapper text exists
+            start = content.find('[')
+            end = content.rfind(']') + 1
+            if start != -1 and end > start:
+                try:
+                    results = json.loads(content[start:end])
+                except Exception as e2:
+                    raise AdapterError(f'web search JSON parse error: {e}, fallback: {e2}')
+            else:
+                raise AdapterError(f'web search JSON parse error: {e}')
+
+        # Allow { "results": [...] }
+        if isinstance(results, dict) and 'results' in results:
+            results = results['results']
+        if not isinstance(results, list):
+            raise AdapterError('web search: expected list result')
+        normalized = []
+        for r in results:
+            if isinstance(r, dict):
+                normalized.append({
+                    'id': r.get('id') or r.get('url') or '',
+                    'title': r.get('title', ''),
+                    'text': r.get('text') or r.get('snippet') or '',
+                })
+        return normalized
 
 
 class NotificationQueueAdapter(RuntimeAdapter):
@@ -310,7 +402,11 @@ class NotificationQueueAdapter(RuntimeAdapter):
             logger.warning(f'notification adapter error: {e}')
             return 'error'
 
-    def _format_message(self, payload: Dict[str, Any]) -> str:
+    def _format_message(self, payload: Any) -> str:
+        # Handle string payloads directly
+        if isinstance(payload, str):
+            return payload
+
         # Custom text overrides everything
         if 'text' in payload:
             return str(payload['text'])
@@ -512,9 +608,10 @@ def openclaw_monitor_registry(ir_types: Optional[Dict] = None):
     reg.register('queue', NotificationQueueAdapter())
     reg.register('extras', ExtrasAdapter())
     reg.register('tiktok', TiktokAdapter())
+    reg.register('web', WebAdapter())
     reg.register('agent', AgentAdapter())
     # Memory adapter with extra 'intel' namespace for intelligence storage
-    reg.register('memory', MemoryAdapter(valid_namespaces={'intel', 'workflow', 'session', 'long_term', 'daily_log'}))
+    reg.register('memory', MemoryAdapter(valid_namespaces={'intel', 'workflow', 'session', 'long_term', 'daily_log', 'ops'}))
 
     # Optional WASM adapter if wasmtime is available and demo modules exist
     try:
