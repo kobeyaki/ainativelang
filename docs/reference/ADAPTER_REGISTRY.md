@@ -410,7 +410,7 @@ of the agreed shared protocol.
 The following adapters are fully specified in `tooling/adapter_manifest.json`
 and `ADAPTER_REGISTRY.json` but do not require long-form slot schemas here:
 
-- **`core`** (tier: `core`, lane: `canonical`): arithmetic, string, JSON, and time helpers (`ADD`, `SUB`, `MUL`, `DIV`, `IDIV`, `MIN`, `MAX`, `CONCAT`, `SPLIT`, `JOIN`, `LOWER`, `UPPER`, `PARSE`, `STRINGIFY`, `NOW`, `ISO`, `SLEEP`, `ECHO`). `IDIV` performs integer division (truncates toward zero). In X expressions, these are also available as lowercase `core.*` aliases (e.g. `core.add`, `core.idiv`).
+- **`core`** (tier: `core`, lane: `canonical`): arithmetic, string, JSON, time, and environment helpers (`ADD`, `SUB`, `MUL`, `DIV`, `IDIV`, `MIN`, `MAX`, `CONCAT`, `SPLIT`, `JOIN`, `LOWER`, `UPPER`, `SUBSTR`, `ENV`, `PARSE`, `STRINGIFY`, `NOW`, `ISO`, `SLEEP`, `ECHO`). `IDIV` performs integer division (truncates toward zero). `SUBSTR` takes `(s, start, length)`. `ENV` reads `os.environ` (`ENV name` or `ENV name default`). In X expressions, these are also available as lowercase `core.*` aliases (e.g. `core.add`, `core.idiv`, `core.substr`, `core.env`).
 - **`api`** (tier: `compatibility`, lane: `noncanonical`): legacy HTTP/API surface used by older step‑list forms (`G`, `P`, `POST`).
 - **`sqlite`** (tier: `core`, lane: `canonical`): direct SQLite access (`Execute`, `Query`) with allow‑list and timeout controls.
 - **`fs`** (tier: `core`, lane: `canonical`): sandboxed filesystem operations (`Read`, `Write`, `List`, `Delete`) with size and extension guards.

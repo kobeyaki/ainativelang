@@ -1,117 +1,196 @@
-# Memory Consolidation (Pure AINL)
+# Memory Consolidation v2 — Terse Format
+# Runs daily at 03:30. Scans recent memory/*.md files, extracts high-signal
+# lines, converts to terse bullet format (D:/P:/T:/L:/S:), appends to MEMORY.md.
+# Pure compute — no LLM calls. Keyword-based extraction only.
+# Uses X dst push dst item (not Append — Append is not lowered to IR).
 S core cron "30 3 * * *"
 
 L0:
-  R core now ->ts
   R core iso ->iso
-  R core split iso "T" ->iso_parts
-  X today_str iso_parts[0]
+  X today_str (core.substr iso 0 10)
 
-  # Get memory files
-  R fs list "memory/*.md" ->files
-  X total len files
-  X recent_n 10
-  R core sub total recent_n ->start_idx
-  R core max start_idx 0 ->start_idx_max
+  # List memory directory
+  R fs list "memory" ->files
+  X total (core.len files)
+  Set zero 0
+  X noFiles (core.eq total zero)
+  If noFiles ->L_done_empty ->L_select_recent
 
-  Set recent_files []
-  X i start_idx_max
-  J L_collect_files
+L_select_recent:
+  # Take last 10 files (most recent days)
+  Set maxFiles 10
+  X startIdx (core.sub total maxFiles)
+  Set zero1 0
+  X startSafe (core.max startIdx zero1)
+  Set recentFiles []
+  Set ri startSafe
+  J L_collect_recent
 
-L_collect_files:
-  X f files[i]
-  X recent_files append f
-  X i add i 1
-  X cond lt i total
-  If cond ->L_collect_files ->L_check_mem
+L_collect_recent:
+  X rcDone (core.gte ri total)
+  If rcDone ->L_read_memory ->L_add_recent
 
-L_check_mem:
-  R fs list "." ->dir_entries
-  Set mem_exists false
-  Filter dir_entries as e ->L_check_name
+L_add_recent:
+  X fname get files ri
+  X isMd (core.contains fname ".md")
+  If isMd ->L_append_recent ->L_skip_recent
 
-L_check_name:
-  R core eq e "MEMORY.md" ->is_mem
-  If is_mem ->L_set_exists ->L_next_name
-L_set_exists:
-  Set mem_exists true
-L_next_name:
-  Ret next
+L_append_recent:
+  X recentFiles push recentFiles fname
+  J L_skip_recent
 
-L_after_check:
-  Set old_mem ""
-  If mem_exists ->L_load ->L_prepare
+L_skip_recent:
+  Set one1 1
+  X ri (core.add ri one1)
+  J L_collect_recent
 
-L_load:
-  R fs read "MEMORY.md" ->old_mem
-  Ret old_mem
+L_read_memory:
+  # Read existing MEMORY.md to avoid duplicating
+  R fs read "MEMORY.md" ->existingMem
+  X existingLower (core.lower existingMem)
 
-L_prepare:
-  X header concat "\n## Memory Consolidation — " today_str "\n"
-  Set new_content header
-  Set count 0
+  X recentCount (core.len recentFiles)
+  Set zero2 0
+  X noRecent (core.eq recentCount zero2)
+  If noRecent ->L_done_empty ->L_process_init
 
-  Filter recent_files as f ->L_process_file
+L_process_init:
+  Set newItems []
+  Set pi 0
+  J L_process_file
 
 L_process_file:
-  R fs read f ->content
-  R core split content "\n" ->lines
-  Filter lines as line ->L_filter_line
+  X pfDone (core.gte pi recentCount)
+  If pfDone ->L_check_results ->L_read_one
 
-L_filter_line:
-  X len_line len line
-  R core lower line ->line_lower
+L_read_one:
+  X pfile get recentFiles pi
+  X ppath (core.concat "memory/" pfile)
+  R fs read ppath ->fcontent
+  X flines (core.split fcontent "\n")
+  X fcount (core.len flines)
+  Set li 0
+  J L_scan_lines
 
-  # Keyword detection via split
-  R core split line_lower "decision" ->pd
-  X len_pd len pd
-  X kw1 ne len_pd 1
-  R core split line_lower "preference" ->pp
-  X len_pp len pp
-  X kw2 ne len_pp 1
-  R core split line_lower "todo" ->pt
-  X len_pt len pt
-  X kw3 ne len_pt 1
-  R core split line_lower "important" ->pi
-  X len_pi len pi
-  X kw4 ne len_pi 1
-  R core split line_lower "lesson" ->pl
-  X len_pl len pl
-  X kw5 ne len_pl 1
-  R core split line_lower "setting" ->ps
-  X len_ps len ps
-  X kw6 ne len_ps 1
-  R core split line_lower "requires" ->pr
-  X len_pr len pr
-  X kw7 ne len_pr 1
+L_scan_lines:
+  X slDone (core.gte li fcount)
+  If slDone ->L_next_file ->L_eval_line
 
-  # Combine conditions
-  R core or (gt len_line 60) kw1 ->t1
-  R core or t1 kw2 ->t2
-  R core or t2 kw3 ->t3
-  R core or t3 kw4 ->t4
-  R core or t4 kw5 ->t5
-  R core or t5 kw6 ->t6
-  R core or t6 kw7 ->keep
+L_eval_line:
+  X rawLine get flines li
+  X trimLine (core.trim rawLine)
+  X lineLen (core.len trimLine)
 
-  If keep ->L_append_line ->L_next_line
+  # Skip empty/short lines
+  Set minChars 20
+  X tooShort (core.lt lineLen minChars)
+  If tooShort ->L_next_line ->L_keyword_check
 
-L_append_line:
-  X new_content concat new_content line "\n"
-  X count add count 1
+L_keyword_check:
+  X lower (core.lower trimLine)
+
+  # Check for high-signal keywords
+  X kDecision (core.contains lower "decision")
+  X kPreference (core.contains lower "preference")
+  X kTodo (core.contains lower "todo")
+  X kImportant (core.contains lower "important")
+  X kLesson (core.contains lower "lesson")
+  X kSetting (core.contains lower "setting")
+  X kRequires (core.contains lower "requires")
+  X kConfig (core.contains lower "config")
+  X kFixed (core.contains lower "fixed")
+  X kChanged (core.contains lower "changed")
+  X kCreated (core.contains lower "created")
+  X kEnabled (core.contains lower "enabled")
+  X kDisabled (core.contains lower "disabled")
+
+  # Check if line already has terse prefix
+  X hasD (core.contains trimLine "D: ")
+  X hasP (core.contains trimLine "P: ")
+  X hasT (core.contains trimLine "T: ")
+  X hasL (core.contains trimLine "L: ")
+  X hasS (core.contains trimLine "S: ")
+
+  # Combine: terse prefix OR (keyword AND long enough)
+  X isTerse (core.or hasD (core.or hasP (core.or hasT (core.or hasL hasS))))
+  X hasKeyword (core.or kDecision (core.or kPreference (core.or kTodo (core.or kImportant (core.or kLesson (core.or kSetting (core.or kRequires (core.or kConfig (core.or kFixed (core.or kChanged (core.or kCreated (core.or kEnabled kDisabled))))))))))))
+  Set minLong 60
+  X isLong (core.gt lineLen minLong)
+  X keywordAndLong (core.and hasKeyword isLong)
+  X keep (core.or isTerse keywordAndLong)
+  If keep ->L_dedup_check ->L_next_line
+
+L_dedup_check:
+  # Skip if this line (lowercased) already exists in MEMORY.md
+  X alreadyExists (core.contains existingLower lower)
+  If alreadyExists ->L_next_line ->L_classify_and_add
+
+L_classify_and_add:
+  # If already terse-prefixed, add as-is
+  If isTerse ->L_add_as_is ->L_auto_prefix
+
+L_auto_prefix:
+  # Classify by keyword priority using nested ite (if-then-else)
+  # D: decision/fixed/changed, T: todo/requires, L: lesson/important, S: setting/config/enabled/disabled/created, P: default
+  X isDecisionType (core.or kDecision (core.or kFixed kChanged))
+  X isTodoType (core.or kTodo kRequires)
+  X isLessonType (core.or kLesson kImportant)
+  X isSettingType (core.or kSetting (core.or kConfig (core.or kEnabled (core.or kDisabled kCreated))))
+
+  # Compute prefix using ite chain
+  X prefix (ite isDecisionType "D: " (ite isTodoType "T: " (ite isLessonType "L: " (ite isSettingType "S: " "P: "))))
+
+  # Truncate line to 120 chars max for terseness
+  Set maxTrunc 120
+  X needsTrunc (core.gt lineLen maxTrunc)
+  If needsTrunc ->L_trunc_line ->L_add_prefixed
+
+L_trunc_line:
+  X trimLine (core.substr trimLine 0 maxTrunc)
+  J L_add_prefixed
+
+L_add_prefixed:
+  X terseLine (core.concat prefix trimLine)
+  X newItems push newItems terseLine
+  J L_next_line
+
+L_add_as_is:
+  X newItems push newItems trimLine
+  J L_next_line
 
 L_next_line:
-  Ret next
+  Set one2 1
+  X li (core.add li one2)
+  J L_scan_lines
 
-L_after_all:
-  X any_new gt count 0
-  If any_new ->L_write ->L_done
+L_next_file:
+  Set one3 1
+  X pi (core.add pi one3)
+  J L_process_file
+
+L_check_results:
+  X itemCount (core.len newItems)
+  Set zero3 0
+  X noNew (core.eq itemCount zero3)
+  If noNew ->L_done_none ->L_write
 
 L_write:
-  R core concat old_mem new_content ->final
-  R fs write "MEMORY.md" final ->_
-  R queue Put "notify" {"message": "Memory Consolidation added " + count + " items."} ->_
-  Ret "Consolidated " + count + " items"
+  # Build section and append to MEMORY.md
+  X sectionHeader (core.concat "\n\n## Consolidated — " today_str "\n")
+  X itemText (core.join "\n" newItems)
+  X section (core.concat sectionHeader itemText "\n")
+  X finalMem (core.concat existingMem section)
+  R fs write "MEMORY.md" finalMem ->_
 
-L_done:
-  Ret "No new items"
+  # Notify
+  X msg (core.concat "Consolidation: " (core.stringify itemCount) " terse items from " (core.stringify recentCount) " files")
+  R queue Put "notify" {"module":"memory_consolidation","status":"ok","message":msg} ->_
+  J msg
+
+L_done_empty:
+  R core concat "No memory files to consolidate" ->msg
+  J msg
+
+L_done_none:
+  R core concat "No new items found" ->msg
+  J msg

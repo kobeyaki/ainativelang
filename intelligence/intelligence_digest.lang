@@ -1,6 +1,6 @@
 # Intelligence Digest - runs 3x daily
 # Fetches web news, checks TikTok activity, compares to previous run,
-# and sends a summary notification with trend context.
+# stores a structured record in memory and notifies (QueuePut) on each run.
 S core cron "0 8,12,18 * * *"
 
 L0:
@@ -11,8 +11,8 @@ L0:
   R cache get "digest" "last_tiktok_count" ->prev_tiktok
 
   X mention_count len mentions
-  # Default prev to 0 on first run (cache returns None)
-  X prev_is_none eq prev_mentions None
+  # First run: cache miss resolves to null; compare with literal null token
+  X prev_is_none eq prev_mentions null
   If prev_is_none ->L_default_prev ->L_analyze
 
 L_default_prev:
@@ -33,10 +33,16 @@ L_spike:
   R core concat "digest-" ts ->rec_id
   R core concat "{\"mention_count\":" mention_count ",\"tiktok_recent\":" tiktok_recent ",\"spike\":true,\"ts\":" ts "}" ->payload_json
   R memory put "ops" "intel.digest" rec_id payload_json 604800 ->_
-  Ret null
+  R core concat "Intel digest SPIKE mentions=" mention_count " tiktok=" tiktok_recent ->note
+  QueuePut notify note
+  R cache set "digest" "last_digest_ts" ts ->_
+  J note
 
 L_normal:
   R core concat "digest-" ts ->rec_id
   R core concat "{\"mention_count\":" mention_count ",\"tiktok_recent\":" tiktok_recent ",\"spike\":false,\"ts\":" ts "}" ->payload_json
   R memory put "ops" "intel.digest" rec_id payload_json 604800 ->_
-  Ret null
+  R core concat "Intel digest OK mentions=" mention_count ->note2
+  QueuePut notify note2
+  R cache set "digest" "last_digest_ts" ts ->_
+  J note2

@@ -1,0 +1,45 @@
+# Proactive session summarizer — collects new lines from MEMORY.md since last cache checkpoint.
+# Token-budgeted backward scan; notifies via QueuePut. Remote LLM calls are intentionally not
+# embedded here (JSON escaping is host/tooling territory); this program surfaces excerpts for
+# downstream summarization.
+S core cron "*/30 * * * *"
+
+L0:
+  R fs read "MEMORY.md" ->content
+  X lines (core.split content "\n")
+  X total_lines (core.len lines)
+  R cache get "workflow" "intel_summary_last_line" ->raw_last
+  X last_line (ite (core.eq raw_last null) 0 raw_last)
+  Set new_lines []
+  Set totalTokens 0
+  Set MAX_TOKENS 2000
+  Set one 1
+  X idx (core.sub total_lines one)
+  J L_collect
+
+L_collect:
+  If (core.lt idx last_line) ->L_have_new
+  X line get lines idx
+  X lineTokens (core.idiv (core.add (core.len line) 3) 4)
+  X newTotal (core.add totalTokens lineTokens)
+  If (core.gt newTotal MAX_TOKENS) ->L_have_new
+  X new_lines push new_lines line
+  Set totalTokens newTotal
+  X idx (core.sub idx one)
+  J L_collect
+
+L_have_new:
+  X n (core.len new_lines)
+  X zero 0
+  X no_new (core.eq totalTokens zero)
+  If no_new ->L_exit ->L_notify
+
+L_notify:
+  R core concat "Intel summarizer: collected " (core.stringify n) " new lines (~" (core.stringify totalTokens) " est. tokens); wire LLM on host if needed" ->msg
+  QueuePut notify msg
+  R cache set "workflow" "intel_summary_last_line" total_lines ->_
+  J msg
+
+L_exit:
+  R core concat "no_new_content" ->msg
+  J msg

@@ -1,9 +1,10 @@
-# Test split availability
+# Smoke: core.split + len (for local compiler/runtime checks)
 S core cron "*/5 * * * *"
 
 L0:
   R core now ->ts
   X txt "a\nb\nc"
-  X lines split txt "\n"
-  X count len lines
-  Ret "Lines: " + count
+  X lines (core.split txt "\n")
+  X count (core.len lines)
+  R core concat "Lines: " (core.stringify count) ->msg
+  J msg

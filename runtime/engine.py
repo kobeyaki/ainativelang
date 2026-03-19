@@ -385,8 +385,61 @@ class RuntimeEngine:
                 frame[dst] = truthy(args[0] if len(args) > 0 else False) and truthy(args[1] if len(args) > 1 else False)
             elif sub_fn == "not":
                 frame[dst] = not truthy(args[0] if len(args) > 0 else False)
+            elif sub_fn == "min":
+                frame[dst] = min(args) if args else 0
+            elif sub_fn == "max":
+                frame[dst] = max(args) if args else 0
+            elif sub_fn == "clamp":
+                x = float(args[0]) if args else 0
+                lo = float(args[1]) if len(args) > 1 else 0
+                hi = float(args[2]) if len(args) > 2 else x
+                frame[dst] = max(lo, min(hi, x))
+            elif sub_fn == "idiv":
+                b = args[1] if len(args) > 1 else 1
+                frame[dst] = int((args[0] if args else 0) // b) if b else 0
+            elif sub_fn == "lower":
+                frame[dst] = str(args[0]).lower() if args else ""
+            elif sub_fn == "upper":
+                frame[dst] = str(args[0]).upper() if args else ""
+            elif sub_fn == "trim":
+                frame[dst] = str(args[0]).strip() if args else ""
+            elif sub_fn == "stringify":
+                import json as _json
+                frame[dst] = _json.dumps(args[0], ensure_ascii=False) if args else ""
+            elif sub_fn == "parse":
+                import json as _json
+                frame[dst] = _json.loads(str(args[0])) if args else None
+            elif sub_fn == "split":
+                frame[dst] = str(args[0]).split(str(args[1])) if len(args) > 1 else str(args[0]).split() if args else []
+            elif sub_fn == "replace":
+                frame[dst] = str(args[0]).replace(str(args[1]), str(args[2])) if len(args) > 2 else str(args[0])
+            elif sub_fn == "contains":
+                frame[dst] = str(args[1]) in str(args[0]) if len(args) > 1 else False
+            elif sub_fn == "now":
+                import time as _time
+                frame[dst] = int(_time.time())
+            elif sub_fn == "iso":
+                import time as _time
+                frame[dst] = _time.strftime("%Y-%m-%dT%H:%M:%SZ", _time.gmtime())
+            elif sub_fn == "substr":
+                s = str(args[0]) if args else ""
+                start = int(args[1]) if len(args) > 1 and args[1] is not None else 0
+                length = int(args[2]) if len(args) > 2 and args[2] is not None else max(0, len(s) - start)
+                start = max(0, start)
+                length = max(0, length)
+                frame[dst] = s[start : start + length]
+            elif sub_fn == "env":
+                import os as _os
+                name = str(args[0]) if args else ""
+                default = None if len(args) < 2 else args[1]
+                frame[dst] = _os.environ.get(name, default) if name else None
             else:
-                raise AinlRuntimeError(f"unknown core fn: {sub_fn}", lid, idx, "X", stack, code=ERROR_CODE_X_UNKNOWN_FN)
+                # Fall through to adapter call for any other core.* function
+                try:
+                    result = self.adapters.call("core", sub_fn, args, frame)
+                    frame[dst] = result
+                except Exception:
+                    raise AinlRuntimeError(f"unknown core fn: {sub_fn}", lid, idx, "X", stack, code=ERROR_CODE_X_UNKNOWN_FN)
         else:
             raise AinlRuntimeError(f"unknown X fn: {fn}", lid, idx, "X", stack, code=ERROR_CODE_X_UNKNOWN_FN)
         return frame.get(dst)

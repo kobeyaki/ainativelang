@@ -1,0 +1,47 @@
+# Minimal startup context: last ~300 estimated tokens from MEMORY.md (chronological order).
+# fs write creates parent directories in the sandbox adapter. Uses push (not Append).
+S core cron "*/5 * * * *"
+
+L0:
+  R fs read "MEMORY.md" ->content
+
+  X lines (core.split content "\n")
+  X n (core.len lines)
+  Set one 1
+  X i (core.sub n one)
+
+  Set tokenCap 300
+  Set collected []
+  Set totalTokens 0
+
+L_loop:
+  If (core.lt i 0) ->L_done
+  X line get lines i
+  X lineLen (core.len line)
+  X lineTokens (core.idiv (core.add lineLen 3) 4)
+  X newTotal (core.add totalTokens lineTokens)
+  If (core.gt newTotal tokenCap) ->L_done
+  X collected push collected line
+  Set totalTokens newTotal
+  X i (core.sub i one)
+  J L_loop
+
+L_done:
+  Set reversed []
+  X k (core.len collected)
+  J L_rev
+
+L_rev:
+  If (core.lt k 1) ->L_have_rev
+  Set one2 1
+  X km1 (core.sub k one2)
+  X ln get collected km1
+  X reversed push reversed ln
+  X k (core.sub k one2)
+  J L_rev
+
+L_have_rev:
+  X context (core.join reversed "\n")
+  R fs write ".openclaw/bootstrap/session_context.md" context ->_
+  R core concat "startup_context_updated" ->msg
+  J msg

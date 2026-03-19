@@ -98,6 +98,8 @@ MVP general-compute extensions:
   - All of the above are also accepted with a `core.` prefix (e.g. `core.add`, `core.idiv`, `core.ite`).
   - `ite`/`if`: `X dst ite cond then_val else_val` — inline conditional; returns `then_val` if `cond` is truthy, else `else_val`.
   - `idiv`: integer division (truncates toward zero).
+  - `substr(s, start, length)`: slice a string (also `R core substr s start length ->out`).
+  - `env(name)` / `env(name, default)`: read `os.environ` (also `R core env NAME ->out`).
   - S-expression paren form accepted: `X dst (fn arg…)` — the compiler strips the outer parens before emitting IR, so both forms produce identical IR.
 - `Loop ref item ->Lbody ->Lafter` — alias `ForEach`
 - `While cond ->Lbody ->Lafter [limit=N]`

@@ -1,67 +1,116 @@
-# Token-Aware Startup Context Injection (compact)
-# Runs often via cron; writes .openclaw/bootstrap/session_context.md for boot-md hook
-
+# Token-Aware Startup Context Injection
+# ======================================
+# Reads MEMORY.md line-by-line, selects high-signal lines (decisions,
+# preferences, todos, lessons, settings) within a token budget, and writes
+# a compact bootstrap file for the next session.
+#
+# Pure compute — no LLM calls. Runs every 5 minutes.
+# Proven patterns: Loop + If branching + push array + J return.
 S core cron "*/5 * * * *"
 
+# ── Entry: load budget state and gate on remaining tokens ──
 L0:
-  # Get token budget state (workflow.token_cost_state)
-  R memory get "workflow" "token_cost_state" ->tcs
-  X weekUsage (or tcs.last_week_usage 0)
-  X weekBudget (or tcs.weekly_budget 100000)
-  X dayUsage (or tcs.daily_usage 0)
-  X dayBudget (or tcs.daily_budget 20000)
+  R cache get "workflow" "token_budget" ->budget_state
+  X hasBudget (ne budget_state null)
+  If hasBudget ->L1 ->L2
 
-  # Compute conservative allocation: 10% of the lesser of daily/weekly remaining
-  X remWeek (core.sub weekBudget weekUsage)
-  X remDay (core.sub dayBudget dayUsage)
-  X alloc (core.mul (core.min remWeek remDay) 0.1)
-  X tokenCap (core.min alloc 2000)   # upper bound 2000 tokens
-  X minCap 200
-  If (core.lt tokenCap minCap) ->L_skip ->L_exit
+# Use cached budget
+L1:
+  X tokenCap (get budget_state "daily_remaining")
+  X capOk (gt tokenCap 5000)
+  If capOk ->L3 ->L10
 
-  # Read MEMORY.md (distilled memory entries)
-  R fs.read "MEMORY.md" ->content
-  X lines (core.split content "\n")
-  X n (core.len lines)
-  X i (core.sub n 1)
-  Set contextLines []
-  Set totalTokens 0
+# No budget cache — use generous default (10 000 tokens)
+L2:
+  Set tokenCap 10000
+  If true ->L3 ->L3
 
-L_collect:
-  X line lines[i]
-  X lineLen (core.len line)
-  X lineTokens (core.idiv (core.add lineLen 3) 4)  # ceil(len/4)
-  X newTotal (core.add totalTokens lineTokens)
-  If (core.gt newTotal tokenCap) ->L_done
-  Append contextLines line
-  Set totalTokens newTotal
-L_next:
-  X i (core.sub i 1)
-  If (core.gte i 0) ->L_collect ->L_done
+# ── Compute allocation: 10% of remaining, clamped [200..2000] ──
+L3:
+  X raw (mul tokenCap 0.1)
+  X capped (core.min raw 2000)
+  X tokenCap (core.max capped 200)
+  # Read MEMORY.md as lines
+  R fs readlines "MEMORY.md" ->allLines
+  X totalLines (core.len allLines)
+  # Initialize accumulators
+  X selected (arr)
+  Set usedTokens 0
+  # Walk lines, collect high-signal ones within budget
+  Loop allLines line ->L4 ->L7
 
-L_done:
-  # Reverse collected lines to chronological order (oldest first)
-  Set reversedLines []
-  Set k (sub (len contextLines) 1)
-L_rev_loop:
-  If (core.lt k 0) ->L_have_rev
-  X ln contextLines[k]
-  Append reversedLines ln
-  X k (core.sub k 1)
-  J L_rev_loop
-L_have_rev:
-  X context (core.join reversedLines "\n")
-  # Ensure bootstrap dir exists (dummy create via write)
-  R fs.mkdir ".openclaw/bootstrap" ->_  # safe if exists
-  R fs.write ".openclaw/bootstrap/session_context.md" context ->_
-  # Record usage in memory
-  R memory put "workflow" "session_context.tokens" totalTokens ->_
-  R memory put "workflow" "session_context.cap" tokenCap ->_
-  R memory put "workflow" "session_context.timestamp" (core.now) ->_
-  Ret "Injected " + totalTokens + " tokens"
+# ── Per-line evaluation ──
+L4:
+  X trimmed (core.trim line)
+  X lineLen (core.len trimmed)
+  # Skip empty or very short lines
+  X tooShort (lt lineLen 10)
+  If tooShort ->L6 ->L5
 
-L_skip:
-  Ret "Budget too low (" + tokenCap + "), skipping"
+# ── Signal detection: terse prefixes, bullet keywords ──
+L5:
+  X lower (core.lower trimmed)
+  # Check for terse bullet prefixes (D: P: T: L: S:)
+  X hasD (core.contains lower "d: ")
+  X hasP (core.contains lower "p: ")
+  X hasT (core.contains lower "t: ")
+  X hasL (core.contains lower "l: ")
+  X hasS (core.contains lower "s: ")
+  X isTerse (or hasD (or hasP (or hasT (or hasL hasS))))
+  # Check for keyword signals in longer lines
+  X hasBullet (core.contains trimmed "- ")
+  X kw1 (core.contains lower "important")
+  X kw2 (core.contains lower "fixed")
+  X kw3 (core.contains lower "config")
+  X kw4 (core.contains lower "preference")
+  X kw5 (core.contains lower "todo")
+  X kw6 (core.contains lower "lesson")
+  X kw7 (core.contains lower "setting")
+  X kw8 (core.contains lower "cron")
+  X hasKeyword (or kw1 (or kw2 (or kw3 (or kw4 (or kw5 (or kw6 (or kw7 kw8)))))))
+  X isLong (gt lineLen 30)
+  X keyLine (and isLong hasKeyword)
+  X bulletLine (and hasBullet isLong)
+  X keep (or isTerse (or keyLine bulletLine))
+  If keep ->L8 ->L6
 
-L_exit:
-  # end
+# ── Skip this line (no-op body for Loop) ──
+L6:
+  Set _skip 1
+
+# ── Budget check and add ──
+L8:
+  # Estimate tokens: (len + 3) / 4
+  X numPlusThree (add lineLen 3)
+  X estTokens (core.idiv numPlusThree 4)
+  X wouldUse (add usedTokens estTokens)
+  X overBudget (gt wouldUse tokenCap)
+  If overBudget ->L6 ->L9
+
+# ── Add to selected ──
+L9:
+  X selected (push selected trimmed)
+  Set usedTokens wouldUse
+
+# ── Assemble output ──
+L7:
+  X count (core.len selected)
+  X noResults (eq count 0)
+  If noResults ->L10 ->L11
+
+# ── Write bootstrap file ──
+L11:
+  X body (core.join "\n" selected)
+  X output (core.concat "# Session Context (auto-injected)\n" body)
+  R fs mkdir ".openclaw/bootstrap" ->_
+  R fs write ".openclaw/bootstrap/session_context.md" output ->_
+  # Persist stats to cache
+  R cache set "workflow" "context_injection_tokens" usedTokens ->_
+  R cache set "workflow" "context_injection_lines" count ->_
+  R core now ->nowTs
+  R cache set "workflow" "context_injection_last" nowTs ->_
+  J count
+
+# ── Skip: budget too low or no results ──
+L10:
+  J 0

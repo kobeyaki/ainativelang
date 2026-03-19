@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import time
 from typing import Any, Dict, List
 
@@ -12,10 +13,12 @@ class CoreBuiltinAdapter(RuntimeAdapter):
     """
     Builtin stdlib adapter namespace: core.*
     Supported targets include:
-      add/sub/mul/div/min/max/clamp
+      add/sub/mul/div/idiv/min/max/clamp
       concat/split/join/lower/upper/replace
+      substr(s, start, length) — string slice
+      env(name, default?) — os.getenv
       parse/stringify
-      now/iso/iso_ts/sleep
+      now/iso/iso_ts/sleep/echo
     """
 
     def call(self, target: str, args: List[Any], context: Dict[str, Any]) -> Any:
@@ -81,6 +84,21 @@ class CoreBuiltinAdapter(RuntimeAdapter):
             return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(ts))
         if t == "echo":
             return args[0] if args else None
+        if t == "env":
+            # os.getenv(name, default=None); optional second arg is default string
+            name = str(args[0]) if args else ""
+            if not name:
+                return None
+            default = None if len(args) < 2 else args[1]
+            return os.environ.get(name, default)
+        if t == "substr":
+            # substr(s, start, length) — slice s[start:start+length]; length required
+            s = str(args[0]) if args else ""
+            start = int(_num(args[1])) if len(args) > 1 else 0
+            length = int(_num(args[2])) if len(args) > 2 else max(0, len(s) - start)
+            start = max(0, start)
+            length = max(0, length)
+            return s[start : start + length]
         if t == "sleep":
             ms = int(float(args[0]))
             if ms > 0:
