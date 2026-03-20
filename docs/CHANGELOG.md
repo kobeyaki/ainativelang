@@ -4,8 +4,9 @@
 
 - **feat**: subgraph includes & modules (compile-time composition, alias prefixing, ENTRY/EXIT contract)
 - **feat**: graph visualizer CLI (`ainl visualize` → Mermaid with clusters, synthetic call edges)
+- **feat**: full conformance matrix runner (`make conformance`) with snapshot categories for tokenizer, IR, strict validation, runtime parity, and emitter stability
 - **fix**: preserve `__literal_fields` through include merge + lowering
-- **docs**: updated README, WHAT_IS_AINL.md, whitepaper draft with new features
+- **docs**: updated README/docs hubs for conformance command, CI gate, and generated conformance artifacts
 
 ### Packaging (v1.2.0)
 

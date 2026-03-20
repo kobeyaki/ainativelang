@@ -60,6 +60,20 @@ pre-commit run --all-files
 This includes the AINL docs contract hook (`ainl-docs-contract`) so docs/runtime
 contract drift is caught locally before CI.
 
+## Full conformance suite
+
+Run the full snapshot-driven matrix locally:
+
+```bash
+make conformance
+```
+
+Intentionally refresh snapshots:
+
+```bash
+SNAPSHOT_UPDATE=1 make conformance
+```
+
 ## CLI tools installed
 
 - `ainl-validate` - compile/validate/emit from `.lang`

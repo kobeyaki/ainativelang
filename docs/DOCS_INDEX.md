@@ -67,6 +67,7 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
 - Pattern cookbook and composition examples: `docs/PATTERNS.md`
 - Compiler/IR contracts: `docs/reference/IR_SCHEMA.md`, `docs/reference/GRAPH_SCHEMA.md`
 - Conformance status: `docs/CONFORMANCE.md`
+- Full conformance command: `make conformance` (snapshot update: `SNAPSHOT_UPDATE=1 make conformance`; artifacts under `tests/snapshots/conformance/`)
 - Release readiness checklist: `docs/RELEASE_READINESS.md`
 - No-break migration tracker: `docs/NO_BREAK_MIGRATION_PLAN.md`
 - Release notes: `docs/RELEASE_NOTES.md`

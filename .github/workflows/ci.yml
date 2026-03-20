@@ -96,6 +96,25 @@ jobs:
             tests/test_emits_artifacts.py \
             tests/test_conformance.py::test_minimal_api_emit_openapi_has_path
 
+  conformance-matrix:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[dev]
+
+      - name: Run conformance matrix
+        run: make conformance
+
   openapi-compat:
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest

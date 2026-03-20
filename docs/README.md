@@ -33,6 +33,7 @@ AINL docs are organized by user intent and conceptual layer rather than by file 
 
 - **What is AINL?** [`WHAT_IS_AINL.md`](WHAT_IS_AINL.md) (docs hub primer; includes v1.2 capabilities). Root copy: [`../WHAT_IS_AINL.md`](../WHAT_IS_AINL.md).
 - **Graph diagrams (Mermaid):** root `README.md` → *Visualize your workflow*; details in [`architecture/GRAPH_INTROSPECTION.md`](architecture/GRAPH_INTROSPECTION.md) §7 (`ainl visualize`, `ainl-visualize`).
+- **Full conformance matrix:** run `make conformance` from repo root (or `SNAPSHOT_UPDATE=1 make conformance` when intentionally updating snapshots). Outputs are written to `tests/snapshots/conformance/`.
 - `DOCS_INDEX.md` remains in place as the detailed reference map.
 - Existing paths will be migrated gradually to avoid breaking relative links and old deep links.
 - `case_studies/` is the canonical case-study folder name going forward.

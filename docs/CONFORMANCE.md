@@ -246,6 +246,18 @@ To keep the conformance doc durable and testable:
 
 Current entrypoint: compile via `compiler_v2.py` (e.g. `python compiler_v2.py` or `python scripts/run_tests_and_emit.py`); canonical runtime via `runtime.engine.RuntimeEngine` (compatibility wrapper `runtime.compat.ExecutionEngine` retained for historical imports).
 
+For the full automated matrix (tokenizer round-trip, IR canonicalization, strict validation, runtime parity, emitter stability), run:
+
+```bash
+make conformance
+```
+
+Update snapshots when expected outputs intentionally change:
+
+```bash
+SNAPSHOT_UPDATE=1 make conformance
+```
+
 ## Release artifact profile contract
 
 Release artifacts are explicitly profiled so strict expectations are not inferred:

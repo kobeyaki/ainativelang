@@ -37,6 +37,13 @@ ainl run examples/hello.ainl --json
 
 No server needed. Good for local development, scripting, and CI.
 
+For the full deterministic conformance matrix (tokenizer, IR canonicalization,
+strict validation, runtime parity, emitter stability), run:
+
+```bash
+make conformance
+```
+
 ### Path B — HTTP runner (orchestrator integration)
 
 ```bash

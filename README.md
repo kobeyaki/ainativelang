@@ -9,6 +9,9 @@
   <a href="https://github.com/sbhooley/ainativelang/releases">
     <img src="https://img.shields.io/github/v/release/sbhooley/ainativelang?label=release" alt="GitHub release" />
   </a>
+  <a href="tests/snapshots/conformance/summary.md">
+    <img src="tests/snapshots/conformance/conformance_badge.svg" alt="Conformance status" />
+  </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License: Apache-2.0" />
   </a>
@@ -89,6 +92,10 @@ Typical loop for AI engineers and agent builders:
 3. **Visualize** control flow as **Mermaid**:  
    `ainl visualize your.ainl --output - > graph.mmd` — paste into [mermaid.live](https://mermaid.live) or GitHub/Obsidian. Flags: **`--no-clusters`**, **`--labels-only`**, **`--output` / `-o`** (`-` = stdout). **`ainl-visualize`** is the same entry point without the `ainl` subcommand.
 4. **Run** locally: `ainl run your.ainl --json` (see [Choose Your Path](#choose-your-path)).
+
+For the full conformance matrix in one command (tokenizer, IR canonicalization, strict validation, runtime parity, emitter stability):
+
+`make conformance` (or `SNAPSHOT_UPDATE=1 make conformance` when intentionally updating snapshots).
 
 Short primer for stakeholders: [`docs/WHAT_IS_AINL.md`](docs/WHAT_IS_AINL.md) (and [`WHAT_IS_AINL.md`](WHAT_IS_AINL.md) at repo root).
 
