@@ -127,11 +127,12 @@ class CompilerContext:
     to structured collection; legacy callers omit ``context`` and behavior is unchanged.
     """
 
-    __slots__ = ("_diagnostics", "_source")
+    __slots__ = ("_diagnostics", "_source", "_source_path")
 
     def __init__(self) -> None:
         self._diagnostics: List[Diagnostic] = []
         self._source: str = ""
+        self._source_path: Optional[str] = None
 
     @property
     def diagnostics(self) -> List[Diagnostic]:
@@ -143,10 +144,16 @@ class CompilerContext:
         """Source text last passed to :meth:`reset_for_compile`."""
         return self._source
 
-    def reset_for_compile(self, source_text: str) -> None:
-        """Clear diagnostics and bind source for a new compile invocation."""
+    @property
+    def source_path(self) -> Optional[str]:
+        """Filesystem path of the compiled file, for include resolution."""
+        return self._source_path
+
+    def reset_for_compile(self, source_text: str, *, source_path: Optional[str] = None) -> None:
+        """Clear diagnostics and bind source (and optional path) for a new compile invocation."""
         self._diagnostics.clear()
         self._source = source_text
+        self._source_path = source_path
 
     def add(self, diagnostic: Diagnostic) -> None:
         """Append one diagnostic."""
