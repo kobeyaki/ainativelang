@@ -170,7 +170,8 @@ L_metrics:
   X ok_ratio get metrics_data "ok_ratio"
 
   # ── Pull 24h monitor check history from memory ──
-  R memory list "workflow" "workflow.monitor_check" "" day_ago_str ->hist_24h
+  X hist_filters {"updated_after":day_ago_str,"tags_any":["monitor","health"],"limit":1000}
+  R memory list "workflow" "workflow.monitor_check" "" day_ago_str hist_filters ->hist_24h
   X checks_24h len hist_24h
 
   J L_analyze
@@ -242,7 +243,8 @@ L_rec_done:
   # ── Persist audit results to memory (7-day TTL) ──
   R core concat "audit-" now_iso ->audit_id
   X audit_payload {"stale_count":stale_count,"healthy":healthy,"checks_24h":checks_24h,"alerts_24h":alerts_24h,"alert_ratio":alert_ratio,"avg_age_min":avg_age_min,"ok_ratio":ok_ratio,"error_count":error_count,"ts":ts}
-  R memory put "workflow" "workflow.cron_audit" audit_id audit_payload 604800 ->_
+  X audit_meta {"source":"demo.cron_cost_auditor","confidence":1.0,"tags":["audit","cron","workflow"],"valid_at":now_iso}
+  R memory put "workflow" "workflow.cron_audit" audit_id audit_payload 604800 audit_meta ->_
 
   # Reset daily alert counter for next cycle
   R cache set "audit" "alerts_24h" 0 ->_

@@ -160,6 +160,10 @@ L16:
   X sectionHeader (core.concat "\n\n### Session Summary — " dayDate "\n")
   X newMem (core.concat currentMem sectionHeader summary "\n")
   R fs write "MEMORY.md" newMem ->_
+  X mem_id (core.concat "summary-" dayDate)
+  X mem_payload {"date":dayDate,"summary_len":summaryLen,"created_at":nowIso,"model":llmModel}
+  X mem_meta {"source":"intelligence.proactive_session_summarizer","confidence":0.8,"tags":["intelligence","summary","memory"],"valid_at":nowIso}
+  R memory put "workflow" "workflow.session_summary" mem_id mem_payload 1209600 mem_meta ->_
   X markKey (core.concat "summarized." dayDate)
   R cache set "workflow" markKey "done" ->_
   X summariesCreated (add summariesCreated 1)

@@ -5,6 +5,7 @@
 #
 # Advanced / operator-only:
 # - demonstrates `memory.put` and `memory.get` for workflow.token_cost_state
+# - demonstrates optional deterministic metadata and filtered list usage
 # - relies on a local SQLite-backed memory store (AINL_MEMORY_DB)
 
 S core memory
@@ -15,6 +16,9 @@ L0: X payload {
   "total_tokens": 450000
 } J L1
 
-L1: R memory put "workflow" "workflow.token_cost_state" "token-cost-2026-03-09" payload 86400 ->put_result J L2
+L1: X metadata {"source":"examples.openclaw.memory_token_cost_state","confidence":1.0,"tags":["token_cost","example"],"valid_at":"2026-03-09T00:00:00Z"} J L1a
+L1a: R memory put "workflow" "workflow.token_cost_state" "token-cost-2026-03-09" payload 86400 metadata ->put_result J L2
 
-L2: R memory get "workflow" "workflow.token_cost_state" "token-cost-2026-03-09" ->get_result J get_result
+L2: R memory get "workflow" "workflow.token_cost_state" "token-cost-2026-03-09" ->get_result J L3
+L3: X filters {"tags_any":["token_cost"],"source":"examples.openclaw.memory_token_cost_state","limit":10} J L4
+L4: R memory list "workflow" "workflow.token_cost_state" "" "2026-03-01T00:00:00Z" filters ->list_result J list_result

@@ -142,7 +142,8 @@ L_compute:
   # Load previous week's spend from memory for weekly tracking
   X week_ago_ts sub ts 604800
   R core stringify week_ago_ts ->week_ago_str
-  R memory list "workflow" "workflow.budget_enforcement" "" week_ago_str ->week_hist
+  X budget_hist_filters {"updated_after":week_ago_str,"tags_any":["budget","enforcement"],"source":"demo.session_budget_enforcer","limit":1000}
+  R memory list "workflow" "workflow.budget_enforcement" "" week_ago_str budget_hist_filters ->week_hist
   X week_records get week_hist "items"
 
   # Weekly spend = today's + sum from memory records
@@ -255,7 +256,8 @@ L_persist:
   # Persist to memory for audit trail (7-day TTL)
   R core concat "enforce-" now_iso ->rec_id
   X audit_payload {"gate":gate_level,"daily_used":daily_used,"daily_limit":daily_limit,"daily_pct":daily_pct,"daily_remaining":daily_remaining,"weekly_spent":weekly_spent,"weekly_limit":weekly_limit,"weekly_pct":weekly_pct,"ts":ts}
-  R memory put "workflow" "workflow.budget_enforcement" rec_id audit_payload 604800 ->_
+  X budget_meta {"source":"demo.session_budget_enforcer","confidence":1.0,"tags":["budget","enforcement","workflow"],"valid_at":now_iso}
+  R memory put "workflow" "workflow.budget_enforcement" rec_id audit_payload 604800 budget_meta ->_
 
   # Heartbeat for meta-monitor / cron_cost_auditor
   R cache set "monitor_heartbeat" "session_budget_enforcer" ts ->_
@@ -343,7 +345,8 @@ L_fetch_fail:
   # Persist failure to memory
   R core concat "enforce-fail-" now_iso ->fail_rec_id
   X fail_payload {"gate":"fetch_error","http_status":status_code,"ts":ts}
-  R memory put "workflow" "workflow.budget_enforcement" fail_rec_id fail_payload 604800 ->_
+  X fail_meta {"source":"demo.session_budget_enforcer","confidence":1.0,"tags":["budget","enforcement","fetch_error"],"valid_at":now_iso}
+  R memory put "workflow" "workflow.budget_enforcement" fail_rec_id fail_payload 604800 fail_meta ->_
 
   QueuePut notify fail_msg
   Ret null

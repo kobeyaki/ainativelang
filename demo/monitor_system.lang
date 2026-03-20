@@ -113,7 +113,8 @@ L93: J L_persist
 # Persist this run's check summary to memory (7d TTL) for history_24h
 L_persist: X record_id (core.concat "run-" (core.stringify ts))
     X summary {"email_count":email_count,"cal_count":cal_count,"social_count":social_count,"leads_count":leads_count,"failed_services":failed_services,"ts":ts,"needs_notify":needs_notify}
-    R memory put "workflow" "workflow.monitor_check" record_id summary 604800 ->_
+    X monitor_meta {"source":"demo.monitor_system","confidence":1.0,"tags":["monitor","workflow","health"],"valid_at":ts}
+    R memory put "workflow" "workflow.monitor_check" record_id summary 604800 monitor_meta ->_
     J L54
 
 # Decision: send notification if any check needs it
@@ -122,7 +123,8 @@ L55: X now_ts (core.now)
     R cache get "state" "last_notified" ->last_notif
     X day_ago_ts (core.sub now_ts 86400)
     R core iso_ts day_ago_ts ->day_ago_iso
-    R memory list "workflow" "workflow.monitor_check" "" day_ago_iso ->hist
+    X monitor_hist_filters {"updated_after":day_ago_iso,"tags_any":["monitor","health"],"source":"demo.monitor_system","limit":500}
+    R memory list "workflow" "workflow.monitor_check" "" day_ago_iso monitor_hist_filters ->hist
     X hist_count len hist.items
     X status (core.ite (core.gt needs_notify 0) "alert" "ok")
     If (core.gt (core.sub now_ts last_notif) 900) ->L56 ->L62

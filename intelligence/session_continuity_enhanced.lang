@@ -54,6 +54,10 @@ L5:
   R queue Put "notify" msg ->_
   R cache set "monitor_heartbeat" "session_continuity_intel" ts ->_
   R cache set "session" "continuity_last_ok" ts ->_
+  X rec_id (core.concat "continuity-" isoTs)
+  X rec_payload {"status":"ok","line_count":lineCount,"token_count":tokenCount,"ts":ts}
+  X rec_meta {"source":"intelligence.session_continuity_enhanced","confidence":1.0,"tags":["intelligence","continuity","session"],"valid_at":isoTs}
+  R memory put "workflow" "workflow.session_continuity" rec_id rec_payload 604800 rec_meta ->_
   J lineCount
 
 # ── Report without stats ──

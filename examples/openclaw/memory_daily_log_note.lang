@@ -5,6 +5,7 @@
 #
 # Advanced / operator-only:
 # - demonstrates `memory.append` and `memory.get` for daily_log.note
+# - demonstrates optional deterministic metadata, filtered list, and response stats
 # - relies on a local SQLite-backed memory store (AINL_MEMORY_DB)
 
 S core memory
@@ -14,6 +15,9 @@ L0: X entry {
   "text": "Checked monitors; all within normal bounds."
 } J L1
 
-L1: R memory append "daily_log" "daily_log.note" "2026-03-09" entry 604800 ->append_result J L2
+L1: X metadata {"source":"examples.openclaw.memory_daily_log_note","confidence":1.0,"tags":["daily_log","example"],"valid_at":"2026-03-09T12:00:00Z"} J L1a
+L1a: R memory append "daily_log" "daily_log.note" "2026-03-09" entry 604800 metadata ->append_result J L2
 
-L2: R memory get "daily_log" "daily_log.note" "2026-03-09" ->get_result J get_result
+L2: R memory get "daily_log" "daily_log.note" "2026-03-09" ->get_result J L3
+L3: X filters {"tags_any":["daily_log"],"source":"examples.openclaw.memory_daily_log_note","limit":10} J L4
+L4: R memory list "daily_log" "daily_log.note" "" "2026-03-01T00:00:00Z" filters ->list_result J list_result

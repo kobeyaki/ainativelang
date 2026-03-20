@@ -25,16 +25,17 @@ R svc crm ->crm_status
 # Persist each service check to memory for trend analysis (7d TTL)
 X caddy_id (core.join ["svc-", "caddy", "-", now])
 X caddy_rec {"service":"caddy","status":caddy_status,"ts":now}
-R memory.put "workflow" "workflow.service_check" caddy_id caddy_rec ttl_seconds ->_
+X svc_meta {"source":"examples.autonomous_ops.infrastructure_watchdog","confidence":1.0,"tags":["service_check","infra","monitor"],"valid_at":now}
+R memory.put "workflow" "workflow.service_check" caddy_id caddy_rec ttl_seconds svc_meta ->_
 X cloudflared_id (core.join ["svc-", "cloudflared", "-", now])
 X cloudflared_rec {"service":"cloudflared","status":cloudflared_status,"ts":now}
-R memory.put "workflow" "workflow.service_check" cloudflared_id cloudflared_rec ttl_seconds ->_
+R memory.put "workflow" "workflow.service_check" cloudflared_id cloudflared_rec ttl_seconds svc_meta ->_
 X maddy_id (core.join ["svc-", "maddy", "-", now])
 X maddy_rec {"service":"maddy","status":maddy_status,"ts":now}
-R memory.put "workflow" "workflow.service_check" maddy_id maddy_rec ttl_seconds ->_
+R memory.put "workflow" "workflow.service_check" maddy_id maddy_rec ttl_seconds svc_meta ->_
 X crm_id (core.join ["svc-", "crm", "-", now])
 X crm_rec {"service":"crm","status":crm_status,"ts":now}
-R memory.put "workflow" "workflow.service_check" crm_id crm_rec ttl_seconds ->_
+R memory.put "workflow" "workflow.service_check" crm_id crm_rec ttl_seconds svc_meta ->_
 
 X caddy_down (core.eq caddy_status "down")
 X cloudflared_down (core.eq cloudflared_status "down")
@@ -68,7 +69,8 @@ L_caddy_alert:
   X _ (cache.set "watchdog" "last_caddy_alert" 1)
   X _ (cache.set "watchdog" "last_caddy_ts" now)
   X event_id (core.join ["evt-", "caddy", "-", now])
-  R memory.put "ops" "infrastructure.restart" event_id {"service":"caddy","restart_ok":restart_ok,"ts":now} ttl_seconds ->_
+  X restart_meta {"source":"examples.autonomous_ops.infrastructure_watchdog","confidence":1.0,"tags":["infra_restart","ops","monitor"],"valid_at":now}
+  R memory.put "ops" "infrastructure.restart" event_id {"service":"caddy","restart_ok":restart_ok,"ts":now} ttl_seconds restart_meta ->_
   J L_continue
 
 L_cloudflared_alert:
@@ -86,7 +88,8 @@ L_cloudflared_alert:
   X _ (cache.set "watchdog" "last_cloudflared_alert" 1)
   X _ (cache.set "watchdog" "last_cloudflared_ts" now)
   X event_id (core.join ["evt-", "cloudflared", "-", now])
-  R memory.put "ops" "infrastructure.restart" event_id {"service":"cloudflared","restart_ok":restart_ok,"ts":now} ttl_seconds ->_
+  X restart_meta {"source":"examples.autonomous_ops.infrastructure_watchdog","confidence":1.0,"tags":["infra_restart","ops","monitor"],"valid_at":now}
+  R memory.put "ops" "infrastructure.restart" event_id {"service":"cloudflared","restart_ok":restart_ok,"ts":now} ttl_seconds restart_meta ->_
   J L_continue
 
 L_maddy_alert:
@@ -104,7 +107,8 @@ L_maddy_alert:
   X _ (cache.set "watchdog" "last_maddy_alert" 1)
   X _ (cache.set "watchdog" "last_maddy_ts" now)
   X event_id (core.join ["evt-", "maddy", "-", now])
-  R memory.put "ops" "infrastructure.restart" event_id {"service":"maddy","restart_ok":restart_ok,"ts":now} ttl_seconds ->_
+  X restart_meta {"source":"examples.autonomous_ops.infrastructure_watchdog","confidence":1.0,"tags":["infra_restart","ops","monitor"],"valid_at":now}
+  R memory.put "ops" "infrastructure.restart" event_id {"service":"maddy","restart_ok":restart_ok,"ts":now} ttl_seconds restart_meta ->_
   J L_continue
 
 L_crm_alert:
@@ -122,7 +126,8 @@ L_crm_alert:
   X _ (cache.set "watchdog" "last_crm_alert" 1)
   X _ (cache.set "watchdog" "last_crm_ts" now)
   X event_id (core.join ["evt-", "crm", "-", now])
-  R memory.put "ops" "infrastructure.restart" event_id {"service":"crm","restart_ok":restart_ok,"ts":now} ttl_seconds ->_
+  X restart_meta {"source":"examples.autonomous_ops.infrastructure_watchdog","confidence":1.0,"tags":["infra_restart","ops","monitor"],"valid_at":now}
+  R memory.put "ops" "infrastructure.restart" event_id {"service":"crm","restart_ok":restart_ok,"ts":now} ttl_seconds restart_meta ->_
   J L_continue
 
 L_after_alerts:
@@ -132,7 +137,8 @@ L_no_alert:
   X any_down (core.or caddy_down (core.or cloudflared_down (core.or maddy_down crm_down)))
   # Restart count last 24h (server-side filtering)
   X day_ago (core.sub now 0 1)
-  R memory.list "ops" "infrastructure.restart" "" day_ago ->hist
+  X restart_hist_filters {"updated_after":day_ago,"tags_any":["infra_restart"],"source":"examples.autonomous_ops.infrastructure_watchdog","limit":500}
+  R memory.list "ops" "infrastructure.restart" "" day_ago restart_hist_filters ->hist
   X restarts_24h (len hist.items)
 
   X summary_payload ({

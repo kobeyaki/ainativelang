@@ -41,11 +41,13 @@ X daily ({
 })
 
 X record_id (core.join ["audit-", today_date])
-R memory.put "workflow" "lead_quality_audit.daily" record_id daily 7776000 ->_  # 90d
+X audit_meta {"source":"examples.autonomous_ops.lead_quality_audit","confidence":1.0,"tags":["lead_quality","audit","workflow"],"valid_at":today_date}
+R memory.put "workflow" "lead_quality_audit.daily" record_id daily 7776000 audit_meta ->_  # 90d
 
 # Compute rolling window using server-side filter
 X window_days_iso (core.sub (core.iso) 0 window_days)
-R memory.list "workflow" "lead_quality_audit.daily" "" window_days_iso ->hist
+X hist_filters {"updated_after":window_days_iso,"tags_any":["lead_quality","audit"],"source":"examples.autonomous_ops.lead_quality_audit","limit":500}
+R memory.list "workflow" "lead_quality_audit.daily" "" window_days_iso hist_filters ->hist
 X hist_items hist.items
 X hist_count (len hist_items)
 

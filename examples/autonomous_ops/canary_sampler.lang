@@ -54,7 +54,8 @@ X cnt0 (core.add (or prev0 0) 1)
 X _ (cache.set "canary" (consecutive_key r0.name) cnt0)
 X _ (set results 0 "consecutive" cnt0)
 X evt0_id (core.join ["slow-", r0.name, "-", now])
-R memory.put "ops" "canary.slow" evt0_id {"target":r0.name,"ts":now} 604800 ->_
+X canary_meta {"source":"examples.autonomous_ops.canary_sampler","confidence":1.0,"tags":["canary","slow","monitor"],"valid_at":now}
+R memory.put "ops" "canary.slow" evt0_id {"target":r0.name,"ts":now} 604800 canary_meta ->_
 J L_next0
 L_reset0:
 X _ (cache.set "canary" (consecutive_key r0.name) 0)
@@ -69,7 +70,8 @@ X cnt1 (core.add (or prev1 0) 1)
 X _ (cache.set "canary" (consecutive_key r1.name) cnt1)
 X _ (set results 1 "consecutive" cnt1)
 X evt1_id (core.join ["slow-", r1.name, "-", now])
-R memory.put "ops" "canary.slow" evt1_id {"target":r1.name,"ts":now} 604800 ->_
+X canary_meta {"source":"examples.autonomous_ops.canary_sampler","confidence":1.0,"tags":["canary","slow","monitor"],"valid_at":now}
+R memory.put "ops" "canary.slow" evt1_id {"target":r1.name,"ts":now} 604800 canary_meta ->_
 J L_next1
 L_reset1:
 X _ (cache.set "canary" (consecutive_key r1.name) 0)
@@ -106,7 +108,8 @@ L_pre_done:
 L_done:
   # Compute slow event count 24h
   X day_ago (core.sub now 0 1)
-  R memory.list "ops" "canary.slow" "" day_ago ->hist
+  X canary_hist_filters {"updated_after":day_ago,"tags_any":["canary","slow"],"source":"examples.autonomous_ops.canary_sampler","limit":500}
+  R memory.list "ops" "canary.slow" "" day_ago canary_hist_filters ->hist
   X slow_24h (len hist.items)
 
   X status (core.ite any_breach "alert" "ok")
