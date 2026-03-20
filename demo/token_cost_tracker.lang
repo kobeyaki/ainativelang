@@ -1,6 +1,7 @@
 # Token Usage Tracker - hourly
 # Fetches OpenRouter usage, tracks daily + weekly costs, alerts on thresholds.
 S http cron "0 * * * *"
+include "modules/common/token_cost_memory.ainl" as tokenmem
 
 L0:
   R core now ->ts
@@ -48,13 +49,20 @@ L_parse:
   # Store today's snapshot in memory for weekly rollup
   R core concat "tok-" now_iso ->record_id
   R core concat "{\"date\":\"" now_iso "\",\"ts\":" ts "}" ->day_payload
-  X day_meta {"source":"demo.token_cost_tracker","confidence":1.0,"tags":["token_cost","monitor","workflow"],"valid_at":now_iso}
-  R memory put "workflow" "workflow.token_cost_state" record_id day_payload 604800 day_meta ->_
+  X memory_kind "workflow.token_cost_state"
+  X memory_record_id record_id
+  X memory_payload day_payload
+  X memory_ttl 604800
+  X memory_source "demo.token_cost_tracker"
+  X memory_tags ["token_cost","monitor","workflow"]
+  X memory_valid_at now_iso
+  Call tokenmem/WRITE ->_
 
   # Query 7-day history for weekly rollup
   R core iso_ts ->week_ago
-  X week_filters {"updated_after":week_ago,"tags_any":["token_cost"],"source":"demo.token_cost_tracker","limit":500}
-  R memory list "workflow" "workflow.token_cost_state" "" week_ago week_filters ->hist
+  X memory_updated_after week_ago
+  X memory_list_limit 500
+  Call tokenmem/LIST ->hist
   X week_count len hist
 
   # Build and send summary

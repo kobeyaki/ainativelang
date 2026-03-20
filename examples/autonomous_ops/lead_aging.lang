@@ -1,4 +1,5 @@
 D LeadRec (id: str, created_at: int, updated_at: int, status: str, stage: str)
+include "modules/common/ops_memory.ainl" as opsmem
 
 S main
   # Threshold: 30 days in seconds
@@ -33,7 +34,14 @@ S main
   # Write memory trend (TTL 30 days)
   X rec_id (core.join ["lead-aging-", (core.idiv (core.now) 86400)])
   X payload (JsonObj {"count": aged_count, "ts": (core.now)})
-  R memory.put "ops" "monitor.lead_aging" rec_id payload (core.mul 30 86400)
+  X memory_kind "monitor.lead_aging"
+  X memory_record_id rec_id
+  X memory_payload payload
+  X memory_ttl (core.mul 30 86400)
+  X memory_source "examples.autonomous_ops.lead_aging"
+  X memory_tags ["lead","aging","monitor"]
+  X memory_valid_at (core.now)
+  Call opsmem/WRITE ->_
   R email G true
   J _done
 

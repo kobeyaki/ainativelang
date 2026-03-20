@@ -1,5 +1,7 @@
 S svc cron
 Cr L_tick "*/5 * * * *"
+include "modules/common/token_cost_memory.ainl" as tokenmem
+include "modules/common/ops_memory.ainl" as opsmem
 
 # Optional external config: read config from memory; fall back to defaults
 R memory F "config" "infrastructure_watchdog" ->cfg
@@ -25,17 +27,29 @@ R svc crm ->crm_status
 # Persist each service check to memory for trend analysis (7d TTL)
 X caddy_id (core.join ["svc-", "caddy", "-", now])
 X caddy_rec {"service":"caddy","status":caddy_status,"ts":now}
-X svc_meta {"source":"examples.autonomous_ops.infrastructure_watchdog","confidence":1.0,"tags":["service_check","infra","monitor"],"valid_at":now}
-R memory.put "workflow" "workflow.service_check" caddy_id caddy_rec ttl_seconds svc_meta ->_
+X memory_kind "workflow.service_check"
+X memory_record_id caddy_id
+X memory_payload caddy_rec
+X memory_ttl ttl_seconds
+X memory_source "examples.autonomous_ops.infrastructure_watchdog"
+X memory_tags ["service_check","infra","monitor"]
+X memory_valid_at now
+Call tokenmem/WRITE ->_
 X cloudflared_id (core.join ["svc-", "cloudflared", "-", now])
 X cloudflared_rec {"service":"cloudflared","status":cloudflared_status,"ts":now}
-R memory.put "workflow" "workflow.service_check" cloudflared_id cloudflared_rec ttl_seconds svc_meta ->_
+X memory_record_id cloudflared_id
+X memory_payload cloudflared_rec
+Call tokenmem/WRITE ->_
 X maddy_id (core.join ["svc-", "maddy", "-", now])
 X maddy_rec {"service":"maddy","status":maddy_status,"ts":now}
-R memory.put "workflow" "workflow.service_check" maddy_id maddy_rec ttl_seconds svc_meta ->_
+X memory_record_id maddy_id
+X memory_payload maddy_rec
+Call tokenmem/WRITE ->_
 X crm_id (core.join ["svc-", "crm", "-", now])
 X crm_rec {"service":"crm","status":crm_status,"ts":now}
-R memory.put "workflow" "workflow.service_check" crm_id crm_rec ttl_seconds svc_meta ->_
+X memory_record_id crm_id
+X memory_payload crm_rec
+Call tokenmem/WRITE ->_
 
 X caddy_down (core.eq caddy_status "down")
 X cloudflared_down (core.eq cloudflared_status "down")
@@ -69,8 +83,14 @@ L_caddy_alert:
   X _ (cache.set "watchdog" "last_caddy_alert" 1)
   X _ (cache.set "watchdog" "last_caddy_ts" now)
   X event_id (core.join ["evt-", "caddy", "-", now])
-  X restart_meta {"source":"examples.autonomous_ops.infrastructure_watchdog","confidence":1.0,"tags":["infra_restart","ops","monitor"],"valid_at":now}
-  R memory.put "ops" "infrastructure.restart" event_id {"service":"caddy","restart_ok":restart_ok,"ts":now} ttl_seconds restart_meta ->_
+  X memory_kind "infrastructure.restart"
+  X memory_record_id event_id
+  X memory_payload {"service":"caddy","restart_ok":restart_ok,"ts":now}
+  X memory_ttl ttl_seconds
+  X memory_source "examples.autonomous_ops.infrastructure_watchdog"
+  X memory_tags ["infra_restart","ops","monitor"]
+  X memory_valid_at now
+  Call opsmem/WRITE ->_
   J L_continue
 
 L_cloudflared_alert:
@@ -88,8 +108,14 @@ L_cloudflared_alert:
   X _ (cache.set "watchdog" "last_cloudflared_alert" 1)
   X _ (cache.set "watchdog" "last_cloudflared_ts" now)
   X event_id (core.join ["evt-", "cloudflared", "-", now])
-  X restart_meta {"source":"examples.autonomous_ops.infrastructure_watchdog","confidence":1.0,"tags":["infra_restart","ops","monitor"],"valid_at":now}
-  R memory.put "ops" "infrastructure.restart" event_id {"service":"cloudflared","restart_ok":restart_ok,"ts":now} ttl_seconds restart_meta ->_
+  X memory_kind "infrastructure.restart"
+  X memory_record_id event_id
+  X memory_payload {"service":"cloudflared","restart_ok":restart_ok,"ts":now}
+  X memory_ttl ttl_seconds
+  X memory_source "examples.autonomous_ops.infrastructure_watchdog"
+  X memory_tags ["infra_restart","ops","monitor"]
+  X memory_valid_at now
+  Call opsmem/WRITE ->_
   J L_continue
 
 L_maddy_alert:
@@ -107,8 +133,14 @@ L_maddy_alert:
   X _ (cache.set "watchdog" "last_maddy_alert" 1)
   X _ (cache.set "watchdog" "last_maddy_ts" now)
   X event_id (core.join ["evt-", "maddy", "-", now])
-  X restart_meta {"source":"examples.autonomous_ops.infrastructure_watchdog","confidence":1.0,"tags":["infra_restart","ops","monitor"],"valid_at":now}
-  R memory.put "ops" "infrastructure.restart" event_id {"service":"maddy","restart_ok":restart_ok,"ts":now} ttl_seconds restart_meta ->_
+  X memory_kind "infrastructure.restart"
+  X memory_record_id event_id
+  X memory_payload {"service":"maddy","restart_ok":restart_ok,"ts":now}
+  X memory_ttl ttl_seconds
+  X memory_source "examples.autonomous_ops.infrastructure_watchdog"
+  X memory_tags ["infra_restart","ops","monitor"]
+  X memory_valid_at now
+  Call opsmem/WRITE ->_
   J L_continue
 
 L_crm_alert:
@@ -126,8 +158,14 @@ L_crm_alert:
   X _ (cache.set "watchdog" "last_crm_alert" 1)
   X _ (cache.set "watchdog" "last_crm_ts" now)
   X event_id (core.join ["evt-", "crm", "-", now])
-  X restart_meta {"source":"examples.autonomous_ops.infrastructure_watchdog","confidence":1.0,"tags":["infra_restart","ops","monitor"],"valid_at":now}
-  R memory.put "ops" "infrastructure.restart" event_id {"service":"crm","restart_ok":restart_ok,"ts":now} ttl_seconds restart_meta ->_
+  X memory_kind "infrastructure.restart"
+  X memory_record_id event_id
+  X memory_payload {"service":"crm","restart_ok":restart_ok,"ts":now}
+  X memory_ttl ttl_seconds
+  X memory_source "examples.autonomous_ops.infrastructure_watchdog"
+  X memory_tags ["infra_restart","ops","monitor"]
+  X memory_valid_at now
+  Call opsmem/WRITE ->_
   J L_continue
 
 L_after_alerts:
@@ -137,8 +175,12 @@ L_no_alert:
   X any_down (core.or caddy_down (core.or cloudflared_down (core.or maddy_down crm_down)))
   # Restart count last 24h (server-side filtering)
   X day_ago (core.sub now 0 1)
-  X restart_hist_filters {"updated_after":day_ago,"tags_any":["infra_restart"],"source":"examples.autonomous_ops.infrastructure_watchdog","limit":500}
-  R memory.list "ops" "infrastructure.restart" "" day_ago restart_hist_filters ->hist
+  X memory_updated_after day_ago
+  X memory_list_limit 500
+  X memory_tags ["infra_restart"]
+  X memory_source "examples.autonomous_ops.infrastructure_watchdog"
+  X memory_kind "infrastructure.restart"
+  Call opsmem/LIST ->hist
   X restarts_24h (len hist.items)
 
   X summary_payload ({

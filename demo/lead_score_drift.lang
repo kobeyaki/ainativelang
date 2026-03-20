@@ -1,4 +1,5 @@
 D LeadRec (id: str, created_at: int, score: float)
+include "modules/common/ops_memory.ainl" as opsmem
 
 S main
   # 7 days in seconds
@@ -42,7 +43,14 @@ S main
   # Write trend record (always)
   X rec_id (core.join ["score-drift-", (core.idiv now 86400)])
   X trend (JsonObj {"cur_avg": cur_avg, "prev_avg": prev_avg, "ts": now})
-  R memory.put "ops" "monitor.lead_score_drift" rec_id trend (core.mul 30 86400)
+  X memory_kind "monitor.lead_score_drift"
+  X memory_record_id rec_id
+  X memory_payload trend
+  X memory_ttl (core.mul 30 86400)
+  X memory_source "demo.lead_score_drift"
+  X memory_tags ["lead","score","drift","monitor"]
+  X memory_valid_at now
+  Call opsmem/WRITE ->_
 
   # Check for significant drop (>15%)
   If (core.eq prev_avg 0) ->_done  # cannot compute drop

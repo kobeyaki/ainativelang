@@ -1,5 +1,6 @@
 S db cron
 Cr L_tick "0 2 * * *"  # daily at 2 AM
+include "modules/common/token_cost_memory.ainl" as tokenmem
 
 # Optional external config
 R memory F "config" "lead_quality_audit" ->cfg
@@ -41,13 +42,23 @@ X daily ({
 })
 
 X record_id (core.join ["audit-", today_date])
-X audit_meta {"source":"examples.autonomous_ops.lead_quality_audit","confidence":1.0,"tags":["lead_quality","audit","workflow"],"valid_at":today_date}
-R memory.put "workflow" "lead_quality_audit.daily" record_id daily 7776000 audit_meta ->_  # 90d
+X memory_kind "lead_quality_audit.daily"
+X memory_record_id record_id
+X memory_payload daily
+X memory_ttl 7776000
+X memory_source "examples.autonomous_ops.lead_quality_audit"
+X memory_tags ["lead_quality","audit","workflow"]
+X memory_valid_at today_date
+Call tokenmem/WRITE ->_  # 90d
 
 # Compute rolling window using server-side filter
 X window_days_iso (core.sub (core.iso) 0 window_days)
-X hist_filters {"updated_after":window_days_iso,"tags_any":["lead_quality","audit"],"source":"examples.autonomous_ops.lead_quality_audit","limit":500}
-R memory.list "workflow" "lead_quality_audit.daily" "" window_days_iso hist_filters ->hist
+X memory_updated_after window_days_iso
+X memory_list_limit 500
+X memory_tags ["lead_quality","audit"]
+X memory_source "examples.autonomous_ops.lead_quality_audit"
+X memory_kind "lead_quality_audit.daily"
+Call tokenmem/LIST ->hist
 X hist_items hist.items
 X hist_count (len hist_items)
 

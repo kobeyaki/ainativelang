@@ -2,6 +2,7 @@
 # Daily analysis of infrastructure service uptime trends using historical memory.
 # Alerts when a service's downtime ratio increases significantly vs baseline.
 S svc cron "0 6 * * *"
+include "modules/common/token_cost_memory.ainl" as tokenmem
 
 D Config trend_alert_pct:N 150  # relative increase threshold (percent)
 D Config trend_alert_abs:N 5    # absolute increase threshold (percentage points)
@@ -10,7 +11,13 @@ L0: R core now ->now J L1
 
 L1: X today_bucket (core.idiv now 86400)
     X week_ago_sec (core.sub now 604800)
-    R memory.list "workflow" "workflow.service_check" "" None ->list
+    R core iso_ts week_ago_sec ->week_ago_iso
+    X memory_updated_after week_ago_iso
+    X memory_list_limit 2000
+    X memory_tags ["service_check"]
+    X memory_source "examples.autonomous_ops.infrastructure_watchdog"
+    X memory_kind "workflow.service_check"
+    Call tokenmem/LIST ->list
     X items list.items
 
     # Accumulators: service -> down count / total count

@@ -1,5 +1,6 @@
 S tiktok cron
 Cr L_tick "*/15 * * * *"
+include "modules/common/ops_memory.ainl" as opsmem
 
 # Optional external config
 R memory F "config" "tiktok_sla" ->cfg
@@ -48,8 +49,14 @@ L_breach:
   L_next3:
 
   X breach_id (core.join ["breach-", now])
-  X breach_meta {"source":"examples.autonomous_ops.tiktok_sla_monitor","confidence":1.0,"tags":["tiktok","sla","breach","monitor"],"valid_at":now}
-  R memory.put "ops" "tiktok_sla.breach" breach_id {"recent_count":recent_count,"video_fresh":video_fresh,"backup_fresh":backup_fresh,"reasons":reasons,"ts":now} 604800 breach_meta ->_
+  X memory_kind "tiktok_sla.breach"
+  X memory_record_id breach_id
+  X memory_payload {"recent_count":recent_count,"video_fresh":video_fresh,"backup_fresh":backup_fresh,"reasons":reasons,"ts":now}
+  X memory_ttl 604800
+  X memory_source "examples.autonomous_ops.tiktok_sla_monitor"
+  X memory_tags ["tiktok","sla","breach","monitor"]
+  X memory_valid_at now
+  Call opsmem/WRITE ->_
 
   X alert_payload ({
     "envelope": {"version":"1.0","generated_at":now},
@@ -71,8 +78,12 @@ L_breach:
 L_ok:
 L_finish:
   X day_ago (core.sub now 0 1)
-  X breach_hist_filters {"updated_after":day_ago,"tags_any":["tiktok","breach"],"source":"examples.autonomous_ops.tiktok_sla_monitor","limit":500}
-  R memory.list "ops" "tiktok_sla.breach" "" day_ago breach_hist_filters ->hist
+  X memory_updated_after day_ago
+  X memory_list_limit 500
+  X memory_tags ["tiktok","breach"]
+  X memory_source "examples.autonomous_ops.tiktok_sla_monitor"
+  X memory_kind "tiktok_sla.breach"
+  Call opsmem/LIST ->hist
   X breaches_24h (len hist.items)
 
   X status (core.ite breach "alert" "ok")

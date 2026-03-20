@@ -14,6 +14,7 @@
 # Adapters: core, cache, extras, http, sqlite, queue
 # No LLM calls. Pure deterministic graph.
 S core cron "30 4 * * *"
+include "modules/common/token_cost_memory.ainl" as tokenmem
 
 # ── Entry ──
 L0:
@@ -223,7 +224,14 @@ L_finalize:
   # Persist to memory for trend analysis
   R core concat "pipeline-" now_iso ->pipe_id
   X pipe_payload {"pass_count":pass_count,"fail_count":fail_count,"fail_stage":fail_stage,"ts":ts}
-  R memory put "workflow" "workflow.pipeline_health" pipe_id pipe_payload 604800 ->_
+  X memory_kind "workflow.pipeline_health"
+  X memory_record_id pipe_id
+  X memory_payload pipe_payload
+  X memory_ttl 604800
+  X memory_source "demo.pipeline_health"
+  X memory_tags ["pipeline","health","workflow"]
+  X memory_valid_at now_iso
+  Call tokenmem/WRITE ->_
 
   # Build the final message
   If all_pass ->L_all_ok ->L_has_failures

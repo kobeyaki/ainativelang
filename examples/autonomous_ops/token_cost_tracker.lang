@@ -1,5 +1,6 @@
 S http cron
 Cr L_tick "0 * * * *"  # hourly
+include "modules/common/token_cost_memory.ainl" as tokenmem
 
 # Optional external config from memory
 R memory F "config" "token_cost_tracker" ->cfg
@@ -40,13 +41,20 @@ X payload ({
   "total_completion":total_completion,
   "ts":now_iso
 })
-X record_meta {"source":"examples.autonomous_ops.token_cost_tracker","confidence":1.0,"tags":["token_cost","monitor","workflow"],"valid_at":now_iso}
-R memory.put "workflow" "workflow.token_cost_state" record_id payload 604800 record_meta ->_
+X memory_kind "workflow.token_cost_state"
+X memory_record_id record_id
+X memory_payload payload
+X memory_ttl 604800
+X memory_source "examples.autonomous_ops.token_cost_tracker"
+X memory_tags ["token_cost","monitor","workflow"]
+X memory_valid_at now_iso
+Call tokenmem/WRITE ->_
 
 # Compute rolling 7‑day totals using server‑side filtering
 X week_ago_iso (core.sub now_iso 0 7)
-X mem_filters {"updated_after":week_ago_iso,"tags_any":["token_cost"],"source":"examples.autonomous_ops.token_cost_tracker","limit":500}
-R memory.list "workflow" "workflow.token_cost_state" "" week_ago_iso mem_filters ->mems
+X memory_updated_after week_ago_iso
+X memory_list_limit 500
+Call tokenmem/LIST ->mems
 X stored_items mems.items
 X stored_week_cost (core.sum (map stored_items (lambda i (i.record_id.payload.cost_usd or 0))))
 X stored_week_tokens (core.sum (map stored_items (lambda i (i.record_id.payload.total_tokens or 0))))

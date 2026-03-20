@@ -1,4 +1,5 @@
 D UsageRec (date: str, tokens: int)
+include "modules/common/ops_memory.ainl" as opsmem
 
 S main
   # Read API key and budget from memory config (must be set manually beforehand)
@@ -42,7 +43,14 @@ S main
   X day (core.idiv today 86400)
   X rec_id (core.join ["api-quota-", (core.stringify day)])
   X payload (JsonObj {"tokens": total_tokens, "budget": budget, "ts": today})
-  R memory.put "ops" "monitor.api_quota" rec_id payload (core.mul 30 86400)
+  X memory_kind "monitor.api_quota"
+  X memory_record_id rec_id
+  X memory_payload payload
+  X memory_ttl (core.mul 30 86400)
+  X memory_source "demo.api_quota"
+  X memory_tags ["api","quota","monitor"]
+  X memory_valid_at today
+  Call opsmem/WRITE ->_
 
 : _missing_key
   R email G "API Quota Monitor misconfigured: OPENROUTER_API_KEY missing in memory config."

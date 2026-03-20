@@ -21,6 +21,7 @@
 #
 # Adapters: core, cache, svc, http, extras, memory, queue
 S core cron "*/15 * * * *"
+include "modules/common/token_cost_memory.ainl" as tokenmem
 
 # ── Entry ──
 L0:
@@ -364,7 +365,14 @@ L_budget_legacy_fine:
 L_persist:
   R core concat "consolidator-" ts ->rec_id
   X summary {"alert_count":alert_count,"ts":ts}
-  R memory put "workflow" "workflow.monitor_check" rec_id summary 604800 ->_
+  X memory_kind "workflow.monitor_check"
+  X memory_record_id rec_id
+  X memory_payload summary
+  X memory_ttl 604800
+  X memory_source "demo.heartbeat_consolidator"
+  X memory_tags ["monitor","workflow","health"]
+  X memory_valid_at ts
+  Call tokenmem/WRITE ->_
 
   # Increment the audit alert counter (used by cron_cost_auditor)
   X has_alerts gt alert_count 0

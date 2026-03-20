@@ -1,6 +1,6 @@
 # Autonomous Ops Monitors — Index
 
-**Last updated:** 2026-03-12
+**Last updated:** 2026-03-20
 
 This document provides a quick reference for all AINL autonomous operations monitors deployed in OpenClaw.
 
@@ -28,6 +28,10 @@ This document provides a quick reference for all AINL autonomous operations moni
 - Configuration can be externalized via `memory` records under `config.<module>`.
 - Each monitor writes a heartbeat to `cache` with key `monitor_heartbeat.<module>` upon successful completion, enabling `meta_monitor`.
 - Memory records use sensible TTLs (7-90 days) to bound retention; `memory_prune` enforces physical cleanup.
+- Shared memory logic is now factored into include modules under `modules/common/`:
+  - `token_cost_memory.ainl` for `workflow` monitor records
+  - `ops_memory.ainl` for `ops` monitor records
+  This keeps metadata/filter envelopes consistent across monitor programs and reduces drift.
 - Runner scripts are located in `scripts/run_*.py` and are added to OpenClaw cron with `openclaw cron add`.
 - **For agents implementing or changing monitors:** Follow `docs/BOT_ONBOARDING.md` and `docs/OPENCLAW_IMPLEMENTATION_PREFLIGHT.md` before coding.
 

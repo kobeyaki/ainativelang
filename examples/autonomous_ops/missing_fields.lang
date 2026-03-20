@@ -1,4 +1,5 @@
 D LeadRec (id: str, phone: str, email: str, website: str)
+include "modules/common/ops_memory.ainl" as opsmem
 
 S main
   R db F "Lead" ->leads
@@ -47,7 +48,14 @@ S main
   X today (core.idiv (core.now) 86400)
   X rec_id (core.join ["missing-fields-", (core.stringify today)])
   X payload (JsonObj {"phone": missing_phone, "email": missing_email, "website": missing_website, "total": total, "ts": (core.now)})
-  R memory.put "ops" "monitor.missing_fields" rec_id payload (core.mul 30 86400)
+  X memory_kind "monitor.missing_fields"
+  X memory_record_id rec_id
+  X memory_payload payload
+  X memory_ttl (core.mul 30 86400)
+  X memory_source "examples.autonomous_ops.missing_fields"
+  X memory_tags ["missing_fields","lead","monitor"]
+  X memory_valid_at (core.now)
+  Call opsmem/WRITE ->_
   R email G true
 
   Ret 0

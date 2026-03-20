@@ -1,5 +1,19 @@
 # Release notes
 
+## AINL v1.2.3 — Shared memory include modules across monitors (2026-03-20)
+
+This release consolidates repeated memory logic in production monitor programs into reusable include modules while preserving deterministic runtime behavior.
+
+- **New shared include modules:**
+  - `modules/common/token_cost_memory.ainl` for `workflow` namespace monitor state/history
+  - `modules/common/ops_memory.ainl` for `ops` namespace monitor events/history
+- **Program rollout:** monitor-heavy flows in `demo/` and `examples/autonomous_ops/` now call shared `WRITE`/`LIST` labels instead of repeating inline `memory.put` / `memory.list` construction.
+- **Deterministic filter consistency:** migrated history reads now consistently use bounded filters (`updated_after`, `tags_any`, `source`, `limit`) to reduce noise and preserve predictable replay behavior.
+- **Metadata consistency:** migrated writes consistently carry deterministic metadata envelopes (`source`, `confidence`, `tags`, `valid_at`) aligned with Memory Contract v1.1.
+- **Behavior preserved:** record kinds, payload shapes, TTLs, and existing alert/control logic remain unchanged; this is a structural maintainability pass, not a semantic runtime shift.
+
+---
+
 ## AINL v1.2.2 — Memory v1.1 deterministic metadata and filters (2026-03-20)
 
 Follow-up additive release focused on memory ergonomics and capability discoverability while preserving deterministic behavior and backward compatibility.

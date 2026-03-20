@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.2.3 (March 20, 2026)
+
+- **feat(modules)**: add reusable memory helper include modules for production monitor flows:
+  - `modules/common/token_cost_memory.ainl` for deterministic `workflow` namespace writes/lists
+  - `modules/common/ops_memory.ainl` for deterministic `ops` namespace writes/lists
+- **refactor(programs)**: migrate monitor-heavy `demo/` and `examples/autonomous_ops/` workflows from repeated inline memory logic to shared include calls while preserving payloads, record kinds, tags, TTLs, and control-flow behavior
+- **feat(programs)**: normalize deterministic filters across migrated history reads (`updated_after`, `tags_any`, `source`, `limit`) and standardize metadata envelopes on writes (`source`, `confidence`, `tags`, `valid_at`)
+- **docs(ops)**: refresh autonomous ops documentation to reflect include-helper architecture and current monitor implementation posture
+
 ## v1.2.2 (March 20, 2026)
 
 - **feat(memory)**: implement Memory Contract v1.1 additive runtime support in `runtime/adapters/memory.py`:

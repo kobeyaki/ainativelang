@@ -1,4 +1,5 @@
 D LeadRec (id: str, phone: str, email: str, name: str)
+include "modules/common/ops_memory.ainl" as opsmem
 
 S main
   R db F "Lead" ->leads
@@ -63,7 +64,14 @@ S main
   X today (core.idiv (core.now) 86400)
   X rec_id (core.join ["duplicate-leads-", (core.stringify today)])
   X payload (JsonObj {"count": duplicate_count, "ts": (core.now)})
-  R memory.put "ops" "monitor.duplicate_leads" rec_id payload (core.mul 30 86400)
+  X memory_kind "monitor.duplicate_leads"
+  X memory_record_id rec_id
+  X memory_payload payload
+  X memory_ttl (core.mul 30 86400)
+  X memory_source "demo.duplicate_detection"
+  X memory_tags ["duplicate","lead","monitor"]
+  X memory_valid_at (core.now)
+  Call opsmem/WRITE ->_
   R email G true
 
   Ret 0

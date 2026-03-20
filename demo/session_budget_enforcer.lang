@@ -34,6 +34,7 @@
 # Adapters: core, http, cache, memory, queue
 # No LLM calls. Pure deterministic enforcement.
 S http cron "0 * * * *"
+include "modules/common/token_cost_memory.ainl" as tokenmem
 
 # ══════════════════════════════════════════════
 # ENTRY: Load config from cache or use defaults
@@ -142,8 +143,12 @@ L_compute:
   # Load previous week's spend from memory for weekly tracking
   X week_ago_ts sub ts 604800
   R core stringify week_ago_ts ->week_ago_str
-  X budget_hist_filters {"updated_after":week_ago_str,"tags_any":["budget","enforcement"],"source":"demo.session_budget_enforcer","limit":1000}
-  R memory list "workflow" "workflow.budget_enforcement" "" week_ago_str budget_hist_filters ->week_hist
+  X memory_updated_after week_ago_str
+  X memory_list_limit 1000
+  X memory_tags ["budget","enforcement"]
+  X memory_source "demo.session_budget_enforcer"
+  X memory_kind "workflow.budget_enforcement"
+  Call tokenmem/LIST ->week_hist
   X week_records get week_hist "items"
 
   # Weekly spend = today's + sum from memory records
@@ -256,8 +261,14 @@ L_persist:
   # Persist to memory for audit trail (7-day TTL)
   R core concat "enforce-" now_iso ->rec_id
   X audit_payload {"gate":gate_level,"daily_used":daily_used,"daily_limit":daily_limit,"daily_pct":daily_pct,"daily_remaining":daily_remaining,"weekly_spent":weekly_spent,"weekly_limit":weekly_limit,"weekly_pct":weekly_pct,"ts":ts}
-  X budget_meta {"source":"demo.session_budget_enforcer","confidence":1.0,"tags":["budget","enforcement","workflow"],"valid_at":now_iso}
-  R memory put "workflow" "workflow.budget_enforcement" rec_id audit_payload 604800 budget_meta ->_
+  X memory_kind "workflow.budget_enforcement"
+  X memory_record_id rec_id
+  X memory_payload audit_payload
+  X memory_ttl 604800
+  X memory_source "demo.session_budget_enforcer"
+  X memory_tags ["budget","enforcement","workflow"]
+  X memory_valid_at now_iso
+  Call tokenmem/WRITE ->_
 
   # Heartbeat for meta-monitor / cron_cost_auditor
   R cache set "monitor_heartbeat" "session_budget_enforcer" ts ->_
@@ -345,8 +356,14 @@ L_fetch_fail:
   # Persist failure to memory
   R core concat "enforce-fail-" now_iso ->fail_rec_id
   X fail_payload {"gate":"fetch_error","http_status":status_code,"ts":ts}
-  X fail_meta {"source":"demo.session_budget_enforcer","confidence":1.0,"tags":["budget","enforcement","fetch_error"],"valid_at":now_iso}
-  R memory put "workflow" "workflow.budget_enforcement" fail_rec_id fail_payload 604800 fail_meta ->_
+  X memory_kind "workflow.budget_enforcement"
+  X memory_record_id fail_rec_id
+  X memory_payload fail_payload
+  X memory_ttl 604800
+  X memory_source "demo.session_budget_enforcer"
+  X memory_tags ["budget","enforcement","fetch_error"]
+  X memory_valid_at now_iso
+  Call tokenmem/WRITE ->_
 
   QueuePut notify fail_msg
   Ret null
