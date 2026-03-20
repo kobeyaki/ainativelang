@@ -745,7 +745,7 @@ if HAS_PYGLS:
     @server.feature(InitializeParams)
     async def initialize(params: InitializeParams) -> InitializeResult:
         return InitializeResult(
-            server_info=InitializeResultServerInfo(name="ainl-ls", version="1.0.0"),
+            server_info=InitializeResultServerInfo(name="ainl-ls", version="1.2.0"),
             capabilities={
                 "textDocument": {
                     "completion": {"completionItem": {"detailSupport": True, "documentationFormat": ["markdown", "plaintext"]}},

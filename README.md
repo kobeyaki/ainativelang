@@ -6,6 +6,9 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python 3.10+" />
+  <a href="https://github.com/sbhooley/ainativelang/releases">
+    <img src="https://img.shields.io/github/v/release/sbhooley/ainativelang?label=release" alt="GitHub release" />
+  </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License: Apache-2.0" />
   </a>
@@ -68,6 +71,20 @@ python scripts/runtime_runner_service.py
 #                          POST http://localhost:8770/run  {"code": "S app api /api\nL1:\nR core.ADD 2 3 ->sum\nJ sum"}
 ```
 
+### Quick-start: write → validate → visualize → run
+
+Typical loop for AI engineers and agent builders:
+
+1. **Write** a `.ainl` program (or have an agent emit one).
+2. **Validate** strict graph semantics and get actionable errors:  
+   `ainl-validate your.ainl --strict` (or `python scripts/validate_ainl.py your.ainl --strict`).  
+   Failures use **structured diagnostics** (lineno, optional source spans, suggestions). Install **`pip install -e ".[dev]"`** for optional **rich**-formatted stderr; use **`--diagnostics-format=json`** or legacy **`--json-diagnostics`** in CI for machine-readable output. See `docs/INSTALL.md` and `compiler_diagnostics.py`.
+3. **Visualize** control flow as **Mermaid**:  
+   `ainl visualize your.ainl --output - > graph.mmd` — paste into [mermaid.live](https://mermaid.live) or GitHub/Obsidian. Flags: **`--no-clusters`**, **`--labels-only`**, **`--output` / `-o`** (`-` = stdout). **`ainl-visualize`** is the same entry point without the `ainl` subcommand.
+4. **Run** locally: `ainl run your.ainl --json` (see [Choose Your Path](#choose-your-path)).
+
+Short primer for stakeholders: [`docs/WHAT_IS_AINL.md`](docs/WHAT_IS_AINL.md) (and [`WHAT_IS_AINL.md`](WHAT_IS_AINL.md) at repo root).
+
 ### Getting started with includes
 
 Pull in shared subgraphs from `modules/` (paths resolve next to your source file, then CWD, then `./modules/`):
@@ -78,7 +95,7 @@ include "modules/common/retry.ainl" as retry
 L1: Call retry/ENTRY ->out J out
 ```
 
-See **Includes & modules (New!)** below for `timeout.ainl`, strict rules, and the starter table.
+See **Includes & modules** below for `timeout.ainl`, strict rules, and the starter table.
 
 **AI agents:** See `AI_AGENT_QUICKSTART_OPENCLAW.md` for a full agent onboarding guide, or `docs/BOT_ONBOARDING.md` for the machine-readable bootstrap path.
 
@@ -86,9 +103,18 @@ See **Includes & modules (New!)** below for `timeout.ainl`, strict rules, and th
 
 ---
 
-## Includes & modules (New!)
+## Includes & modules
 
-Reuse battle-tested patterns without copy-pasting whole graphs. Top-level `include` merges each file under `alias/LABEL` keys (for example `retry/ENTRY`, `timeout/WORK`).
+Reuse battle-tested patterns without copy-pasting whole graphs. **Compile-time** `include` merges each module’s labels under **`alias/LABEL`** keys (for example `retry/ENTRY`, `retry/EXIT_OK`, `timeout/WORK`).
+
+**Syntax** (paths resolve next to the source file, then the current working directory, then `./modules/`):
+
+```ainl
+include "modules/common/retry.ainl" as retry
+include modules/common/timeout.ainl as timeout
+```
+
+Quotes around the path are optional when unambiguous; **`as alias`** sets the prefix for every label from that file.
 
 ```ainl
 include "modules/common/retry.ainl" as retry
@@ -110,7 +136,9 @@ Shared modules live in a **`modules/`** directory next to your files (with CWD /
 | `modules/common/retry.ainl` | Minimal **ENTRY → EXIT_OK / EXIT_FAIL** pattern with sample `core.ADD` work—copy and extend with your own retry / backoff steps in the parent or module. |
 | `modules/common/timeout.ainl` | **Timeout / cancellation shape** (`ENTRY` → `Call WORK`, plus `LTIMEOUT` for the failure branch). The strict build uses `core.SLEEP` / `core.ECHO` stand-ins until real timer adapters are allowlisted—swap the `R` lines when your runtime supports them. |
 
-More patterns coming soon (approval gate, circuit breaker, RAG retrieval, etc.). Full behavior and tests: `tests/test_includes.py`.
+More patterns coming soon (approval gate, circuit breaker, RAG retrieval, etc.). **Contract (strict):** included subgraphs expose **`LENTRY:`** (merged as `alias/ENTRY`) and at least one **`LEXIT_*:`** exit label; call them with **`Call alias/ENTRY ->out`** from the parent. **Agents** benefit from smaller, verified building blocks and stable qualified names (`retry/n1`, …) in the graph IR. Full behavior, path resolution, and tests: `tests/test_includes.py`, `docs/architecture/GRAPH_INTROSPECTION.md`.
+
+**See your includes in a diagram:** `ainl visualize main.ainl -o graph.mmd` — each alias becomes a Mermaid subgraph cluster; synthetic `Call →` edges into `alias/ENTRY` are annotated in the output.
 
 ---
 
@@ -131,8 +159,11 @@ J x
 ### Path A — CLI only (fastest start)
 
 ```bash
-# Validate and inspect
+# Validate and inspect IR
 ainl-validate examples/hello.ainl --strict --emit ir
+
+# Mermaid diagram (paste into mermaid.live)
+ainl visualize examples/hello.ainl --output - > hello.mmd
 
 # Run directly
 ainl run examples/hello.ainl --json
@@ -252,6 +283,8 @@ AINL's strict mode enforces high-value invariants such as:
 - Canonical node IDs
 - Validated call returns
 - Controlled exits
+
+Strict validation is paired with **structured diagnostics** (native `Diagnostic` records: lineno, spans, kinds, suggested fixes) surfaced on the CLI with **rich** or plain text, or **JSON** for automation (`ainl-validate`, `ainl visualize`, language server). See `docs/INSTALL.md` and `docs/CONFORMANCE.md`.
 
 ### 4. Adapters separate "what" from "how"
 
@@ -417,6 +450,7 @@ For implementation and shipped-capability status, see:
 
 ### Essential reading
 
+- What is AINL? (short primer + v1.2 capabilities): `docs/WHAT_IS_AINL.md`, `WHAT_IS_AINL.md`
 - Getting started (3 integration paths): `docs/getting_started/README.md`
 - Primary docs hub: `docs/README.md`
 - Audience guide: `docs/AUDIENCE_GUIDE.md`
@@ -638,6 +672,15 @@ ainl visualize examples/hello.ainl --output - > hello.mmd
 ainl visualize examples/hello.ainl --output diagram.md
 ainl-visualize examples/hello.ainl -o diagram.md
 ```
+
+| Flag | Purpose |
+|------|---------|
+| `--output` / `-o` | Write Mermaid to a file, or `-` for stdout (default). |
+| `--no-clusters` | Single flat graph (fully qualified node ids, no subgraphs). |
+| `--labels-only` | Minimal node text (mostly `op` names) for dense programs. |
+| `--format mermaid` | Default; `dot` reserved (use `scripts/render_graph.py` for Graphviz DOT today). |
+| `--diagnostics-format` | On compile failure: `auto`, `plain`, `rich`, or `json` (same family as `ainl-validate`). |
+| `--no-color` | Plain diagnostics on stderr. |
 
 Use `--no-clusters` for a flat graph, `--labels-only` for dense programs, and `-o -` for stdout.
 

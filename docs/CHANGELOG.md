@@ -1,5 +1,26 @@
 # Changelog
 
+## Release 1.2.0 (2026-03-20)
+
+### Packaging
+
+- **`pyproject.toml` / `ainl-lang`:** version **1.2.0**.
+- **`RUNTIME_VERSION`** (`runtime/engine.py`, mirrored `tests/emits/server/runtime/engine.py`): **1.2.0** (runner/MCP payloads, `/capabilities`, `ainl run --json`).
+- **Language server** initialize `serverInfo.version` and **runner service** OpenAPI app version: **1.2.0**.
+
+### Highlights
+
+- **Includes (compile-time composition):** top-level **`include path [as alias]`** merges submodule labels into the parent IR as **`alias/LABEL`** (e.g. `retry/ENTRY`, `retry/EXIT_OK`). Strict mode enforces **ENTRY / EXIT_*** shapes for included graphs. Starter modules: `modules/common/retry.ainl`, `modules/common/timeout.ainl`. Tests: `tests/test_includes.py`.
+- **Graph visualizer CLI:** **`ainl visualize`** / **`ainl-visualize`** / `scripts/visualize_ainl.py` — strict compile → **Mermaid** `graph TD` from **`ir["labels"]`**; **subgraph** clusters per include alias; **synthetic** `Call → callee entry` edges with a `%%` comment; flags `--no-clusters`, `--labels-only`, `-o -`. Fixture: `examples/bad_include.ainl`.
+- **Structured diagnostics:** native **`Diagnostic`** rows, **`--diagnostics-format`** (`auto` | `plain` | `rich` | `json`), merge **dedup** (native-first), optional **rich** stderr with `pip install -e ".[dev]"` — used by **`ainl-validate`** and **`ainl visualize`** (and the language server path).
+- **Strict literals / dataflow:** quote string payloads where strict dataflow expects literals (e.g. **`J "ok"`**); aligned with **`docs/RUNTIME_COMPILER_CONTRACT.md`** and conformance tests.
+
+### Documentation
+
+- Root **`README.md`** (quick-start write → validate → visualize → run, includes, visualize flags, **`docs/WHAT_IS_AINL.md`** link), **`WHAT_IS_AINL.md`**, **`docs/WHAT_IS_AINL.md`**, **`WHITEPAPERDRAFT.md`** (v1.2.0, §5.4–5.5), **`docs/POST_RELEASE_ROADMAP.md`**, **`docs/CONFORMANCE.md`**, **`SEMANTICS.md`**, **`docs/architecture/GRAPH_INTROSPECTION.md`**, **`docs/INSTALL.md`**, **`docs/DOCS_INDEX.md`**, **`docs/overview/README.md`**, **`docs/README.md`**.
+
+---
+
 ## Tooling — graph visualizer CLI (Mermaid) (2026-03-20)
 
 ### Features

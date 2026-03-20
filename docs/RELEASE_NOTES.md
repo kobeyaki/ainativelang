@@ -1,3 +1,16 @@
+# Release notes
+
+## AINL v1.2.0 — Includes, graph visualizer, structured diagnostics (2026-03-20)
+
+Follow-up open-core release after the first public baseline. See **`docs/CHANGELOG.md`** for the full entry.
+
+- **Compile-time `include`:** merge shared `.ainl` modules under **`alias/LABEL`**; strict ENTRY/EXIT contracts; starter modules under `modules/common/`.
+- **Mermaid graph CLI:** **`ainl visualize`** / **`ainl-visualize`** — paste output into [mermaid.live](https://mermaid.live); clusters match include aliases.
+- **Diagnostics:** structured **`Diagnostic`** output, **`--diagnostics-format`**, optional **rich** CLI; shared with validate and visualize failure paths.
+- **Docs:** **`docs/WHAT_IS_AINL.md`**, README quick-start, **`WHITEPAPERDRAFT.md`** 1.2.0, **`docs/POST_RELEASE_ROADMAP.md`** (shipped vs next), **`SEMANTICS.md`** / **`RUNTIME_COMPILER_CONTRACT.md`** notes on includes.
+
+---
+
 # AINL v1.1.0 — First Public GitHub Release (Open-Core Baseline)
 
 This is the first public GitHub release of **AINL** as an open-core baseline.

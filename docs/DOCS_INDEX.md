@@ -29,6 +29,7 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
 - **Intelligence AINL programs** (`memory`, context injection, summarizer): `docs/INTELLIGENCE_PROGRAMS.md`
 - Contributor entrypoint: `CONTRIBUTING.md`
 - Audience quickstart: `docs/AUDIENCE_GUIDE.md`
+- What is AINL (short primer + v1.2 snapshot): `docs/WHAT_IS_AINL.md` (and `WHAT_IS_AINL.md` at repo root)
 - Install and environment setup: `docs/INSTALL.md` (includes `ainl-validate` strict / `--json-diagnostics` / optional **rich**)
 - Compiler structured diagnostics module: `compiler_diagnostics.py` (used by `compiler_v2.py`, `langserver.py`, `scripts/validate_ainl.py`; tests in `tests/test_diagnostics.py`)
 - GitHub release checklist: `docs/GITHUB_RELEASE_CHECKLIST.md`

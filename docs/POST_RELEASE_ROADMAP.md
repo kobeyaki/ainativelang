@@ -6,7 +6,22 @@ It is intentionally narrow and contract-driven.
 GitHub-ready issue draft stubs for this roadmap live in `docs/issues/`.
 The operator-grade sequencing and breakage-control plan lives in `docs/NO_BREAK_MIGRATION_PLAN.md`.
 
-## 1) Canonical Strict Surface Expansion (Contract-First)
+## Recently shipped (v1.2.x — keep docs/tests aligned)
+
+Use this as the **done** baseline when opening new work; do not re-plan these without an explicit new requirement.
+
+| Area | Shipped | Pointers |
+|------|---------|----------|
+| **Compile-time `include`** | Merge included `.ainl` into parent IR under **`alias/LABEL`** ids; strict **ENTRY / EXIT_*** contracts; path resolution + cycle checks | `tests/test_includes.py`, `modules/common/retry.ainl`, `modules/common/timeout.ainl`, root README *Includes & modules*, `docs/WHAT_IS_AINL.md` |
+| **Structured diagnostics (Phase 3 core)** | Native **`Diagnostic`** + **`CompilerContext`**; merge **dedup** (native wins); CLI **`--diagnostics-format`** (`auto` / `plain` / `rich` / `json`); optional **rich** stderr | `compiler_diagnostics.py`, `ainl-validate`, `docs/INSTALL.md`, `tests/test_diagnostics.py` |
+| **Graph visualizer CLI** | **`ainl visualize`** / **`ainl-visualize`** → **Mermaid** from **`ir["labels"]`**; subgraph clusters per include alias; synthetic **`Call →` entry** edges + `%%` comment | `scripts/visualize_ainl.py`, `docs/architecture/GRAPH_INTROSPECTION.md` §7, root README *Visualize your workflow* |
+| **Strict literal / dataflow** | Quoted string literals in read positions where required; **`J "payload"`** style for strict dataflow | `docs/RUNTIME_COMPILER_CONTRACT.md`, `docs/CONFORMANCE.md`, canonical lint / strict tests |
+
+---
+
+## Active priorities (next)
+
+### 1) Canonical strict surface expansion (contract-first)
 
 - Expand strict-valid surface only through explicit, compiler-owned contracts.
 - Any strict expansion must be reflected in:
@@ -15,7 +30,7 @@ The operator-grade sequencing and breakage-control plan lives in `docs/NO_BREAK_
   - conformance/runtime tests
 - No wildcard strict allowances.
 
-## 2) Legacy And Non-Strict Artifact Migration
+### 2) Legacy and non-strict artifact migration
 
 - Reduce non-strict-only and legacy-compat artifacts over time via intentional migration.
 - Promote artifacts to `strict-valid` only after:
@@ -24,15 +39,15 @@ The operator-grade sequencing and breakage-control plan lives in `docs/NO_BREAK_
   - docs/profile updates
 - Keep compatibility artifacts explicitly labeled while migration is incomplete.
 
-## 3) Compiler-Structured Diagnostics Expansion
+### 3) Compiler-structured diagnostics — remaining scope
 
-**Status:** In progress — core strict sites done; CLI **`--diagnostics-format`** + **native-first dedup** on merge (Phase 3); further diagnostic sites / LSP polish remain optional.
+**Status:** **Core path shipped** (validator, visualizer, merge dedup, CLI format flags). **Remaining (optional):** additional strict diagnostic sites, language-server polish, regression tests that lock span precision for new sites.
 
-- Increase structured diagnostic coverage emitted by compiler outputs (`span`, `lineno`, `label_id`, `node_id`, etc.).
+- Increase structured diagnostic coverage where gaps remain (`span`, `lineno`, `label_id`, `node_id`, etc.).
 - Keep language server diagnostic heuristics strictly as backward-compat fallback.
 - Add tests that prevent diagnostic location regressions and fake precision.
 
-## 4) Compatibility-Path Retirement (Incremental)
+### 4) Compatibility-path retirement (incremental)
 
 - Continue reducing compatibility-only execution paths where canonical behavior already exists.
 - Maintain backward compatibility wrappers during transition but avoid adding new semantics there.

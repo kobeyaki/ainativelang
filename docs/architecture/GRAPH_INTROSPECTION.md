@@ -9,6 +9,8 @@ This is the recommended entry point for agents and humans who want to:
 - inspect **branching and exits**
 - diff and rewrite graphs safely
 
+Programs that use **`include … as alias`** produce **qualified** label ids (`retry/ENTRY`, …) in **`ir["labels"]`**; the same graph is what **`ainl visualize`** renders as Mermaid clusters (see §7).
+
 ### 1. Get IR/graph from the CLI
 
 The primary CLI is `ainl-validate` (installed by `scripts/bootstrap.sh` or `pip install -e .[dev,web]`).

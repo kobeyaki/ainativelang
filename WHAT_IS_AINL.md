@@ -150,6 +150,20 @@ AINL is not:
 
 AINL is a programming and execution system for structured AI workflows.
 
+## Composable workflows with includes
+
+AINL can **compose** programs at compile time with **`include path [as alias]`**. Each included file contributes labels under **`alias/LABEL`** (for example `retry/ENTRY`, `retry/EXIT_OK`). Strict mode expects a clear **entry** (`LENTRY` → `alias/ENTRY`) and **exit** labels (`LEXIT_*`), so callers use **`Call retry/ENTRY ->result`** and inspect a stable graph.
+
+Starter modules in-repo: `modules/common/retry.ainl`, `modules/common/timeout.ainl`. **Agents** get reusable, validated building blocks and predictable qualified ids in IR instead of duplicating large graphs. See `tests/test_includes.py`, `docs/WHAT_IS_AINL.md`, and root **README** *Includes & modules*.
+
+## Current capabilities (v1.2 snapshot)
+
+- **Structured diagnostics** on strict failure (spans, suggestions, JSON for CI); optional **rich** CLI output with dev extras.
+- **Mermaid graph visualizer:** `ainl visualize` / `ainl-visualize` — clusters for include aliases; paste output into [mermaid.live](https://mermaid.live). See **README** *Visualize your workflow* and `docs/architecture/GRAPH_INTROSPECTION.md` §7.
+- **Includes** as above; **literal discipline** in strict mode (quote string payloads where required).
+
+More detail: [`docs/WHAT_IS_AINL.md`](docs/WHAT_IS_AINL.md).
+
 ## Why now
 
 As AI systems grow more capable, the bottleneck is no longer only model intelligence.

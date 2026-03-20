@@ -148,6 +148,8 @@ Edges are also canonical:
 
 These fields are emitted for all compiler-built graphs and validated in strict mode so agents can query, diff, and safely rewrite graphs without re-parsing source text.
 
+**Qualified label ids after `include`:** When the compiler merges an included module under **`as alias`**, label keys in IR become **`alias/LABEL`** (e.g. `retry/ENTRY`). Runtime **`Call`**, **`If`**, and graph edges use those ids the same way as flat ids (`1`, `2`, …). **`include` is compile-time only** — the runtime does not load submodule files; it executes the merged graph.
+
 ## 10) Agent-Focused Error/Trace API (Implemented)
 
 - **Formal error schema:** `AinlRuntimeError` has `code`, `data`, and `to_dict()` returning stable fields: `code`, `message`, `label`, `step_index`, `op`, `stack`, `data`.

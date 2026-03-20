@@ -18,6 +18,8 @@ The canonical execution source of truth is the compiler-emitted IR consumed by `
 
 ### Source Of Truth
 
+**Compile-time `include`:** Submodule sources are merged into the parent program during compilation. The runtime only sees the resulting **`labels`** map (possibly with **qualified** ids such as `retry/ENTRY`). There is no runtime `include` loader.
+
 Runtime executes compiler-emitted IR fields directly:
 
 - Label routing and normalization via compiler-owned label helper.
