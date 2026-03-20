@@ -66,7 +66,7 @@ include = ["scripts*", "cli*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra -m 'not integration and not emits and not lsp'"
-norecursedirs = [".git", ".venv", "tests/emits", "scripts"]
+norecursedirs = [".git", ".venv", ".venv-py310", ".venv-ci-smoke", "venv-py310", "tests/emits", "scripts"]
 markers = [
   "core: stable core compiler/runtime/tooling tests",
   "integration: slower or external integration checks",

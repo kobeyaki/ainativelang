@@ -24,6 +24,8 @@ This guide is **framework-agnostic**. It applies equally to any orchestrator,
 including NemoClaw, OpenShell, OpenClaw, Kubernetes-based platforms, and custom
 hosts.
 
+**See also (reverse direction — AINL calls out to workers):** For **OpenClaw / NemoClaw**, prefer the **MCP server** (`ainl-mcp`, `scripts/ainl_mcp_server.py`). For **generic HTTP-backed executors** (webhooks, internal services, custom fan-out gateways), see [`docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`](../integrations/EXTERNAL_EXECUTOR_BRIDGE.md).
+
 ---
 
 ## 2. Architecture at a glance

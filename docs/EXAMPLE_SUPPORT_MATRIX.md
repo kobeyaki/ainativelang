@@ -73,6 +73,8 @@ should not be treated as the canonical public language surface.
 | `examples/internal_tool.lang` | `non-strict-only` | Compatibility example |
 | `examples/ticketing.lang` | `non-strict-only` | Compatibility example |
 | `examples/cron/monitor_and_alert.ainl` | `non-strict-only` | Compatibility cron example |
+| `examples/integrations/executor_bridge_min.ainl` | `non-strict-only` | HTTP external executor bridge (see `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`; MCP preferred for OpenClaw) |
+| `examples/integrations/executor_bridge_adapter_min.ainl` | `non-strict-only` | Optional `bridge` adapter — executor keys mapped to URLs on the host |
 
 ### OpenClaw Compatibility Family
 

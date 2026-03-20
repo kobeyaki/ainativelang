@@ -14,7 +14,8 @@ See also:
 ## Linux / macOS
 
 **Recommended (match CI: Python 3.10):** use a dedicated env at `.venv-py310` so local runs
-and pre-commit use the same baseline as GitHub Actions.
+and pre-commit use the same baseline as GitHub Actions. If you prefer a name without a leading dot,
+use `VENV_DIR=venv-py310` and `source venv-py310/bin/activate` instead.
 
 ```bash
 # macOS (Homebrew): brew install python@3.10

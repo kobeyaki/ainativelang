@@ -141,6 +141,16 @@
       "strict_profile": "non-strict-only",
       "role": "compatibility cron example"
     },
+    "examples/integrations/executor_bridge_min.ainl": {
+      "level": "compatible",
+      "strict_profile": "non-strict-only",
+      "role": "HTTP external executor bridge sample (generic plugins; MCP preferred for OpenClaw)"
+    },
+    "examples/integrations/executor_bridge_adapter_min.ainl": {
+      "level": "compatible",
+      "strict_profile": "non-strict-only",
+      "role": "Optional bridge adapter (executor key → URL map on host)"
+    },
     "examples/openclaw/*.lang": {
       "level": "compatible",
       "strict_profile": "non-strict-only",

@@ -694,6 +694,24 @@ typically start with `validate_only` or `inspect_only` MCP exposure profiles
 and only enable `safe_workflow` after reviewing security profiles, capability
 grants, policies, limits, and adapter exposure.
 
+### 15.11 External executor bridge (HTTP) — AINL → workers
+
+For **OpenClaw / NemoClaw** and other MCP-first stacks, the primary integration
+path for driving AINL from a host remains **`ainl-mcp`** (§15.10).
+
+When workflows must call **generic HTTP-backed executors** — webhooks, internal
+microservices, CI callbacks, or a **single gateway that fans out to N plugin
+backends** — operators can use the stable **`http`** adapter (`R http.Post …`)
+with a small **JSON request/response contract**, or enable the optional
+**`bridge`** adapter so programs use `R bridge.Post <executor_key> …` while
+URLs stay in host configuration (CLI `--bridge-endpoint` or runner
+`adapters.bridge.endpoints`). Both paths are **off unless explicitly granted**;
+default surfaces remain **core-only** where applicable.
+
+Full contract, security notes, multi-backend routing guidance, capacity
+considerations, and phased rollout (examples, tests, optional `bridge` adapter)
+are documented in **`docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`**.
+
 ---
 
 ## 16. Limitations
@@ -746,6 +764,7 @@ The following capabilities were listed as future work in earlier drafts and have
 - **Visualizer image export** — `ainl visualize` supports direct PNG/SVG rendering for shareable architecture snapshots (`--png`, `--svg`, width/height controls, and extension auto-detect from `-o`).
 - **Starter include demo artifact** — `examples/timeout_demo.ainl` provides a strict-safe timeout include example for docs and social/demo usage.
 - **Memory v1.1 deterministic contract upgrade** — extension-level memory now supports additive deterministic metadata (`source`, `confidence`, `tags`, `valid_at`), bounded list filters (`tags_any`/`tags_all`, created/updated windows, `limit`/`offset`), namespace TTL/prune policy hooks, response operational counters, and capability-advertised memory profile metadata (`memory_profile`) without introducing semantic retrieval or policy cognition into core runtime semantics.
+- **External executor bridge (HTTP)** — documented contract in `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md` for calling non-MCP workers via `http.Post` (and optional host-mapped **`bridge`** adapter for executor keys → URLs). **MCP (`ainl-mcp`) remains primary** for OpenClaw/NemoClaw; the HTTP bridge is the secondary pattern for generic gateways and plugins.
 
 ### 17.2 Remaining Future Work
 
@@ -928,7 +947,7 @@ Paths are relative to the repository root.
 ### Core system
 - `compiler_v2.py` — main compiler
 - `runtime/engine.py` — graph-first runtime engine
-- `runtime/adapters/` — adapter implementations (memory, SQLite, filesystem, cache, HTTP, agent, etc.)
+- `runtime/adapters/` — adapter implementations (memory, SQLite, filesystem, cache, HTTP, optional executor `bridge`, agent, etc.)
 - `scripts/runtime_runner_service.py` — FastAPI runner service (`/run`, `/capabilities`, `/health`, etc.)
 - `SEMANTICS.md` — runtime semantics
 - `docs/AINL_SPEC.md` — language specification
@@ -949,6 +968,7 @@ Paths are relative to the repository root.
 - `docs/operations/AUDIT_LOGGING.md` — structured audit logging event schema
 - `docs/operations/RUNTIME_CONTAINER_GUIDE.md` — containerized deployment
 - `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md` — external orchestrator integration
+- `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md` — AINL → external workers over HTTP (`http.Post` contract; optional `bridge` adapter); MCP-first for OpenClaw/NemoClaw
 - `docs/INTEGRATION_STORY.md` — integration positioning and pain-to-solution map
 - `services/runtime_runner/Dockerfile` — runner service container
 - `tests/emits/server/Dockerfile` — emitted server container

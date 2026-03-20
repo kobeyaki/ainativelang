@@ -86,6 +86,8 @@ ADAPTER_EFFECT: Dict[str, Tuple[str, str]] = {
     "http.DELETE": (EFFECT_TIER_IO_WRITE, EFFECT_KIND_HTTP),
     "http.HEAD": (EFFECT_TIER_IO_READ, EFFECT_KIND_HTTP),
     "http.OPTIONS": (EFFECT_TIER_IO_READ, EFFECT_KIND_HTTP),
+    # Config-mapped POST to external executor URLs (optional adapter; same network tier as http.Post).
+    "bridge.POST": (EFFECT_TIER_IO_WRITE, EFFECT_KIND_HTTP),
     "sqlite.QUERY": (EFFECT_TIER_IO_READ, EFFECT_KIND_SQLITE),
     "sqlite.EXECUTE": (EFFECT_TIER_IO_WRITE, EFFECT_KIND_SQLITE),
     "fs.READ": (EFFECT_TIER_IO_READ, EFFECT_KIND_FS),

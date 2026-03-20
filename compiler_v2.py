@@ -697,7 +697,20 @@ class AICodeCompiler:
         known_keys = set(ADAPTER_EFFECT.keys()) if ADAPTER_EFFECT else set()
         # Known top-level modules
         known_modules = {
-            "core", "cache", "http", "https", "sqlite", "fs", "email", "calendar", "social", "db", "queue", "svc", "wasm"
+            "core",
+            "cache",
+            "http",
+            "https",
+            "bridge",
+            "sqlite",
+            "fs",
+            "email",
+            "calendar",
+            "social",
+            "db",
+            "queue",
+            "svc",
+            "wasm",
         }
 
         new_errors = []

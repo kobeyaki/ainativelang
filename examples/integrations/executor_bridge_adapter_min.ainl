@@ -1,0 +1,21 @@
+# Optional `bridge` adapter (Phase 3) — executor key → URL map on the host
+#
+# Contract: docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md
+# Prefer ainl-mcp for OpenClaw/NemoClaw; use `bridge` when URLs must stay in server config.
+#
+# CLI (mock URL from scripts/mock_executor_bridge.py):
+#   ainl run examples/integrations/executor_bridge_adapter_min.ainl \
+#     --enable-adapter bridge \
+#     --bridge-endpoint demo.echo=http://127.0.0.1:17300/v1/execute
+
+L0:
+  R core.parse "{\"run_id\":\"adapter-demo\",\"step_id\":\"L0\",\"executor\":\"demo.echo\",\"payload\":{\"via\":\"bridge\"},\"timeout_s\":15}" ->req
+  R bridge.Post demo.echo req ->resp
+  X http_status get resp status
+  If http_status=200 ->L_ok ->L_fail
+L_ok:
+  Set status bridge_ok
+  J status
+L_fail:
+  Set status http_error
+  J status

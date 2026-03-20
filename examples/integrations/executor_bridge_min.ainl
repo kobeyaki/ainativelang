@@ -1,0 +1,24 @@
+# External executor bridge (HTTP) — Phase 1 example
+#
+# Contract: docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md
+# OpenClaw / NemoClaw: prefer ainl-mcp (MCP), not this HTTP path.
+#
+# Local mock bridge:
+#   python3 scripts/mock_executor_bridge.py
+#
+# Run (requires outbound http adapter):
+#   ainl run examples/integrations/executor_bridge_min.ainl --enable-adapter http
+#
+# Replace the URL below with your real bridge base URL in production (never commit secrets).
+
+L0:
+  R core.parse "{\"run_id\":\"example-run-001\",\"step_id\":\"L0\",\"node_id\":\"n_bridge\",\"executor\":\"demo.echo\",\"payload\":{\"hello\":\"world\"},\"timeout_s\":30}" ->req
+  R http.Post "http://127.0.0.1:17300/v1/execute" req ->resp
+  X http_status get resp status
+  If http_status=200 ->L_ok ->L_fail
+L_ok:
+  Set status bridge_ok
+  J status
+L_fail:
+  Set status http_error
+  J status

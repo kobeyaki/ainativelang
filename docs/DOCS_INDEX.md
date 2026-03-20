@@ -55,6 +55,7 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
 - Structured audit logging: `docs/operations/AUDIT_LOGGING.md`
 - Runtime container guide: `docs/operations/RUNTIME_CONTAINER_GUIDE.md`
 - External orchestration guide: `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md` — includes MCP agent role templates, desktop-safe recipe, end-to-end validator/inspector/runner example, and Claude Code / Cowork / Dispatch guidance
+- **AINL → external workers (HTTP bridge contract):** `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md` — generic `http.Post` envelope for non-MCP executors; **OpenClaw/NemoClaw should prefer `ainl-mcp` first** (see doc)
 - Batch repo-automation guide: `docs/operations/BATCH_AUTOMATION_GUIDE.md` — inspect-first, worktree-safe, deterministic, auditable batch flows for Dispatch-style environments
 - Integration story (AINL in agent stacks): `docs/INTEGRATION_STORY.md`
 - Case studies: `docs/case_studies/` — graph-native vs prompt-loop agents, runtime cost advantage, long-context memory
@@ -107,6 +108,7 @@ entry point for new users or unsupervised agents.
 - Structured audit logging: `docs/operations/AUDIT_LOGGING.md`
 - Runtime container guide: `docs/operations/RUNTIME_CONTAINER_GUIDE.md`
 - External orchestration guide: `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`
+- **HTTP bridge for generic external executors** (secondary to MCP for OpenClaw/NemoClaw): `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`
 - MCP server (workflow-level integration for MCP-compatible hosts): `scripts/ainl_mcp_server.py`
 - MCP exposure profiles (tool/resource scoping): `tooling/mcp_exposure_profiles.json`
 - Autonomous ops monitors index: `docs/operations/AUTONOMOUS_OPS_MONITORS.md`

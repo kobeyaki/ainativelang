@@ -25,6 +25,8 @@
       "examples/internal_tool.lang",
       "examples/ticketing.lang",
       "examples/cron/monitor_and_alert.ainl",
+      "examples/integrations/executor_bridge_min.ainl",
+      "examples/integrations/executor_bridge_adapter_min.ainl",
       "examples/openclaw/daily_digest.lang",
       "examples/openclaw/daily_digest.strict.lang",
       "examples/openclaw/daily_lead_summary.lang",

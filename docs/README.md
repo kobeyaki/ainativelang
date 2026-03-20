@@ -26,7 +26,7 @@ AINL docs are organized by user intent and conceptual layer rather than by file 
 - New to the project: start with [`overview/`](overview/README.md), then [`getting_started/`](getting_started/README.md)
 - Trying to understand the category: read [`fundamentals/`](fundamentals/README.md)
 - Implementing or extending AINL: read [`language/`](language/README.md), [`architecture/`](architecture/README.md), and [`runtime/`](runtime/README.md)
-- Working with integrations or OpenClaw: read [`adapters/`](adapters/README.md) and [`advanced/`](advanced/README.md)
+- Working with integrations or OpenClaw: read [`adapters/`](adapters/README.md) and [`advanced/`](advanced/README.md). Generic external executors via HTTP bridge (multi-backend capable): [`integrations/EXTERNAL_EXECUTOR_BRIDGE.md`](integrations/EXTERNAL_EXECUTOR_BRIDGE.md) — **MCP (`ainl-mcp`) first** for OpenClaw/NemoClaw.
 - Looking for proof and practical examples: read [`case_studies/`](case_studies/README.md) and [`operations/`](operations/README.md)
 
 ## Notes

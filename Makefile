@@ -4,6 +4,8 @@
 # Usage:
 #   make conformance
 #   SNAPSHOT_UPDATE=1 make conformance
+# Match CI Python 3.10 + deps (pytest-xdist, syrupy), e.g.:
+#   make conformance PYTHON=./.venv-py310/bin/python
 CONFORMANCE_DIR ?= tests/conformance
 
 PYTHON ?= python3

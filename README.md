@@ -48,14 +48,16 @@ It is designed for teams building AI workflows that need multiple steps, state a
 ## Get Started
 
 ```bash
-# 1. Clone and create an isolated env
+# 1. Clone and create an isolated env (match CI: Python 3.10 — see docs/INSTALL.md)
 git clone https://github.com/sbhooley/ainativelang.git
 cd ainativelang
 
-python -m venv .venv
-source .venv/bin/activate  # on Windows: .venv\Scripts\activate
+PYTHON_BIN=python3.10 VENV_DIR=.venv-py310 bash scripts/bootstrap.sh
+source .venv-py310/bin/activate  # Windows: .venv-py310\Scripts\activate
 
-# 2. Install with dev + web extras
+# Alternative: python -m venv .venv && source .venv/bin/activate, then pip install below
+
+# 2. Install with dev + web extras (bootstrap may already have done this)
 python -m pip install --upgrade pip
 python -m pip install -e ".[dev,web]"
 
@@ -572,6 +574,7 @@ AINL does **not** provide container isolation, process sandboxing, network polic
 
 See:
 - `docs/INTEGRATION_STORY.md` — how AINL fits inside agent stacks, pain-to-solution map, integration surface
+- Generic external executors via HTTP bridge (multi-backend capable): [`docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`](docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md) — **MCP (`ainl-mcp`) remains primary for OpenClaw/NemoClaw**; HTTP bridge is secondary.
 - `docs/operations/CAPABILITY_GRANT_MODEL.md` — host handshake, restrictive-only merge, env-var profile loading
 - `docs/operations/AUDIT_LOGGING.md` — structured runtime event logging
 - `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md` — capability discovery, policy-gated execution, integration checklist
@@ -774,13 +777,13 @@ Real output uses fully qualified IDs like `"retry/ENTRY/n1"` and clusters automa
 - **Compile-once / run-many proof pack**: see `docs/architecture/COMPILE_ONCE_RUN_MANY.md`.
 - **Program summary**: `python scripts/inspect_ainl.py examples/hello.ainl`
 - **Run summary**: `python scripts/summarize_runs.py run1.json run2.json`
-- **Approximate size benchmark**: `.venv/bin/python scripts/benchmark_size.py`
+- **Approximate size benchmark**: `.venv-py310/bin/python scripts/benchmark_size.py`
 - **Corpus tools**: `python scripts/evaluate_corpus.py --mode dual`, `python scripts/validate_corpus.py --include-negatives`, `pytest tests/test_corpus_layout.py -v`
 - **Fine-tune**: `bash scripts/setup_finetune_env.sh`, `.venv-ci-smoke/bin/python scripts/finetune_ainl.py --profile fast --epochs 1 --seed 42`
-- **Post-train inference**: `.venv/bin/python scripts/infer_ainl_lora.py --adapter-path models/ainl-phi3-lora --max-new-tokens 120 --device cpu`
+- **Post-train inference**: `.venv-py310/bin/python scripts/infer_ainl_lora.py --adapter-path models/ainl-phi3-lora --max-new-tokens 120 --device cpu`
 - **Docs contract guard**: `ainl-check-docs` for cross-link/staleness/coupling checks.
 - **Pre-commit**: `pre-commit install` to run docs/quality hooks locally.
-- **Test profiles**: `.venv/bin/python scripts/run_test_profiles.py --profile <name>` — `core` (default), `emits`, `lsp`, `integration`, `full`.
+- **Test profiles**: `.venv-py310/bin/python scripts/run_test_profiles.py --profile <name>` — `core` (default), `emits`, `lsp`, `integration`, `full`.
 
 ---
 

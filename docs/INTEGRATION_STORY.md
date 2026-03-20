@@ -174,6 +174,13 @@ For the full state model, see `docs/architecture/STATE_DISCIPLINE.md`.
   agent platform, gateway, or control plane; it is an integration surface
   that sits alongside or underneath systems that do own sessions and policy.
 
+For the **reverse direction** — workflows that call **out** to non-MCP HTTP
+executors (webhooks, internal services, or a multi-backend gateway), see
+[`docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`](integrations/EXTERNAL_EXECUTOR_BRIDGE.md).
+That document is **MCP-first** for OpenClaw/NemoClaw: prefer `ainl-mcp` when the
+host is MCP-capable; use the HTTP bridge pattern when workers are not exposed
+as MCP.
+
 ---
 
 ## Getting started (for platform integrators)
@@ -192,6 +199,8 @@ For deployment patterns, see `docs/operations/RUNTIME_CONTAINER_GUIDE.md`.
 For sandbox profiles, see `docs/operations/SANDBOX_EXECUTION_PROFILE.md`.
 For the full external orchestrator guide, see
 `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`.
+For AINL → external workers over HTTP, see
+`docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`.
 
 ---
 
@@ -265,6 +274,7 @@ AINL does not claim "compatible with" any specific platform. It claims to be
 
 ## Further reading
 
+- External executor bridge (HTTP; MCP-first): [`docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`](integrations/EXTERNAL_EXECUTOR_BRIDGE.md)
 - Case study — graph-native vs prompt-loop agents: `docs/case_studies/graph_agents_vs_prompt_agents.md`
 - Case study — runtime cost advantage: `docs/case_studies/HOW_AINL_SAVES_MONEY.md`
 - OpenClaw agent quickstart: `AI_AGENT_QUICKSTART_OPENCLAW.md`

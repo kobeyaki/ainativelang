@@ -26,6 +26,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 
 from runtime.adapters.base import AdapterRegistry, RuntimeAdapter
+from runtime.adapters.executor_bridge import ExecutorBridgeAdapter
 from runtime.adapters.fs import SandboxedFileSystemAdapter
 from runtime.adapters.http import SimpleHttpAdapter
 from runtime.adapters.replay import RecordingAdapterRegistry, ReplayAdapterRegistry
@@ -234,6 +235,21 @@ def _build_registry(req: Dict[str, Any]) -> AdapterRegistry:
         reg.register(
             "http",
             SimpleHttpAdapter(
+                default_timeout_s=float(h.get("timeout_s", 5.0)),
+                max_response_bytes=int(h.get("max_response_bytes", 1_000_000)),
+                allow_hosts=h.get("allow_hosts") or [],
+            ),
+        )
+    if "bridge" in enabled:
+        b = cfg.get("bridge") or {}
+        endpoints = b.get("endpoints")
+        if not isinstance(endpoints, dict) or not endpoints:
+            raise ValueError("bridge adapter enabled but adapters.bridge.endpoints must be a non-empty object")
+        h = b.get("http") or {}
+        reg.register(
+            "bridge",
+            ExecutorBridgeAdapter(
+                endpoints={str(k): str(v) for k, v in endpoints.items()},
                 default_timeout_s=float(h.get("timeout_s", 5.0)),
                 max_response_bytes=int(h.get("max_response_bytes", 1_000_000)),
                 allow_hosts=h.get("allow_hosts") or [],

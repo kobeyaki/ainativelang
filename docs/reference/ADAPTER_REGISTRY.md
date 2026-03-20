@@ -111,6 +111,30 @@ The adapter also includes a **small built-in retry/backoff** layer:
 
 ---
 
+## 2.4 Executor bridge adapter – `bridge` (optional)
+
+- **name**: `bridge`
+- **verbs**: `Post`
+- **effect**: `io-write` (network); delegates to the same stack as `http.Post`
+- **when to use**: Host supplies a **table of executor id → URL** (CLI `--bridge-endpoint` or runner `adapters.bridge.endpoints`). Programs call `R bridge.Post <executor_key> <body_var> ->resp` instead of embedding URLs in source. See `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`.
+
+### 2.4.1 Slot schema
+
+```text
+R bridge.Post executor_key body_var ->resp
+```
+
+- `executor_key`: string token matching a configured map entry (not a URL).
+- `body_var`: frame var with JSON-serializable object (same as `http.Post` body).
+- `resp`: same **result envelope** as `http` (§2.3).
+
+### 2.4.2 Enablement
+
+- **CLI**: `ainl run program.ainl --enable-adapter bridge --bridge-endpoint my.exec=https://.../v1/execute` (repeatable).
+- **Runner service**: `adapters.enable` includes `"bridge"` and `adapters.bridge.endpoints` is set.
+
+---
+
 ## 3. Cache adapter – `cache`
 
 - **name**: `cache`

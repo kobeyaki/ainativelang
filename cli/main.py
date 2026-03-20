@@ -10,6 +10,7 @@ from typing import Any, Dict, List
 
 from compiler_v2 import AICodeCompiler
 from runtime.adapters.base import AdapterRegistry, RuntimeAdapter
+from runtime.adapters.executor_bridge import ExecutorBridgeAdapter
 from runtime.adapters.fs import SandboxedFileSystemAdapter
 from runtime.adapters.http import SimpleHttpAdapter
 from runtime.adapters.replay import RecordingAdapterRegistry, ReplayAdapterRegistry
@@ -17,6 +18,19 @@ from runtime.adapters.sqlite import SimpleSqliteAdapter
 from runtime.adapters.tools import ToolBridgeAdapter
 from runtime.adapters.wasm import WasmAdapter
 from runtime.engine import RuntimeEngine
+
+
+def _parse_bridge_endpoints(items: List[str]) -> Dict[str, str]:
+    out: Dict[str, str] = {}
+    for raw in items or []:
+        if "=" not in raw:
+            raise SystemExit(f"--bridge-endpoint must be NAME=URL, got {raw!r}")
+        k, v = raw.split("=", 1)
+        k, v = k.strip(), v.strip()
+        if not k or not v:
+            raise SystemExit(f"invalid --bridge-endpoint: {raw!r}")
+        out[k] = v
+    return out
 
 
 def _limits_from_args(args: argparse.Namespace) -> dict:
@@ -31,7 +45,22 @@ def _limits_from_args(args: argparse.Namespace) -> dict:
 def _adapter_registry_from_args(args: argparse.Namespace):
     if args.record_adapters and args.replay_adapters:
         raise SystemExit("--record-adapters and --replay-adapters are mutually exclusive")
-    allowed = ["core", "ext", "http", "sqlite", "fs", "tools", "db", "api", "cache", "queue", "txn", "auth", "wasm"]
+    allowed = [
+        "core",
+        "ext",
+        "http",
+        "bridge",
+        "sqlite",
+        "fs",
+        "tools",
+        "db",
+        "api",
+        "cache",
+        "queue",
+        "txn",
+        "auth",
+        "wasm",
+    ]
     if args.replay_adapters:
         data = json.loads(Path(args.replay_adapters).read_text(encoding="utf-8"))
         if not isinstance(data, list):
@@ -112,6 +141,19 @@ def _register_enabled_adapters(reg: AdapterRegistry, args: argparse.Namespace) -
         reg.register(
             "http",
             SimpleHttpAdapter(
+                default_timeout_s=args.http_timeout_s,
+                max_response_bytes=args.http_max_response_bytes,
+                allow_hosts=args.http_allow_host or [],
+            ),
+        )
+    if "bridge" in enabled:
+        endpoints = _parse_bridge_endpoints(getattr(args, "bridge_endpoint", None) or [])
+        if not endpoints:
+            raise SystemExit("--enable-adapter bridge requires at least one --bridge-endpoint NAME=URL")
+        reg.register(
+            "bridge",
+            ExecutorBridgeAdapter(
+                endpoints=endpoints,
                 default_timeout_s=args.http_timeout_s,
                 max_response_bytes=args.http_max_response_bytes,
                 allow_hosts=args.http_allow_host or [],
@@ -394,8 +436,15 @@ def main() -> None:
     runp.add_argument(
         "--enable-adapter",
         action="append",
-        choices=["http", "sqlite", "fs", "tools", "ext", "db", "api", "wasm"],
+        choices=["http", "bridge", "sqlite", "fs", "tools", "ext", "db", "api", "wasm"],
         default=[],
+    )
+    runp.add_argument(
+        "--bridge-endpoint",
+        action="append",
+        default=[],
+        metavar="NAME=URL",
+        help="With --enable-adapter bridge: map executor key to POST URL (repeatable)",
     )
     runp.add_argument("--http-allow-host", action="append", default=[])
     runp.add_argument("--http-timeout-s", type=float, default=5.0)
