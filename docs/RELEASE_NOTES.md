@@ -1,5 +1,18 @@
 # Release notes
 
+## AINL v1.2.2 — Memory v1.1 deterministic metadata and filters (2026-03-20)
+
+Follow-up additive release focused on memory ergonomics and capability discoverability while preserving deterministic behavior and backward compatibility.
+
+- **Memory metadata (additive):** `memory` records can now carry deterministic optional metadata fields (`source`, `confidence`, `tags`, `valid_at`).
+- **Deterministic list filters:** `memory.list` adds bounded filters (`tags_any`, `tags_all`, created/updated windows, `source`, `valid_at` windows) with deterministic ordering and pagination (`limit`, `offset`).
+- **Retention hooks:** namespace-level TTL defaults and prune strategies are now host-configurable (`default_ttl_by_namespace`, `prune_strategy_by_namespace`).
+- **Operational counters:** adapter responses now include portable cumulative stats (`operations`, `reads`, `writes`, `pruned`).
+- **Capability profile hint:** `tooling/capabilities.json` now advertises `memory_profile` (`v1.1-deterministic-metadata`) so hosts/workflows can branch safely by supported memory contract level.
+- **Guardrails preserved:** no vector semantics, no fuzzy/semantic retrieval, and no policy cognition added to core memory/runtime semantics.
+
+---
+
 ## AINL v1.2.0 — Includes, graph visualizer, structured diagnostics (2026-03-20)
 
 Follow-up open-core release after the first public baseline. See **`docs/CHANGELOG.md`** for the full entry.

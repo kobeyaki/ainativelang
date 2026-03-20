@@ -482,6 +482,7 @@ For implementation and shipped-capability status, see:
 
 - Graph/IR introspection: `docs/architecture/GRAPH_INTROSPECTION.md`
 - State discipline (tiered state model): `docs/architecture/STATE_DISCIPLINE.md`
+- Memory adapter contract (v1 + additive v1.1 deterministic metadata/filtering): `docs/adapters/MEMORY_CONTRACT.md`, `docs/adapters/MEMORY_CONTRACT_V1_1_RFC.md`
 - Runtime semantics: `SEMANTICS.md`
 - Runtime/compiler ownership: `docs/RUNTIME_COMPILER_CONTRACT.md`
 - Grammar reference: `docs/language/grammar.md`

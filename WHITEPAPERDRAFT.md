@@ -2,7 +2,7 @@
 
 Graph-based agent orchestration, canonical IR, and compile-once / run-many execution for production AI systems.
 
-**Version:** 1.2.1
+**Version:** 1.2.2
 **Project status:** active human + AI co-development
 **Primary implementation:** `compiler_v2.py`, `runtime/engine.py`, `scripts/runtime_runner_service.py`
 **Reference ecosystem:** OpenClaw/NemoClaw-integrated autonomous workflows, canonical strict validation, multi-target emitters, sandboxed operator deployments
@@ -745,6 +745,7 @@ The following capabilities were listed as future work in earlier drafts and have
 - **Conformance matrix runner** — `make conformance` executes the full parallelized snapshot suite (tokenizer round-trip, IR canonicalization, strict validation, runtime parity, emitter stability) with CI execution on push/PR and generated status artifacts (`summary.md`, SVG badge).
 - **Visualizer image export** — `ainl visualize` supports direct PNG/SVG rendering for shareable architecture snapshots (`--png`, `--svg`, width/height controls, and extension auto-detect from `-o`).
 - **Starter include demo artifact** — `examples/timeout_demo.ainl` provides a strict-safe timeout include example for docs and social/demo usage.
+- **Memory v1.1 deterministic contract upgrade** — extension-level memory now supports additive deterministic metadata (`source`, `confidence`, `tags`, `valid_at`), bounded list filters (`tags_any`/`tags_all`, created/updated windows, `limit`/`offset`), namespace TTL/prune policy hooks, response operational counters, and capability-advertised memory profile metadata (`memory_profile`) without introducing semantic retrieval or policy cognition into core runtime semantics.
 
 ### 17.2 Remaining Future Work
 
