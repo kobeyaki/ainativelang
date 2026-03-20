@@ -67,10 +67,61 @@ L_has_quality_hb:
   X stale_quality gt age_quality stale_threshold
   X has_quality gt hb_quality 0
   X quality_stale and stale_quality has_quality
-  If quality_stale ->L_flag_quality ->L_eval
+  If quality_stale ->L_flag_quality ->L_check_consolidator
 L_flag_quality:
   X stale_monitors add stale_monitors 1
   R core concat stale_names "lead_quality_audit," ->stale_names
+
+  # Check heartbeat_consolidator (runs */15, stale after 45min)
+L_check_consolidator:
+  R cache get "monitor_heartbeat" "heartbeat_consolidator" ->hb_consolidator
+  If hb_consolidator ->L_has_consolidator_hb ->L_consolidator_init
+L_consolidator_init:
+  Set hb_consolidator 0
+  J L_has_consolidator_hb
+L_has_consolidator_hb:
+  X age_consolidator sub ts hb_consolidator
+  X stale_consolidator gt age_consolidator stale_threshold
+  X has_consolidator gt hb_consolidator 0
+  X consolidator_stale and stale_consolidator has_consolidator
+  If consolidator_stale ->L_flag_consolidator ->L_check_pipeline
+L_flag_consolidator:
+  X stale_monitors add stale_monitors 1
+  R core concat stale_names "heartbeat_consolidator," ->stale_names
+
+  # Check pipeline_health (runs daily at 4:30, stale after 26h)
+L_check_pipeline:
+  R cache get "monitor_heartbeat" "pipeline_health" ->hb_pipeline
+  If hb_pipeline ->L_has_pipeline_hb ->L_pipeline_init
+L_pipeline_init:
+  Set hb_pipeline 0
+  J L_has_pipeline_hb
+L_has_pipeline_hb:
+  X age_pipeline sub ts hb_pipeline
+  X stale_pipeline gt age_pipeline 93600
+  X has_pipeline gt hb_pipeline 0
+  X pipeline_stale and stale_pipeline has_pipeline
+  If pipeline_stale ->L_flag_pipeline ->L_check_auditor
+L_flag_pipeline:
+  X stale_monitors add stale_monitors 1
+  R core concat stale_names "pipeline_health," ->stale_names
+
+  # Check cron_cost_auditor (runs daily at 5:30, stale after 26h)
+L_check_auditor:
+  R cache get "monitor_heartbeat" "cron_cost_auditor" ->hb_auditor
+  If hb_auditor ->L_has_auditor_hb ->L_auditor_init
+L_auditor_init:
+  Set hb_auditor 0
+  J L_has_auditor_hb
+L_has_auditor_hb:
+  X age_auditor sub ts hb_auditor
+  X stale_auditor gt age_auditor 93600
+  X has_auditor gt hb_auditor 0
+  X auditor_stale and stale_auditor has_auditor
+  If auditor_stale ->L_flag_auditor ->L_eval
+L_flag_auditor:
+  X stale_monitors add stale_monitors 1
+  R core concat stale_names "cron_cost_auditor," ->stale_names
 
 L_eval:
   X has_stale gt stale_monitors 0

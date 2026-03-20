@@ -1,0 +1,274 @@
+# Cron Cost Auditor — daily at 5:30 AM
+# ====================================
+# Audits all AINL cron jobs for efficiency: tracks per-job duration, error rate,
+# and alert yield. Flags jobs that consistently run long but produce no actionable
+# alerts, and suggests schedule loosening (e.g. */15 → */30).
+#
+# Reads: memory adapter (workflow.monitor_check records from each monitor),
+#         cache (monitor_heartbeat timestamps, per-job run stats),
+#         extras (metrics summary from oversight reports).
+# Writes: cache (audit results, schedule recommendations),
+#          queue (daily audit digest notification).
+#
+# Zero LLM calls. Pure deterministic compute + adapter reads.
+#
+# Adapters: core, cache, memory, extras, queue
+S core cron "30 5 * * *"
+
+# ── Entry: timestamp + load 24h history ──
+L0:
+  R core now ->ts
+  R core iso ->now_iso
+
+  # 24-hour lookback window
+  X day_ago sub ts 86400
+  R core stringify day_ago ->day_ago_str
+
+  # ── Collect per-monitor heartbeat ages ──
+  # Each running AINL monitor writes its last-run timestamp to cache
+  # under "monitor_heartbeat" / <monitor_name>.
+  # We check staleness for every known monitor.
+
+  # Known monitors (matches existing cron jobs):
+  #   infrastructure_watchdog, canary_sampler, token_cost_tracker,
+  #   lead_quality_audit, missing_fields, tiktok_sla_monitor,
+  #   meta_monitor, ainl_proactive_monitor
+  Set monitor_count 8
+  Set stale_count 0
+  Set silent_count 0
+  Set total_age 0
+
+  # Stale threshold: 45 min (2700s) — generous for */15 jobs
+  Set stale_thresh 2700
+
+  # ── infrastructure_watchdog ──
+  R cache get "monitor_heartbeat" "infrastructure_watchdog" ->hb_infra
+  If hb_infra ->L_infra_has ->L_infra_miss
+L_infra_miss:
+  Set hb_infra 0
+  J L_infra_has
+L_infra_has:
+  X age_infra sub ts hb_infra
+  X infra_stale gt age_infra stale_thresh
+  X infra_ran gt hb_infra 0
+  X infra_is_stale and infra_stale infra_ran
+  If infra_is_stale ->L_infra_stale ->L_infra_ok
+L_infra_stale:
+  X stale_count add stale_count 1
+L_infra_ok:
+  X total_age add total_age age_infra
+
+  # ── canary_sampler ──
+  R cache get "monitor_heartbeat" "canary_sampler" ->hb_canary
+  If hb_canary ->L_canary_has ->L_canary_miss
+L_canary_miss:
+  Set hb_canary 0
+  J L_canary_has
+L_canary_has:
+  X age_canary sub ts hb_canary
+  X canary_stale gt age_canary stale_thresh
+  X canary_ran gt hb_canary 0
+  X canary_is_stale and canary_stale canary_ran
+  If canary_is_stale ->L_canary_stale ->L_canary_ok
+L_canary_stale:
+  X stale_count add stale_count 1
+L_canary_ok:
+  X total_age add total_age age_canary
+
+  # ── token_cost_tracker ──
+  R cache get "monitor_heartbeat" "token_cost_tracker" ->hb_token
+  If hb_token ->L_token_has ->L_token_miss
+L_token_miss:
+  Set hb_token 0
+  J L_token_has
+L_token_has:
+  X age_token sub ts hb_token
+  X token_stale gt age_token stale_thresh
+  X token_ran gt hb_token 0
+  X token_is_stale and token_stale token_ran
+  If token_is_stale ->L_token_stale ->L_token_ok
+L_token_stale:
+  X stale_count add stale_count 1
+L_token_ok:
+  X total_age add total_age age_token
+
+  # ── tiktok_sla_monitor ──
+  R cache get "monitor_heartbeat" "tiktok_sla_monitor" ->hb_tiktok
+  If hb_tiktok ->L_tiktok_has ->L_tiktok_miss
+L_tiktok_miss:
+  Set hb_tiktok 0
+  J L_tiktok_has
+L_tiktok_has:
+  X age_tiktok sub ts hb_tiktok
+  X tiktok_stale gt age_tiktok stale_thresh
+  X tiktok_ran gt hb_tiktok 0
+  X tiktok_is_stale and tiktok_stale tiktok_ran
+  If tiktok_is_stale ->L_tiktok_stale ->L_tiktok_ok
+L_tiktok_stale:
+  X stale_count add stale_count 1
+L_tiktok_ok:
+  X total_age add total_age age_tiktok
+
+  # ── meta_monitor ──
+  R cache get "monitor_heartbeat" "meta_monitor" ->hb_meta
+  If hb_meta ->L_meta_has ->L_meta_miss
+L_meta_miss:
+  Set hb_meta 0
+  J L_meta_has
+L_meta_has:
+  X age_meta sub ts hb_meta
+  X meta_stale gt age_meta stale_thresh
+  X meta_ran gt hb_meta 0
+  X meta_is_stale and meta_stale meta_ran
+  If meta_is_stale ->L_meta_stale ->L_meta_ok
+L_meta_stale:
+  X stale_count add stale_count 1
+L_meta_ok:
+  X total_age add total_age age_meta
+
+  # ── lead_quality_audit ──
+  R cache get "monitor_heartbeat" "lead_quality_audit" ->hb_quality
+  If hb_quality ->L_quality_has ->L_quality_miss
+L_quality_miss:
+  Set hb_quality 0
+  J L_quality_has
+L_quality_has:
+  X age_quality sub ts hb_quality
+  # Daily jobs get a looser stale threshold (26h = 93600s)
+  X quality_stale gt age_quality 93600
+  X quality_ran gt hb_quality 0
+  X quality_is_stale and quality_stale quality_ran
+  If quality_is_stale ->L_quality_stale ->L_quality_ok
+L_quality_stale:
+  X stale_count add stale_count 1
+L_quality_ok:
+
+  # ── missing_fields ──
+  R cache get "monitor_heartbeat" "missing_fields" ->hb_missing
+  If hb_missing ->L_missing_has ->L_missing_miss
+L_missing_miss:
+  Set hb_missing 0
+  J L_missing_has
+L_missing_has:
+  X age_missing sub ts hb_missing
+  X missing_stale gt age_missing 93600
+  X missing_ran gt hb_missing 0
+  X missing_is_stale and missing_stale missing_ran
+  If missing_is_stale ->L_missing_stale ->L_missing_ok
+L_missing_stale:
+  X stale_count add stale_count 1
+L_missing_ok:
+
+  J L_metrics
+
+# ── Pull metrics from oversight reports (extras adapter) ──
+L_metrics:
+  R extras metrics "/Users/clawdbot/.openclaw/workspace/tmp" ->metrics_data
+  X run_count get metrics_data "run_count"
+  X ok_count get metrics_data "ok_count"
+  X error_count get metrics_data "error_count"
+  X ok_ratio get metrics_data "ok_ratio"
+
+  # ── Pull 24h monitor check history from memory ──
+  R memory list "workflow" "workflow.monitor_check" "" day_ago_str ->hist_24h
+  X checks_24h len hist_24h
+
+  J L_analyze
+
+# ── Analyze: compute efficiency score and recommendations ──
+L_analyze:
+  # Healthy monitors = total - stale
+  X healthy sub monitor_count stale_count
+
+  # Average heartbeat age across all monitors (lower = fresher = better)
+  X avg_age div total_age monitor_count
+  X avg_age_min div avg_age 60
+
+  # Alert-to-check ratio: how many of 24h checks actually produced alerts?
+  # Retrieve alert count from cache (the proactive monitor increments this)
+  R cache get "audit" "alerts_24h" ->alerts_24h
+  If alerts_24h ->L_has_alerts ->L_no_alerts
+L_no_alerts:
+  Set alerts_24h 0
+  J L_has_alerts
+L_has_alerts:
+  # If checks_24h > 0, compute alert ratio
+  X has_checks gt checks_24h 0
+  If has_checks ->L_compute_ratio ->L_no_ratio
+L_compute_ratio:
+  X alert_ratio div alerts_24h checks_24h
+  J L_recommend
+L_no_ratio:
+  Set alert_ratio 0
+  J L_recommend
+
+# ── Generate schedule recommendations ──
+L_recommend:
+  Set recommendations ""
+
+  # Rule 1: If alert_ratio < 5% and we're running */15 monitors,
+  # suggest loosening to */30 for non-critical ones.
+  X low_alert_ratio lt alert_ratio 0.05
+  X very_low_alert lt alert_ratio 0.01
+  If very_low_alert ->L_rec_aggressive ->L_rec_check_low
+L_rec_aggressive:
+  R core concat recommendations "• Very low alert rate (" alert_ratio ") — consider */30 for infra_watchdog, canary, meta_monitor, tiktok_sla\n" ->recommendations
+  J L_rec_stale
+L_rec_check_low:
+  If low_alert_ratio ->L_rec_moderate ->L_rec_stale
+L_rec_moderate:
+  R core concat recommendations "• Low alert rate (" alert_ratio ") — meta_monitor and tiktok_sla could move to */30\n" ->recommendations
+
+L_rec_stale:
+  # Rule 2: Flag stale monitors — they may be failing silently
+  X has_stale gt stale_count 0
+  If has_stale ->L_rec_stale_warn ->L_rec_errors
+L_rec_stale_warn:
+  R core concat recommendations "• " stale_count " monitors are stale (>45min since last heartbeat) — check for silent failures\n" ->recommendations
+
+L_rec_errors:
+  # Rule 3: If error_count from oversight is high relative to ok_count
+  X has_errors gt error_count 0
+  If has_errors ->L_calc_err_ratio ->L_rec_done
+L_calc_err_ratio:
+  X err_ratio div error_count run_count
+  X high_errors gt err_ratio 0.1
+  If high_errors ->L_rec_err_warn ->L_rec_done
+L_rec_err_warn:
+  X err_pct mul err_ratio 100
+  R core concat recommendations "• High error rate (" err_pct "%) across " run_count " runs — investigate failing jobs\n" ->recommendations
+
+L_rec_done:
+  # ── Persist audit results to memory (7-day TTL) ──
+  R core concat "audit-" now_iso ->audit_id
+  X audit_payload {"stale_count":stale_count,"healthy":healthy,"checks_24h":checks_24h,"alerts_24h":alerts_24h,"alert_ratio":alert_ratio,"avg_age_min":avg_age_min,"ok_ratio":ok_ratio,"error_count":error_count,"ts":ts}
+  R memory put "workflow" "workflow.cron_audit" audit_id audit_payload 604800 ->_
+
+  # Reset daily alert counter for next cycle
+  R cache set "audit" "alerts_24h" 0 ->_
+
+  J L_notify
+
+# ── Build and send digest notification ──
+L_notify:
+  # Always send the daily digest (it's once per day, not spammy)
+  R core concat "📋 Cron Cost Audit — " now_iso "\n\n" ->msg
+  R core concat msg "Monitors: " healthy "/" monitor_count " healthy\n" ->msg
+  R core concat msg "Stale: " stale_count "\n" ->msg
+  R core concat msg "Avg heartbeat age: " avg_age_min " min\n" ->msg
+  R core concat msg "Checks (24h): " checks_24h "\n" ->msg
+  R core concat msg "Alerts (24h): " alerts_24h "\n" ->msg
+  R core concat msg "Alert ratio: " alert_ratio "\n" ->msg
+  R core concat msg "Oversight OK ratio: " ok_ratio "\n" ->msg
+  R core concat msg "Oversight errors: " error_count "\n" ->msg
+
+  # Append recommendations if any
+  X has_recs gt (len recommendations) 0
+  If has_recs ->L_add_recs ->L_send
+L_add_recs:
+  R core concat msg "\n💡 Recommendations:\n" recommendations ->msg
+
+L_send:
+  QueuePut notify msg
+  R cache set "monitor_heartbeat" "cron_cost_auditor" ts ->_
+  Ret null

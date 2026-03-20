@@ -1,0 +1,359 @@
+# Heartbeat Consolidator — every 15 minutes
+# ==========================================
+# Single unified entry point that runs ALL periodic health checks in one pass.
+# Replaces spawning 5-6 separate sub-agent sessions per 15-min cycle with ONE.
+#
+# Checks performed (in order):
+#   1. Infrastructure services (caddy, cloudflared, maddy, crm)
+#   2. HTTP canary (CRM endpoint liveness)
+#   3. TikTok SLA (pipeline freshness)
+#   4. Monitor staleness (meta-monitor: are other monitors reporting?)
+#   5. Token budget gate (are we over budget?)
+#
+# Each sub-check writes its own heartbeat timestamp to cache so the
+# meta_monitor and cron_cost_auditor still see per-check freshness.
+#
+# Alert logic: accumulates issues across all checks, sends ONE consolidated
+# notification if any threshold is breached (with 30-min cooldown).
+#
+# Net effect: ~5x fewer sub-agent spawns, same coverage, one notification
+# instead of a spray of per-monitor alerts.
+#
+# Adapters: core, cache, svc, http, extras, memory, queue
+S core cron "*/15 * * * *"
+
+# ── Entry ──
+L0:
+  R core now ->ts
+  Set alert_lines ""
+  Set alert_count 0
+  Set ok_lines ""
+  Set cooldown_seconds 1800
+  J L_infra
+
+# ══════════════════════════════════════════════
+# CHECK 1: Infrastructure Services
+# ══════════════════════════════════════════════
+L_infra:
+  R svc caddy ->caddy_status
+  R svc cloudflared ->cf_status
+  R svc maddy ->maddy_status
+  R svc crm ->crm_status
+
+  X caddy_down eq caddy_status "down"
+  X cf_down eq cf_status "down"
+  X maddy_down eq maddy_status "down"
+  X crm_down eq crm_status "down"
+
+  # Track consecutive failures (reuse watchdog cache keys for compatibility)
+  R cache get "watchdog" "caddy_consec" ->caddy_prev
+  If caddy_prev ->L_caddy_p_ok ->L_caddy_p_init
+L_caddy_p_init:
+  Set caddy_prev 0
+  J L_caddy_p_ok
+L_caddy_p_ok:
+  R cache get "watchdog" "cf_consec" ->cf_prev
+  If cf_prev ->L_cf_p_ok ->L_cf_p_init
+L_cf_p_init:
+  Set cf_prev 0
+  J L_cf_p_ok
+L_cf_p_ok:
+  R cache get "watchdog" "maddy_consec" ->maddy_prev
+  If maddy_prev ->L_maddy_p_ok ->L_maddy_p_init
+L_maddy_p_init:
+  Set maddy_prev 0
+  J L_maddy_p_ok
+L_maddy_p_ok:
+  R cache get "watchdog" "crm_consec" ->crm_prev
+  If crm_prev ->L_crm_p_ok ->L_crm_p_init
+L_crm_p_init:
+  Set crm_prev 0
+  J L_crm_p_ok
+L_crm_p_ok:
+
+  # Increment or reset caddy
+  If caddy_down ->L_caddy_inc ->L_caddy_rst
+L_caddy_inc:
+  X caddy_consec add caddy_prev 1
+  R cache set "watchdog" "caddy_consec" caddy_consec ->_
+  J L_cf_track
+L_caddy_rst:
+  Set caddy_consec 0
+  R cache set "watchdog" "caddy_consec" 0 ->_
+
+L_cf_track:
+  If cf_down ->L_cf_inc ->L_cf_rst
+L_cf_inc:
+  X cf_consec add cf_prev 1
+  R cache set "watchdog" "cf_consec" cf_consec ->_
+  J L_maddy_track
+L_cf_rst:
+  Set cf_consec 0
+  R cache set "watchdog" "cf_consec" 0 ->_
+
+L_maddy_track:
+  If maddy_down ->L_maddy_inc ->L_maddy_rst
+L_maddy_inc:
+  X maddy_consec add maddy_prev 1
+  R cache set "watchdog" "maddy_consec" maddy_consec ->_
+  J L_crm_track
+L_maddy_rst:
+  Set maddy_consec 0
+  R cache set "watchdog" "maddy_consec" 0 ->_
+
+L_crm_track:
+  If crm_down ->L_crm_inc ->L_crm_rst
+L_crm_inc:
+  X crm_consec add crm_prev 1
+  R cache set "watchdog" "crm_consec" crm_consec ->_
+  J L_infra_eval
+L_crm_rst:
+  Set crm_consec 0
+  R cache set "watchdog" "crm_consec" 0 ->_
+
+L_infra_eval:
+  # Alert if any service has 3+ consecutive failures
+  X caddy_breach gte caddy_consec 3
+  X cf_breach gte cf_consec 3
+  X maddy_breach gte maddy_consec 3
+  X crm_breach gte crm_consec 3
+  X breach1 or caddy_breach cf_breach
+  X breach2 or maddy_breach crm_breach
+  X any_svc_breach or breach1 breach2
+
+  If any_svc_breach ->L_infra_alert ->L_infra_ok
+L_infra_alert:
+  R core concat alert_lines "🔴 Infra: caddy=" caddy_status "(" caddy_consec ") cf=" cf_status "(" cf_consec ") maddy=" maddy_status "(" maddy_consec ") crm=" crm_status "(" crm_consec ")\n" ->alert_lines
+  X alert_count add alert_count 1
+  J L_infra_stamp
+L_infra_ok:
+  R core concat ok_lines "✅ Infra: all services up\n" ->ok_lines
+
+L_infra_stamp:
+  # Write heartbeat so meta_monitor and cron_cost_auditor see this check ran
+  R cache set "monitor_heartbeat" "infrastructure_watchdog" ts ->_
+  J L_canary
+
+# ══════════════════════════════════════════════
+# CHECK 2: HTTP Canary (CRM endpoint)
+# ══════════════════════════════════════════════
+L_canary:
+  R http GET "http://127.0.0.1:3000/" ->crm_resp
+  X crm_http get crm_resp "status_code"
+  X crm_http_ok eq crm_http 200
+
+  R cache get "canary" "crm_consecutive" ->canary_prev
+  If canary_prev ->L_canary_p_ok ->L_canary_p_init
+L_canary_p_init:
+  Set canary_prev 0
+  J L_canary_p_ok
+L_canary_p_ok:
+
+  If crm_http_ok ->L_canary_rst ->L_canary_inc
+L_canary_inc:
+  X canary_consec add canary_prev 1
+  R cache set "canary" "crm_consecutive" canary_consec ->_
+  J L_canary_eval
+L_canary_rst:
+  Set canary_consec 0
+  R cache set "canary" "crm_consecutive" 0 ->_
+
+L_canary_eval:
+  X canary_breach gte canary_consec 3
+  If canary_breach ->L_canary_alert ->L_canary_ok
+L_canary_alert:
+  R core concat alert_lines "🔴 Canary: CRM HTTP " crm_http " (consecutive: " canary_consec ")\n" ->alert_lines
+  X alert_count add alert_count 1
+  J L_canary_stamp
+L_canary_ok:
+  R core concat ok_lines "✅ Canary: CRM responding (HTTP " crm_http ")\n" ->ok_lines
+
+L_canary_stamp:
+  R cache set "monitor_heartbeat" "canary_sampler" ts ->_
+  J L_tiktok
+
+# ══════════════════════════════════════════════
+# CHECK 3: TikTok Pipeline SLA
+# ══════════════════════════════════════════════
+L_tiktok:
+  R cache get "tiktok" "last_pipeline_run" ->tiktok_last
+  If tiktok_last ->L_tiktok_has ->L_tiktok_none
+L_tiktok_none:
+  Set tiktok_last 0
+  J L_tiktok_has
+L_tiktok_has:
+  X tiktok_age sub ts tiktok_last
+  # 24-hour SLA
+  X tiktok_overdue gt tiktok_age 86400
+
+  X tiktok_ever_ran gt tiktok_last 0
+  X tiktok_sla_breach and tiktok_overdue tiktok_ever_ran
+  If tiktok_sla_breach ->L_tiktok_alert ->L_tiktok_ok
+L_tiktok_alert:
+  X tiktok_hours idiv tiktok_age 3600
+  R core concat alert_lines "🔴 TikTok SLA: last run " tiktok_hours "h ago (>24h)\n" ->alert_lines
+  X alert_count add alert_count 1
+  J L_tiktok_stamp
+L_tiktok_ok:
+  X tiktok_mins idiv tiktok_age 60
+  If tiktok_ever_ran ->L_tiktok_ok_msg ->L_tiktok_nodata
+L_tiktok_ok_msg:
+  R core concat ok_lines "✅ TikTok SLA: last run " tiktok_mins " min ago\n" ->ok_lines
+  J L_tiktok_stamp
+L_tiktok_nodata:
+  R core concat ok_lines "⚪ TikTok SLA: no run recorded yet\n" ->ok_lines
+
+L_tiktok_stamp:
+  R cache set "monitor_heartbeat" "tiktok_sla_monitor" ts ->_
+  J L_meta
+
+# ══════════════════════════════════════════════
+# CHECK 4: Monitor Staleness (mini meta-monitor)
+# ══════════════════════════════════════════════
+L_meta:
+  Set meta_stale 0
+  Set meta_stale_names ""
+  # We check monitors NOT covered by this consolidator:
+  # token_cost_tracker (hourly), lead_quality_audit (daily), missing_fields (daily)
+  # These still run as separate crons.
+
+  R cache get "monitor_heartbeat" "token_cost_tracker" ->hb_tok
+  If hb_tok ->L_tok_has ->L_tok_miss
+L_tok_miss:
+  Set hb_tok 0
+  J L_tok_has
+L_tok_has:
+  X tok_age sub ts hb_tok
+  # Hourly job: stale if >90 min (5400s)
+  X tok_stale gt tok_age 5400
+  X tok_ran gt hb_tok 0
+  X tok_is_stale and tok_stale tok_ran
+  If tok_is_stale ->L_tok_flag ->L_meta_quality
+L_tok_flag:
+  X meta_stale add meta_stale 1
+  R core concat meta_stale_names "token_cost_tracker," ->meta_stale_names
+
+L_meta_quality:
+  R cache get "monitor_heartbeat" "lead_quality_audit" ->hb_lq
+  If hb_lq ->L_lq_has ->L_lq_miss
+L_lq_miss:
+  Set hb_lq 0
+  J L_lq_has
+L_lq_has:
+  X lq_age sub ts hb_lq
+  # Daily job: stale if >26h (93600s)
+  X lq_stale gt lq_age 93600
+  X lq_ran gt hb_lq 0
+  X lq_is_stale and lq_stale lq_ran
+  If lq_is_stale ->L_lq_flag ->L_meta_eval
+L_lq_flag:
+  X meta_stale add meta_stale 1
+  R core concat meta_stale_names "lead_quality_audit," ->meta_stale_names
+
+L_meta_eval:
+  X has_meta_stale gt meta_stale 0
+  If has_meta_stale ->L_meta_alert ->L_meta_ok
+L_meta_alert:
+  R core concat alert_lines "🔴 Stale monitors (" meta_stale "): " meta_stale_names "\n" ->alert_lines
+  X alert_count add alert_count 1
+  J L_meta_stamp
+L_meta_ok:
+  R core concat ok_lines "✅ External monitors: all reporting on schedule\n" ->ok_lines
+
+L_meta_stamp:
+  R cache set "monitor_heartbeat" "meta_monitor" ts ->_
+  J L_budget
+
+# ══════════════════════════════════════════════
+# CHECK 5: Token Budget Gate
+# ══════════════════════════════════════════════
+L_budget:
+  R cache get "config" "token_daily_limit" ->budget_limit
+  If budget_limit ->L_budget_has ->L_budget_default
+L_budget_default:
+  Set budget_limit 10
+  J L_budget_has
+L_budget_has:
+  R cache get "workflow" "token_budget" ->budget_state
+  If budget_state ->L_budget_check ->L_budget_nodata
+L_budget_nodata:
+  R core concat ok_lines "⚪ Token budget: no data yet\n" ->ok_lines
+  J L_persist
+L_budget_check:
+  X daily_remaining get budget_state "daily_remaining"
+  If daily_remaining ->L_budget_calc ->L_budget_nodata
+L_budget_calc:
+  X budget_pct div daily_remaining budget_limit
+  X budget_low lt budget_pct 0.1
+  X budget_warn lt budget_pct 0.2
+  If budget_low ->L_budget_alert ->L_budget_warn_check
+L_budget_alert:
+  X pct_display mul budget_pct 100
+  R core concat alert_lines "🔴 Token budget: only " pct_display "% remaining ($" daily_remaining " of $" budget_limit ")\n" ->alert_lines
+  X alert_count add alert_count 1
+  J L_persist
+L_budget_warn_check:
+  If budget_warn ->L_budget_warn_msg ->L_budget_fine
+L_budget_warn_msg:
+  X pct_display mul budget_pct 100
+  R core concat ok_lines "🟡 Token budget: " pct_display "% remaining\n" ->ok_lines
+  J L_persist
+L_budget_fine:
+  X pct_display mul budget_pct 100
+  R core concat ok_lines "✅ Token budget: " pct_display "% remaining\n" ->ok_lines
+
+# ══════════════════════════════════════════════
+# PERSIST: Write run record to memory for audit trail
+# ══════════════════════════════════════════════
+L_persist:
+  R core concat "consolidator-" ts ->rec_id
+  X summary {"alert_count":alert_count,"ts":ts}
+  R memory put "workflow" "workflow.monitor_check" rec_id summary 604800 ->_
+
+  # Increment the audit alert counter (used by cron_cost_auditor)
+  X has_alerts gt alert_count 0
+  If has_alerts ->L_inc_audit ->L_decide
+L_inc_audit:
+  R cache get "audit" "alerts_24h" ->prev_alerts
+  If prev_alerts ->L_inc_has ->L_inc_init
+L_inc_init:
+  Set prev_alerts 0
+  J L_inc_has
+L_inc_has:
+  X new_alerts add prev_alerts alert_count
+  R cache set "audit" "alerts_24h" new_alerts ->_
+
+L_decide:
+  J L_notify_decision
+
+# ══════════════════════════════════════════════
+# NOTIFY: Send consolidated alert or stay quiet
+# ══════════════════════════════════════════════
+L_notify_decision:
+  X has_alerts gt alert_count 0
+  If has_alerts ->L_cooldown_check ->L_quiet
+
+L_cooldown_check:
+  R cache get "consolidator" "last_alert_ts" ->last_notif
+  If last_notif ->L_cd_has ->L_cd_init
+L_cd_init:
+  Set last_notif 0
+  J L_cd_has
+L_cd_has:
+  X since_last sub ts last_notif
+  X cd_ok gt since_last cooldown_seconds
+  X never_sent eq last_notif 0
+  X should_send or cd_ok never_sent
+  If should_send ->L_send_alert ->L_quiet
+
+L_send_alert:
+  R core concat "🔔 Consolidated Health Check — " alert_count " issue(s)\n\n" alert_lines "\n" ok_lines ->full_msg
+  QueuePut notify full_msg
+  R cache set "consolidator" "last_alert_ts" ts ->_
+  R cache set "monitor_heartbeat" "heartbeat_consolidator" ts ->_
+  Ret null
+
+L_quiet:
+  # No alerts or in cooldown — just stamp heartbeat, no notification
+  R cache set "monitor_heartbeat" "heartbeat_consolidator" ts ->_
+  Ret null

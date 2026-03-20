@@ -1,0 +1,250 @@
+# Pipeline Health Dashboard — daily at 4:30 AM (after all pipeline stages)
+# ========================================================================
+# End-to-end verification of the lead pipeline:
+#   Stage 1: Scraping  (lead_builder.py → leads/lead_output.csv)
+#   Stage 2: Enrichment (→ leads/lead_output_enriched.csv)
+#   Stage 3: CRM Import (→ POST /api/import/enriched/latest)
+#   Stage 4: Lead AI    (→ scoring in CRM DB)
+#   Stage 5: DB Backup  (→ crm/backups/)
+#
+# For each stage, checks the output artifact's freshness (mtime or DB timestamp).
+# Produces ONE clear diagnostic: "Stage 3 failed" with a suggested fix,
+# rather than separate monitors each complaining about downstream effects.
+#
+# Adapters: core, cache, extras, http, sqlite, queue
+# No LLM calls. Pure deterministic graph.
+S core cron "30 4 * * *"
+
+# ── Entry ──
+L0:
+  R core now ->ts
+  R core iso ->now_iso
+  Set stage_count 5
+  Set pass_count 0
+  Set fail_stage ""
+  Set fail_detail ""
+  Set report_lines ""
+
+  # Freshness threshold: 24 hours for daily jobs, 26h with buffer
+  Set daily_thresh 93600
+
+  J L_stage1
+
+# ══════════════════════════════════════════════
+# STAGE 1: Lead Scraping (weekday 15:00)
+# Check: leads/lead_output.csv was modified today (or within 26h)
+# ══════════════════════════════════════════════
+L_stage1:
+  R extras newest_backup_mtime "/Users/clawdbot/.openclaw/workspace/leads" ->leads_mtime
+  X leads_age sub ts leads_mtime
+  X leads_fresh lt leads_age daily_thresh
+
+  If leads_fresh ->L_s1_ok ->L_s1_check_weekend
+
+L_s1_check_weekend:
+  # Scraping only runs Mon-Fri; on weekends, allow 72h (259200s)
+  # We can't easily check day-of-week in AINL, so use a generous fallback
+  X leads_weekend_ok lt leads_age 259200
+  If leads_weekend_ok ->L_s1_weekend_ok ->L_s1_fail
+
+L_s1_weekend_ok:
+  R core concat report_lines "🟡 Stage 1 (Scrape): CSV is " ->report_lines
+  X leads_age_h idiv leads_age 3600
+  R core concat report_lines leads_age_h "h old (weekend grace)\n" ->report_lines
+  X pass_count add pass_count 1
+  J L_stage2
+
+L_s1_ok:
+  X leads_age_h idiv leads_age 3600
+  R core concat report_lines "✅ Stage 1 (Scrape): CSV updated " leads_age_h "h ago\n" ->report_lines
+  X pass_count add pass_count 1
+  J L_stage2
+
+L_s1_fail:
+  X leads_age_h idiv leads_age 3600
+  R core concat report_lines "🔴 Stage 1 (Scrape): CSV is " leads_age_h "h old — scraper may have failed\n" ->report_lines
+  Set fail_stage "Stage 1: Scraping"
+  Set fail_detail "lead_output.csv hasn't been updated. Check lead_builder.py cron or Google Places API quota."
+
+L_stage2:
+  J L_s2_check
+
+# ══════════════════════════════════════════════
+# STAGE 2: Enrichment (weekday 15:15)
+# Check: leads/lead_output_enriched.csv exists and is fresh
+# ══════════════════════════════════════════════
+L_s2_check:
+  R extras file_exists "/Users/clawdbot/.openclaw/workspace/leads/lead_output_enriched.csv" ->enriched_exists
+  X has_enriched eq enriched_exists 1
+  If has_enriched ->L_s2_mtime ->L_s2_missing
+
+L_s2_missing:
+  R core concat report_lines "🔴 Stage 2 (Enrich): lead_output_enriched.csv not found\n" ->report_lines
+  X no_fail eq fail_stage ""
+  If no_fail ->L_s2_set_fail ->L_stage3
+L_s2_set_fail:
+  Set fail_stage "Stage 2: Enrichment"
+  Set fail_detail "Enriched CSV missing. Check lead_ops enrichment cron job and ENRICH_INSTRUCTIONS.md."
+  J L_stage3
+
+L_s2_mtime:
+  # Check enriched file freshness via the leads directory newest file
+  # (enriched should be the most recent file after stage 1)
+  R extras newest_backup_mtime "/Users/clawdbot/.openclaw/workspace/leads" ->enriched_mtime
+  X enriched_age sub ts enriched_mtime
+  X enriched_fresh lt enriched_age daily_thresh
+
+  If enriched_fresh ->L_s2_ok ->L_s2_stale
+
+L_s2_stale:
+  X enriched_age_h idiv enriched_age 3600
+  R core concat report_lines "🟡 Stage 2 (Enrich): enriched CSV is " enriched_age_h "h old\n" ->report_lines
+  X pass_count add pass_count 1
+  J L_stage3
+
+L_s2_ok:
+  X enriched_age_h idiv enriched_age 3600
+  R core concat report_lines "✅ Stage 2 (Enrich): enriched CSV updated " enriched_age_h "h ago\n" ->report_lines
+  X pass_count add pass_count 1
+
+L_stage3:
+  J L_s3_check
+
+# ══════════════════════════════════════════════
+# STAGE 3: CRM Import (weekday 15:35)
+# Check: CRM API is reachable and has recent imports
+# ══════════════════════════════════════════════
+L_s3_check:
+  R extras http_status "http://127.0.0.1:3000/api/reports/tiktok" ->crm_code
+  X crm_up eq crm_code 200
+  If crm_up ->L_s3_api_ok ->L_s3_api_down
+
+L_s3_api_down:
+  R core concat report_lines "🔴 Stage 3 (Import): CRM API returned HTTP " crm_code " — server may be down\n" ->report_lines
+  X no_fail eq fail_stage ""
+  If no_fail ->L_s3_set_fail ->L_stage4
+L_s3_set_fail:
+  Set fail_stage "Stage 3: CRM Import"
+  Set fail_detail "CRM server not responding. Restart: cd crm && npm run dev. Check port 3000."
+  J L_stage4
+
+L_s3_api_ok:
+  # Check crm_import.log for recent activity
+  R extras file_exists "/Users/clawdbot/.openclaw/workspace/crm_import.log" ->log_exists
+  X has_log eq log_exists 1
+  If has_log ->L_s3_log_ok ->L_s3_no_log
+
+L_s3_no_log:
+  R core concat report_lines "🟡 Stage 3 (Import): CRM up but no import log found\n" ->report_lines
+  X pass_count add pass_count 1
+  J L_stage4
+
+L_s3_log_ok:
+  R core concat report_lines "✅ Stage 3 (Import): CRM API up, import log present\n" ->report_lines
+  X pass_count add pass_count 1
+
+L_stage4:
+  J L_s4_check
+
+# ══════════════════════════════════════════════
+# STAGE 4: Lead AI Scoring (weekday 15:45)
+# Check: CRM DB has leads with scores updated recently
+# ══════════════════════════════════════════════
+L_s4_check:
+  R extras file_exists "/Users/clawdbot/.openclaw/workspace/crm/prisma/dev.db" ->db_exists
+  X has_db eq db_exists 1
+  If has_db ->L_s4_query ->L_s4_nodb
+
+L_s4_nodb:
+  R core concat report_lines "🔴 Stage 4 (Lead AI): CRM database not found\n" ->report_lines
+  X no_fail eq fail_stage ""
+  If no_fail ->L_s4_set_fail ->L_stage5
+L_s4_set_fail:
+  Set fail_stage "Stage 4: Lead AI"
+  Set fail_detail "CRM dev.db missing. Restore from crm/backups/ or re-run prisma migrate."
+  J L_stage5
+
+L_s4_query:
+  # Count leads that have been updated in the last 26 hours
+  X cutoff_s sub ts daily_thresh
+  R core stringify cutoff_s ->cutoff_str
+  R sqlite query "SELECT COUNT(*) as cnt FROM Lead WHERE updatedAt > datetime('now', '-26 hours')" ->score_rows
+  X scored_count get score_rows 0
+  X scored_num get scored_count "cnt"
+  X has_scored gt scored_num 0
+
+  If has_scored ->L_s4_ok ->L_s4_stale
+
+L_s4_stale:
+  R core concat report_lines "🟡 Stage 4 (Lead AI): no leads scored in last 26h\n" ->report_lines
+  X pass_count add pass_count 1
+  J L_stage5
+
+L_s4_ok:
+  R core concat report_lines "✅ Stage 4 (Lead AI): " scored_num " leads scored recently\n" ->report_lines
+  X pass_count add pass_count 1
+
+L_stage5:
+  J L_s5_check
+
+# ══════════════════════════════════════════════
+# STAGE 5: Database Backup (daily 02:30)
+# Check: crm/backups/ has a backup from last 26h
+# ══════════════════════════════════════════════
+L_s5_check:
+  R extras newest_backup_mtime "/Users/clawdbot/.openclaw/workspace/crm/backups" ->backup_mtime
+  X backup_age sub ts backup_mtime
+  X backup_fresh lt backup_age daily_thresh
+
+  If backup_fresh ->L_s5_ok ->L_s5_stale
+
+L_s5_stale:
+  X backup_age_h idiv backup_age 3600
+  R core concat report_lines "🔴 Stage 5 (Backup): newest backup is " backup_age_h "h old\n" ->report_lines
+  X no_fail eq fail_stage ""
+  If no_fail ->L_s5_set_fail ->L_finalize
+L_s5_set_fail:
+  Set fail_stage "Stage 5: DB Backup"
+  Set fail_detail "Backup is stale. Check crm/scripts/backup-db.tsx and cron job 7434058d."
+  J L_finalize
+
+L_s5_ok:
+  X backup_age_h idiv backup_age 3600
+  R core concat report_lines "✅ Stage 5 (Backup): latest backup " backup_age_h "h ago\n" ->report_lines
+  X pass_count add pass_count 1
+
+# ══════════════════════════════════════════════
+# FINALIZE: Build report, persist, notify
+# ══════════════════════════════════════════════
+L_finalize:
+  X fail_count sub stage_count pass_count
+  X all_pass eq fail_count 0
+
+  # Persist to memory for trend analysis
+  R core concat "pipeline-" now_iso ->pipe_id
+  X pipe_payload {"pass_count":pass_count,"fail_count":fail_count,"fail_stage":fail_stage,"ts":ts}
+  R memory put "workflow" "workflow.pipeline_health" pipe_id pipe_payload 604800 ->_
+
+  # Build the final message
+  If all_pass ->L_all_ok ->L_has_failures
+
+L_all_ok:
+  R core concat "✅ Pipeline Health — " now_iso "\n\nAll " stage_count " stages passed:\n\n" report_lines ->final_msg
+  QueuePut notify final_msg
+  R cache set "monitor_heartbeat" "pipeline_health" ts ->_
+  Ret null
+
+L_has_failures:
+  R core concat "🚨 Pipeline Health — " now_iso "\n\n" pass_count "/" stage_count " stages passed\n\n" ->final_msg
+  R core concat final_msg report_lines "\n" ->final_msg
+
+  # Add diagnostic for the first failure
+  X has_diag gt (len fail_stage) 0
+  If has_diag ->L_add_diag ->L_send_fail
+L_add_diag:
+  R core concat final_msg "🔧 First failure: " fail_stage "\n   Fix: " fail_detail "\n" ->final_msg
+
+L_send_fail:
+  QueuePut notify final_msg
+  R cache set "monitor_heartbeat" "pipeline_health" ts ->_
+  Ret null
