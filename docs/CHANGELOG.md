@@ -6,6 +6,7 @@
 
 - **`agent_reports/README.md`** — index of OpenClaw **field reports** (distinct from `CONSULTANT_REPORTS.md` / `AI_CONSULTANT_REPORT_*.md`).
 - **`docs/INTELLIGENCE_PROGRAMS.md`** — map of `intelligence/*.lang`, host responsibilities, and `scripts/run_intelligence.py`.
+- **`scripts/run_intelligence.py`** — dev runner for `context` / `summarizer` / `consolidation` / `continuity` / `all` (OpenClaw monitor registry).
 - **`CONSULTANT_REPORTS.md`**, **`docs/DOCS_INDEX.md`**, **`docs/AI_AGENT_CONTINUITY.md`**, **`AI_AGENT_QUICKSTART_OPENCLAW.md`**, **`README.md`** — cross-links to the above.
 - **Field report:** `agent_reports/ainl-king-openclaw-2026-03-19.md` (Day 2 — AINL King; merged via PR #2).
 
