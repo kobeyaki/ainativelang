@@ -6,8 +6,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python 3.10+" />
-  <a href="https://github.com/sbhooley/ainativelang/releases">
-    <img src="https://img.shields.io/github/v/release/sbhooley/ainativelang?label=release" alt="GitHub release" />
+  <a href="https://github.com/sbhooley/ainativelang/tags">
+    <img src="https://img.shields.io/github/v/tag/sbhooley/ainativelang?label=release" alt="Latest tag" />
   </a>
   <a href="tests/snapshots/conformance/summary.md">
     <img src="tests/snapshots/conformance/conformance_badge.svg" alt="Conformance status" />
@@ -18,13 +18,6 @@
   <img src="https://img.shields.io/badge/MCP-v1%20server-blueviolet" alt="MCP v1" />
   <img src="https://img.shields.io/badge/graph--first-deterministic%20IR-orange" alt="Graph-first deterministic IR" />
   <img src="https://img.shields.io/badge/AI%20workflow-language-brightgreen" alt="AI workflow language" />
-</p>
-
-<p align="center">
-
-[![GitHub release](https://img.shields.io/github/v/release/sbhooley/ainativelang?label=release)](https://github.com/sbhooley/ainativelang/releases)
-[![License](https://img.shields.io/github/license/sbhooley/ainativelang)](LICENSE)
-
 </p>
 
 > AI-led co-development project, human-initiated by Steven Hooley (`x.com/sbhooley`, `stevenhooley.com`, `linkedin.com/in/sbhooley`). Attribution details: `docs/PROJECT_ORIGIN_AND_ATTRIBUTION.md` and `tooling/project_provenance.json`.
