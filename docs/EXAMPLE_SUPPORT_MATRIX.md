@@ -8,6 +8,21 @@ Primary machine-readable sources:
 - `tooling/support_matrix.json`
 - `tooling/artifact_profiles.json`
 
+## Scope of the classification contract
+
+`tooling/artifact_profiles.json` and the tables below govern **onboarding/training/conformance expectations** for paths that are **explicitly listed** there (primarily `examples/*.ainl`, selected `examples/**/*.ainl` / `.lang`, and curated `corpus/` programs). CI and profile tests enforce that contract for those entries.
+
+**Not in that contract unless added explicitly:**
+
+- **`demo/`** — operator demos and experiments; may lag strict profiles; not treated as canonical training targets by default.
+- **`intelligence/`** — OpenClaw-oriented monitors and helpers; indexed in `docs/INTELLIGENCE_PROGRAMS.md`; **outside** `artifact_profiles.json` unless a path is added there on purpose.
+
+Evaluators should **not** assume every `.lang` / `.ainl` file in the repo shares the same `strict-valid` / `non-strict-only` guarantees as listed `examples/`.
+
+### `compatible` in `support_matrix.json` (ops and syntax)
+
+In `tooling/support_matrix.json`, **`compatible` does not mean “avoid” or “legacy-only.”** It marks surfaces that are **not** the top priority for *new strict-valid tutorial examples* and *canonical training-pack convergence*, while remaining **fully implemented and widely used** in real programs (e.g. `X`, `CacheGet`, `QueuePut`, `Loop` in monitors). Prefer **`canonical`** ops/forms when authoring **minimal** strict tutorials; use **`compatible`** ops where the workflow requires them.
+
 Support levels:
 - `canonical`: recommended for onboarding, docs, training, and future convergence
 - `compatible`: supported for continuity, but not the preferred public path

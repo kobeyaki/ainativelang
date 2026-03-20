@@ -22,7 +22,7 @@ Maintainer release execution steps are documented in `docs/RELEASING.md`.
 - Deployable runner service (sync + async + metrics + health)
 - Capability grant model with restrictive-only merge and profile-based startup
 - Mandatory default limits on all execution surfaces
-- Structured audit logging (run events, adapter calls, policy rejections)
+- Structured audit logging on the **HTTP runner service** (`/run` / `/enqueue`: run events, adapter calls, policy rejections — see `docs/operations/AUDIT_LOGGING.md`; not the same as raw `RuntimeEngine` / CLI traces)
 - Stronger adapter metadata (`destructive`, `network_facing`, `sandbox_safe`)
 - MCP exposure profiles and startup-configurable MCP tool/resource scoping
 

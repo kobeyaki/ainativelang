@@ -21,8 +21,9 @@ keywords = [
 ]
 
 [project.urls]
-Homepage = "https://stevenhooley.com"
-Documentation = "https://stevenhooley.com"
+Homepage = "https://ainativelang.com"
+Repository = "https://github.com/sbhooley/ainativelang"
+Documentation = "https://github.com/sbhooley/ainativelang"
 InitiatorX = "https://x.com/sbhooley"
 InitiatorLinkedIn = "https://linkedin.com/in/sbhooley"
 

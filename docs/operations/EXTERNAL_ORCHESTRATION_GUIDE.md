@@ -613,7 +613,7 @@ AINL provides what a gateway expects from a well-behaved tool provider:
 | Workflow compilation/execution | Yes | No |
 | Tool/resource scoping | Yes (exposure profiles) | Yes (cross-server) |
 | Capability grants and limits | Yes (restrictive-only) | Passes through |
-| Structured audit events | Yes (JSON log events) | Aggregates across servers |
+| Structured audit events | **HTTP runner:** yes (JSON schema in `AUDIT_LOGGING.md`). **MCP / embedded `RuntimeEngine`:** not that schema by default; use host logging. | Aggregates runner streams where deployed |
 | Authentication / SSO / OAuth | **No** | Yes |
 | DLP / PII scanning | **No** | Yes |
 | Multi-tenant user management | **No** | Yes |
@@ -640,7 +640,7 @@ In this model:
 2. Gateway routes MCP tool calls to the appropriate backend server.
 3. AINL MCP server sees a pre-authorized request, applies its own
    exposure scoping, security profile, capability grant, and limits.
-4. AINL emits structured audit log events; the gateway aggregates them.
+4. Where the gateway fronts the **HTTP runner service**, that service emits the structured JSON audit events documented in `docs/operations/AUDIT_LOGGING.md`; the gateway may aggregate those streams. (Direct MCP or embedded-runtime use does not emit that schema by default.)
 
 To prepare AINL for gateway deployment:
 
@@ -699,7 +699,7 @@ callers can tighten but never widen beyond the server baseline.
 
 ### Structured audit logging
 
-Every `/run` request emits structured JSON events:
+On the **runner service**, every `/run` (and `/enqueue`) request emits structured JSON events:
 
 - `run_start` — timestamp, trace ID, effective limits, policy presence
 - `adapter_call` — per-call timestamp, status, duration, result hash (no raw payloads)

@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "support_levels": {
     "canonical": "Recommended public path for docs, onboarding, training, and future convergence work.",
-    "compatible": "Supported for continuity and migration, but not the preferred path for new examples or canonical training.",
+    "compatible": "Supported in compiler/runtime. For this matrix, 'compatible' means lower priority for *new strict-valid tutorial examples* and *canonical training-pack* convergence—not 'discouraged' or 'legacy-only'. Heavily used ops (e.g. X, CacheGet, QueuePut, Loop) are normal in production-style and monitor programs.",
     "deprecated": "Accepted temporarily through compatibility policy, but on a retirement path with warnings and migration guidance."
   },
   "syntax": {
