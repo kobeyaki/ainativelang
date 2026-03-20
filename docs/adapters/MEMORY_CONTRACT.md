@@ -8,6 +8,13 @@ See also: [`MEMORY_CONTRACT_V1_1_RFC.md`](MEMORY_CONTRACT_V1_1_RFC.md) for an
 additive proposal that keeps deterministic behavior while adding optional query
 metadata and filters (no vector semantics, no policy cognition).
 
+**Implementation note (v1.1 additive):** the current adapter now supports
+optional deterministic metadata (`source`, `confidence`, `tags`, `valid_at`)
+plus bounded list filters (`tags_any`, `tags_all`, created/updated ranges,
+`limit`, `offset`), namespace-level retention hooks, operational counters in
+responses, and capability-advertised memory profile hints. These are additive
+extensions; existing v1 call shapes remain valid.
+
 > **Positioning note.** Memory is classified as `extension_openclaw` in the
 > adapter support tier, but it is the **recommended durable state mechanism**
 > for any workflow that needs persistence beyond a single run. The extension

@@ -327,3 +327,116 @@ def test_prune_scoped_to_namespace(tmp_path):
     assert res_prune["pruned"] == 1
 
     assert adp.call("get", [ns1, "workflow.checkpoint", "exp-wf"], {})["found"] is False
+
+
+def test_metadata_roundtrip_and_tag_filters(tmp_path):
+    adp = _make_adapter(tmp_path)
+    ns = "workflow"
+    kind = "workflow.checkpoint"
+    adp.call(
+        "put",
+        [
+            ns,
+            kind,
+            "cp-a",
+            {"step": 1},
+            None,
+            {"source": "runner", "confidence": 0.9, "tags": ["billing", "checkpoint"], "valid_at": "2026-03-20T10:00:00+00:00"},
+        ],
+        {},
+    )
+    adp.call(
+        "put",
+        [
+            ns,
+            kind,
+            "cp-b",
+            {"step": 2},
+            None,
+            {"source": "runner", "tags": ["ops"]},
+        ],
+        {},
+    )
+
+    got = adp.call("get", [ns, kind, "cp-a"], {})
+    assert got["found"] is True
+    assert got["record"]["metadata"]["source"] == "runner"
+    assert "billing" in got["record"]["metadata"]["tags"]
+
+    only_billing = adp.call("list", [ns, kind, None, None, {"tags_any": ["billing"]}], {})
+    assert [i["record_id"] for i in only_billing["items"]] == ["cp-a"]
+
+    tags_all = adp.call("list", [ns, kind, None, None, {"tags_all": ["billing", "checkpoint"]}], {})
+    assert [i["record_id"] for i in tags_all["items"]] == ["cp-a"]
+
+
+def test_list_range_limit_and_offset_filters(tmp_path):
+    adp = _make_adapter(tmp_path)
+    ns = "workflow"
+    kind = "workflow.checkpoint"
+    for rid in ("cp-1", "cp-2", "cp-3"):
+        adp.call("put", [ns, kind, rid, {"step": rid[-1]}], {})
+
+    conn = adp._conn  # type: ignore[attr-defined]
+    conn.execute(
+        "UPDATE memory_records SET created_at = ?, updated_at = ? WHERE record_id = ?",
+        ("2026-03-01T00:00:00+00:00", "2026-03-01T00:00:00+00:00", "cp-1"),
+    )
+    conn.execute(
+        "UPDATE memory_records SET created_at = ?, updated_at = ? WHERE record_id = ?",
+        ("2026-03-02T00:00:00+00:00", "2026-03-02T00:00:00+00:00", "cp-2"),
+    )
+    conn.execute(
+        "UPDATE memory_records SET created_at = ?, updated_at = ? WHERE record_id = ?",
+        ("2026-03-03T00:00:00+00:00", "2026-03-03T00:00:00+00:00", "cp-3"),
+    )
+    conn.commit()
+
+    res = adp.call(
+        "list",
+        [ns, kind, None, None, {"created_after": "2026-03-02T00:00:00+00:00", "limit": 1, "offset": 0}],
+        {},
+    )
+    assert [i["record_id"] for i in res["items"]] == ["cp-2"]
+
+    res2 = adp.call(
+        "list",
+        [ns, kind, None, None, {"created_after": "2026-03-01T00:00:00+00:00", "limit": 1, "offset": 1}],
+        {},
+    )
+    assert [i["record_id"] for i in res2["items"]] == ["cp-2"]
+
+
+def test_namespace_default_ttl_and_prune_policy_hooks(tmp_path):
+    adp = MemoryAdapter(
+        db_path=str(tmp_path / "memory.db"),
+        default_ttl_by_namespace={"workflow": 1},
+        prune_strategy_by_namespace={"workflow": "none", "daily_log": "ttl_only"},
+    )
+    adp.call("put", ["workflow", "workflow.checkpoint", "wf-exp", {"x": 1}], {})
+    adp.call("put", ["daily_log", "daily_log.note", "dl-exp", {"entries": []}, 1], {})
+
+    conn = adp._conn  # type: ignore[attr-defined]
+    conn.execute("UPDATE memory_records SET created_at = ? WHERE record_id IN (?, ?)", ("2026-01-01T00:00:00+00:00", "wf-exp", "dl-exp"))
+    conn.commit()
+
+    res = adp.call("prune", [], {})
+    # workflow has prune strategy "none", daily_log should be pruned.
+    assert res["pruned"] == 1
+    wf_row = conn.execute(
+        "SELECT 1 FROM memory_records WHERE namespace = ? AND record_kind = ? AND record_id = ?",
+        ("workflow", "workflow.checkpoint", "wf-exp"),
+    ).fetchone()
+    assert wf_row is not None
+    assert adp.call("get", ["daily_log", "daily_log.note", "dl-exp"], {})["found"] is False
+
+
+def test_operational_counters_are_returned(tmp_path):
+    adp = _make_adapter(tmp_path)
+    adp.call("put", ["workflow", "workflow.checkpoint", "cp-1", {"x": 1}], {})
+    got = adp.call("get", ["workflow", "workflow.checkpoint", "cp-1"], {})
+    assert "stats" in got
+    stats = got["stats"]
+    assert stats["operations"] >= 2
+    assert stats["writes"] >= 1
+    assert stats["reads"] >= 1

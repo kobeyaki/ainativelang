@@ -54,6 +54,11 @@ Each entry can also include a **`domain`** string used for high-level grouping:
 The `domain` field is for **discovery and grouping only**. It does not change
 runtime behavior, semantics, or trust rails like `lane` and `support_tier`.
 
+Adapter entries may also include optional profile hints for safe branching in
+hosts/workflows. Example: `memory_profile` can distinguish deterministic memory
+contracts (for example `v1` vs `v1.1-deterministic-metadata`) from
+non-deterministic semantic/plugin-backed profiles.
+
 Separately, entries can include a **`usage_model`** string that describes how
 consumers should think about using the capability:
 

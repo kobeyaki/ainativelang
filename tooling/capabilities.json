@@ -27,6 +27,7 @@
       "support_tier": "extension_openclaw",
       "lane": "noncanonical",
       "domain": "memory",
+      "memory_profile": "v1.1-deterministic-metadata",
       "notes": "Extension-level memory adapter for explicit execution-facing records keyed by (namespace, record_kind, record_id)."
     },
     "sqlite": {

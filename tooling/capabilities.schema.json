@@ -49,6 +49,10 @@
           "type": "string",
           "description": "High-level domain grouping (e.g. math, http, memory)."
         },
+        "memory_profile": {
+          "type": "string",
+          "description": "Optional memory capability profile hint (e.g. v1, v1.1-deterministic-metadata, semantic)."
+        },
         "notes": {
           "type": "string"
         }
