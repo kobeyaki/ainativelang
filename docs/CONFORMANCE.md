@@ -278,6 +278,7 @@ These tests define “conformance in spirit”; implement as automated suite whe
 
 | Area | Test | Purpose |
 |------|------|---------|
+| Memory continuity (automated) | `tests/conformance/test_full_matrix.py` category **`memory_continuity_runtime`** on `tests/data/conformance/session_budget_memory_trace.ainl` | Strict compile → run under **`MemoryAdapter` only**; snapshots result + sanitized trace (session-budget-style put/list/prune; not mixed into core/sqlite/fs **runtime parity** because those adapters do not emulate memory). Extra tokenizer coverage: **`demo/session_budget_enforcer.lang`**. |
 | Tokenizer | Quoted strings, escapes `\"` `\\` | Single-token strings |
 | Parsing | `module.op` forms (e.g. `ops.Env`, `rag.Src`) | Prefixed op recognition |
 | Parsing | Unprefixed known module ops → normalize to `module.op` in IR | Normalization rule |

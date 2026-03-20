@@ -486,6 +486,10 @@ For implementation and shipped-capability status, see:
 - Graph/IR introspection: `docs/architecture/GRAPH_INTROSPECTION.md`
 - State discipline (tiered state model): `docs/architecture/STATE_DISCIPLINE.md`
 - Memory adapter contract (v1 + additive v1.1 deterministic metadata/filtering): `docs/adapters/MEMORY_CONTRACT.md`, `docs/adapters/MEMORY_CONTRACT_V1_1_RFC.md`
+
+#### Memory & State
+
+Workflow memory is **externalized through adapters** (not the prompt). Production-style programs combine **session or workflow namespaces**, **TTLs**, **bounded list filters**, and **prune** so retention stays predictable under load. For a full OpenClaw-style illustration of cache + memory + budget enforcement (including audit rows and pruning hooks), see **`demo/session_budget_enforcer.lang`**.
 - Runtime semantics: `SEMANTICS.md`
 - Runtime/compiler ownership: `docs/RUNTIME_COMPILER_CONTRACT.md`
 - Grammar reference: `docs/language/grammar.md`
@@ -708,6 +712,9 @@ ainl visualize examples/hello.ainl --svg diagram.svg
 
 # Optional render size
 ainl visualize examples/hello.ainl --png diagram.png --width 1600 --height 1000
+
+# Denser graph: timeout module + workflow memory put/list/prune (strict-safe example)
+ainl visualize examples/timeout_memory_prune_demo.ainl --png docs/assets/timeout_memory_prune_flow.png
 ```
 
 Image export uses Playwright. Install dev deps and Chromium once:

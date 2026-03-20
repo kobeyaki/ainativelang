@@ -24,12 +24,26 @@ class Golden:
 
 
 CONFORMANCE_CATEGORIES: Dict[str, Dict[str, List[str]]] = {
-    "tokenizer_round_trip": {"goldens": ["simple.ainl", "include_heavy.ainl", "strict_only.ainl"]},
-    "ir_canonicalization": {"goldens": ["simple.ainl", "include_heavy.ainl"]},
+    "tokenizer_round_trip": {
+        "goldens": [
+            "simple.ainl",
+            "include_heavy.ainl",
+            "strict_only.ainl",
+            "session_budget_memory_trace.ainl",
+        ]
+    },
+    "ir_canonicalization": {
+        "goldens": ["simple.ainl", "include_heavy.ainl", "session_budget_memory_trace.ainl"]
+    },
     "strict_validation": {"goldens": ["strict_only.ainl"]},
     "runtime_parity": {"goldens": ["simple.ainl", "include_heavy.ainl"]},
     "emitter_stability": {"goldens": ["simple.ainl"]},
+    # Memory put/list/prune under MemoryAdapter only (not comparable to core-only parity).
+    "memory_continuity_runtime": {"goldens": ["session_budget_memory_trace.ainl"]},
 }
+
+# Large real-world tokenizer fixture (lossless token round-trip only).
+TOKENIZER_EXTRA_SOURCES: List[Path] = [ROOT / "demo" / "session_budget_enforcer.lang"]
 
 
 def _all_params() -> List[Tuple[str, Path]]:
@@ -37,6 +51,8 @@ def _all_params() -> List[Tuple[str, Path]]:
     for cat, cfg in CONFORMANCE_CATEGORIES.items():
         for rel in cfg["goldens"]:
             params.append((cat, DATA_DIR / rel))
+    for path in TOKENIZER_EXTRA_SOURCES:
+        params.append(("tokenizer_round_trip", path))
     return params
 
 
@@ -55,6 +71,21 @@ def _sanitize_trace_events(trace_events: List[Dict[str, Any]]) -> List[Dict[str,
         ev2.pop("lineno", None)
         sanitized.append(ev2)
     return sanitized
+
+
+def _scrub_memory_iso_timestamps(obj: Any) -> Any:
+    """Replace volatile memory adapter timestamps for stable syrupy snapshots."""
+    if isinstance(obj, dict):
+        out: Dict[str, Any] = {}
+        for k, v in obj.items():
+            if k in ("created_at", "updated_at") and isinstance(v, str) and "T" in v:
+                out[k] = "<iso-timestamp>"
+            else:
+                out[k] = _scrub_memory_iso_timestamps(v)
+        return out
+    if isinstance(obj, list):
+        return [_scrub_memory_iso_timestamps(x) for x in obj]
+    return obj
 
 
 def _run_ir_with_adapter(
@@ -240,6 +271,25 @@ def test_full_matrix(category_id: str, golden_path: Path, compiler_lossless, sna
             pytest.skip("runtime_parity: no adapters could be constructed")
 
         payload = {"adapters": adapter_traces}
+        assert payload == snapshot
+        return
+
+    if category_id == "memory_continuity_runtime":
+        code = golden_path.read_text(encoding="utf-8")
+        strict_compiler = type(compiler_lossless)(strict_mode=True)
+        ir = strict_compiler.compile(
+            code,
+            emit_graph=True,
+            source_path=str(golden_path.resolve()),
+        )
+        if ir.get("errors"):
+            pytest.skip(
+                f"strict-mode validation failed (skipping memory continuity runtime): {golden_path}\n"
+                + "; ".join(ir.get("errors", [])[:5])
+            )
+        run_out = _run_ir_with_adapter(ir=ir, adapter_name="memory", tmp_path=tmp_path)
+        trace = _scrub_memory_iso_timestamps(_sanitize_trace_events(run_out["trace"]))
+        payload = {"result": _scrub_memory_iso_timestamps(run_out["result"]), "trace": trace}
         assert payload == snapshot
         return
 

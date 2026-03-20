@@ -44,7 +44,7 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
 - Runtime behavior specification (complement to `SEMANTICS.md`): `docs/ainl_runtime_spec.md`
 - Target/runtime support roadmap: `docs/runtime/TARGETS_ROADMAP.md`
 - Example support classification: `docs/EXAMPLE_SUPPORT_MATRIX.md`
-- Timeout include demo example: `examples/timeout_demo.ainl`
+- Timeout include demo examples: `examples/timeout_demo.ainl`, `examples/timeout_memory_prune_demo.ainl`
 - Graph/IR introspection guide: `docs/architecture/GRAPH_INTROSPECTION.md` (includes **Mermaid** CLI: `ainl visualize` / `ainl-visualize`, `scripts/visualize_ainl.py`; image export `--png/--svg` with Playwright; and DOT via `scripts/render_graph.py`)
 - State discipline (tiered state model): `docs/architecture/STATE_DISCIPLINE.md`
 - Runtime semantics contract: `SEMANTICS.md`
@@ -68,7 +68,7 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
 - Pattern cookbook and composition examples: `docs/PATTERNS.md`
 - Compiler/IR contracts: `docs/reference/IR_SCHEMA.md`, `docs/reference/GRAPH_SCHEMA.md`
 - Conformance status: `docs/CONFORMANCE.md`
-- Full conformance command: `make conformance` (snapshot update: `SNAPSHOT_UPDATE=1 make conformance`; artifacts under `tests/snapshots/conformance/`)
+- Full conformance command: `make conformance` (snapshot update: `SNAPSHOT_UPDATE=1 make conformance`; artifacts under `tests/snapshots/conformance/`). Matrix includes memory continuity runtime snapshot coverage (`memory_continuity_runtime`) and tokenizer coverage for `demo/session_budget_enforcer.lang`.
 - Release readiness checklist: `docs/RELEASE_READINESS.md`
 - No-break migration tracker: `docs/NO_BREAK_MIGRATION_PLAN.md`
 - Release notes: `docs/RELEASE_NOTES.md`

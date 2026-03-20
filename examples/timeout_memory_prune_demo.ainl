@@ -1,0 +1,16 @@
+# examples/timeout_memory_prune_demo.ainl
+# Strict-safe demo: timeout starter + workflow memory put/list/prune.
+# Good graph for visualizer PNG export, e.g.:
+#   ainl visualize examples/timeout_memory_prune_demo.ainl --png docs/assets/timeout_memory_prune_flow.png
+
+include "modules/common/timeout.ainl" as timeout
+
+L1:
+  Call timeout/ENTRY ->out
+  R core.parse "{\"source\":\"timeout_memory_demo\",\"confidence\":1.0,\"tags\":[\"demo\"],\"valid_at\":\"2026-01-01T00:00:00Z\"}" ->memory_meta
+  R core.parse "{\"tags_any\":[\"demo\"],\"source\":\"timeout_memory_demo\",\"limit\":10}" ->memory_filters
+  R core.parse "{\"step\":\"timeout_demo\"}" ->record_payload
+  R memory put "workflow" "demo_flow" "after_timeout" record_payload 3600 memory_meta ->_w
+  R memory list "workflow" "demo_flow" "after" "1970-01-01T00:00:00Z" memory_filters ->hist
+  R memory prune "workflow" ->_pr
+  J out

@@ -8,6 +8,9 @@
 - **refactor(programs)**: migrate monitor-heavy `demo/` and `examples/autonomous_ops/` workflows from repeated inline memory logic to shared include calls while preserving payloads, record kinds, tags, TTLs, and control-flow behavior
 - **feat(programs)**: normalize deterministic filters across migrated history reads (`updated_after`, `tags_any`, `source`, `limit`) and standardize metadata envelopes on writes (`source`, `confidence`, `tags`, `valid_at`)
 - **docs(ops)**: refresh autonomous ops documentation to reflect include-helper architecture and current monitor implementation posture
+- **feat(strict)**: allowlist `memory.PUT` / `GET` / `APPEND` / `LIST` / `DELETE` / `PRUNE` in `tooling/effect_analysis.py` and treat `R memory <verb> …` steps as `memory.<VERB>` for strict adapter checks
+- **test(conformance)**: add `memory_continuity_runtime` snapshot category and `tests/data/conformance/session_budget_memory_trace.ainl`; extend tokenizer round-trip with `demo/session_budget_enforcer.lang` and IR canonicalization for the trace golden
+- **docs(examples)**: add `examples/timeout_memory_prune_demo.ainl`, committed `docs/assets/timeout_memory_prune_flow.png`, README **Memory & State** pointer to `demo/session_budget_enforcer.lang`, and visualizer PNG example command
 
 ## v1.2.2 (March 20, 2026)
 

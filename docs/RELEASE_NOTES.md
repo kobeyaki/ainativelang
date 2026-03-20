@@ -10,6 +10,9 @@ This release consolidates repeated memory logic in production monitor programs i
 - **Program rollout:** monitor-heavy flows in `demo/` and `examples/autonomous_ops/` now call shared `WRITE`/`LIST` labels instead of repeating inline `memory.put` / `memory.list` construction.
 - **Deterministic filter consistency:** migrated history reads now consistently use bounded filters (`updated_after`, `tags_any`, `source`, `limit`) to reduce noise and preserve predictable replay behavior.
 - **Metadata consistency:** migrated writes consistently carry deterministic metadata envelopes (`source`, `confidence`, `tags`, `valid_at`) aligned with Memory Contract v1.1.
+- **Strict memory adapter contract expansion:** strict-mode allowlist now includes `memory.PUT` / `GET` / `APPEND` / `LIST` / `DELETE` / `PRUNE`, and compiler-owned keying now correctly maps `R memory <verb> ...` forms to `memory.<VERB>` for validation.
+- **Conformance coverage:** adds memory continuity snapshot coverage (`memory_continuity_runtime`) via `tests/data/conformance/session_budget_memory_trace.ainl`, plus tokenizer-round-trip coverage of `demo/session_budget_enforcer.lang`.
+- **PNG visualizer demo:** adds `examples/timeout_memory_prune_demo.ainl` and committed image artifact `docs/assets/timeout_memory_prune_flow.png` for memory-heavy flow export docs.
 - **Behavior preserved:** record kinds, payload shapes, TTLs, and existing alert/control logic remain unchanged; this is a structural maintainability pass, not a semantic runtime shift.
 
 ---

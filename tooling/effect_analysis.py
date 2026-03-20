@@ -22,6 +22,8 @@ EFFECT_KIND_QUEUE = "queue"
 EFFECT_KIND_TXN = "txn"
 EFFECT_KIND_SQLITE = "sqlite"
 EFFECT_KIND_FS = "fs"
+EFFECT_KIND_MEMORY_READ = "memory_read"
+EFFECT_KIND_MEMORY_WRITE = "memory_write"
 EFFECT_KIND_TOOL = "tool"
 EFFECT_KIND_CALL = "call"
 EFFECT_KIND_CONTROL = "control"
@@ -90,6 +92,12 @@ ADAPTER_EFFECT: Dict[str, Tuple[str, str]] = {
     "fs.LIST": (EFFECT_TIER_IO_READ, EFFECT_KIND_FS),
     "fs.WRITE": (EFFECT_TIER_IO_WRITE, EFFECT_KIND_FS),
     "fs.DELETE": (EFFECT_TIER_IO_WRITE, EFFECT_KIND_FS),
+    "memory.PUT": (EFFECT_TIER_IO_WRITE, EFFECT_KIND_MEMORY_WRITE),
+    "memory.GET": (EFFECT_TIER_IO_READ, EFFECT_KIND_MEMORY_READ),
+    "memory.APPEND": (EFFECT_TIER_IO_WRITE, EFFECT_KIND_MEMORY_WRITE),
+    "memory.LIST": (EFFECT_TIER_IO_READ, EFFECT_KIND_MEMORY_READ),
+    "memory.DELETE": (EFFECT_TIER_IO_WRITE, EFFECT_KIND_MEMORY_WRITE),
+    "memory.PRUNE": (EFFECT_TIER_IO_WRITE, EFFECT_KIND_MEMORY_WRITE),
     "tools.CALL": (EFFECT_TIER_IO_WRITE, EFFECT_KIND_TOOL),
     # wasm compute calls are treated as pure compute effects.
     "wasm.CALL": (EFFECT_TIER_PURE, EFFECT_KIND_COMPUTE),
@@ -110,7 +118,20 @@ def strict_adapter_key(adapter: Any, req_op: Any = "") -> str:
 
 def strict_adapter_key_for_step(step: Dict[str, Any]) -> str:
     """Canonical strict contract key for compiler/runtime step data."""
-    return strict_adapter_key(step.get("adapter") or step.get("src"), step.get("req_op"))
+    adapter = step.get("adapter") or step.get("src") or ""
+    req_op = step.get("req_op")
+    # R memory <verb> ... parses as adapter=memory, entity=<verb>, req_op="" → would
+    # otherwise become memory.F; fold entity into the verb for strict allowlist checks.
+    if (
+        isinstance(adapter, str)
+        and "." not in adapter
+        and adapter.lower() == "memory"
+        and not str(req_op or "").strip()
+    ):
+        ent = (step.get("entity") or step.get("target") or "").strip()
+        if ent:
+            return strict_adapter_key(adapter, ent)
+    return strict_adapter_key(adapter, req_op)
 
 
 def strict_adapter_is_allowed(key: str) -> bool:
