@@ -68,23 +68,49 @@ python scripts/runtime_runner_service.py
 #                          POST http://localhost:8770/run  {"code": "S app api /api\nL1:\nR core.ADD 2 3 ->sum\nJ sum"}
 ```
 
+### Getting started with includes
+
+Pull in shared subgraphs from `modules/` (paths resolve next to your source file, then CWD, then `./modules/`):
+
+```ainl
+include "modules/common/retry.ainl" as retry
+
+L1: Call retry/ENTRY ->out J out
+```
+
+See **Includes & modules (New!)** below for `timeout.ainl`, strict rules, and the starter table.
+
 **AI agents:** See `AI_AGENT_QUICKSTART_OPENCLAW.md` for a full agent onboarding guide, or `docs/BOT_ONBOARDING.md` for the machine-readable bootstrap path.
 
 **Deeper setup:** See `docs/INSTALL.md` for platform-specific install, Docker, and pre-commit setup.
 
 ---
 
-## Includes & modules
+## Includes & modules (New!)
 
-Reuse subgraphs with top-level `include` (v1 modules). Paths resolve next to the current source file or under `./modules/`.
+Reuse battle-tested patterns without copy-pasting whole graphs. Top-level `include` merges each file under `alias/LABEL` keys (for example `retry/ENTRY`, `timeout/WORK`).
 
 ```ainl
-include modules/common/retry.ainl as retry
+include "modules/common/retry.ainl" as retry
+include "modules/common/timeout.ainl" as timeout
 
-L1: Call retry/ENTRY ->out J out
+S app api /api
+L1: Call retry/ENTRY ->r J r
+L2: Call timeout/ENTRY ->t J t
 ```
 
-In **strict** mode, an included file must define exactly one `LENTRY:` (merged as `alias/ENTRY`) and at least one `LEXIT_*:` exit label. Included units must not declare top-level `E` / `S` (endpoints/services live in the main program). Use quoted jumps for string payloads (e.g. `J "ok"`) so strict dataflow treats them as literals. See `modules/common/retry.ainl` and `tests/test_includes.py`.
+Subgraphs must define **`LENTRY:`** (merged as `alias/ENTRY`) and **at least one `LEXIT_*:`** label in **strict** mode. Do not declare top-level **`E`** / **`S`** inside includes—endpoints and services belong in the main program. Use **quoted** jumps for string payloads (`J "ok"`) so strict dataflow treats them as literals.
+
+Shared modules live in a **`modules/`** directory next to your files (with CWD / `./modules/` fallback—see compiler path resolution).
+
+**Starter modules in this repo**
+
+| Module | What it is |
+|--------|------------|
+| `modules/common/retry.ainl` | Minimal **ENTRY → EXIT_OK / EXIT_FAIL** pattern with sample `core.ADD` work—copy and extend with your own retry / backoff steps in the parent or module. |
+| `modules/common/timeout.ainl` | **Timeout / cancellation shape** (`ENTRY` → `Call WORK`, plus `LTIMEOUT` for the failure branch). The strict build uses `core.SLEEP` / `core.ECHO` stand-ins until real timer adapters are allowlisted—swap the `R` lines when your runtime supports them. |
+
+More patterns coming soon (approval gate, circuit breaker, RAG retrieval, etc.). Full behavior and tests: `tests/test_includes.py`.
 
 ---
 

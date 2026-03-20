@@ -1,0 +1,37 @@
+# modules/common/timeout.ainl
+# Subgraph skeleton for timeout-oriented workflows (v1 include contract).
+#
+# Intended shape when your runtime allowlists timer adapters (not in strict core yet):
+#   R core.set_timer ms ->timer_id
+#   … caller splices real work …
+#   R core.cancel_timer timer_id ->canceled
+#
+# This file is strict-safe today: core.SLEEP / core.ECHO stand in for “arm delay” and
+# “timeout path”. Swap those R lines for real timer ops after you extend the adapter map.
+#
+# Usage from parent:
+#   include modules/common/timeout.ainl as timeout
+#   L1: Call timeout/ENTRY ->out J out
+#
+# Labels: ENTRY → short stand-in delay, Call into WORK (replace with your logic).
+# LTIMEOUT is the failure/branch body your scheduler or If/Err should target; it is not
+# reached from ENTRY in this template alone.
+
+LENTRY:
+  R core.SLEEP 1 ->slept
+  Call WORK ->work_out
+  J work_out
+
+LWORK:
+  R core.ADD 0 0 ->placeholder
+  J placeholder
+
+LTIMEOUT:
+  R core.ECHO "timeout" ->error
+  J error
+
+LEXIT_OK:
+  J "ok"
+
+LEXIT_TIMEOUT:
+  J "timeout"
