@@ -18,4 +18,3 @@ def scrape_prices():
     el = soup.select_one('')
     table = el.get_text(strip=True) if el else None
     return { 'table': table }
-

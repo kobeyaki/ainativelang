@@ -14,10 +14,10 @@ We sell the **operational layer**: governance, visibility, managed execution, de
 
 ## 2. Short intro
 
-**Open core.**  
+**Open core.**
 AINL (AI Native Lang) is an open language and runtime for describing agent workflows—APIs, cron jobs, monitors, and automations. The specification, compiler, runtime, and core tooling are open and available under the licenses declared in this repository. You can build, run, and extend AINL without buying anything from us.
 
-**Commercial layer.**  
+**Commercial layer.**
 Separate from the open core, we offer **services and support**: we run the alignment pipeline for you, package supported ops monitors with runbooks and updates, and provide structured implementation reviews and onboarding. Scope, terms, and pricing for any of these are set out in a separate commercial agreement—not in the open licenses. You get defined deliverables, SLAs where applicable, and a single place to get help; the underlying code and docs stay open and auditable.
 
 ---

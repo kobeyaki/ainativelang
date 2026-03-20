@@ -1,7 +1,7 @@
 # Session Continuity — Implementation Log
 
-**Consultant:** Apollo  
-**Date:** 2026-03-12  
+**Consultant:** Apollo
+**Date:** 2026-03-12
 **Goal:** Persist conversational context and learned user preferences across sessions using the AINL memory adapter; produce daily‑log entries and preference records for long‑term continuity.
 
 ---

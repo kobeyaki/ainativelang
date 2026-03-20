@@ -37,4 +37,3 @@ def test_map_step_to_node_preceding_lineno():
     # Ask for lineno beyond any node; should pick nearest preceding.
     nid = map_step_to_node(ir, "1", lineno=10, op=None)
     assert nid in {"n1", "n2"}
-

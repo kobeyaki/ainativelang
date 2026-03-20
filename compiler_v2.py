@@ -1033,10 +1033,10 @@ class AICodeCompiler:
     def tokenize_line_lossless(self, line: str, lineno: int) -> List[Dict[str, Any]]:
         """Emit Token dicts (kind, raw, value, span) including ws and comment.
         Span uses 1-based line number and 0-based columns.
-        String decoding intentionally treats only \\\" and \\\\ as escapes; all other
-        backslash sequences are preserved literally to match AINL 1.0.
+        String decoding treats \\", \\\\, \\n, \\t, \\r as escape sequences.
         Raises ValueError with line+column for unterminated strings.
         """
+        _ESC_MAP = {'"': '"', '\\': '\\', 'n': '\n', 't': '\t', 'r': '\r'}
         out: List[Dict[str, Any]] = []
         i = 0
         n = len(line)
@@ -1061,9 +1061,7 @@ class AICodeCompiler:
                     esc = False
                     i += 1
                     continue
-                if ch == "\\" and i + 1 < n and line[i + 1] in '"\\':
-                    # Scanner escape semantics intentionally match decode semantics:
-                    # only \" and \\ are escape pairs in AINL 1.0.
+                if ch == "\\" and i + 1 < n and line[i + 1] in _ESC_MAP:
                     esc = True
                     i += 1
                     continue
@@ -1073,8 +1071,8 @@ class AICodeCompiler:
                     value_parts: List[str] = []
                     j = col_start + 1
                     while j < i - 1:
-                        if line[j] == "\\" and j + 1 < i - 1 and line[j + 1] in '"\\':
-                            value_parts.append(line[j + 1])
+                        if line[j] == "\\" and j + 1 < i - 1 and line[j + 1] in _ESC_MAP:
+                            value_parts.append(_ESC_MAP[line[j + 1]])
                             j += 2
                         else:
                             value_parts.append(line[j])
@@ -1945,12 +1943,18 @@ class AICodeCompiler:
                         i += 2
                     elif slots[i] == "If" and i + 2 < len(slots):
                         cond = slots[i + 1]
-                        then_id = self._parse_arrow_lbl(slots[i + 2])
-                        else_id = self._parse_arrow_lbl(slots[i + 3]) if i + 3 < len(slots) else None
-                        if self.strict_mode and then_id is None:
+                        # Mirror standalone If parsing (single-pass op == "If") so inline and
+                        # multiline programs get identical IR (e.g. If c L2 3 → else branch "3").
+                        then_l = self._normalize_if_target(slots[i + 2], allow_fallback=True)
+                        else_l = (
+                            self._normalize_if_target(slots[i + 3], allow_fallback=True)
+                            if len(slots) > i + 3
+                            else None
+                        )
+                        if self.strict_mode and then_l is None:
                             self._errors.append(f"Line {lineno}: If then target must be ->L<n> or L<n>, got {slots[i + 2]!r}")
-                        leg["steps"].append({"op": "If", "lineno": lineno, "cond": cond, "then": then_id or slots[i + 2].lstrip("L").split(":")[-1], "else": else_id})
-                        i += 4 if i + 3 < len(slots) else 3
+                        leg["steps"].append({"op": "If", "lineno": lineno, "cond": cond, "then": then_l, "else": else_l})
+                        i += 4 if len(slots) > i + 3 else 3
                     elif slots[i] == "Set" and i + 3 <= len(slots):
                         step = {"op": "Set", "lineno": lineno, "name": slots[i + 1], "ref": slots[i + 2]}
                         if i + 2 < len(slot_kinds) and slot_kinds[i + 2] == "string":
@@ -2049,6 +2053,9 @@ class AICodeCompiler:
                                 args[-1] = stripped
                             else:
                                 args.pop()
+                        # If no args remain, strip trailing ')' from fn itself (e.g. "(core.now)" → "core.now")
+                        if not args:
+                            fn = fn.rstrip(")")
                         leg["steps"].append({"op": "X", "lineno": lineno, "dst": dst, "fn": fn, "args": args})
                         i = j
                     elif slots[i] == "ForEach" and i + 4 < len(slots):
@@ -2285,7 +2292,7 @@ class AICodeCompiler:
                 if len(slots) >= 2 and self.current_label:
                     cond = slots[0]
                     then_l = self._normalize_if_target(slots[1], allow_fallback=True)
-                    else_l = self._normalize_if_target(slots[2], allow_fallback=False) if len(slots) > 2 else None
+                    else_l = self._normalize_if_target(slots[2], allow_fallback=True) if len(slots) > 2 else None
                     self._ensure_label(self.current_label)
                     self._label_steps(self.current_label).append({"op": "If", "lineno": lineno, "cond": cond, "then": then_l, "else": else_l})
             elif op == "Err":
@@ -2391,6 +2398,9 @@ class AICodeCompiler:
                             x_args[-1] = stripped
                         else:
                             x_args.pop()
+                    # If no args remain, strip trailing ')' from fn itself (e.g. "(core.now)" → "core.now")
+                    if not x_args:
+                        x_fn = x_fn.rstrip(")")
                     self._label_steps(self.current_label).append({"op": "X", "lineno": lineno, "dst": slots[0], "fn": x_fn, "args": x_args})
             elif op == "Loop":
                 if len(slots) >= 4 and self.current_label:

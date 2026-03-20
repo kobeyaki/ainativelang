@@ -18,7 +18,7 @@ For canonical runtime behavior and strict literal policy, also see:
 
 ## 1. RetryWithBackoff
 
-**Name**: `RetryWithBackoff`  
+**Name**: `RetryWithBackoff`
 **Intent**: Wrap a single `R` call so that transient failures are retried with delay.
 
 ### 1.1 Shape
@@ -44,7 +44,7 @@ L1_retry:
 
 ## 2. RateLimit
 
-**Name**: `RateLimit`  
+**Name**: `RateLimit`
 **Intent**: Enforce a simple per‑key rate limit for a label.
 
 ### 2.1 Sketch
@@ -71,7 +71,7 @@ L1_block:
 
 ## 3. BatchProcess
 
-**Name**: `BatchProcess`  
+**Name**: `BatchProcess`
 **Intent**: Read a collection, map over items, and enqueue work.
 
 ```text
@@ -86,7 +86,7 @@ Lbatch:
 
 ## 4. CacheWarm
 
-**Name**: `CacheWarm`  
+**Name**: `CacheWarm`
 **Intent**: Periodically prefill a cache from a data source.
 
 ```text
@@ -113,4 +113,3 @@ When generating AINL from English:
   - Normalize graphs.
   - Enforce single‑exit and adapter contracts.
   - Provide debug envelopes when runs fail.
-

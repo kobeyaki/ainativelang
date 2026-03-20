@@ -86,4 +86,3 @@ L1:
     errs = res["errors"]
     codes = {e["code"] for e in errs}
     assert "POLICY_PRIVILEGE_TIER_FORBIDDEN" in codes
-

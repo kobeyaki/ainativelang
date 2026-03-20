@@ -18,4 +18,3 @@ L0: X payload {
 L1: R memory put "workflow" "workflow.token_cost_state" "token-cost-2026-03-09" payload 86400 ->put_result J L2
 
 L2: R memory get "workflow" "workflow.token_cost_state" "token-cost-2026-03-09" ->get_result J get_result
-

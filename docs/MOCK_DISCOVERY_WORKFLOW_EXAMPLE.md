@@ -24,7 +24,7 @@
 
 ## 3. Discovery notes (from intake form)
 
-**Call date:** [Example] 2025-03-15  
+**Call date:** [Example] 2025-03-15
 **Completed by:** [Internal owner]
 
 ### Prospect basics

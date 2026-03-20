@@ -129,4 +129,3 @@ def test_capabilities_filter_cli_basic_invocations(tmp_path):
     assert proc.returncode == 0, f"Command failed: {cmd} stderr={proc.stderr}"
     # Expect some non-empty stdout for discovery/usability.
     assert proc.stdout.strip(), f"Command produced empty output: {cmd}"
-

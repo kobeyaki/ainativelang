@@ -151,4 +151,3 @@ def safe_apply_patch(
 
 
 __all__ = ["safe_apply_patch"]
-

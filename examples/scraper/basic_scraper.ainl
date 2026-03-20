@@ -6,4 +6,3 @@ L_scrape:
   R http.GET "https://example.com/products" ->resp
   R db.C Product * ->stored
   J stored
-

@@ -157,4 +157,3 @@ def test_agent_root_must_not_be_filesystem_root():
     assert "must not be filesystem root" in str(e)
   else:
     raise AssertionError("expected AdapterError when AINL_AGENT_ROOT is filesystem root")
-

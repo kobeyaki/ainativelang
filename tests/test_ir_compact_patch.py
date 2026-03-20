@@ -66,4 +66,3 @@ def test_apply_compact_patches_by_hash_and_preconditions():
     new_ir = res["ir"]
     new_n2 = next(n for n in new_ir["labels"]["1"]["nodes"] if n.get("id") == n2["id"])
     assert new_n2.get("data", {}).get("var") == "by_hash"
-

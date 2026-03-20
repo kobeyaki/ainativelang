@@ -34,4 +34,3 @@ def test_trace_to_focus_falls_back_to_step():
 def test_trace_to_focus_empty():
     label, focus, lineno = trace_to_focus([])
     assert label is None and focus is None and lineno is None
-

@@ -147,4 +147,3 @@ Bad fact.
     assert result.inserted == 0
     assert result.updated == 0
     assert result.errors
-

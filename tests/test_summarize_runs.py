@@ -117,4 +117,3 @@ def test_iter_runs_from_file_supports_list_of_payloads():
         assert summary["result_kinds"] == {"int": 2}
         assert summary["trace_op_counts"] == {"R": 1, "J": 1}
         assert summary["label_counts"] == {"1": 1, "2": 1}
-

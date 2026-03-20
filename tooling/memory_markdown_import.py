@@ -162,4 +162,3 @@ def import_markdown_to_memory(
         )
 
     return import_records(db_path or DEFAULT_DB_PATH, envs)
-

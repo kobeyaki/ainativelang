@@ -199,4 +199,3 @@ def migrate_legacy_memory(
         return ImportResult(ok=True, inserted=0, updated=0, errors=[])
 
     return import_records(db_path or DEFAULT_DB_PATH, envs)
-

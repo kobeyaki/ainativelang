@@ -86,7 +86,7 @@
     {
       "path": "examples/monitor_escalation.ainl",
       "strict": true,
-      "graph_semantic_checksum": "sha256:8d90462acf32a99ba3fde378854740c5abd458a15f7022355211c6dd35717383",
+      "graph_semantic_checksum": "sha256:b66570662c02f8613c1dcd1fb0492d09e0a2967445a37c5cf2c3eb92a2181b5c",
       "labels": [
         "_escalate",
         "_noop",
@@ -162,7 +162,7 @@
     {
       "path": "examples/golden/01_web_server.ainl",
       "strict": false,
-      "graph_semantic_checksum": "sha256:348acd043bd82e0d2c704e3392161c683c0d3d0f5527b06b505464542fe950cb",
+      "graph_semantic_checksum": "sha256:67e912ada3d41b34073b8242877814ab1efecb932d92ae5454defe0fb495b938",
       "labels": [
         "0",
         "1",

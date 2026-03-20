@@ -327,4 +327,3 @@ def test_prune_scoped_to_namespace(tmp_path):
     assert res_prune["pruned"] == 1
 
     assert adp.call("get", [ns1, "workflow.checkpoint", "exp-wf"], {})["found"] is False
-

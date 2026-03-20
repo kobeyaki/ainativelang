@@ -197,4 +197,3 @@ def is_structurally_plausible_prefix(prefix: str) -> bool:
     if not is_prefix_anti_drift_clean(prefix):
         return False
     return compiler_prefix_completable(prefix)
-

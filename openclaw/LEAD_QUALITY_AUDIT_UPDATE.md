@@ -1,7 +1,7 @@
 # Lead Quality Audit — Rolling 7‑Day Trends
 
-**Consultant:** Apollo  
-**Date:** 2026-03-12  
+**Consultant:** Apollo
+**Date:** 2026-03-12
 **Change:** Persist daily audit summaries to memory and compute rolling 7‑day averages using `memory.list(updated_since?)`.
 
 ---

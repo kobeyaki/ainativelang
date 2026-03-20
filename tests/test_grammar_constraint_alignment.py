@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from grammar_constraint import (
     is_prefix_anti_drift_clean,
-    is_structurally_plausible_ainl_prefix, 
+    is_structurally_plausible_ainl_prefix,
     is_valid_ainl_prefix_strict,
     next_token_mask,
     next_token_priors,

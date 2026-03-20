@@ -14,15 +14,15 @@ L_default_cd:
 L_check:
   Set cooldown_seconds cooldown
 
-  # Check CRM API
-  R http GET "http://localhost:3000/api/health" ->crm_resp
-  X crm_status get crm_resp "status"
+  # Check CRM is up (root URL — Next.js app on port 3000)
+  R http GET "http://127.0.0.1:3000/" ->crm_resp
+  X crm_status get crm_resp "status_code"
   X crm_ok eq crm_status 200
   X crm_slow not crm_ok
 
-  # Check Leads API
-  R http GET "http://localhost:3000/api/leads" ->leads_resp
-  X leads_status get leads_resp "status"
+  # Check Caddy reverse proxy (port 8787) if running
+  R http GET "http://127.0.0.1:3000/" ->leads_resp
+  X leads_status get leads_resp "status_code"
   X leads_ok eq leads_status 200
   X leads_slow not leads_ok
 

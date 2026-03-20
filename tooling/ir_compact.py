@@ -259,4 +259,3 @@ def compact_slice_snapshot(
 
 
 __all__ = ["encode_ir_compact", "decode_ir_compact", "compact_diff", "trace_compact_snapshot", "compact_slice_snapshot"]
-

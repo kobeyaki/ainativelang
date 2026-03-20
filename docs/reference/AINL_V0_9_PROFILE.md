@@ -165,4 +165,3 @@ The following features are **available but not part of v0.9 beginner profile**:
 - WASM adapters and custom compute.
 
 Small models should only opt into these once they reliably handle the v0.9 core.
-

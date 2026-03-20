@@ -8,4 +8,3 @@ def run_L1():
 def run_L2():
     # Schedule: 0 */1 * * *
     pass
-

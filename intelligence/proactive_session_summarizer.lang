@@ -1,45 +1,202 @@
-# Proactive session summarizer — collects new lines from MEMORY.md since last cache checkpoint.
-# Token-budgeted backward scan; notifies via QueuePut. Remote LLM calls are intentionally not
-# embedded here (JSON escaping is host/tooling territory); this program surfaces excerpts for
-# downstream summarization.
-S core cron "*/30 * * * *"
+# Proactive Session Summarizer
+# =============================
+# Scans memory/*.md files for unsummarized days, calls an LLM to produce
+# ultra-compact terse bullets (D:/P:/T:/L:/S: format), appends to MEMORY.md.
+# Respects token budget. Runs daily at 04:00.
+#
+# Model is configurable via AINL_SUMMARIZER_MODEL env var.
+# Default: arcee-ai/trinity-large-preview:free (non-reasoning, reliable content field).
+# Supports reasoning models too — extracts from "reasoning" if "content" is null.
+#
+# Patterns: Loop + If + obj/put/push for HTTP body + R http POST for LLM.
+S core cron "0 4 * * *"
 
+# ── Entry: budget gate ──
 L0:
-  R fs read "MEMORY.md" ->content
-  X lines (core.split content "\n")
-  X total_lines (core.len lines)
-  R cache get "workflow" "intel_summary_last_line" ->raw_last
-  X last_line (ite (core.eq raw_last null) 0 raw_last)
-  Set new_lines []
-  Set totalTokens 0
-  Set MAX_TOKENS 2000
-  Set one 1
-  X idx (core.sub total_lines one)
-  J L_collect
+  R cache get "workflow" "token_budget" ->budget_state
+  X hasBudget (ne budget_state null)
+  If hasBudget ->L0a ->L0b
 
-L_collect:
-  If (core.lt idx last_line) ->L_have_new
-  X line get lines idx
-  X lineTokens (core.idiv (core.add (core.len line) 3) 4)
-  X newTotal (core.add totalTokens lineTokens)
-  If (core.gt newTotal MAX_TOKENS) ->L_have_new
-  X new_lines push new_lines line
-  Set totalTokens newTotal
-  X idx (core.sub idx one)
-  J L_collect
+L0a:
+  X dayRem (get budget_state "daily_remaining")
+  X budgetLow (lt dayRem 1000)
+  If budgetLow ->L30 ->L1
 
-L_have_new:
-  X n (core.len new_lines)
-  X zero 0
-  X no_new (core.eq totalTokens zero)
-  If no_new ->L_exit ->L_notify
+L0b:
+  Set dayRem 20000
+  If true ->L1 ->L1
 
-L_notify:
-  R core concat "Intel summarizer: collected " (core.stringify n) " new lines (~" (core.stringify totalTokens) " est. tokens); wire LLM on host if needed" ->msg
-  QueuePut notify msg
-  R cache set "workflow" "intel_summary_last_line" total_lines ->_
-  J msg
+# ── List memory files, get current date ──
+L1:
+  R core iso ->nowIso
+  X todayStr (core.substr nowIso 0 10)
+  R fs list "memory" ->files
+  X fileCount (core.len files)
+  X noFiles (eq fileCount 0)
+  If noFiles ->L31 ->L2
 
-L_exit:
-  R core concat "no_new_content" ->msg
-  J msg
+# ── Filter to .md files that are NOT today and not already summarized ──
+L2:
+  X candidates (arr)
+  Loop files fname ->L3 ->L5
+
+# ── Check each file ──
+L3:
+  X isMd (core.contains fname ".md")
+  If isMd ->L4 ->L6
+
+L4:
+  X dateStr (core.substr fname 0 10)
+  X isToday (eq dateStr todayStr)
+  If isToday ->L6 ->L7
+
+L7:
+  X cacheKey (core.concat "summarized." dateStr)
+  R cache get "workflow" cacheKey ->wasSummarized
+  X alreadyDone (eq wasSummarized "done")
+  If alreadyDone ->L6 ->L8
+
+L8:
+  X candidates (push candidates fname)
+
+# ── Skip (no-op) ──
+L6:
+  Set _skip 1
+
+# ── Process candidates: summarize up to 3 per run ──
+L5:
+  X candCount (core.len candidates)
+  X noCandidates (eq candCount 0)
+  If noCandidates ->L32 ->L9
+
+L9:
+  Set summariesCreated 0
+  Set processIdx 0
+  X maxPerRun (core.min candCount 3)
+  # Resolve model from env (default: free non-reasoning model)
+  R core env "AINL_SUMMARIZER_MODEL" "arcee-ai/trinity-large-preview:free" ->llmModel
+  # Build reusable API headers
+  R core env "OPENROUTER_API_KEY" ->apiKey
+  X authVal (core.concat "Bearer " apiKey)
+  X headers (obj "Authorization" authVal)
+  X headers (put headers "Content-Type" "application/json")
+  X headers (put headers "HTTP-Referer" "https://openclaw.ai")
+  X headers (put headers "X-Title" "AINL Session Summarizer")
+  Loop candidates targetFile ->L10 ->L20
+
+# ── Summarize one file ──
+L10:
+  X atCap (gte processIdx maxPerRun)
+  If atCap ->L15 ->L11
+
+L11:
+  X filePath (core.concat "memory/" targetFile)
+  R fs read filePath ->dayContent
+  X contentLen (core.len dayContent)
+  X tooShort (lt contentLen 100)
+  If tooShort ->L14 ->L12
+
+# ── Truncate and build LLM request ──
+L12:
+  Set maxChars 6000
+  X needsTrunc (gt contentLen maxChars)
+  If needsTrunc ->L12a ->L12b
+
+L12a:
+  X startPos (sub contentLen 6000)
+  X safStart (core.max startPos 0)
+  X truncated (core.substr dayContent safStart contentLen)
+  If true ->L12c ->L12c
+
+L12b:
+  Set truncated dayContent
+  If true ->L12c ->L12c
+
+# ── Build messages and POST ──
+L12c:
+  X sysMsg (obj "role" "system")
+  X sysMsg (put sysMsg "content" "You are a memory compression engine. Summarize conversation logs into ONLY terse bullet points using these exact prefixes: D: decision made, P: preference expressed, T: todo/action item, L: lesson learned, S: setting/config change. Rules: Max 15 bullets. No timestamps. No greetings. No filler. Each bullet max 20 words. Output ONLY the bullets, one per line.")
+  X userMsg (obj "role" "user")
+  X prompt (core.concat "Summarize this day's activity:\n\n" truncated)
+  X userMsg (put userMsg "content" prompt)
+  X msgs (arr)
+  X msgs (push msgs sysMsg)
+  X msgs (push msgs userMsg)
+  X reqBody (obj "model" llmModel)
+  X reqBody (put reqBody "messages" msgs)
+  X reqBody (put reqBody "temperature" 0.2)
+  # 4096 tokens: enough for reasoning models to think + produce content
+  X reqBody (put reqBody "max_tokens" 4096)
+  R http POST "https://openrouter.ai/api/v1/chat/completions" reqBody headers 120 ->resp
+  X httpOk (get resp "ok")
+  If httpOk ->L13 ->L14
+
+# ── Parse response: try content first, then reasoning ──
+L13:
+  X respBody (get resp "body")
+  X choices (get respBody "choices")
+  X firstChoice (get choices "0")
+  X msgObj (get firstChoice "message")
+  X summary (get msgObj "content")
+  X hasContent (ne summary null)
+  If hasContent ->L13c ->L13a
+
+# ── Fallback: extract from reasoning field (reasoning models) ──
+L13a:
+  X summary (get msgObj "reasoning")
+  X hasReasoning (ne summary null)
+  If hasReasoning ->L13c ->L14
+
+# ── Validate summary length ──
+L13c:
+  X summaryLen (core.len summary)
+  X hasSummary (gt summaryLen 10)
+  If hasSummary ->L16 ->L14
+
+# ── Write summary to MEMORY.md ──
+L16:
+  X dayDate (core.substr targetFile 0 10)
+  R fs read "MEMORY.md" ->currentMem
+  X sectionHeader (core.concat "\n\n### Session Summary — " dayDate "\n")
+  X newMem (core.concat currentMem sectionHeader summary "\n")
+  R fs write "MEMORY.md" newMem ->_
+  X markKey (core.concat "summarized." dayDate)
+  R cache set "workflow" markKey "done" ->_
+  X summariesCreated (add summariesCreated 1)
+  If true ->L15 ->L15
+
+# ── Mark short/empty/failed files as done too ──
+L14:
+  X skipDate (core.substr targetFile 0 10)
+  X skipKey (core.concat "summarized." skipDate)
+  R cache set "workflow" skipKey "done" ->_
+  If true ->L15 ->L15
+
+# ── Increment index (always runs via If from L14 or L16) ──
+L15:
+  X processIdx (add processIdx 1)
+
+# ── Finalize ──
+L20:
+  X anyCreated (gt summariesCreated 0)
+  If anyCreated ->L21 ->L33
+
+L21:
+  X countStr (core.stringify summariesCreated)
+  X procStr (core.stringify maxPerRun)
+  X msg (core.concat "Session summarizer: created " countStr " terse summaries from " procStr " day files")
+  R queue Put "notify" msg ->_
+  J summariesCreated
+
+# ── Exit labels ──
+L30:
+  J 0
+
+L31:
+  J 0
+
+L32:
+  J 0
+
+L33:
+  J 0

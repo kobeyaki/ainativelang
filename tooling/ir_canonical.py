@@ -146,4 +146,3 @@ __all__ = [
     "semantic_checksum",
     "annotate_hashes",
 ]
-

@@ -64,5 +64,3 @@ def test_tool_api_v2_module_skill_shape_is_descriptive_only():
     assert isinstance(entry.get("domain"), str)
     assert entry.get("usage_model") == "composite"
     assert isinstance(entry.get("common_pattern"), str)
-
-

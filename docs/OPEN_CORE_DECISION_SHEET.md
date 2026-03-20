@@ -4,11 +4,11 @@
 
 **Source:** Distilled from `docs/MONETIZATION_OPEN_CORE_AUDIT.md` and `docs/PRODUCT_MATRIX_OPEN_CORE.md`.
 
-**Positioning:**  
+**Positioning:**
 > AINL is the open language for agent workflows. We sell the operational layer: governance, visibility, managed runtime, deployment, and support.
 
-**Strategic rule:**  
-- **Language legitimacy stays open.**  
+**Strategic rule:**
+- **Language legitimacy stays open.**
 - **Operator labor / governance / convenience gets monetized.**
 
 **Paid buckets:** Managed | Enterprise | Expertise. We do not position thin, easily cloned utilities as premium products.

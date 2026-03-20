@@ -29,4 +29,3 @@ def trace_to_focus(traces: List[Dict[str, Any]]) -> Tuple[Optional[str], Optiona
 
 
 __all__ = ["trace_to_focus"]
-

@@ -38,4 +38,3 @@ def test_ir_snapshots_are_generated_not_placeholders():
     demo_obj = json.loads(demo_ir.read_text(encoding="utf-8"))
     assert "_note" not in demo_obj, f"{demo_ir} is a placeholder, expected generated IR snapshot"
     assert demo_obj.get("ir_version"), f"{demo_ir} missing ir_version"
-

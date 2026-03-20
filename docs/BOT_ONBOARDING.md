@@ -6,28 +6,28 @@ Short entrypoint for bots (and other agents) newly exposed to this repo. Use thi
 
 ## Where to start
 
-1. **Machine-readable bootstrap** — `tooling/bot_bootstrap.json`  
+1. **Machine-readable bootstrap** — `tooling/bot_bootstrap.json`
    Points to onboarding doc, preflight doc, and key safe vs advanced docs. Use it to discover paths programmatically.
 
-2. **Docs index** — `docs/DOCS_INDEX.md`  
+2. **Docs index** — `docs/DOCS_INDEX.md`
    Top-level map of documentation (core, advanced, training, contributor path). Prefer this over guessing doc names.
 
-3. **This onboarding doc** — `docs/BOT_ONBOARDING.md`  
+3. **This onboarding doc** — `docs/BOT_ONBOARDING.md`
    You are here. Read the next sections, then the preflight doc before any implementation work.
 
 ---
 
 ## Which docs matter first
 
-- **Core / safe-default:**  
-  `docs/AINL_SPEC.md`, `docs/AINL_CANONICAL_CORE.md`, `docs/EXAMPLE_SUPPORT_MATRIX.md`, `docs/RUNTIME_COMPILER_CONTRACT.md`.  
+- **Core / safe-default:**
+  `docs/AINL_SPEC.md`, `docs/AINL_CANONICAL_CORE.md`, `docs/EXAMPLE_SUPPORT_MATRIX.md`, `docs/RUNTIME_COMPILER_CONTRACT.md`.
   These describe the main language, runtime, and which examples are canonical vs compatible.
 
-- **Advanced / operator-only:**  
-  `docs/adapters/OPENCLAW_ADAPTERS.md`, `docs/adapters/MEMORY_CONTRACT.md`, `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md`, `docs/CAPABILITY_REGISTRY.md`.  
+- **Advanced / operator-only:**
+  `docs/adapters/OPENCLAW_ADAPTERS.md`, `docs/adapters/MEMORY_CONTRACT.md`, `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md`, `docs/CAPABILITY_REGISTRY.md`.
   Extension adapters, memory, and operator-only capabilities are documented here. Do not assume all adapters or examples are safe-default; check the support matrix and capability metadata.
 
-- **Implementation discipline:**  
+- **Implementation discipline:**
   **`docs/OPENCLAW_IMPLEMENTATION_PREFLIGHT.md`** — required reading before implementing. It defines the preflight steps and output structure you must produce before coding.
 
 ---

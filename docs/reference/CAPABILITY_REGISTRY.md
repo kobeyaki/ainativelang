@@ -228,4 +228,3 @@ Example commands:
 The audit is **read-only** and is intended to validate that operator-only trust
 rails are actually reflected in the current codebase. It does not modify
 compiler, runtime, or capability metadata.
-

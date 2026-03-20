@@ -31,4 +31,3 @@ def test_registry_targets_align_with_manifest_verbs_for_overlapping_adapters():
         for tgt in targets.keys():
             # registry uses lowercase verbs/targets; compare case-insensitively.
             assert tgt.upper() in manifest_verbs, f"registry verb {name}.{tgt} missing from manifest verbs {sorted(manifest_verbs)}"
-

@@ -106,4 +106,3 @@ def test_trace_compact_snapshot_basic_shape():
     assert "graph_semantic_checksum" in snap
     assert "compact" in snap
     assert "1" in snap["labels"]
-

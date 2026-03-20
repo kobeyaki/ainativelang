@@ -72,4 +72,3 @@ L2: X task {
 } J L3
 
 L3: R agent send_task task ->task_id J task_id
-

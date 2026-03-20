@@ -4,13 +4,13 @@ The emitted server runs label steps (R, J, and control-flow; P is declaration-on
 
 ## Interface
 
-- **DBAdapter** – `find(entity, fields)`, `get(entity, id)`, `create`, `delete`  
+- **DBAdapter** – `find(entity, fields)`, `get(entity, id)`, `create`, `delete`
   - Use Prisma, SQLAlchemy, or any ORM.
-- **APIAdapter** – `get(path)`, `post(path, body)`  
+- **APIAdapter** – `get(path)`, `post(path, body)`
   - Use `httpx` or `requests` for outbound HTTP.
-- **PayAdapter** – `create_intent(name, amount, currency, desc)`  
+- **PayAdapter** – `create_intent(name, amount, currency, desc)`
   - Use Stripe (or similar) SDK.
-- **ScrapeAdapter** – `scrape(name, url, selectors)`  
+- **ScrapeAdapter** – `scrape(name, url, selectors)`
   - Use your scraper implementation.
 
 ## Usage in emitted server

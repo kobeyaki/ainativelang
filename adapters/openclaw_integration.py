@@ -399,11 +399,12 @@ class NotificationQueueAdapter(RuntimeAdapter):
         if queue_name != 'notify':
             return None
         msg = self._format_message(payload)
-        recipient = os.getenv('OPENCLAW_TARGET', 'self')
-        logger.info(f'Queue sending Telegram to {recipient}: {msg}')
+        recipient = os.getenv('OPENCLAW_TARGET', '8626314045')
+        channel = os.getenv('OPENCLAW_NOTIFY_CHANNEL', 'telegram')
+        logger.info(f'Queue sending {channel} to {recipient}: {msg}')
         try:
             _run_openclaw(
-                ['openclaw', 'message', 'send', '--target', recipient, '--message', msg],
+                ['openclaw', 'message', 'send', '--channel', channel, '--target', recipient, '--message', msg],
                 check=True, timeout=10
             )
             return 'sent'
@@ -612,7 +613,8 @@ def openclaw_monitor_registry(ir_types: Optional[Dict] = None):
     from runtime.adapters.base import AdapterRegistry
     reg = AdapterRegistry(allowed=[
         'core', 'db', 'email', 'calendar', 'social',
-        'svc', 'cache', 'queue', 'wasm', 'extras', 'tiktok', 'agent', 'memory'
+        'svc', 'cache', 'queue', 'wasm', 'extras', 'tiktok', 'agent', 'memory',
+        'fs', 'http', 'web'
     ])
     from runtime.adapters.builtins import CoreBuiltinAdapter
     reg.register('core', CoreBuiltinAdapter())
@@ -629,6 +631,20 @@ def openclaw_monitor_registry(ir_types: Optional[Dict] = None):
     reg.register('agent', AgentAdapter())
     # Memory adapter with extra 'intel' namespace for intelligence storage
     reg.register('memory', MemoryAdapter(valid_namespaces={'intel', 'workflow', 'session', 'long_term', 'daily_log', 'ops'}))
+
+    # Filesystem adapter sandboxed to workspace root
+    from runtime.adapters.fs import SandboxedFileSystemAdapter
+    workspace_root = os.getenv('AINL_FS_ROOT', '/Users/clawdbot/.openclaw/workspace')
+    reg.register('fs', SandboxedFileSystemAdapter(
+        sandbox_root=workspace_root,
+        max_read_bytes=2_000_000,
+        max_write_bytes=2_000_000,
+        allow_delete=False,
+    ))
+
+    # HTTP adapter for LLM calls and general HTTP
+    from runtime.adapters.http import SimpleHttpAdapter
+    reg.register('http', SimpleHttpAdapter())
 
     # Optional WASM adapter if wasmtime is available and demo modules exist
     try:

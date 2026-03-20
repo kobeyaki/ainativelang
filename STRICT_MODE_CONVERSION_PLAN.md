@@ -199,6 +199,6 @@ X digest (core.join "\n\n" [part1 part2])
 
 ---
 
-**Prepared by:** Apollo  
-**Date:** 2026‑03‑03  
+**Prepared by:** Apollo
+**Date:** 2026‑03‑03
 **Context:** Two‑token `R` syntax required by compiler; non‑strict monitor already updated and running

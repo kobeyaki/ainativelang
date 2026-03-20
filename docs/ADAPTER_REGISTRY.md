@@ -81,4 +81,3 @@ surface in this adapter is the combination of `send_task` and `read_result`.
 Any additional verbs present in a specific OpenClaw deployment (such as
 discovery or task-reading helpers) are extension-specific and are **not** part
 of the agreed shared protocol.
-

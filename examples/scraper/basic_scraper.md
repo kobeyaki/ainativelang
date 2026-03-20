@@ -22,4 +22,3 @@ L_scrape:
   - `J stored` returns the result of the `db.C` call (e.g. inserted records count).
 
 This example demonstrates the **cron + HTTP + DB** pattern: scrape → transform/store → return.
-

@@ -1,7 +1,7 @@
 # Externalized Configuration for Autonomous Ops
 
-**Date:** 2026-03-12  
-**Owner:** Apollo  
+**Date:** 2026-03-12
+**Owner:** Apollo
 
 ---
 

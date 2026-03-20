@@ -13,11 +13,26 @@ See also:
 
 ## Linux / macOS
 
+**Recommended (match CI: Python 3.10):** use a dedicated env at `.venv-py310` so local runs
+and pre-commit use the same baseline as GitHub Actions.
+
+```bash
+# macOS (Homebrew): brew install python@3.10
+PYTHON_BIN=python3.10 VENV_DIR=.venv-py310 bash scripts/bootstrap.sh
+source .venv-py310/bin/activate
+ainl-validate examples/blog.lang --emit ir
+```
+
+Default bootstrap (uses whatever `python3` resolves to, must still be 3.10+):
+
 ```bash
 bash scripts/bootstrap.sh
 source .venv/bin/activate
 ainl-validate examples/blog.lang --emit ir
 ```
+
+Automation / agents: prefer **`./.venv-py310/bin/python`** (after bootstrap above) for pytest,
+scripts, and checks so results match the 3.10 CI matrix.
 
 ## Windows (PowerShell)
 

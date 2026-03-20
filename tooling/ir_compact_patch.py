@@ -269,4 +269,3 @@ def apply_compact_patches(
 
 
 __all__ = ["parse_compact_patches", "apply_compact_patches"]
-

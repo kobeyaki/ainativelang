@@ -39,4 +39,3 @@ def test_adapter_manifest_covers_effect_analysis_keys():
         # manifest verbs are case-sensitive declarations; normalize for comparison.
         manifest_verbs = {str(v).upper() for v in adapters[namespace].get("verbs", [])}
         assert verb.upper() in manifest_verbs, f"missing verb {verb!r} under adapter {namespace!r}"
-

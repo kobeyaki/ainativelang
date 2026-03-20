@@ -28,4 +28,3 @@ L_ok:
 - `L_ok` simply returns `metrics` (for logging or introspection).
 
 This pattern demonstrates **monitor → condition → alert** using only the v0.9 core ops.
-

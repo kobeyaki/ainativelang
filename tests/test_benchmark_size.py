@@ -298,4 +298,3 @@ def test_explicit_failure_on_emit_error(tmp_path: Path):
         )
     stages = [f.stage for f in exc.value.failures]
     assert "emit:react_ts" in stages
-

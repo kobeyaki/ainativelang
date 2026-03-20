@@ -83,4 +83,3 @@ def test_summarize_run_result_runner_style_ok():
     assert wrapped["status"] == "ok"
     assert wrapped["trace_id"] == "runner-1"
     assert wrapped["result"] is raw
-

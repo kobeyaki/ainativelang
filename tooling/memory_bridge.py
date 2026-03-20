@@ -203,4 +203,3 @@ def import_records(db_path: str, records: Iterable[JsonObject]) -> ImportResult:
 
     conn.commit()
     return ImportResult(ok=True, inserted=inserted, updated=updated, errors=[])
-

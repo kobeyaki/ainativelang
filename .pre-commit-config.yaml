@@ -10,6 +10,6 @@ repos:
     hooks:
       - id: ainl-docs-contract
         name: AINL docs contract check
-        entry: python scripts/check_docs_contracts.py --scope changed
+        entry: bash scripts/precommit_docs_contract.sh
         language: system
         pass_filenames: false

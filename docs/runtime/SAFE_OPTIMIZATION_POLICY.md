@@ -119,4 +119,3 @@ Do not improve benchmark numbers by making source syntax cryptic or less regular
   `compiler_grammar.py`, `grammar_constraint.py`, `grammar_priors.py`.
 - Compatibility paths remain explicit and bounded:
   `runtime/compat.py`, `runtime.py`, `legacy.steps`.
-

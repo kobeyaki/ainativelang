@@ -28,4 +28,3 @@ model Customer {
   email  String
   name  String
 }
-

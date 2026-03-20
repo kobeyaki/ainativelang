@@ -118,4 +118,3 @@ def validate_ir_against_policy(ir: Dict[str, Any], policy: Dict[str, Any]) -> Di
 
 
 __all__ = ["validate_ir_against_policy"]
-

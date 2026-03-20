@@ -1,7 +1,7 @@
 # TikTok SLA Monitor — Historical Breach Tracking
 
-**Consultant:** Apollo  
-**Date:** 2026-03-12  
+**Consultant:** Apollo
+**Date:** 2026-03-12
 **Change:** Persist SLA breaches to `memory` and include `breaches_24h` count in the summary using `memory.list(updated_since?)`.
 
 ---

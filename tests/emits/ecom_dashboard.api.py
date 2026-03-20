@@ -40,4 +40,3 @@ def post_checkout():
 def get_customers():
     # Exec ->L10
     return {"data": []}
-

@@ -65,4 +65,3 @@ not integration and not emits and not lsp
 ```
 
 This prevents invalid module-name artifacts (e.g. `test_rag.api.py`) and script-style files from breaking default collection, while preserving explicit integration checks through profiles.
-

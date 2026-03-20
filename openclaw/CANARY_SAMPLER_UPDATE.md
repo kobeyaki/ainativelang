@@ -1,7 +1,7 @@
 # Canary Sampler — Historical Flapping Metrics
 
-**Consultant:** Apollo  
-**Date:** 2026-03-12  
+**Consultant:** Apollo
+**Date:** 2026-03-12
 **Change:** Persist slow‑threshold events to memory and include a 24‑hour count in the summary using `memory.list(updated_since?)`.
 
 ---

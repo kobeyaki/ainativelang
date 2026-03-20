@@ -114,4 +114,3 @@ def test_migrate_no_sources_is_noop(tmp_path):
     assert result.ok
     assert result.inserted == 0
     assert result.updated == 0
-

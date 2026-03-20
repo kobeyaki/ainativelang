@@ -36,28 +36,28 @@ require_approval_for:
 
 ## Validation Rules
 
-1. **Adapter allow/deny list**  
+1. **Adapter allow/deny list**
    - If `allow_adapters` is non-empty, only those adapters may be used.
    - `deny_adapters` always applied as a block list.
    - Special adapter `*` matches all.
 
-2. **Filesystem sandbox**  
+2. **Filesystem sandbox**
    - All `fs.read`, `fs.write`, `fs.list`, `fs.delete` paths must be within `fs_sandbox`.
    - Reject paths containing `..` or symlinks that escape.
 
-3. **SQLite table allowlist**  
+3. **SQLite table allowlist**
    - If `allowed_sqlite_tables` set, every table reference in SQL must be in the list.
    - Checked via regex parse of SQL statements.
 
-4. **HTTP host allow/deny**  
+4. **HTTP host allow/deny**
    - For `http.*` calls, extract the hostname from the URL.
    - Must pass `allowed_http_hosts` (if set) and not match `deny_http_hosts`.
    - Blocked by default if no allowlist provided? Policy should choose default-deny or allow-all.
 
-5. **Operation approval**  
+5. **Operation approval**
    - Certain high-risk targets (e.g., `fs.delete`, `sqlite.execute` with non-SELECT, `queue.Put`) require manual approval flag in the policy or an explicit `approved: true` annotation in the program (rare).
 
-6. **Resource limits**  
+6. **Resource limits**
    - Runtime should enforce `max_memory_mb` and `max_cpu_seconds`. The validator checks that the program declares resource limits reasonably (e.g., no infinite loops, bounded iterations).
 
 ## Implementation

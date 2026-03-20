@@ -13,4 +13,3 @@ model User {
   id  Int
   name  String
 }
-

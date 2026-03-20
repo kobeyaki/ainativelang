@@ -76,4 +76,3 @@ def test_agent_docs_verbs_locked_to_shared_surface():
       f"agent docs verbs {sorted(verbs)} do not match shared "
       f"protocol surface {sorted(AGENT_SHARED_VERBS)}"
   )
-

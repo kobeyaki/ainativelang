@@ -426,4 +426,3 @@ and `ADAPTER_REGISTRY.json` but do not require long-form slot schemas here:
 For exact argument lists, effect metadata, and envelopes, treat
 `tooling/adapter_manifest.json` as the source of truth and
 `ADAPTER_REGISTRY.json` as the operator‑level view.
-

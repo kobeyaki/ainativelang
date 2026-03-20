@@ -25,11 +25,11 @@ Based on the registry analysis, the available adapters are:
 1. **Schedule**: Runs every 6 hours via cron
 2. **State Check**: Reads last backup timestamp from cache
 3. **Service Health**: Checks CRM, email, and db services
-4. **Data Collection**: 
+4. **Data Collection**:
    - Reads leads data from CSV via db adapter (target F)
    - Gets recent email count via email adapter (target G)
    - Gets recent calendar events via calendar adapter (target G)
-5. **Backup Creation**: 
+5. **Backup Creation**:
    - Creates JSON payload with all collected data
    - Stores in cache under backup namespace (no fs available)
 6. **Cleanup**: Removes old backups from cache based on retention

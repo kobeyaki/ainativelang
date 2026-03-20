@@ -72,6 +72,13 @@ Any new executable semantics must be defined in compiler-owned IR shape/normaliz
 
 Do not add divergent behavior to compatibility wrappers.
 
+### Local development (Python baseline)
+
+CI exercises **Python 3.10+**. Use a dedicated venv (e.g. `.venv-py310`) via
+`scripts/bootstrap.sh` and `docs/INSTALL.md`. The pre-commit docs-contract hook
+resolves `./.venv-py310/bin/python` first so local checks match that baseline
+without requiring a global `python` on `PATH`.
+
 ## Verification Surface (Must Stay Green)
 
 - Prefix alignment and transitions: `tests/test_grammar_constraint_alignment.py`

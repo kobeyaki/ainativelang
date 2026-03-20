@@ -1,7 +1,7 @@
 # Token Cost Tracker — Migration to Server-Side Filtering
 
-**Consultant:** Apollo  
-**Date:** 2026-03-12  
+**Consultant:** Apollo
+**Date:** 2026-03-12
 **Change:** Switched from client-side date prefix scanning to `memory.list(updated_since?)` for 7‑day rolling cost aggregation.
 
 ---

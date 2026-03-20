@@ -193,4 +193,3 @@ python scripts/render_graph.py tests/emits/server/ir.json --from-ir > server.dot
 ```
 
 `scripts/render_graph.py` is a thin, read-only visualization helper; it does **not** change any compiler or runtime semantics.
-

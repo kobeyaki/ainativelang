@@ -28,4 +28,3 @@ def test_emitted_python_artifacts_parse():
             bad.append((str(f), str(e)))
 
     assert not bad, f"invalid emitted artifacts: {bad}"
-

@@ -407,4 +407,3 @@ class MemoryAdapter(RuntimeAdapter):
         entry = self._validate_payload_object(args[3])
         ttl = self._validate_ttl(args[4]) if len(args) > 4 else None
         return self._append_record(namespace, record_kind, record_id, entry, ttl)
-

@@ -90,4 +90,3 @@ def test_extras_metrics_raises_on_non_object_summary():
       assert "metrics expects JSON object summary" in str(e)
     else:
       raise AssertionError("expected AdapterError for non-object summary")
-

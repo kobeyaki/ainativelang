@@ -1,10 +1,10 @@
 ## What changed
 
-- 
+-
 
 ## Why this change
 
-- 
+-
 
 ## Validation performed
 

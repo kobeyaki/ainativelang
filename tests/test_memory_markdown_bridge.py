@@ -130,4 +130,3 @@ def test_render_handles_missing_entries_gracefully():
     }
     md = _render_daily_log_markdown(record)
     assert "_No entries recorded in memory for this day._" in md
-

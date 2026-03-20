@@ -279,3 +279,12 @@ These tests define “conformance in spirit”; implement as automated suite whe
 | Strict literals | Quoted-vs-bare matrix for `Set.ref`, `Filt.value`, `CacheGet.key/fallback`, `CacheSet.value`, `QueuePut.value` | Ambiguity elimination in strict mode |
 | Schema | Legacy step-list under `labels[id].legacy.steps` when emitted | IR shape |
 | Schema | P never as executable step; R pay.* for payment in labels | One Rule |
+
+---
+
+## Tooling / local environment (non-normative)
+
+- **Python 3.10+** is required; `scripts/bootstrap.sh` enforces it. For parity with
+  the GitHub Actions matrix, use `PYTHON_BIN=python3.10` and `VENV_DIR=.venv-py310`
+  (see [INSTALL.md](INSTALL.md)). Pre-commit’s docs-contract hook prefers
+  `./.venv-py310/bin/python` when present.

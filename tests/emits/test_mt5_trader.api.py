@@ -5,4 +5,3 @@ app = FastAPI()
 def get_tick():
     # Exec ->L->OnTick
     return {"data": []}
-

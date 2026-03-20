@@ -6,7 +6,7 @@
 
 **Decision layer:** For final internal choices (commit open / commit paid / defer / discuss later), see **[docs/OPEN_CORE_DECISION_SHEET.md](OPEN_CORE_DECISION_SHEET.md)**. The boundary is **locked for planning purposes**; signoff and lock statement: **[docs/OPEN_CORE_REVIEW_CHECKLIST.md](OPEN_CORE_REVIEW_CHECKLIST.md)** (§4–§5).
 
-**Positioning (refined):**  
+**Positioning (refined):**
 > AINL is the open language for agent workflows. We sell the operational layer: governance, visibility, managed runtime, deployment, and support.
 
 **Strategic framing:**
@@ -66,7 +66,7 @@ Paid offerings are grouped into three buckets: **Managed**, **Enterprise**, **Ex
 
 ### What is open and why
 
-- **Spec, compiler, runtime, core adapters, IR/graph schemas, baseline validation, core docs and examples, onboarding/preflight, basic policy validator, health envelope schema.**  
+- **Spec, compiler, runtime, core adapters, IR/graph schemas, baseline validation, core docs and examples, onboarding/preflight, basic policy validator, health envelope schema.**
   These are the **language legitimacy** layer. They stay open so that:
   - The language is a single, portable standard.
   - Developers and agents can adopt AINL without lock-in.
@@ -118,7 +118,7 @@ Open Core is the free, open layer. Managed Platform, Enterprise Governance, and 
 
 ### What not to accidentally paywall
 
-- **Spec, compiler, runtime, schemas, baseline validation, core docs/examples, onboarding/preflight, basic policy validator, health envelope schema.**  
+- **Spec, compiler, runtime, schemas, baseline validation, core docs/examples, onboarding/preflight, basic policy validator, health envelope schema.**
   These are “never paywall.” Moving any of them to paid would damage language legitimacy and adoption.
 
 - **Core adapter registry and manifest** for core adapters: discovery is part of the language surface; keep it open.
@@ -155,22 +155,22 @@ Open Core is the free, open layer. Managed Platform, Enterprise Governance, and 
 
 Use these when deciding whether a surface is open, paid, maybe-later, or never paywall:
 
-1. **Is this required for language legitimacy?**  
+1. **Is this required for language legitimacy?**
    If yes → **Open** or **Never paywall** (spec, compiler, runtime, schemas, baseline validation, core docs/examples).
 
-2. **Does this reduce operator labor enough that enterprises will pay?**  
+2. **Does this reduce operator labor enough that enterprises will pay?**
    If yes and it’s not language-legitimacy → candidate for **Paid** (Managed / Enterprise / Expertise). Ensure it’s not a thin wrapper (see replication risk).
 
-3. **Is this too easy to reproduce from the open repo?**  
+3. **Is this too easy to reproduce from the open repo?**
    If yes → keep the **script/tool open**; sell **packaging** (SLA, policy packs, integration, support) rather than the script alone. Avoid positioning thin dashboards or shallow wrappers as premium products.
 
-4. **Does closing this damage trust or adoption more than it helps revenue?**  
+4. **Does closing this damage trust or adoption more than it helps revenue?**
    If yes → keep it **Open** or **Never paywall**. When in doubt, keep the language and core tooling open.
 
-5. **Is this a simple utility (run once, see result) or a high-value operational layer?**  
+5. **Is this a simple utility (run once, see result) or a high-value operational layer?**
    Simple utility → **Open**. High-value operational layer (governance, managed runtime, deployment, support) → **Paid** in the appropriate bucket.
 
-6. **Would the community reasonably expect this to be free?**  
+6. **Would the community reasonably expect this to be free?**
    If yes (e.g. “does it compile?”, adapter discovery, onboarding) → **Open**.
 
 ---

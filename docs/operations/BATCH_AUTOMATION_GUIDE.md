@@ -189,4 +189,3 @@ If you are using AINL in batch issue-solving or worktree-based automation:
 4. **Audit and log.** Log `trace_id`, policy/validation outcomes, and the
    associated repo revision for every job. Use these logs as the source of
    truth for debugging, compliance, and cost analysis.
-

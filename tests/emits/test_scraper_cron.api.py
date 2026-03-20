@@ -10,4 +10,3 @@ def get_scrape_products():
 def get_scrape_prices():
     # Exec ->L2
     return {"data": []}
-

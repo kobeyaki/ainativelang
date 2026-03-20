@@ -6,16 +6,22 @@ L0:
   R core now ->ts
   R cache get "tiktok" "last_pipeline_run" ->last_run
   R cache get "tiktok" "sla_hours" ->cfg_sla
-  X sla_unset eq cfg_sla 0
+  # Cache miss yields null (not 0); treat null or 0 as "use default 24h SLA"
+  X sla_null eq cfg_sla null
+  X sla_zero eq cfg_sla 0
+  X sla_unset or sla_null sla_zero
   If sla_unset ->L_default_sla ->L_have_sla
 L_default_sla:
+  Set cfg_sla 24
   Set sla_seconds 86400
   J L_check
 L_have_sla:
   X sla_seconds mul cfg_sla 3600
 
 L_check:
-  X no_last eq last_run 0
+  X last_null eq last_run null
+  X last_zero eq last_run 0
+  X no_last or last_null last_zero
   If no_last ->L_no_data ->L_check_age
 
 L_no_data:

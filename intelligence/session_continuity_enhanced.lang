@@ -1,24 +1,65 @@
-# Session continuity (intelligence) — demo-aligned monitor
-# Replaces prior experimental pseudo-syntax. Same posture as demo/session_continuity.lang:
-# list session-scoped memory keys, notify, heartbeat cache.
+# Session Continuity (Enhanced Intelligence)
+# ============================================
+# Monitors session-scoped memory keys, checks bootstrap context freshness,
+# and ensures continuity data is available for new sessions.
+# Runs every 30 minutes. Pure compute — no LLM calls.
 S core cron "*/30 * * * *"
 
+# ── Entry: timestamp and check for bootstrap context ──
 L0:
   R core now ->ts
-  R memory list "session" "session.context" ->sessions
-  X total len sessions
-  X has_sessions gt total 0
-  If has_sessions ->L_report ->L_nothing
+  R core iso ->isoTs
+  # Check if bootstrap context exists and is fresh
+  R cache get "workflow" "context_injection_last" ->lastInjection
+  X hasInjection (ne lastInjection null)
+  If hasInjection ->L1 ->L2
 
-L_report:
-  R core concat "Session continuity (intel) — " total " session contexts tracked" ->summary
-  QueuePut notify summary
+# ── Check freshness of last injection ──
+L1:
+  X age (sub ts lastInjection)
+  # Stale if older than 1 hour (3600s)
+  X isStale (gt age 3600)
+  If isStale ->L3 ->L4
+
+# ── No injection exists — flag it ──
+L2:
+  X status "no_bootstrap"
+  X msg (core.concat "Session continuity — no bootstrap context found at " isoTs)
+  R queue Put "notify" msg ->_
+  R cache set "monitor_heartbeat" "session_continuity_intel" ts ->_
+  J status
+
+# ── Stale injection — trigger refresh ──
+L3:
+  X ageMin (core.idiv age 60)
+  X ageStr (core.stringify ageMin)
+  X status "stale"
+  X msg (core.concat "Session continuity — bootstrap context is " ageStr "min old, needs refresh")
+  R queue Put "notify" msg ->_
+  R cache set "monitor_heartbeat" "session_continuity_intel" ts ->_
+  J status
+
+# ── Fresh injection — check stats ──
+L4:
+  R cache get "workflow" "context_injection_lines" ->lineCount
+  R cache get "workflow" "context_injection_tokens" ->tokenCount
+  X hasLines (ne lineCount null)
+  If hasLines ->L5 ->L6
+
+# ── Report with stats ──
+L5:
+  X lineStr (core.stringify lineCount)
+  X tokStr (core.stringify tokenCount)
+  X msg (core.concat "Session continuity OK — " lineStr " lines, " tokStr " tokens injected at " isoTs)
+  R queue Put "notify" msg ->_
   R cache set "monitor_heartbeat" "session_continuity_intel" ts ->_
   R cache set "session" "continuity_last_ok" ts ->_
-  J summary
+  J lineCount
 
-L_nothing:
-  QueuePut notify "Session continuity (intel) — no session contexts tracked"
+# ── Report without stats ──
+L6:
+  X msg (core.concat "Session continuity OK — bootstrap context fresh at " isoTs)
+  R queue Put "notify" msg ->_
   R cache set "monitor_heartbeat" "session_continuity_intel" ts ->_
-  R core concat "no_sessions" ->quiet
-  J quiet
+  R cache set "session" "continuity_last_ok" ts ->_
+  J 0

@@ -1,7 +1,7 @@
 # Token Budget Tracker — Implementation Log
 
-**Consultant:** Apollo  
-**Date:** 2026-03-12  
+**Consultant:** Apollo
+**Date:** 2026-03-12
 **Goal:** Proactively manage LLM token spending by maintaining a rolling weekly budget, persisting usage to memory, and alerting when nearing limits.
 
 ---

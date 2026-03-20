@@ -94,4 +94,3 @@ def test_array_of_records_reports_indexed_paths(tmp_path):
     issues = mv.validate_records_obj(obj)
     # Second record should have an error with path prefix [1].
     assert any(i.kind == "error" and i.path.startswith("[1].") for i in issues)
-

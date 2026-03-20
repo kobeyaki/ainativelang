@@ -287,4 +287,3 @@ If you are building an autonomous agent on top of AINL, the recommended reading 
 7. `docs/advanced/AGENT_COORDINATION_CONTRACT.md` — non-canonical, extension-level JSON envelopes for agent manifests, task requests, and task results (used over queues/files, not as core semantics).
 
 When you need something AINL does **not** yet express cleanly (e.g. full meta‑monitoring), model it explicitly as “deferred” in your system design rather than assuming semantics that do not exist.
-

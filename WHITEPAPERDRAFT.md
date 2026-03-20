@@ -2,9 +2,9 @@
 
 Graph-based agent orchestration, canonical IR, and compile-once / run-many execution for production AI systems.
 
-**Version:** 1.1.0  
-**Project status:** active human + AI co-development  
-**Primary implementation:** `compiler_v2.py`, `runtime/engine.py`, `scripts/runtime_runner_service.py`  
+**Version:** 1.1.0
+**Project status:** active human + AI co-development
+**Primary implementation:** `compiler_v2.py`, `runtime/engine.py`, `scripts/runtime_runner_service.py`
 **Reference ecosystem:** OpenClaw/NemoClaw-integrated autonomous workflows, canonical strict validation, multi-target emitters, sandboxed operator deployments
 
 ---

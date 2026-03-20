@@ -103,4 +103,3 @@ class WasmAdapter(RuntimeAdapter):
 
 
 __all__ = ["WasmAdapter"]
-

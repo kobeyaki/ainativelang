@@ -24,4 +24,3 @@ model Signal {
   dir  String
   strength  Float
 }
-

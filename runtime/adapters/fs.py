@@ -33,7 +33,7 @@ class SandboxedFileSystemAdapter(FileSystemAdapter):
 
     def call(self, target: str, args: List[Any], context: Dict[str, Any]) -> Any:
         t = (target or "").strip().lower()
-        if t not in {"read", "write", "list", "delete"}:
+        if t not in {"read", "readlines", "write", "list", "delete", "exists", "mkdir"}:
             raise AdapterError(f"unsupported fs target: {target}")
         if not args:
             raise AdapterError("fs adapter missing path argument")
@@ -46,6 +46,21 @@ class SandboxedFileSystemAdapter(FileSystemAdapter):
             if len(data) > self.max_read_bytes:
                 raise AdapterError("fs read exceeds max_read_bytes")
             return data.decode("utf-8", errors="replace")
+
+        if t == "readlines":
+            if not p.exists() or not p.is_file():
+                raise AdapterError("fs readlines target does not exist")
+            data = p.read_bytes()
+            if len(data) > self.max_read_bytes:
+                raise AdapterError("fs readlines exceeds max_read_bytes")
+            return data.decode("utf-8", errors="replace").splitlines()
+
+        if t == "exists":
+            return p.exists()
+
+        if t == "mkdir":
+            p.mkdir(parents=True, exist_ok=True)
+            return {"ok": True}
 
         if t == "write":
             content = args[1] if len(args) > 1 else ""

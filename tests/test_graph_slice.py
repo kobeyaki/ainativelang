@@ -41,4 +41,3 @@ def test_compact_slice_snapshot_basic_shape():
     assert "graph_semantic_checksum" in snap
     assert "compact" in snap
     assert snap["trace_count"] == 0
-

@@ -44,4 +44,3 @@ def test_adapter_registry_docs_mention_result_envelope_fields():
       # Weak but useful consistency check: all field names appear in the docs.
       for field in fields:
           assert field in text, f"field {name}.{field} missing from ADAPTER_REGISTRY.md"
-

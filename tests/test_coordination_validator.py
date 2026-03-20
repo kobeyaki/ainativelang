@@ -65,4 +65,3 @@ def test_jsonl_linter_reports_line_numbers(tmp_path):
     issues = cv.lint_tasks_file(jsonl_path)
     # We expect at least one error tied to the second line.
     assert any("tasks.jsonl:2" in i.path and i.kind == "error" for i in issues)
-

@@ -306,4 +306,3 @@ def runtime_debug_envelope(
         },
         "slice": slice_block,
     }
-

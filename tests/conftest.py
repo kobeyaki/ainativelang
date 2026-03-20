@@ -28,4 +28,3 @@ def pytest_collection_modifyitems(config, items):
             continue
         if name in integration_exact or name.startswith(integration_name_prefixes):
             item.add_marker("integration")
-

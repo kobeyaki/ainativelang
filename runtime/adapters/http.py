@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import socket
+import ssl
 import time
 from typing import Any, Dict, Iterable, List, Optional
 from urllib.error import HTTPError, URLError
@@ -9,6 +10,15 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 from runtime.adapters.base import AdapterError, HttpAdapter
+
+# Build a default SSL context that uses certifi's CA bundle when available.
+# This fixes macOS environments where the system cert store isn't linked.
+def _default_ssl_context() -> ssl.SSLContext:
+    try:
+        import certifi
+        return ssl.create_default_context(cafile=certifi.where())
+    except ImportError:
+        return ssl.create_default_context()
 
 
 class SimpleHttpAdapter(HttpAdapter):
@@ -86,7 +96,7 @@ class SimpleHttpAdapter(HttpAdapter):
 
         while attempt < max_attempts:
             try:
-                with urlopen(req, timeout=timeout_s) as resp:
+                with urlopen(req, timeout=timeout_s, context=_default_ssl_context()) as resp:
                     status = int(getattr(resp, "status", 200))
                     resp_headers = {k.lower(): v for k, v in dict(resp.headers).items()}
                     body = resp.read(self.max_response_bytes + 1)

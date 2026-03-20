@@ -160,19 +160,19 @@ saved run payloads.
 
 ### 3. How this relates to other evidence
 
-- **Graph/IR introspection**  
+- **Graph/IR introspection**
   - `docs/architecture/GRAPH_INTROSPECTION.md` shows how to:
     - emit IR/graph with `ainl-validate` / `scripts/validate_ainl.py`,
     - query graphs with `tooling/graph_api.py`,
     - normalize and diff graphs.
 
-- **Autonomous ops playbook**  
+- **Autonomous ops playbook**
   - `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md` documents:
     - compile-once / run-many patterns,
     - deterministic replay (`--record-adapters`, `--replay-adapters`),
     - cooldown and remediation patterns using existing adapters.
 
-- **Snapshot tests**  
+- **Snapshot tests**
   - `tests/test_snapshot_compile_outputs.py` guards semantic checksums, labels, services, and emit capabilities.
   - `tests/test_snapshot_emitters.py` guards emitted artifacts for server / OpenAPI / Prisma / SQL.
   - `tests/test_snapshot_runtime_paths.py` guards runtime results and trace ops.
@@ -183,4 +183,3 @@ Taken together, the reproducible recipe above plus these existing tests form an 
 - graph-first deterministic execution engine,
 - adapter-driven system with record/replay,
 - auditable IR/graph + runtime behavior environment.
-

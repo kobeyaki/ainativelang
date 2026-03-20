@@ -128,4 +128,3 @@ def export_daily_log_markdown(
         written.append(path)
 
     return written
-

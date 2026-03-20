@@ -24,4 +24,3 @@ This example shows the **canonical pattern**:
 - One `E` per route.
 - One label per endpoint.
 - A single `R` node followed by a terminal `J`.
-

@@ -229,4 +229,3 @@ def test_contract_prefix_and_helper_delegation() -> None:
     p_label = "L1:\n\n"
     assert active_label_scope_from_prefix(p_top) == grammar_active_label_scope(p_top)
     assert active_label_scope_from_prefix(p_label) == grammar_active_label_scope(p_label)
-

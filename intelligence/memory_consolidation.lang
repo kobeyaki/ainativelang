@@ -1,196 +1,161 @@
-# Memory Consolidation v2 — Terse Format
+# Memory Consolidation — Terse Format
+# ====================================
 # Runs daily at 03:30. Scans recent memory/*.md files, extracts high-signal
 # lines, converts to terse bullet format (D:/P:/T:/L:/S:), appends to MEMORY.md.
 # Pure compute — no LLM calls. Keyword-based extraction only.
-# Uses X dst push dst item (not Append — Append is not lowered to IR).
+#
+# Patterns: Loop + If branching + push + core.contains keyword filter.
 S core cron "30 3 * * *"
 
+# ── Entry: list memory dir, read existing MEMORY.md ──
 L0:
-  R core iso ->iso
-  X today_str (core.substr iso 0 10)
-
-  # List memory directory
+  R core iso ->nowIso
   R fs list "memory" ->files
   X total (core.len files)
-  Set zero 0
-  X noFiles (core.eq total zero)
-  If noFiles ->L_done_empty ->L_select_recent
+  X noFiles (eq total 0)
+  If noFiles ->L20 ->L1
 
-L_select_recent:
-  # Take last 10 files (most recent days)
-  Set maxFiles 10
-  X startIdx (core.sub total maxFiles)
-  Set zero1 0
-  X startSafe (core.max startIdx zero1)
-  Set recentFiles []
-  Set ri startSafe
-  J L_collect_recent
-
-L_collect_recent:
-  X rcDone (core.gte ri total)
-  If rcDone ->L_read_memory ->L_add_recent
-
-L_add_recent:
-  X fname get files ri
-  X isMd (core.contains fname ".md")
-  If isMd ->L_append_recent ->L_skip_recent
-
-L_append_recent:
-  X recentFiles push recentFiles fname
-  J L_skip_recent
-
-L_skip_recent:
-  Set one1 1
-  X ri (core.add ri one1)
-  J L_collect_recent
-
-L_read_memory:
-  # Read existing MEMORY.md to avoid duplicating
+# ── Read existing MEMORY.md for dedup ──
+L1:
   R fs read "MEMORY.md" ->existingMem
   X existingLower (core.lower existingMem)
+  # Filter to .md files only
+  X mdFiles (arr)
+  Loop files fname ->L2 ->L3
 
-  X recentCount (core.len recentFiles)
-  Set zero2 0
-  X noRecent (core.eq recentCount zero2)
-  If noRecent ->L_done_empty ->L_process_init
+# ── Check if file is .md ──
+L2:
+  X isMd (core.contains fname ".md")
+  If isMd ->L4 ->L5
 
-L_process_init:
-  Set newItems []
-  Set pi 0
-  J L_process_file
+L4:
+  X mdFiles (push mdFiles fname)
 
-L_process_file:
-  X pfDone (core.gte pi recentCount)
-  If pfDone ->L_check_results ->L_read_one
+L5:
+  Set _skip 1
 
-L_read_one:
-  X pfile get recentFiles pi
-  X ppath (core.concat "memory/" pfile)
-  R fs read ppath ->fcontent
-  X flines (core.split fcontent "\n")
-  X fcount (core.len flines)
-  Set li 0
-  J L_scan_lines
+# ── Process each .md file: read lines, extract high-signal ──
+L3:
+  X fileCount (core.len mdFiles)
+  X noMd (eq fileCount 0)
+  If noMd ->L20 ->L6
 
-L_scan_lines:
-  X slDone (core.gte li fcount)
-  If slDone ->L_next_file ->L_eval_line
+L6:
+  X newItems (arr)
+  Loop mdFiles mfile ->L7 ->L12
 
-L_eval_line:
-  X rawLine get flines li
+# ── Read one memory file ──
+L7:
+  X fpath (core.concat "memory/" mfile)
+  R fs readlines fpath ->flines
+  Loop flines rawLine ->L8 ->L9
+
+# ── Evaluate one line ──
+L8:
   X trimLine (core.trim rawLine)
   X lineLen (core.len trimLine)
+  X tooShort (lt lineLen 20)
+  If tooShort ->L10 ->L11
 
-  # Skip empty/short lines
-  Set minChars 20
-  X tooShort (core.lt lineLen minChars)
-  If tooShort ->L_next_line ->L_keyword_check
-
-L_keyword_check:
+# ── Keyword check ──
+L11:
   X lower (core.lower trimLine)
-
-  # Check for high-signal keywords
-  X kDecision (core.contains lower "decision")
-  X kPreference (core.contains lower "preference")
-  X kTodo (core.contains lower "todo")
-  X kImportant (core.contains lower "important")
-  X kLesson (core.contains lower "lesson")
-  X kSetting (core.contains lower "setting")
-  X kRequires (core.contains lower "requires")
-  X kConfig (core.contains lower "config")
-  X kFixed (core.contains lower "fixed")
-  X kChanged (core.contains lower "changed")
-  X kCreated (core.contains lower "created")
-  X kEnabled (core.contains lower "enabled")
-  X kDisabled (core.contains lower "disabled")
-
-  # Check if line already has terse prefix
+  # High-signal keyword detection
+  X k1 (core.contains lower "important")
+  X k2 (core.contains lower "fixed")
+  X k3 (core.contains lower "config")
+  X k4 (core.contains lower "preference")
+  X k5 (core.contains lower "todo")
+  X k6 (core.contains lower "lesson")
+  X k7 (core.contains lower "setting")
+  X k8 (core.contains lower "requires")
+  X k9 (core.contains lower "changed")
+  X k10 (core.contains lower "created")
+  X k11 (core.contains lower "enabled")
+  X k12 (core.contains lower "disabled")
+  # Check for existing terse prefixes
   X hasD (core.contains trimLine "D: ")
   X hasP (core.contains trimLine "P: ")
   X hasT (core.contains trimLine "T: ")
   X hasL (core.contains trimLine "L: ")
   X hasS (core.contains trimLine "S: ")
+  X isTerse (or hasD (or hasP (or hasT (or hasL hasS))))
+  X hasKeyword (or k1 (or k2 (or k3 (or k4 (or k5 (or k6 (or k7 (or k8 (or k9 (or k10 (or k11 k12)))))))))))
+  X isLong (gt lineLen 60)
+  X keyAndLong (and hasKeyword isLong)
+  X keep (or isTerse keyAndLong)
+  If keep ->L13 ->L10
 
-  # Combine: terse prefix OR (keyword AND long enough)
-  X isTerse (core.or hasD (core.or hasP (core.or hasT (core.or hasL hasS))))
-  X hasKeyword (core.or kDecision (core.or kPreference (core.or kTodo (core.or kImportant (core.or kLesson (core.or kSetting (core.or kRequires (core.or kConfig (core.or kFixed (core.or kChanged (core.or kCreated (core.or kEnabled kDisabled))))))))))))
-  Set minLong 60
-  X isLong (core.gt lineLen minLong)
-  X keywordAndLong (core.and hasKeyword isLong)
-  X keep (core.or isTerse keywordAndLong)
-  If keep ->L_dedup_check ->L_next_line
-
-L_dedup_check:
-  # Skip if this line (lowercased) already exists in MEMORY.md
+# ── Dedup check: skip if already in MEMORY.md ──
+L13:
   X alreadyExists (core.contains existingLower lower)
-  If alreadyExists ->L_next_line ->L_classify_and_add
+  If alreadyExists ->L10 ->L14
 
-L_classify_and_add:
-  # If already terse-prefixed, add as-is
-  If isTerse ->L_add_as_is ->L_auto_prefix
+# ── Cap check: stop collecting after 50 items ──
+L14:
+  X curCount (core.len newItems)
+  X atCap (gte curCount 50)
+  If atCap ->L10 ->L14b
 
-L_auto_prefix:
-  # Classify by keyword priority using nested ite (if-then-else)
-  # D: decision/fixed/changed, T: todo/requires, L: lesson/important, S: setting/config/enabled/disabled/created, P: default
-  X isDecisionType (core.or kDecision (core.or kFixed kChanged))
-  X isTodoType (core.or kTodo kRequires)
-  X isLessonType (core.or kLesson kImportant)
-  X isSettingType (core.or kSetting (core.or kConfig (core.or kEnabled (core.or kDisabled kCreated))))
+# ── Classify and add prefix ──
+L14b:
+  # Already terse? Add as-is
+  If isTerse ->L15 ->L16
 
-  # Compute prefix using ite chain
-  X prefix (ite isDecisionType "D: " (ite isTodoType "T: " (ite isLessonType "L: " (ite isSettingType "S: " "P: "))))
+L15:
+  X newItems (push newItems trimLine)
 
-  # Truncate line to 120 chars max for terseness
-  Set maxTrunc 120
-  X needsTrunc (core.gt lineLen maxTrunc)
-  If needsTrunc ->L_trunc_line ->L_add_prefixed
+# ── Auto-prefix by keyword type ──
+L16:
+  X isDecType (or k2 k9)
+  X isTodoType (or k5 k8)
+  X isLessonType (or k6 k1)
+  X isSettType (or k7 (or k3 (or k11 (or k12 k10))))
+  # Build prefix via ite chain: D > T > L > S > P
+  X p1 (ite isDecType "D: " "")
+  X p2 (ite isTodoType "T: " "")
+  X p3 (ite isLessonType "L: " "")
+  X p4 (ite isSettType "S: " "")
+  # Pick first non-empty prefix (priority order)
+  X pfxA (ite isDecType p1 (ite isTodoType p2 (ite isLessonType p3 (ite isSettType p4 "P: "))))
+  # Truncate to 120 chars max
+  X needsTrunc (gt lineLen 120)
+  X truncLine (ite needsTrunc (core.substr trimLine 0 120) trimLine)
+  X terseLine (core.concat pfxA truncLine)
+  X newItems (push newItems terseLine)
 
-L_trunc_line:
-  X trimLine (core.substr trimLine 0 maxTrunc)
-  J L_add_prefixed
+# ── No-op skip ──
+L10:
+  Set _skip 1
 
-L_add_prefixed:
-  X terseLine (core.concat prefix trimLine)
-  X newItems push newItems terseLine
-  J L_next_line
+# ── After inner loop (per-file) ──
+L9:
+  Set _done 1
 
-L_add_as_is:
-  X newItems push newItems trimLine
-  J L_next_line
-
-L_next_line:
-  Set one2 1
-  X li (core.add li one2)
-  J L_scan_lines
-
-L_next_file:
-  Set one3 1
-  X pi (core.add pi one3)
-  J L_process_file
-
-L_check_results:
+# ── After outer loop: check results ──
+L12:
   X itemCount (core.len newItems)
-  Set zero3 0
-  X noNew (core.eq itemCount zero3)
-  If noNew ->L_done_none ->L_write
+  X noNew (eq itemCount 0)
+  If noNew ->L21 ->L17
 
-L_write:
-  # Build section and append to MEMORY.md
-  X sectionHeader (core.concat "\n\n## Consolidated — " today_str "\n")
+# ── Write consolidated section to MEMORY.md ──
+L17:
+  X sectionHeader (core.concat "\n\n## Consolidated — " nowIso "\n")
   X itemText (core.join "\n" newItems)
   X section (core.concat sectionHeader itemText "\n")
   X finalMem (core.concat existingMem section)
   R fs write "MEMORY.md" finalMem ->_
-
   # Notify
-  X msg (core.concat "Consolidation: " (core.stringify itemCount) " terse items from " (core.stringify recentCount) " files")
-  R queue Put "notify" {"module":"memory_consolidation","status":"ok","message":msg} ->_
-  J msg
+  X countStr (core.stringify itemCount)
+  X fileStr (core.stringify fileCount)
+  X msg (core.concat "Consolidation: " countStr " terse items from " fileStr " files")
+  R queue Put "notify" msg ->_
+  J itemCount
 
-L_done_empty:
-  R core concat "No memory files to consolidate" ->msg
-  J msg
+# ── Exit: no files ──
+L20:
+  J 0
 
-L_done_none:
-  R core concat "No new items found" ->msg
-  J msg
+# ── Exit: no new items ──
+L21:
+  J 0

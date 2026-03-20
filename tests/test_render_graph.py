@@ -39,4 +39,3 @@ def test_render_dot_minimal_ir():
   assert '"L1_n2" [label="J"];' in dot
   # Edge includes the port label
   assert '"L1_n1" -> "L1_n2" [label="next"];' in dot
-

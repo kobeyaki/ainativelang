@@ -59,4 +59,3 @@ def test_security_report_operator_sensitive():
     adapters = summary["adapters"]
     assert "svc" in adapters
     assert "operator_sensitive" in adapters["svc"]["privilege_tiers"]
-

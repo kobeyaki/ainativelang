@@ -2,7 +2,7 @@
 
 **Purpose:** Internal fillable form for use during discovery calls. Capture prospect basics, offer fit, inputs, risks, and next step. Based on [DISCOVERY_CALL_CHECKLIST.md](DISCOVERY_CALL_CHECKLIST.md) and the three current offers. Not a contract; no pricing or legal language.
 
-**Call date:** _______________  
+**Call date:** _______________
 **Completed by:** _______________
 
 ---
@@ -25,29 +25,29 @@
 
 **Current situation**
 - Are they running AINL today or evaluating? What’s in place (programs, adapters, monitors, pipeline)?
-- 
+-
 
 **Technical environment**
 - Repo we can review or written description? Where would monitors/pipeline run (their infra vs ours)? What stack (Python, scheduler, adapters)?
-- 
+-
 
 **Desired outcomes**
 - What does “success” look like? (e.g. governance artifact, run health outputs, supported monitors, risk reduction)
-- 
+-
 
 **Constraints**
 - Timeline? Any must-haves that might be out of scope (hosted execution, custom monitors, dashboard, custom pipeline)?
-- 
+-
 
 **Ownership / who runs what**
 - Point of contact for intake and delivery? Who deploys/operates? Who consumes outputs (run health, health envelope)?
-- 
+-
 
 **Success criteria**
-- For Implementation Review: conformance only, or conformance + adapter + ops?  
-- For Managed Alignment: how do they define “pass” (min rates, max regression)?  
+- For Implementation Review: conformance only, or conformance + adapter + ops?
+- For Managed Alignment: how do they define “pass” (min rates, max regression)?
 - For Monitor Pack: fixed supported set OK? Run in their environment OK?
-- 
+-
 
 ---
 
@@ -60,7 +60,7 @@
 - [ ] **Managed Alignment Pipeline** — We run alignment cycle; deliver run health + trend outputs; agreed SLA.
 - [ ] **Unclear / needs review** — Recommend Implementation Review first to clarify scope.
 
-**Notes:**  
+**Notes:**
 
 ---
 
@@ -85,7 +85,7 @@
 - [ ] If runs in their VPC: access and permissions
 - [ ] Point of contact
 
-**Gaps / follow-up:**  
+**Gaps / follow-up:**
 
 ---
 
@@ -102,7 +102,7 @@
 - [ ] Treating offer as **full multi-tenant SaaS** or open-ended platform (defined scope and deliverables only)
 - [ ] **Recommend Implementation Review first** — scope unclear, new to AINL, or need to clarify before pack/pipeline
 
-**Other:**  
+**Other:**
 
 ---
 
@@ -115,7 +115,7 @@
 - [ ] **Recommend Implementation Review first** — Scope unclear or prospect new to AINL; propose review to clarify, then pack or pipeline if relevant.
 - [ ] **Decline / not a fit yet** — Needs don’t match current offers (e.g. requires hosted execution, custom work, or dashboard we don’t offer); or timing/budget not aligned.
 
-**Next action / owner:**  
+**Next action / owner:**
 
 ---
 

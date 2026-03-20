@@ -89,8 +89,8 @@ Variables: use **Set**, **Filt**, **Sort** only (no overloading). Client fetch r
 
 ### 3.1 Canonical meaning is the graph
 
-- **Canonical meaning** of a label is defined by **nodes** and **edges**.  
-- **`labels[id].nodes`** and **`labels[id].edges`** are the canonical representation (in IR and in this doc, `labels[id]` means `labels[label_key]` where label_key is the numeric id).  
+- **Canonical meaning** of a label is defined by **nodes** and **edges**.
+- **`labels[id].nodes`** and **`labels[id].edges`** are the canonical representation (in IR and in this doc, `labels[id]` means `labels[label_key]` where label_key is the numeric id).
 - **`labels[id].legacy.steps`** is a **non-canonical compatibility encoding** that must round-trip to the same graph. Emitters and runtimes that consume step-lists must treat them as a serialization of that graph. **graph_to_steps()** is required only for graphs that are representable in step-list form (a reducible subset). For general graphs, `legacy.steps` may be absent; `nodes`/`edges` remains canonical.
 
 So: *“Canonical meaning is defined by nodes/edges; step-list is an allowed compatibility encoding.”* **Invariant:** Canonical IR = nodes/edges; everything else is serialization. Current implementation emits canonical graph and executes graph by default (`graph-preferred`), with `legacy.steps` retained for compatibility and explicit `steps-only` mode. No emitter should define label semantics from steps alone in a way that diverges from the graph.
@@ -201,14 +201,14 @@ A future note can define a concrete layout (op enum, var table, node table, edge
 
 ## 7. Module op lists (quick reference)
 
-- **core (executable):** S, D, E, L, R, J, If, Err, Retry, Call, Set, Filt, Sort, Inc  
-- **core (declarations, non-executable):** U, T, Rt, Lay, Fm, Tbl, Ev, A, Q, Sc, Cr, P, C  
-- **ops:** Env, Sec, M, Tr, Deploy, EnvT, Flag, Lim  
-- **fe:** Tok, Brk, Sp, Comp, Copy, Theme, i18n, A11y, Off, Help, Wiz, fe.FetchRetry  
-- **arch:** Svc, Contract, Rel, Idx, API, Dep, SLA, Adm, Desc, Run  
-- **test:** Tst, Mock  
-- **rag:** rag.Src, rag.Chunk, rag.Embed, rag.Store, rag.Idx, rag.Ret, rag.Aug, rag.Gen, rag.Pipe (within module rag, ops appear as rag.Src, rag.Chunk, …)  
-- **top-level:** Ver, Compat, Role, Allow, Aud  
+- **core (executable):** S, D, E, L, R, J, If, Err, Retry, Call, Set, Filt, Sort, Inc
+- **core (declarations, non-executable):** U, T, Rt, Lay, Fm, Tbl, Ev, A, Q, Sc, Cr, P, C
+- **ops:** Env, Sec, M, Tr, Deploy, EnvT, Flag, Lim
+- **fe:** Tok, Brk, Sp, Comp, Copy, Theme, i18n, A11y, Off, Help, Wiz, fe.FetchRetry
+- **arch:** Svc, Contract, Rel, Idx, API, Dep, SLA, Adm, Desc, Run
+- **test:** Tst, Mock
+- **rag:** rag.Src, rag.Chunk, rag.Embed, rag.Store, rag.Idx, rag.Ret, rag.Aug, rag.Gen, rag.Pipe (within module rag, ops appear as rag.Src, rag.Chunk, …)
+- **top-level:** Ver, Compat, Role, Allow, Aud
 
 ---
 

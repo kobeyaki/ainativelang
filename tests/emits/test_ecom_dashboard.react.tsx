@@ -39,4 +39,3 @@ export const CheckoutBtn: React.FC = () => {
     </div>
   );
 };
-

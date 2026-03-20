@@ -1,7 +1,7 @@
 # Infrastructure Watchdog — Persisting Restart History to Memory
 
-**Consultant:** Apollo  
-**Date:** 2026-03-12  
+**Consultant:** Apollo
+**Date:** 2026-03-12
 **Change:** Added persistent restart event logging to `memory` and enriched summary with 24‑hour restart count using `memory.list(updated_since?)`.
 
 ---

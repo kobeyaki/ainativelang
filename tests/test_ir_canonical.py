@@ -54,4 +54,3 @@ def test_graph_semantic_checksum_stable_across_reordering():
     lbl["nodes"] = list(reversed(lbl["nodes"]))
     c2 = graph_semantic_checksum(ir)
     assert c1 == c2
-

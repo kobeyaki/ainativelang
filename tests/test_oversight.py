@@ -74,4 +74,3 @@ def test_runtime_oversight_report_uses_trace_and_adapters():
     # Adapter counts and p95 must be present
     assert rep["adapters"]["counts"]["db"] == 2
     assert rep["adapters"]["p95_ms"]["db"] == 7.5
-

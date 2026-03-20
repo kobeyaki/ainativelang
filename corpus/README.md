@@ -41,4 +41,3 @@ Corpus artifacts are explicitly profiled in `tooling/artifact_profiles.json`:
 - `legacy-compat`: retained for training/repair context; not strict conformance targets
 
 Important: `invalid_program.ainl` files are training artifacts and may still parse/compile depending on strictness and evolving compiler checks; treat them as supervised repair inputs, not release-surface conformance samples.
-

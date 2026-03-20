@@ -77,4 +77,3 @@ Expanding targets so AI Native Lang is usable in production and for mass adoptio
 | Node/Java/.NET/Go | 🔲 Planned | New emitters + adapters |
 
 Adding OpenAPI and Docker to the compiler gives immediate production value: **documented, runnable API** and **one-command deploy** for the current stack.
-

@@ -2,11 +2,12 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Optional
 
 from compiler_v2 import AICodeCompiler
 
 
-def _render_dot(ir: dict, name: str | None = None) -> str:
+def _render_dot(ir: dict, name: Optional[str] = None) -> str:
   """Render a minimal DOT representation of the IR graph."""
   lines: list[str] = []
   graph_name = (name or "ainl_graph").replace("-", "_").replace(".", "_")
@@ -63,7 +64,7 @@ def _load_ir_from_json(path: Path) -> dict:
     return json.load(f)
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: Optional[list[str]] = None) -> int:
   parser = argparse.ArgumentParser(
       description=(
           "Render a minimal DOT graph from an AINL source file or IR JSON.\n\n"
@@ -102,4 +103,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
   raise SystemExit(main())
-

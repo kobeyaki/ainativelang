@@ -10,5 +10,3 @@ export const ApplePrice: React.FC = () => {
     </div>
   );
 };
-
-

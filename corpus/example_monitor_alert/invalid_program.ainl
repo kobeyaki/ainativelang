@@ -8,4 +8,3 @@ L_monitor:
 L_alert:
   R http.Post "https://hook.example.com/alert" metrics ->ack
   J ack
-

@@ -292,4 +292,3 @@ def main(argv: List[str] = None) -> int:
 
 if __name__ == "__main__":  # pragma: no cover
     raise SystemExit(main())
-

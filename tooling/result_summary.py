@@ -65,4 +65,3 @@ def summarize_run_result(
         "artifacts": [],
         "review_hint": review_hint,
     }
-
