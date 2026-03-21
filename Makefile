@@ -27,7 +27,22 @@ conformance:
 	@$(PYTHON) -c 'import re, pathlib; log=pathlib.Path("$(CONFORMANCE_LOG)").read_text(encoding="utf-8"); mp=re.search(r"([0-9]+) passed", log); ms=re.search(r"([0-9]+) skipped", log); mf=re.search(r"([0-9]+) failed", log); p=int(mp.group(1)) if mp else 0; s=int(ms.group(1)) if ms else 0; f=int(mf.group(1)) if mf else 0; status="passing" if f==0 else "failing"; color_hex="#4c1" if f==0 else "#e05d44"; summary=pathlib.Path("$(CONFORMANCE_SUMMARY)"); summary.write_text(f"# Conformance Summary\n\n- Passed: {p}\n- Skipped: {s}\n- Failed: {f}\n- Status: {status}\n", encoding="utf-8"); badge=pathlib.Path("$(CONFORMANCE_BADGE)"); svg=f"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"180\" height=\"20\" role=\"img\" aria-label=\"conformance: {status}\"><rect width=\"110\" height=\"20\" fill=\"#555\"/><rect x=\"110\" width=\"70\" height=\"20\" fill=\"{color_hex}\"/><text x=\"55\" y=\"14\" fill=\"#fff\" font-family=\"Verdana\" font-size=\"11\" text-anchor=\"middle\">conformance</text><text x=\"145\" y=\"14\" fill=\"#fff\" font-family=\"Verdana\" font-size=\"11\" text-anchor=\"middle\">{status}</text></svg>"; badge.write_text(svg, encoding="utf-8"); print(f"==> Wrote {summary} and {badge}")'
 
 # Benchmarks need tiktoken + psutil (pyproject [benchmark] extra). Installed on demand below.
+# ainl-lang baseline is Python 3.10+ (see pyproject.toml requires-python); fail fast with a clear message.
 benchmark-deps: ## Install [benchmark] extra if tiktoken/psutil missing in $(PYTHON)
+	@$(PYTHON) - <<'PY'
+import sys
+if sys.version_info < (3, 10):
+    print("ERROR: ainl-lang requires Python 3.10+ (project baseline; matches pyproject.toml requires-python).")
+    print(
+        "       Current: Python %d.%d.%d"
+        % (sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
+    )
+    print("       Executable:", sys.executable)
+    print(
+        '       Fix: python3.11 -m venv .venv && source .venv/bin/activate && pip install -e ".[dev,benchmark]"'
+    )
+    raise SystemExit(1)
+PY
 	@$(PYTHON) -c "import tiktoken, psutil" 2>/dev/null || \
 	  (echo "==> Installing optional [benchmark] deps (tiktoken, psutil)..." && \
 	   $(PYTHON) -m pip install -q -e ".[benchmark]")
