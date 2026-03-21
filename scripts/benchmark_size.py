@@ -607,6 +607,7 @@ def build_report(
     handwritten_baseline_size_comparison: Optional[Dict[str, Any]] = None,
     cost_models: Optional[List[str]] = None,
     compile_reliability_runs: int = 0,
+    strict_compiler_mode: bool = False,
 ) -> Dict:
     headline_name = benchmark_manifest.get("headline_profile", "canonical_strict_valid")
     # Attach lightweight size-driver diagnostics per profile/mode.
@@ -627,6 +628,7 @@ def build_report(
         "modes": mode_payloads,
         "handwritten_baselines": benchmark_manifest.get("handwritten_baselines", {}),
         "compile_reliability_runs": int(compile_reliability_runs),
+        "strict_compiler_mode": bool(strict_compiler_mode),
     }
     if handwritten_baseline_size_comparison is not None:
         out["handwritten_baseline_size_comparison"] = handwritten_baseline_size_comparison
@@ -716,6 +718,12 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
     lines.append("This benchmark measures AINL source compactness against generated implementation artifacts.")
     lines.append("It is segmented by profile and mode; it is not a universal compactness claim across programming languages.")
     lines.append("")
+    if report.get("strict_compiler_mode"):
+        lines.append(
+            "> **Strict compiler mode:** ``AICodeCompiler(strict_mode=True, strict_reachability=True)`` "
+            "(``--strict-mode`` with ``--profile-name=canonical_strict_valid`` only)."
+        )
+        lines.append("")
     lines.append("## Benchmark Profiles")
     lines.append("")
     for name, cfg in benchmark_manifest.get("profiles", {}).items():
@@ -996,6 +1004,14 @@ def parse_args() -> argparse.Namespace:
         default=0,
         help="Repeat compile N times per artifact (0=off); reports success %% and compile-time stddev.",
     )
+    ap.add_argument(
+        "--strict-mode",
+        action="store_true",
+        help=(
+            "Use AICodeCompiler(strict_mode=True, strict_reachability=True). "
+            "Only honored when --profile-name=canonical_strict_valid (otherwise warned and ignored)."
+        ),
+    )
     return ap.parse_args()
 
 
@@ -1051,7 +1067,21 @@ def main() -> int:
                 "metric=approx_chunks is legacy; prefer default tiktoken for production-relevant sizing."
             )
         count_fn = metric_counter(args.metric)
-        compiler = AICodeCompiler(strict_mode=False)
+        strict_compiler_active = False
+        if args.strict_mode:
+            if args.profile_name != "canonical_strict_valid":
+                logger.warning(
+                    "--strict-mode only applies when --profile-name=canonical_strict_valid; "
+                    "ignoring (current --profile-name=%r).",
+                    args.profile_name,
+                )
+            else:
+                strict_compiler_active = True
+                logger.info("Strict compiler mode: strict_mode=True, strict_reachability=True")
+        compiler = AICodeCompiler(
+            strict_mode=strict_compiler_active,
+            strict_reachability=strict_compiler_active,
+        )
         cost_models = parse_cost_model_cli(args.cost_model)
         profile_names = _selected_profile_names(args.profile_name, benchmark_manifest)
         mode_names = _selected_modes(args.mode)
@@ -1115,6 +1145,7 @@ def main() -> int:
             handwritten_baseline_size_comparison=handwritten_cmp,
             cost_models=cost_models or None,
             compile_reliability_runs=int(args.compile_reliability_runs),
+            strict_compiler_mode=strict_compiler_active,
         )
 
         json_out = Path(args.json_out)
