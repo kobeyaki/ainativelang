@@ -33,7 +33,7 @@ Path resolution, cycles, and tests: `tests/test_includes.py`. Graph inspection: 
 - **Graph visualizer CLI:** **`ainl visualize`** / **`ainl-visualize`** / `scripts/visualize_ainl.py` emit **Mermaid** (`graph TD`, subgraph **clusters** per include alias, synthetic **`Call →` entry** edges with a `%%` comment). Paste into [mermaid.live](https://mermaid.live). Flags: `--no-clusters`, `--labels-only`, `-o -`. Details: root **`README.md`** (*Visualize your workflow*), `docs/architecture/GRAPH_INTROSPECTION.md` §7.
 - **Runtime:** `ainl run`, runner service, MCP server, record/replay adapters — unchanged in role; see `docs/getting_started/README.md`.
 
-Long-form architecture and benchmarks: `WHITEPAPERDRAFT.md` (repository root).
+Long-form architecture: `WHITEPAPERDRAFT.md` (repository root). **Reproducible benchmarks:** [`BENCHMARK.md`](../BENCHMARK.md) (tiktoken **cl100k_base**, transparency notes) and [`docs/benchmarks.md`](benchmarks.md) (hub).
 
 ---
 

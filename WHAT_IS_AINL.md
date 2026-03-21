@@ -164,6 +164,10 @@ Starter modules in-repo: `modules/common/retry.ainl`, `modules/common/timeout.ai
 
 More detail: [`docs/WHAT_IS_AINL.md`](docs/WHAT_IS_AINL.md).
 
+## Evidence and benchmarks
+
+Reproducible **size** tables (**tiktoken cl100k_base**, viable subset vs legacy-inclusive transparency): [`BENCHMARK.md`](BENCHMARK.md). Hub (commands, CI, runtime + LLM eval pointers): [`docs/benchmarks.md`](docs/benchmarks.md).
+
 ## Why now
 
 As AI systems grow more capable, the bottleneck is no longer only model intelligence.

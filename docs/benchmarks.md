@@ -2,6 +2,27 @@
 
 This page ties together the **size**, **runtime**, and **LLM-generation** benchmarks so you can defend AINL with numbers—not vibes.
 
+### Benchmark highlights (March 2026)
+
+> **Source of truth:** repository root **[`BENCHMARK.md`](../BENCHMARK.md)** (regenerate with `make benchmark`). Numbers below are **tiktoken cl100k_base** as in the Mode Comparison and legacy-inclusive sections.
+
+Quick **size** snapshot:
+
+| Lens | What it means | Headline ratios (tk) | Artifact coverage |
+|------|----------------|----------------------|---------------------|
+| **Strict-valid** | `canonical_strict_valid` | **8.91×** full_multitarget / **2.22×** minimal_emit | 10/10 (all viable) |
+| **Public mixed, viable subset** | Representative **required-target** workloads; excludes curated low-emit / legacy rows | **~0.96×** full / **~1.02×** minimal_emit | **46/59** viable |
+| **Compatibility only, viable** | Non-strict headline companion profile | **~0.79×** full / **~0.83×** minimal_emit | **36/49** viable |
+| **Legacy-inclusive** | **All** paths in profile (honest aggregate drag from tiny shells) | e.g. `public_mixed` **minimal_emit ~0.24×**; **full_multitarget ~1.03×** | 59/59 |
+
+**Transparency (mirrors `BENCHMARK.md` blockquotes):**
+
+- **tiktoken cl100k_base** — markdown tables foreground tokenizer counts; JSON still stores the active CLI `--metric` (default `tiktoken`) for thresholds and economics.
+- **Viable subset** — for `public_mixed` / `compatibility_only`, rules in `tooling/artifact_profiles.json` + emit heuristics; **legacy-inclusive** tables are always below the fold.
+- **minimal_emit fallback stub** — tiny **python_api** async stub (~20–30 tk) when no selected target emits code.
+- **Emitter compaction (Mar 2026)** — **`prisma`** and **`react_ts`** benchmark stubs shortened (~50–70% tk reduction on those lines in examples).
+- **`--strict-mode`** — `scripts/benchmark_size.py` with **`--profile-name=canonical_strict_valid`** runs the compiler in strict reachability mode; see the strict callout in `BENCHMARK.md` when enabled.
+
 ## Why these benchmarks matter
 
 AINL is **compile-once, run-many**: you pay LLM tokens (or human time) to author a program once, then the runtime executes the graph deterministically—no prompt loop on every invocation. The **runtime** benchmarks measure that second phase: wall-clock latency, RSS deltas, optional execution reliability, and (with `tiktoken`) source-token economics. The **size** benchmarks quantify how much emitted surface area you get per AINL artifact (profile- and mode-scoped), including **mean compile time over three timed compiles** so you can see compiler cost separately from emit size. Together, they show a different cost structure from “LLM re-generates orchestration code every time.”
@@ -10,8 +31,8 @@ Human-written baselines (`--compare-baselines`) anchor claims against real Pytho
 
 ## Where to read results
 
-- **Human-readable size report:** repository root `BENCHMARK.md` (generated; commit when refreshing public numbers). On **ainativelang.com**, the same content is published as the [Benchmarks](/benchmark) page.
-- **Machine-readable size JSON:** `tooling/benchmark_size.json` (schema `3.3+`).
+- **Human-readable size report (start here):** repository root **[`BENCHMARK.md`](../BENCHMARK.md)** — transparency notes at top; viable vs legacy-inclusive sections; per-artifact **Notes** column. On **ainativelang.com**, the same content is published as the [Benchmarks](/benchmark) page.
+- **Machine-readable size JSON:** `tooling/benchmark_size.json` (schema `3.5+`).
 - **Runtime JSON:** `tooling/benchmark_runtime_results.json` (generated; tracked in git as the CI baseline when committed).
 - **LLM eval / multi-model bench:** `docs/OLLAMA_EVAL.md` — local Ollama plus optional **Anthropic Claude** via `ainl-ollama-benchmark --cloud-model …` (`pip install -e ".[anthropic]"`, `ANTHROPIC_API_KEY`).
 

@@ -39,9 +39,12 @@ It is designed for teams building AI workflows that need multiple steps, state a
 > - **Understand AINL first:** [ainativelang.com](https://ainativelang.com)
 > - **Run it now (CLI / runner / MCP):** [Choose Your Path](#choose-your-path)
 > - **Read the docs hub:** [`docs/README.md`](docs/README.md)
+> - **See updated benchmarks (tiktoken, viable subsets):** [`BENCHMARK.md`](BENCHMARK.md) · [`docs/benchmarks.md`](docs/benchmarks.md#benchmark-highlights-march-2026)
 > - **Using Claude Code / Cowork / Dispatch-style tools?** See the MCP/integration guidance in [`docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`](docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md) and [`docs/INTEGRATION_STORY.md`](docs/INTEGRATION_STORY.md)
 
 > TECHNICALS: AINL is a compact, graph-canonical, AI-native programming system for building deterministic workflows, multi-target applications, and operational agents without relying on ever-growing prompt loops.
+
+**Performance & benchmarks (updated Mar 2026):** Size results use **tiktoken cl100k_base** (billing-aligned for GPT-4o–class models). See **[`BENCHMARK.md`](BENCHMARK.md)** for the full tables and transparency notes; narrative hub **[`docs/benchmarks.md`](docs/benchmarks.md)** (highlights, commands, CI). Runtime economics and optional reliability batches: **`tooling/benchmark_runtime_results.json`** via `make benchmark` / `scripts/benchmark_runtime.py`.
 
 ---
 
@@ -404,16 +407,17 @@ AINL is most valuable when workflows are recurring, stateful, branching, safety-
 
 AINL's compactness and cost benefits should be described carefully.
 
+- **Compile-once, run-many:** You pay generation cost once; the **deterministic runtime** executes the graph without a prompt loop per invocation. **Runtime benchmarks** (`scripts/benchmark_runtime.py`, `tooling/benchmark_runtime_results.json`) measure post-compile latency, RSS, optional **execution reliability** batches, and **tiktoken**-based cost estimates—see **[`docs/benchmarks.md`](docs/benchmarks.md)**.
 - **Token Cost Efficiency:** AINL can save tokens in two ways. First, at authoring time, because the DSL is denser than general-purpose code. Second, at runtime, because compiled AINL programs execute deterministically through adapters and do not require recurring model inference on each execution. In practice, this can significantly reduce prompt and code-generation volume for non-trivial workflows while also eliminating repeated model-generation cost during normal operation. Complex monitors and similar programs that take roughly 30k–70k tokens in AINL (including the program itself and relevant runtime context) are estimated to require 3–5× more tokens, depending on workload, when generated as equivalent Python or TypeScript by an LLM. Those equivalents would also typically lack AINL's strict validation, graph introspection, and multi-target emission. After the initial learning curve, AINL is estimated to reduce per-task token burn by 2–5× for non-trivial automation. For simple tasks, the savings are smaller but still generally positive due to DSL density.
 
 Bottom line: AINL lowers overall token usage while increasing capability, predictability, and reliability.
 
 **What is supported today:**
 
-- AINL is often denser than equivalent generated implementation artifacts
-- The benchmark is profile-scoped and mode-scoped
-- Minimal emit is the more honest deployment comparison
-- Full multitarget is best understood as downstream expansion leverage, not apples-to-apples terseness
+- **Reproducible size metrics** default to **tiktoken cl100k_base** (see **[`BENCHMARK.md`](BENCHMARK.md)**). Headline ratios use a **viable subset** for mixed profiles so representative workloads are not drowned out by tiny legacy shells; **legacy-inclusive** totals are printed **separately** for honesty.
+- AINL is often denser than equivalent generated implementation artifacts *in the benchmark setup we publish*—always profile- and mode-scoped
+- **minimal_emit** is the more honest deployment comparison; **full_multitarget** is downstream expansion leverage, not apples-to-apples terseness
+- **`--strict-mode`** on `scripts/benchmark_size.py` enables true strict compilation (reachability pruning) for **`canonical_strict_valid`** only—see `BENCHMARK.md` callout when active
 - Compile-once / run-many workflows reduce repeated model-generation cost
 
 **What is not supported:**
@@ -423,11 +427,21 @@ Bottom line: AINL lowers overall token usage while increasing capability, predic
 
 **Current benchmark framing:**
 
-- `canonical_strict_valid` is the primary headline profile
-- `approx_chunks` is a lexical-size proxy, not a tokenizer-billing metric
-- In `full_multitarget`, canonical strict examples show strong expansion leverage
+- **`canonical_strict_valid`** is the primary headline profile (10/10 viable).
+- Default sizing is **tiktoken cl100k_base** in markdown tables; JSON still records the CLI `--metric` (default `tiktoken`). Legacy `--metric=approx_chunks` is optional and **deprecated** for billing claims.
+- **Highlights (from [`BENCHMARK.md`](BENCHMARK.md), Mar 2026):** strict-valid **~8.91×** full_multitarget / **~2.22×** minimal_emit (tk); **`public_mixed` viable subset** **~1.02×** minimal (**46/59** artifacts—representative required-target workloads); **`compatibility_only` viable** **~0.83×** minimal (**36/49**); **legacy-inclusive** `public_mixed` minimal **~0.24×** (all 59 artifacts) reported separately. Full detail: **[`docs/benchmarks.md#benchmark-highlights-march-2026`](docs/benchmarks.md#benchmark-highlights-march-2026)**.
+- **Transparency:** **`prisma` / `react_ts`** benchmark stubs **compacted Mar 2026** (~50–70% tk reduction on those emit lines); **minimal_emit** may add a small **python_api fallback stub** (~20–30 tk) when no selected target emits code—both are documented in `BENCHMARK.md`.
+- In `full_multitarget`, canonical strict examples show strong expansion leverage; runtime traces on the tracked benchmark JSON typically show **100%** success on optional reliability batches for strict-valid workloads with **sub-millisecond** measured latency (machine-dependent).
 - In `minimal_emit`, mixed compatibility examples can be smaller or larger depending on artifact class and required targets
 - **Evidence pack:** reproducible **size** + **runtime** benchmarks (tiktoken sizing, compile-time column, latency/RSS, cost estimates, reliability batches, handwritten baselines) live in [`BENCHMARK.md`](BENCHMARK.md) with automation in `make benchmark` / `make benchmark-ci` and CI regression gating—see **[`docs/benchmarks.md`](docs/benchmarks.md)** for the full map.
+
+```bash
+# Refresh size markdown + JSON and runtime JSON (local)
+make benchmark
+
+# CI-style JSON only (does not rewrite BENCHMARK.md)
+make benchmark-ci
+```
 
 > AINL provides a compact, reproducible, profile-segmented way to express graph workflows and multi-target systems, while often reducing repeated AI generation effort and avoiding repeated orchestration token burn during runtime.
 

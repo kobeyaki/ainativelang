@@ -2,6 +2,8 @@
 
 Use this harness to measure whether a local model can generate valid AINL quickly and reliably.
 
+**Related:** compiled **size** / **tiktoken** posture and **runtime** benchmarks are separate lanes—see **[`BENCHMARK.md`](../BENCHMARK.md)** and **[`docs/benchmarks.md`](benchmarks.md)** (`make benchmark`, viable subset vs legacy-inclusive notes). This document covers **LLM generation** quality only.
+
 ## Prerequisites
 
 - Ollama running locally (`http://127.0.0.1:11434`)

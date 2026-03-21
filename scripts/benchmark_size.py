@@ -93,6 +93,181 @@ def metric_counter(metric: str) -> Callable[[str], int]:
     raise ValueError(f"unsupported metric: {metric}")
 
 
+def _parallel_tiktoken_bundle(
+    *,
+    source_text: str,
+    rendered_by_target: Dict[str, str],
+    included: Sequence[str],
+) -> Optional[Dict[str, Any]]:
+    """Optional cl100k_base counts alongside a non-tiktoken primary metric."""
+    try:
+        src_tk = tiktoken_chunks(source_text)
+        tmap: Dict[str, Optional[int]] = {t: None for t in TARGET_ORDER}
+        agg = 0
+        for t in included:
+            body = rendered_by_target.get(t) or ""
+            n = tiktoken_chunks(body)
+            tmap[t] = n
+            agg += n
+        return {"ainl_source": src_tk, "targets": tmap, "aggregate": agg}
+    except Exception:
+        return None
+
+
+def _artifact_row_notes(
+    row: Dict[str, Any],
+    *,
+    mode_name: str,
+    profile_name: str,
+    report_metric: str,
+) -> str:
+    parts: List[str] = []
+    if mode_name == "minimal_emit" and row.get("fallback_stub"):
+        parts.append("fallback stub")
+    if profile_name in ("public_mixed", "compatibility_only") and row.get("viable_for_aggregate") is False:
+        parts.append("legacy excluded from viable")
+    inc = list(row.get("included_targets") or [])
+
+    def _size_tiktoken_for_target(t: str) -> Optional[int]:
+        if report_metric == "tiktoken":
+            v = (row.get("targets") or {}).get(t, {}).get("size")
+            return int(v) if v is not None else None
+        pt = row.get("parallel_tiktoken_cl100k")
+        if not isinstance(pt, dict):
+            return None
+        tm = pt.get("targets") or {}
+        v = tm.get(t) if isinstance(tm, dict) else None
+        return int(v) if v is not None else None
+
+    if "prisma" in inc:
+        z = _size_tiktoken_for_target("prisma")
+        if z is not None and z < 95:
+            parts.append("compacted prisma emitter")
+    if "react_ts" in inc:
+        z = _size_tiktoken_for_target("react_ts")
+        if z is not None and z < 45:
+            parts.append("compacted react_ts emitter")
+    return "; ".join(parts)
+
+
+def _format_note_cell(note_semilist: str) -> str:
+    if not (note_semilist or "").strip():
+        return ""
+    parts = [p.strip() for p in note_semilist.split(";") if p.strip()]
+    return "; ".join(f"({p})" for p in parts)
+
+
+def _md_row_tk_bundle(
+    row: Dict[str, Any],
+    report_metric: str,
+) -> Tuple[Optional[int], Dict[str, Optional[int]], Optional[int], Optional[float]]:
+    """Markdown-facing sizes: always tiktoken (cl100k_base) when available."""
+    if report_metric == "tiktoken":
+        src = row.get("ainl_source_size")
+        agg = row.get("aggregate_generated_output_size")
+        rat = row.get("aggregate_ratio_vs_source")
+        tmap: Dict[str, Optional[int]] = {}
+        for t in TARGET_ORDER:
+            ent = (row.get("targets") or {}).get(t) or {}
+            v = ent.get("size")
+            tmap[t] = int(v) if v is not None else None
+        return (
+            int(src) if src is not None else None,
+            tmap,
+            int(agg) if agg is not None else None,
+            float(rat) if rat is not None else None,
+        )
+    pt = row.get("parallel_tiktoken_cl100k")
+    if not isinstance(pt, dict):
+        return None, {t: None for t in TARGET_ORDER}, None, None
+    src = pt.get("ainl_source")
+    agg = pt.get("aggregate")
+    tm_raw = pt.get("targets")
+    tm: Dict[str, Any] = tm_raw if isinstance(tm_raw, dict) else {}
+    tmap = {t: int(tm[t]) if tm.get(t) is not None else None for t in TARGET_ORDER}
+    if src is None or agg is None:
+        return None, tmap, None, None
+    isrc, iagg = int(src), int(agg)
+    return isrc, tmap, iagg, _ratio(iagg, isrc)
+
+
+def _md_profile_markdown_tk_summary(
+    profile: Dict[str, Any],
+    report_metric: str,
+    *,
+    viable_only: bool,
+) -> Optional[Dict[str, Any]]:
+    """Re-sum tiktoken across rows for markdown tables (JSON aggregates stay on CLI metric)."""
+    arts: List[Dict[str, Any]] = list(profile.get("artifacts") or [])
+    if viable_only:
+        arts = [r for r in arts if r.get("viable_for_aggregate", True)]
+    if arts:
+        src_sum = 0
+        agg_sum = 0
+        for r in arts:
+            src_tk, _, agg_tk, _ = _md_row_tk_bundle(r, report_metric)
+            if src_tk is None or agg_tk is None:
+                return None
+            src_sum += src_tk
+            agg_sum += agg_tk
+        return {
+            "artifact_count": len(arts),
+            "ainl_source_total": src_sum,
+            "aggregate_generated_output_total": agg_sum,
+            "aggregate_ratio_vs_source": _ratio(agg_sum, src_sum),
+        }
+    vs = profile.get("viable_aggregate") if viable_only else None
+    if vs is None:
+        vs = profile.get("summary")
+    if vs and report_metric == "tiktoken":
+        st = int(vs.get("ainl_source_total") or 0)
+        at = int(vs.get("aggregate_generated_output_total") or 0)
+        return {
+            "artifact_count": int(vs.get("artifact_count") or 0),
+            "ainl_source_total": st,
+            "aggregate_generated_output_total": at,
+            "aggregate_ratio_vs_source": vs.get("aggregate_ratio_vs_source") or _ratio(at, st),
+        }
+    return None
+
+
+def _md_top_targets_display(profile: Dict[str, Any], report_metric: str, top_n: int = 3) -> str:
+    if report_metric == "tiktoken":
+        drivers = profile.get("size_drivers") or {}
+        top_targets = drivers.get("top_targets") or []
+        return ", ".join(f"{t['target']}={t['size']}" for t in top_targets) if top_targets else "none"
+    totals = {t: 0 for t in TARGET_ORDER}
+    arts = list(profile.get("artifacts") or [])
+    if profile.get("viable_aggregate") is not None:
+        arts = [r for r in arts if r.get("viable_for_aggregate")]
+    for r in arts:
+        _, tmap, _, _ = _md_row_tk_bundle(r, report_metric)
+        for t in TARGET_ORDER:
+            v = tmap.get(t)
+            if v is not None:
+                totals[t] += int(v)
+    rows = sorted(((t, v) for t, v in totals.items() if v > 0), key=lambda x: -x[1])[:top_n]
+    return ", ".join(f"{t}={v}" for t, v in rows) or "none"
+
+
+def _md_top_artifacts_display(profile: Dict[str, Any], report_metric: str, top_n: int = 3) -> str:
+    if report_metric == "tiktoken":
+        drivers = profile.get("size_drivers") or {}
+        top_artifacts = drivers.get("top_artifacts") or []
+        return ", ".join(f"{a['artifact']}={a['size']}" for a in top_artifacts) if top_artifacts else "none"
+    arts = list(profile.get("artifacts") or [])
+    if profile.get("viable_aggregate") is not None:
+        arts = [r for r in arts if r.get("viable_for_aggregate")]
+    scored: List[Tuple[str, int]] = []
+    for r in arts:
+        _, _, agg_tk, _ = _md_row_tk_bundle(r, report_metric)
+        if agg_tk is None:
+            continue
+        scored.append((str(r.get("artifact", "")), int(agg_tk)))
+    scored.sort(key=lambda x: -x[1])
+    return ", ".join(f"{a}={s}" for a, s in scored[:top_n]) or "none"
+
+
 def _ratio(numerator: int, denominator: int) -> float:
     if denominator <= 0:
         return 0.0
@@ -621,6 +796,13 @@ def run_profile_benchmark(
             row["compile_reliability"] = _compile_reliability_probe(source_text, compiler, compile_reliability_runs)
         if mode_name == "minimal_emit" and ir.get("emit_python_api_fallback_stub"):
             row["fallback_stub"] = True
+        row["ainl_source_nonempty_lines"] = nonempty_lines(source_text)
+        if metric_name != "tiktoken":
+            row["parallel_tiktoken_cl100k"] = _parallel_tiktoken_bundle(
+                source_text=source_text,
+                rendered_by_target=rendered_targets,
+                included=included,
+            )
         rows.append(row)
 
     if failures:
@@ -712,8 +894,8 @@ def build_report(
     for mode_name, mode_data in mode_payloads.items():
         for profile in mode_data.get("profiles", []):
             profile["size_drivers"] = _compute_size_drivers(profile, mode_name=mode_name, top_n=3)
-    # 3.4: viable_aggregate + excluded_legacy_count per profile (public_mixed / compatibility_only).
-    schema_version = "3.4"
+    # 3.5: transparency fields + parallel tiktoken when --metric != tiktoken.
+    schema_version = "3.5"
     out: Dict[str, Any] = {
         "schema_version": schema_version,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -726,6 +908,16 @@ def build_report(
         "handwritten_baselines": benchmark_manifest.get("handwritten_baselines", {}),
         "compile_reliability_runs": int(compile_reliability_runs),
         "strict_compiler_mode": bool(strict_compiler_mode),
+        "primary_size_encoding": "tiktoken_cl100k_base",
+        "size_benchmark_transparency": {
+            "default_cli_metric": "tiktoken",
+            "tiktoken_encoding": "cl100k_base",
+            "approx_chunks_deprecated": True,
+            "nonempty_lines_secondary": True,
+            "compacted_emitters_note": "prisma and react_ts stubs compacted Mar 2026 for benchmark efficiency",
+            "minimal_emit_fallback_note": "python_api async stub when no selected target emits code",
+            "viable_subset_note": "public_mixed / compatibility_only headline ratios use viable_aggregate",
+        },
     }
     if handwritten_baseline_size_comparison is not None:
         out["handwritten_baseline_size_comparison"] = handwritten_baseline_size_comparison
@@ -769,6 +961,8 @@ def _render_profile_table(
     compile_rel_runs: int,
     *,
     mode_name: str = "full_multitarget",
+    profile_name: str = "",
+    report_metric: str = "tiktoken",
 ) -> List[str]:
     cost_h = ""
     if cost_models:
@@ -778,42 +972,64 @@ def _render_profile_table(
             labels.append(f"est ${short} (USD)")
         cost_h = "| " + " | ".join(labels) + " |"
     rel_h = "| Compile reliability |" if compile_rel_runs > 0 else ""
-    notes_h = "| Notes |" if mode_name == "minimal_emit" else ""
+    legacy_h = ""
+    legacy_sep = ""
+    if report_metric == "approx_chunks":
+        legacy_h = "| Src (legacy ≈chunks) | Agg (legacy ≈chunks) |"
+        legacy_sep = "|---:|---:|"
+    lines_h = ""
+    lines_sep = ""
+    if report_metric == "nonempty_lines":
+        lines_h = "| AINL ∅ lines |"
+        lines_sep = "|---:|"
     lines = [
-        "| Artifact | Class | AINL source | Compile ms (mean×3) | React/TS | Python API | Prisma | MT5 | Scraper | Cron | Aggregate generated output | Aggregate ratio | Included targets |"
-        + notes_h
+        "| Artifact | Class | AINL source (tk) | Compile ms (mean×3) | "
+        "React/TS (tk) | Python API (tk) | Prisma (tk) | MT5 (tk) | Scraper (tk) | Cron (tk) | "
+        "Aggregate Σ (tk) | Ratio (tk) | Included targets | Notes |"
+        + legacy_h
+        + lines_h
         + cost_h
         + rel_h,
-        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|"
-        + ("|---|" if mode_name == "minimal_emit" else "")
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|"
+        + legacy_sep
+        + lines_sep
         + ("|---:|" * len(cost_models) if cost_models else "")
         + ("|---|" if compile_rel_runs > 0 else ""),
     ]
     for row in profile["artifacts"]:
-        t = row["targets"]
+        src_tk, tmap, agg_tk, r_tk = _md_row_tk_bundle(row, report_metric)
 
-        def _fmt_size(val):
-            return "-" if val is None else str(val)
+        def _fmt_tk(val: Optional[int]) -> str:
+            return "—" if val is None else str(int(val))
 
-        notes_cell = "(fallback)" if (mode_name == "minimal_emit" and row.get("fallback_stub")) else ""
-
+        notes_raw = _artifact_row_notes(
+            row,
+            mode_name=mode_name,
+            profile_name=profile_name,
+            report_metric=report_metric,
+        )
+        notes_cell = _format_note_cell(notes_raw)
         cells: List[str] = [
             row["artifact"],
             row["class"],
-            str(row["ainl_source_size"]),
+            _fmt_tk(src_tk),
             _compile_time_cell(row),
-            _fmt_size(t["react_ts"]["size"]),
-            _fmt_size(t["python_api"]["size"]),
-            _fmt_size(t["prisma"]["size"]),
-            _fmt_size(t["mt5"]["size"]),
-            _fmt_size(t["scraper"]["size"]),
-            _fmt_size(t["cron"]["size"]),
-            str(row["aggregate_generated_output_size"]),
-            f"{float(row['aggregate_ratio_vs_source']):.2f}x",
+            _fmt_tk(tmap["react_ts"]),
+            _fmt_tk(tmap["python_api"]),
+            _fmt_tk(tmap["prisma"]),
+            _fmt_tk(tmap["mt5"]),
+            _fmt_tk(tmap["scraper"]),
+            _fmt_tk(tmap["cron"]),
+            _fmt_tk(agg_tk),
+            "—" if r_tk is None else f"{float(r_tk):.2f}x",
             ", ".join(row["included_targets"]),
+            notes_cell,
         ]
-        if mode_name == "minimal_emit":
-            cells.append(notes_cell)
+        if report_metric == "approx_chunks":
+            cells.append(str(row.get("ainl_source_size")))
+            cells.append(str(row.get("aggregate_generated_output_size")))
+        if report_metric == "nonempty_lines":
+            cells.append(str(row.get("ainl_source_nonempty_lines", "—")))
         cells.extend(_cost_cells(row, cost_models))
         if compile_rel_runs > 0:
             cells.append(_reliability_cell(row))
@@ -828,6 +1044,27 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
     lines.append("This benchmark measures AINL source compactness against generated implementation artifacts.")
     lines.append("It is segmented by profile and mode; it is not a universal compactness claim across programming languages.")
     lines.append("")
+    lines.append(
+        "> **Sizing:** All markdown tables foreground **tiktoken** **cl100k_base** token counts "
+        "(billing-accurate for GPT-4o-class models). JSON numeric fields still use the CLI `--metric`."
+    )
+    lines.append(
+        "> **Emitters:** `prisma` and `react_ts` benchmark stubs were **compacted (Mar 2026)** for benchmark efficiency."
+    )
+    lines.append(
+        "> **minimal_emit:** includes a tiny **python_api** async **fallback stub** when no selected target emits code."
+    )
+    lines.append(
+        "> **Headline ratios:** **viable** subset for `public_mixed` / `compatibility_only` (legacy / pure-cron focus); "
+        "**full legacy-inclusive** totals appear [below](#including-legacy-artifacts)."
+    )
+    lines.append("")
+    if report["metric"] == "approx_chunks":
+        lines.append(
+            "> **Deprecated metric:** This run uses `--metric=approx_chunks`. Markdown still shows **tiktoken** in "
+            "artifact tables; optional **legacy ≈chunks** columns are for regression comparison only — do not use for pricing."
+        )
+        lines.append("")
     if report.get("strict_compiler_mode"):
         lines.append(
             "> **Strict compiler mode:** ``AICodeCompiler(strict_mode=True, strict_reachability=True)`` "
@@ -856,13 +1093,20 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
-    lines.append(f"- Active metric: `{report['metric']}` (default **tiktoken** / **cl100k_base**).")
+    lines.append(
+        f"- **Default / recommended:** `tiktoken` (**cl100k_base**) via `tooling/bench_metrics.py` (shared with runtime benchmarks)."
+    )
+    lines.append(
+        f"- **Active CLI metric (JSON):** `{report['metric']}` — drives raw JSON sizes, economics basis, and viable-threshold "
+        "comparisons where noted; markdown artifact tables still list **(tk)** for readability."
+    )
     if report["metric"] == "approx_chunks":
-        lines.append("- `approx_chunks` is **legacy**; prefer `tiktoken` for production-relevant sizing.")
+        lines.append(
+            "- `approx_chunks` is **deprecated** (word-count proxy). It is omitted from markdown except optional legacy columns "
+            "when explicitly selected."
+        )
     elif report["metric"] == "nonempty_lines":
-        lines.append("- `nonempty_lines` measures structural size, not tokenizer-accurate pricing.")
-    else:
-        lines.append("- `tiktoken` uses `tooling/bench_metrics.py` (shared with runtime benchmarks).")
+        lines.append("- `nonempty_lines` is structural; markdown adds an **AINL ∅ lines** column when this metric is active.")
     lines.append(
         "- **Compile ms (mean×3):** mean wall time of three ``compile(..., emit_graph=True)`` calls per artifact "
         "(see JSON ``compile_time_ms_mean``); unrelated to optional compile-reliability batches."
@@ -876,7 +1120,10 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
     lines.append("- Ratio `> 1`: generated output is larger than AINL source.")
     lines.append("- Ratio `~ 1`: near parity.")
     lines.append("- Ratio `< 1`: generated output is smaller than AINL source.")
-    lines.append("- `approx_chunks` is a useful lexical proxy, not exact LLM token billing.")
+    lines.append(
+        "- Summary and mode-comparison ratios in this document use **tiktoken** sums unless labeled otherwise; "
+        "match them to the **(tk)** columns in detail tables."
+    )
     lines.append("")
     lines.append("## Full Multitarget vs Minimal Emit")
     lines.append("")
@@ -898,16 +1145,19 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
     lines.append("## What These Numbers Are Not")
     lines.append("")
     lines.append("- They are not universal superiority claims over mainstream languages.")
-    lines.append("- They are not guaranteed tokenizer-cost or LLM pricing results in `approx_chunks` mode.")
+    lines.append(
+        "- They are not a substitute for measuring your own prompts: tiktoken counts are reproducible for this repo’s emitted text, "
+        "but vendor tokenizers may differ slightly."
+    )
     lines.append("- They are not a proxy for runtime performance or product quality by themselves.")
     lines.append("")
     lines.append(
-        "> **Viable subset (`public_mixed` / `compatibility_only`):** headline ratios use **viable** aggregates — "
-        "`viable_for_aggregate: false` in `tooling/artifact_profiles.json` excludes; non-strict rows with aggregate "
-        f"emit &lt; {VIABLE_EMIT_AGGREGATE_MIN} ({report['metric']} units) are excluded; non-strict rows with "
-        f"source ≥ {VIABLE_SOURCE_LARGE_MIN} and emit/source ratio &lt; {VIABLE_EMIT_RATIO_MAX} are excluded "
-        "(legacy ops shells). Override any path to `true` / `false` in JSON. Strict-valid rows in `public_mixed` "
-        "stay viable. **Legacy-inclusive** totals: [Including Legacy Artifacts](#including-legacy-artifacts)."
+        "> **Viable subset (`public_mixed` / `compatibility_only`):** selection rules use the **CLI metric** "
+        f"(`{report['metric']}`) on JSON row fields — aggregate emit &lt; {VIABLE_EMIT_AGGREGATE_MIN} "
+        f"({report['metric']} units), large-source low-ratio heuristic (source ≥ {VIABLE_SOURCE_LARGE_MIN}, "
+        f"ratio &lt; {VIABLE_EMIT_RATIO_MAX}), plus `viable_for_aggregate` overrides in `tooling/artifact_profiles.json`. "
+        "**Markdown** headline ratios are recomputed in **tiktoken** for the same viable rows. Strict-valid rows in "
+        "`public_mixed` stay viable. **Legacy-inclusive** totals: [Including Legacy Artifacts](#including-legacy-artifacts)."
     )
     lines.append("")
 
@@ -921,8 +1171,9 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
 
     lines.append("## Mode Comparison (Headline + Mixed)")
     lines.append("")
-    lines.append("| Profile | Full ratio (viable) | Minimal ratio (viable) | Viable artifacts |")
+    lines.append("| Profile | Full ratio (viable, tk) | Minimal ratio (viable, tk) | Viable artifacts |")
     lines.append("|---|---:|---:|---|")
+    rm = report["metric"]
     for pname in (headline, "public_mixed", "compatibility_only"):
         full = (
             next((p for p in full_mode["profiles"] if p["name"] == pname), None) if full_mode else None
@@ -932,9 +1183,10 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
         )
         if full and mini:
             fs = _md_viable_aggregate(full)
-            ms = _md_viable_aggregate(mini)
-            fr = fs.get("aggregate_ratio_vs_source")
-            mr = ms.get("aggregate_ratio_vs_source")
+            ftk = _md_profile_markdown_tk_summary(full, rm, viable_only=True)
+            mtk = _md_profile_markdown_tk_summary(mini, rm, viable_only=True)
+            fr = ftk.get("aggregate_ratio_vs_source") if ftk else None
+            mr = mtk.get("aggregate_ratio_vs_source") if mtk else None
             fr_s = f"{float(fr):.2f}x" if fr is not None else "—"
             mr_s = f"{float(mr):.2f}x" if mr is not None else "—"
             n_full = int(fs.get("artifact_count") or 0)
@@ -948,20 +1200,28 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
     lines.append("")
     lines.append("## Size Drivers (Actionable Diagnosis)")
     lines.append("")
+    lines.append(
+        f"- Values below are **tiktoken (tk)** on the same **viable** subset as headline drivers when applicable "
+        f"(CLI metric: `{report['metric']}`)."
+    )
+    lines.append("")
     for mode_name in sorted(modes.keys()):
         mode_payload = modes[mode_name]
         lines.append(f"### {mode_name}")
         for profile in mode_payload["profiles"]:
-            drivers = profile.get("size_drivers", {})
-            top_targets = drivers.get("top_targets", [])
-            top_artifacts = drivers.get("top_artifacts", [])
-            targets_txt = ", ".join(f"{t['target']}={t['size']}" for t in top_targets) if top_targets else "none"
-            artifacts_txt = ", ".join(f"{a['artifact']}={a['size']}" for a in top_artifacts) if top_artifacts else "none"
-            lines.append(f"- `{profile['name']}` top targets: {targets_txt}")
-            lines.append(f"- `{profile['name']}` top artifacts: {artifacts_txt}")
+            targets_txt = _md_top_targets_display(profile, rm)
+            artifacts_txt = _md_top_artifacts_display(profile, rm)
+            lines.append(f"- `{profile['name']}` top targets (tk): {targets_txt}")
+            lines.append(f"- `{profile['name']}` top artifacts (tk): {artifacts_txt}")
         lines.append("")
     lines.append("## Residual Overhead Audit (minimal_emit)")
     lines.append("")
+    if report["metric"] != "tiktoken":
+        lines.append(
+            f"> Residual **structure** keys below are counted in **`{report['metric']}`** (CLI metric), not tiktoken. "
+            "Compare magnitudes to the **tk** driver lines above."
+        )
+        lines.append("")
     minimal_profiles = (mini_mode or {}).get("profiles") or []
     for profile in minimal_profiles:
         lines.append(f"### {profile['name']}")
@@ -979,24 +1239,41 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
         lines.append(f"## Details ({mode_name})")
         lines.append("")
         lines.append(
-            "| Profile | Viable artifacts | AINL source Σ (viable) | Aggregate Σ (viable) | Ratio (viable) | Excluded legacy |"
+            "| Profile | Viable artifacts | AINL source Σ (tk, viable) | Aggregate Σ (tk, viable) | Ratio (tk, viable) | Excluded legacy |"
         )
         lines.append("|---|---:|---:|---:|---:|---:|")
         for p in mode_payload["profiles"]:
             vs = p.get("viable_aggregate") or p["summary"]
             ex = int(p.get("excluded_legacy_count") or 0)
-            ratio = vs.get("aggregate_ratio_vs_source")
-            r_s = f"{float(ratio):.2f}x" if ratio is not None else "—"
-            lines.append(
-                f"| {p['name']} | {vs['artifact_count']} | {vs['ainl_source_total']} | "
-                f"{vs['aggregate_generated_output_total']} | {r_s} | {ex} |"
-            )
+            tk = _md_profile_markdown_tk_summary(p, rm, viable_only=True)
+            n_via = int(vs.get("artifact_count") or 0)
+            if tk:
+                r_s = f"{float(tk['aggregate_ratio_vs_source']):.2f}x"
+                lines.append(
+                    f"| {p['name']} | {n_via} | {tk['ainl_source_total']} | "
+                    f"{tk['aggregate_generated_output_total']} | {r_s} | {ex} |"
+                )
+            else:
+                lines.append(f"| {p['name']} | {n_via} | — | — | — | {ex} |")
         lines.append("")
         for p in mode_payload["profiles"]:
             lines.append(f"### {p['name']}")
             cm = (report.get("economics") or {}).get("cost_models_reported") or []
             cr = int(report.get("compile_reliability_runs") or 0)
-            lines.extend(_render_profile_table(p, cm, cr, mode_name=mode_name))
+            lines.extend(
+                _render_profile_table(
+                    p,
+                    cm,
+                    cr,
+                    mode_name=mode_name,
+                    profile_name=p["name"],
+                    report_metric=rm,
+                )
+            )
+            lines.append("")
+            lines.append(
+                "*Token counts via tiktoken **cl100k_base**. Minimal_emit **fallback** stubs are typically ~20–30 tk.*"
+            )
             lines.append("")
 
     hb = report.get("handwritten_baseline_size_comparison")
@@ -1017,17 +1294,23 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
         lines.append(f"### {mode_name} — legacy-inclusive totals")
         lines.append("")
         lines.append(
-            "| Profile | Artifact count | AINL source total | Aggregate generated output total | Aggregate ratio |"
+            "| Profile | Artifact count | AINL source total (tk) | Aggregate total (tk) | Ratio (tk) |"
         )
         lines.append("|---|---:|---:|---:|---:|")
         for p in mode_payload["profiles"]:
             s = p["summary"]
-            ratio = s.get("aggregate_ratio_vs_source")
-            r_s = f"{float(ratio):.2f}x" if ratio is not None else "—"
-            lines.append(
-                f"| {p['name']} | {s['artifact_count']} | {s['ainl_source_total']} | "
-                f"{s['aggregate_generated_output_total']} | {r_s} |"
-            )
+            tk_all = _md_profile_markdown_tk_summary(p, rm, viable_only=False)
+            n_art = int(s.get("artifact_count") or 0)
+            if tk_all:
+                r_s = f"{float(tk_all['aggregate_ratio_vs_source']):.2f}x"
+                lines.append(
+                    f"| {p['name']} | {n_art} | {tk_all['ainl_source_total']} | "
+                    f"{tk_all['aggregate_generated_output_total']} | {r_s} |"
+                )
+            else:
+                lines.append(f"| {p['name']} | {n_art} | — | — | — |")
+        lines.append("")
+        lines.append("*Legacy-inclusive totals above: all artifacts in profile, **tiktoken** sums.*")
         lines.append("")
 
     lines.append("## Supported vs Unsupported Claims")
@@ -1035,7 +1318,10 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
     lines.append("- Supported: profile- and mode-scoped compactness comparisons for this benchmark setup.")
     lines.append("- Supported: canonical strict-valid as primary headline profile.")
     lines.append("- Unsupported: universal compactness claims versus Python/TypeScript/Rust/Go.")
-    lines.append("- Unsupported: guaranteed pricing impact from default lexical metrics.")
+    lines.append(
+        "- Unsupported: treating **approx_chunks** or **nonempty_lines** JSON runs as exact OpenAI billing without "
+        "cross-checking tiktoken."
+    )
     lines.append("- Note: source-text fallback remains as temporary legacy support for older IRs missing capability metadata.")
     lines.append("")
     lines.append("## Recommended Next Benchmark Improvements")
@@ -1045,7 +1331,7 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
         "`--compare-baselines` on size/runtime scripts for tables vs mapped AINL artifacts."
     )
     lines.append("- Add CI trend snapshots for both full and minimal modes.")
-    lines.append("- Add tokenizer-metric lane when dependency pinning is available.")
+    lines.append("- Optional: snapshot secondary `--metric` lanes (e.g. `nonempty_lines`) for structure-only regressions.")
     lines.append("")
     lines.append(
         "Conclusion: strongest current claim is compactness in canonical multi-target examples; "
@@ -1228,7 +1514,8 @@ def main() -> int:
         viable_overrides = load_viable_for_aggregate_overrides(artifact_profiles_path)
         if args.metric == "approx_chunks":
             logger.warning(
-                "metric=approx_chunks is legacy; prefer default tiktoken for production-relevant sizing."
+                "DEPRECATED --metric=approx_chunks: JSON uses this unit; BENCHMARK.md foregrounds tiktoken (cl100k_base). "
+                "Prefer default tiktoken for billing-aligned sizing."
             )
         count_fn = metric_counter(args.metric)
         strict_compiler_active = False

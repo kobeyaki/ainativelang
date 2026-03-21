@@ -75,8 +75,8 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
 - Release notes: `docs/RELEASE_NOTES.md`
 - Post-release immediate roadmap: `docs/POST_RELEASE_ROADMAP.md`
 - Maintainer release operations: `docs/RELEASING.md`
-- Reproducible size benchmark report: `BENCHMARK.md`
-- Benchmark hub (size, runtime, CI, LLM/cloud bench): `docs/benchmarks.md`
+- Reproducible size benchmark report (tiktoken **cl100k_base**, viable vs legacy-inclusive transparency): `BENCHMARK.md`
+- Benchmark hub (highlights Mar 2026, metrics glossary, `make benchmark` / `make benchmark-ci`, CI gate, LLM/cloud bench): `docs/benchmarks.md`
 - Benchmark generator script: `scripts/benchmark_size.py`
 - Machine-readable benchmark output: `tooling/benchmark_size.json`
 - Runtime benchmark script: `scripts/benchmark_runtime.py`

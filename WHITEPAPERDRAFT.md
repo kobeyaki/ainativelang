@@ -458,17 +458,21 @@ AINL's contribution lives primarily in the third layer.
 
 ## 12. Benchmark Posture and Truthful Compactness Claims
 
-AINL ships a **reproducible benchmark suite** spanning **size**, **runtime**, and optional **LLM-generation** quality—not a single scoreboard. Results must stay profile-scoped, mode-scoped, and honest about what each lane measures. The documentation hub is `docs/benchmarks.md`.
+AINL ships a **reproducible benchmark suite** spanning **size**, **runtime**, and optional **LLM-generation** quality—not a single scoreboard. Results must stay profile-scoped, mode-scoped, and honest about what each lane measures. Read **`BENCHMARK.md`** (generated tables + transparency notes) and the hub **`docs/benchmarks.md`** (highlights, glossary, commands).
 
 ### 12.1 Size Benchmark (Emitted Surface + Compiler Cost)
 
-- **Default metric:** `tiktoken` with the **`cl100k_base`** encoder (shared with runtime tooling via `tooling/bench_metrics.py`). This is the production-relevant lane for tokenizer-aware sizing and cost estimation.
-- **Legacy lane:** `approx_chunks` remains available as a lexical-size proxy; it is **not** equivalent to tokenizer-accurate billing.
-- **Compile latency:** each artifact reports **mean wall-clock compile time over three timed compiles** (`compile_time_ms_mean`, schema `3.3+` in `tooling/benchmark_size.json`), surfaced in `BENCHMARK.md` as **Compile ms (mean×3)**—separate from optional multi-run **compile reliability** batches.
+- **Default metric:** `tiktoken` with the **`cl100k_base`** encoder (shared with runtime tooling via `tooling/bench_metrics.py`). **`BENCHMARK.md`** foregrounds **tiktoken** in tables for billing-aligned reading; JSON rows still record the CLI **`--metric`** (default `tiktoken`) for viable-threshold logic and optional legacy lanes.
+- **Legacy lane:** `approx_chunks` remains available as a **deprecated** lexical-size proxy; markdown de-emphasizes it—**not** equivalent to tokenizer-accurate billing.
+- **Viable subset vs legacy-inclusive:** for `public_mixed` and `compatibility_only`, headline ratios use a **viable subset** (curated for representative workloads); **legacy-inclusive** totals appear separately in `BENCHMARK.md` for transparency.
+- **minimal_emit fallback stub:** when no selected target emits code, the benchmark may attach a small **python_api** async stub (~20–30 tk)—documented per row in **`BENCHMARK.md`**.
+- **Emitter compaction (Mar 2026):** **`prisma`** and **`react_ts`** benchmark stubs were shortened for efficiency (~50–70% tk reduction on those emitted lines in the benchmark set).
+- **Compile latency:** each artifact reports **mean wall-clock compile time over three timed compiles** (`compile_time_ms_mean`, schema **`3.5+`** in `tooling/benchmark_size.json`), surfaced in `BENCHMARK.md` as **Compile ms (mean×3)**—separate from optional multi-run **compile reliability** batches.
+- **Strict benchmark mode:** `scripts/benchmark_size.py` **`--strict-mode`** (honored only with **`--profile-name=canonical_strict_valid`**) enables strict reachability pruning for the headline strict-valid profile.
 - **Economics:** optional estimated USD per generation from published list-price assumptions (same helper module as runtime).
 - **Handwritten baselines:** `--compare-baselines` measures mapped AINL emits against `benchmarks/handwritten_baselines/` (pure async vs LangGraph-style stacks) using aligned metrics where possible.
 
-**Outputs:** `scripts/benchmark_size.py` → `BENCHMARK.md`, `tooling/benchmark_size.json`.
+**Outputs:** `scripts/benchmark_size.py` → **`BENCHMARK.md`** (human-readable, transparency notes), **`tooling/benchmark_size.json`**. Central doc hub: **`docs/benchmarks.md`**.
 
 ### 12.2 Runtime Benchmark (Compile-Once / Run-Many)
 
@@ -784,7 +788,7 @@ The following capabilities were listed as future work in earlier drafts and have
 - **Starter include demo artifact** — `examples/timeout_demo.ainl` provides a strict-safe timeout include example for docs and social/demo usage.
 - **Memory v1.1 deterministic contract upgrade** — extension-level memory now supports additive deterministic metadata (`source`, `confidence`, `tags`, `valid_at`), bounded list filters (`tags_any`/`tags_all`, created/updated windows, `limit`/`offset`), namespace TTL/prune policy hooks, response operational counters, and capability-advertised memory profile metadata (`memory_profile`) without introducing semantic retrieval or policy cognition into core runtime semantics.
 - **External executor bridge (HTTP)** — documented contract in `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md` for calling non-MCP workers via `http.Post` (and optional host-mapped **`bridge`** adapter for executor keys → URLs). **MCP (`ainl-mcp`) remains primary** for OpenClaw/NemoClaw; the HTTP bridge is the secondary pattern for generic gateways and plugins.
-- **Reproducible benchmark suite** — `tiktoken` default sizing (`cl100k_base`), **Compile ms (mean×3)** in size tables, runtime benchmark (latency/RSS, optional reliability and scalability probe), shared **economics** helpers (`tooling/bench_metrics.py`), handwritten **baseline** comparison, **CI regression** gating (`scripts/compare_benchmark_json.py`, `make benchmark-ci`, workflow `benchmark-regression`), hub doc **`docs/benchmarks.md`**, and **`ainl-ollama-benchmark --cloud-model`** for an optional **Anthropic Claude** baseline (`temperature=0`, graceful skip without key/SDK).
+- **Reproducible benchmark suite** — `tiktoken` **cl100k_base** default sizing with **`BENCHMARK.md`** transparency (viable subset, legacy-inclusive tables, **minimal_emit fallback stub**, Mar 2026 **prisma/react_ts** compaction notes), **Compile ms (mean×3)** in size tables, runtime benchmark (latency/RSS, optional reliability and scalability probe), shared **economics** helpers (`tooling/bench_metrics.py`), handwritten **baseline** comparison, **CI regression** gating (`scripts/compare_benchmark_json.py`, `make benchmark` / `make benchmark-ci`, workflow `benchmark-regression`), hub **`docs/benchmarks.md`**, and **`ainl-ollama-benchmark --cloud-model`** for an optional **Anthropic Claude** baseline (`temperature=0`, graceful skip without key/SDK).
 
 ### 17.2 Remaining Future Work
 
@@ -1002,10 +1006,10 @@ Paths are relative to the repository root.
 - `docs/PATTERNS.md` — workflow patterns (RetryWithBackoff, RateLimit, BatchProcess, CacheWarm)
 
 ### Benchmarks and tooling
-- `docs/benchmarks.md` — hub: metrics, `make` targets, CI gate, value framing
-- `BENCHMARK.md` — human-readable **size** benchmark (generated; includes **Compile ms (mean×3)**)
+- `docs/benchmarks.md` — hub: metrics, Mar 2026 highlights, `make benchmark` / `make benchmark-ci`, CI gate, LLM bench links
+- `BENCHMARK.md` — human-readable **size** benchmark (generated; **tiktoken cl100k_base** tables, transparency notes, **Compile ms (mean×3)**)
 - `scripts/benchmark_size.py`, `scripts/benchmark_runtime.py` — size and runtime generators
-- `tooling/benchmark_size.json` — machine-readable size report (schema `3.3+`)
+- `tooling/benchmark_size.json` — machine-readable size report (schema `3.5+`; viable subset + parallel fields as documented)
 - `tooling/benchmark_runtime_results.json` — machine-readable runtime report (CI baseline when committed)
 - `tooling/bench_metrics.py` — shared `tiktoken` counting and pricing helpers
 - `scripts/compare_benchmark_json.py` — regression checker for CI

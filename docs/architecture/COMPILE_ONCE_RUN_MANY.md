@@ -34,8 +34,8 @@ It does **not** introduce new semantics; it only packages existing tools and tes
   - Documented in `docs/INSTALL.md` and `docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md`.
 
 - **Benchmarks (optional)**
-  - **Size:** `BENCHMARK.md`, `scripts/benchmark_size.py`, `tooling/benchmark_size.json` (default **tiktoken** / `cl100k_base`, **Compile ms (mean×3)** column).
-  - **Runtime:** `scripts/benchmark_runtime.py`, `tooling/benchmark_runtime_results.json` (post-compile latency/RSS; optional reliability and scalability probe).
+  - **Size:** `BENCHMARK.md`, `scripts/benchmark_size.py`, `tooling/benchmark_size.json` — **tiktoken cl100k_base** in markdown tables; **viable subset** vs **legacy-inclusive** totals; **minimal_emit fallback stub** + **prisma** / **react_ts** compaction notes (Mar 2026); **Compile ms (mean×3)** column; schema `3.5+`.
+  - **Runtime:** `scripts/benchmark_runtime.py`, `tooling/benchmark_runtime_results.json` (post-compile latency/RSS; optional reliability batches; **tiktoken**-based cost columns; scalability probe).
   - **Hub:** `docs/benchmarks.md` ties metrics, `make benchmark` / `make benchmark-ci`, and CI regression gating together.
   - Not required for the minimal proof recipe below.
 
