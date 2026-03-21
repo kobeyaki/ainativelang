@@ -177,6 +177,8 @@ def safe_ainl_aggregate_emit_size(
         )
         if not included:
             return None
+        if mode_name == "full_multitarget":
+            ir.pop("emit_python_api_fallback_stub", None)
         sizes, _ = _emit_selected_targets(compiler, ir, count_fn, rel, list(included))
         return int(sum(sizes[t] for t in included))
     except Exception:
@@ -477,6 +479,9 @@ def run_profile_benchmark(
         if not included:
             failures.append(BenchmarkFailure(rel, "planning", "no targets selected"))
             continue
+        if mode_name == "full_multitarget":
+            # compile() may set emit_python_api_fallback_stub for minimal_emit; full mode must use real API emit.
+            ir.pop("emit_python_api_fallback_stub", None)
         excluded = [t for t in TARGET_ORDER if t not in included]
         try:
             target_sizes, rendered_targets = _emit_selected_targets(compiler, ir, count_fn, rel, included)
@@ -525,6 +530,8 @@ def run_profile_benchmark(
             row["estimated_cost_usd_per_generation"] = cost_dict_for_tokens(int(basis_tokens), cost_models)
         if compile_reliability_runs > 0:
             row["compile_reliability"] = _compile_reliability_probe(source_text, compiler, compile_reliability_runs)
+        if mode_name == "minimal_emit" and ir.get("emit_python_api_fallback_stub"):
+            row["fallback_stub"] = True
         rows.append(row)
 
     if failures:
@@ -666,7 +673,13 @@ def _compile_time_cell(row: Dict[str, Any]) -> str:
     return base
 
 
-def _render_profile_table(profile: Dict, cost_models: List[str], compile_rel_runs: int) -> List[str]:
+def _render_profile_table(
+    profile: Dict,
+    cost_models: List[str],
+    compile_rel_runs: int,
+    *,
+    mode_name: str = "full_multitarget",
+) -> List[str]:
     cost_h = ""
     if cost_models:
         labels = []
@@ -675,11 +688,14 @@ def _render_profile_table(profile: Dict, cost_models: List[str], compile_rel_run
             labels.append(f"est ${short} (USD)")
         cost_h = "| " + " | ".join(labels) + " |"
     rel_h = "| Compile reliability |" if compile_rel_runs > 0 else ""
+    notes_h = "| Notes |" if mode_name == "minimal_emit" else ""
     lines = [
         "| Artifact | Class | AINL source | Compile ms (mean×3) | React/TS | Python API | Prisma | MT5 | Scraper | Cron | Aggregate generated output | Aggregate ratio | Included targets |"
+        + notes_h
         + cost_h
         + rel_h,
         "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|"
+        + ("|---|" if mode_name == "minimal_emit" else "")
         + ("|---:|" * len(cost_models) if cost_models else "")
         + ("|---|" if compile_rel_runs > 0 else ""),
     ]
@@ -688,6 +704,8 @@ def _render_profile_table(profile: Dict, cost_models: List[str], compile_rel_run
 
         def _fmt_size(val):
             return "-" if val is None else str(val)
+
+        notes_cell = "(fallback)" if (mode_name == "minimal_emit" and row.get("fallback_stub")) else ""
 
         cells: List[str] = [
             row["artifact"],
@@ -704,6 +722,8 @@ def _render_profile_table(profile: Dict, cost_models: List[str], compile_rel_run
             f"{float(row['aggregate_ratio_vs_source']):.2f}x",
             ", ".join(row["included_targets"]),
         ]
+        if mode_name == "minimal_emit":
+            cells.append(notes_cell)
         cells.extend(_cost_cells(row, cost_models))
         if compile_rel_runs > 0:
             cells.append(_reliability_cell(row))
@@ -860,7 +880,7 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
             lines.append(f"### {p['name']}")
             cm = (report.get("economics") or {}).get("cost_models_reported") or []
             cr = int(report.get("compile_reliability_runs") or 0)
-            lines.extend(_render_profile_table(p, cm, cr))
+            lines.extend(_render_profile_table(p, cm, cr, mode_name=mode_name))
             lines.append("")
 
     hb = report.get("handwritten_baseline_size_comparison")

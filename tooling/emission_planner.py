@@ -17,6 +17,41 @@ from typing import Dict, List
 TARGET_ORDER = ["react_ts", "python_api", "prisma", "mt5", "scraper", "cron"]
 
 
+def _target_emits_nonempty_code(ir: Dict, target: str) -> bool:
+    """Whether the benchmark emitter for *target* would produce non-empty code for this IR."""
+    if target == "cron":
+        return bool(ir.get("crons"))
+    # Remaining emitters always emit at least headers/imports in compiler_v2 today.
+    return True
+
+
+def minimal_emit_targets_yield_no_emitted_code(ir: Dict, targets: List[str]) -> bool:
+    """True if every selected target would emit an empty string (0 size)."""
+    if not targets:
+        return True
+    for t in targets:
+        if t not in TARGET_ORDER:
+            continue
+        if _target_emits_nonempty_code(ir, t):
+            return False
+    return True
+
+
+def apply_minimal_emit_python_api_stub_fallback(*, ir: Dict, targets: List[str]) -> List[str]:
+    # Minimal Python API fallback for minimal_emit: ensures every artifact emits at least a runnable stub
+    # Prevents 0-chunk outputs in legacy/public profiles without required targets
+    tlist = list(targets)
+    if ir.get("emit_python_api_fallback_stub"):
+        return tlist
+    if minimal_emit_targets_yield_no_emitted_code(ir, tlist):
+        ir["emit_python_api_fallback_stub"] = True
+        if "python_api" not in tlist:
+            tlist.append("python_api")
+        return tlist
+    ir.pop("emit_python_api_fallback_stub", None)
+    return tlist
+
+
 def load_benchmark_manifest(path: Path) -> Dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -112,7 +147,7 @@ def required_emit_targets(
         if isinstance(planned, list):
             out = [t for t in planned if t in TARGET_ORDER]
             if out:
-                return out
+                return apply_minimal_emit_python_api_stub_fallback(ir=ir, targets=out)
 
     cap = infer_artifact_capabilities(source_text, ir)
     mode_cfg = benchmark_manifest.get("modes", {}).get("minimal_emit", {})
@@ -123,9 +158,10 @@ def required_emit_targets(
         if _matches_rule(cap, cfg):
             included.append(target)
     if included:
-        return included
+        return apply_minimal_emit_python_api_stub_fallback(ir=ir, targets=included)
     fallback = [t for t in mode_cfg.get("fallback_targets", []) if t in TARGET_ORDER]
-    return fallback or ["python_api"]
+    base = fallback or ["python_api"]
+    return apply_minimal_emit_python_api_stub_fallback(ir=ir, targets=base)
 
 
 def excluded_emit_targets(

@@ -30,6 +30,7 @@ from tooling.effect_analysis import (
     strict_adapter_is_allowed,
     strict_adapter_key_for_step,
 )
+from tooling.emission_planner import apply_minimal_emit_python_api_stub_fallback
 from tooling.ir_canonical import attach_label_and_node_hashes, graph_semantic_checksum
 
 # --- Lossless token model: kind in ("bare","string","ws","comment"), span = {line, col_start, col_end}
@@ -3734,6 +3735,10 @@ class AICodeCompiler:
         if context is not None:
             ir["structured_diagnostics"] = [d.to_dict() for d in context.diagnostics]
         ir["required_emit_targets"] = self._compute_required_emit_targets(ir["emit_capabilities"])
+        _req = ir["required_emit_targets"]
+        _req["minimal_emit"] = apply_minimal_emit_python_api_stub_fallback(
+            ir=ir, targets=_req["minimal_emit"]
+        )
         # Attach semantic hashes and graph checksum without changing semantics.
         ir = attach_label_and_node_hashes(ir)
         ir["graph_semantic_checksum"] = graph_semantic_checksum(ir)
@@ -4045,6 +4050,16 @@ class AICodeCompiler:
         return base
 
     def emit_python_api(self, ir: Dict[str, Any]) -> str:
+        # Minimal Python API fallback for minimal_emit: ensures every artifact emits at least a runnable stub
+        # Prevents 0-chunk outputs in legacy/public profiles without required targets
+        if ir.get("emit_python_api_fallback_stub"):
+            return (
+                "import asyncio\n\n"
+                "async def main():\n"
+                '    print("AINL minimal fallback stub - no specific targets required")\n\n'
+                'if __name__ == "__main__":\n'
+                "    asyncio.run(main())\n"
+            )
         py = self._emit_provenance_comment_block("#", "AINL emitted FastAPI stub")
         py += "from fastapi import FastAPI\napp = FastAPI()\n\n"
         idx = 0

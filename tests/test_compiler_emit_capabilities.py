@@ -68,3 +68,16 @@ def test_mt5_emit_capabilities_from_runtime_steps():
     caps = ir["emit_capabilities"]
     assert caps["needs_mt5"] is True
     assert "mt5" in ir["required_emit_targets"]["minimal_emit"]
+
+
+def test_core_cron_without_cr_entries_adds_minimal_python_api_fallback():
+    ir = _compile_source(
+        "S core cron\n"
+        "L1:\n"
+        "  J x\n"
+    )
+    assert ir["required_emit_targets"]["minimal_emit"] == ["cron", "python_api"]
+    assert ir.get("emit_python_api_fallback_stub") is True
+    stub = AICodeCompiler(strict_mode=False).emit_python_api(ir)
+    assert "asyncio.run(main())" in stub
+    assert "FastAPI" not in stub

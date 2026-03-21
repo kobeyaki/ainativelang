@@ -60,7 +60,8 @@ def test_required_targets_cron():
             "needs_mt5": False,
             "needs_scraper": False,
             "needs_cron": True,
-        }
+        },
+        "crons": [{"label": "L1", "expr": "0 * * * *"}],
     }
     got = required_emit_targets("Cron every(1h) ->L1", ir, mode="minimal_emit", benchmark_manifest=_manifest())
     assert got == ["cron"]
@@ -102,7 +103,26 @@ def test_required_targets_prefers_required_targets_field_over_heuristics():
         },
     }
     got = required_emit_targets("source that could match everything", ir, mode="minimal_emit", benchmark_manifest=_manifest())
-    assert got == ["cron"]
+    assert got == ["cron", "python_api"]
+    assert ir.get("emit_python_api_fallback_stub") is True
+
+
+def test_minimal_emit_stub_when_cron_scheduled_but_no_cron_entries():
+    ir = {
+        "emit_capabilities": {
+            "needs_react_ts": False,
+            "needs_python_api": False,
+            "needs_prisma": False,
+            "needs_mt5": False,
+            "needs_scraper": False,
+            "needs_cron": True,
+        },
+        "crons": [],
+        "required_emit_targets": {"minimal_emit": ["cron"], "full_multitarget": TARGET_ORDER},
+    }
+    got = required_emit_targets("x", ir, mode="minimal_emit", benchmark_manifest=_manifest())
+    assert got == ["cron", "python_api"]
+    assert ir.get("emit_python_api_fallback_stub") is True
 
 
 def test_full_multitarget_includes_every_target():

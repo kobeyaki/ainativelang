@@ -193,6 +193,7 @@ def test_minimal_mode_excludes_irrelevant_targets(tmp_path: Path):
                     "needs_scraper": False,
                     "needs_cron": True,
                 },
+                "crons": [{"label": "tick", "expr": "0 * * * *"}],
                 "required_emit_targets": {
                     "full_multitarget": benchmark_size.TARGET_ORDER,
                     "minimal_emit": ["cron"],
@@ -246,7 +247,7 @@ def test_machine_output_shape_and_math(tmp_path: Path):
         benchmark_manifest=manifest,
         mode_payloads={"full_multitarget": {"profiles": [payload]}, "minimal_emit": {"profiles": [payload]}},
     )
-    assert report["schema_version"] == "3.0"
+    assert report["schema_version"] == "3.3"
     row = report["modes"]["full_multitarget"]["profiles"][0]["artifacts"][0]
     assert row["ainl_source_size"] == 3
     assert row["aggregate_generated_output_size"] == 13
