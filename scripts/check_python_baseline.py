@@ -16,10 +16,13 @@ def main() -> int:
         )
         print("       Current: Python %d.%d.%d" % (v.major, v.minor, v.micro))
         print("       Executable:", sys.executable)
+        print("       Fix (replace .venv if it was created with an older Python):")
+        print("         rm -rf .venv")
         print(
-            '       Fix: python3.11 -m venv .venv && source .venv/bin/activate '
-            '&& pip install -e ".[dev,benchmark]"'
+            "         python3.11 -m venv .venv   # or python3.12 / pyenv; "
+            "on macOS: brew install python@3.11"
         )
+        print('         source .venv/bin/activate && pip install -e ".[dev,benchmark]"')
         return 1
     return 0
 
