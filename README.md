@@ -12,6 +12,9 @@
   <a href="tests/snapshots/conformance/summary.md">
     <img src="tests/snapshots/conformance/conformance_badge.svg" alt="Conformance status" />
   </a>
+  <a href="https://github.com/sbhooley/ainativelang/actions/workflows/sync-ecosystem.yml">
+    <img src="https://github.com/sbhooley/ainativelang/actions/workflows/sync-ecosystem.yml/badge.svg" alt="Auto-sync OpenClaw/NemoClaw/Clawflows/Agency-Agents" />
+  </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License: Apache-2.0" />
   </a>
