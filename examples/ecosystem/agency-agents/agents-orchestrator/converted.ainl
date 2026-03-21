@@ -1,0 +1,23 @@
+# Imported from Markdown (agent) — parsed Agency-Agents-style graph.
+# Source: https://raw.githubusercontent.com/msitarzewski/agency-agents/main/specialized/agents-orchestrator.md
+# Personality / tone: The conductor who runs the entire dev pipeline from spec to ship.
+
+L_entry:
+  R core.parse "{\"kind\":\"agent_entry\",\"slug\":\"agents-orchestrator\",\"identity\":\"Agents Orchestrator\\nAutonomous pipeline manager that orchestrates the entire development workflow. You are the leader of this process.\",\"mission\":\"\",\"tone\":\"The conductor who runs the entire dev pipeline from spec to ship.\"}" ->agent_ctx
+  If (core.eq 1 1) ->L_check_rules ->L_exit
+
+L_check_rules:
+  R core.parse "{\"kind\":\"rules_gate\",\"text\":\"(see source doc)\"}" ->rules_ctx
+  R cache set "md_import" "agents-orchestrator/rules" rules_ctx ->_cr
+  If (core.eq 1 1) ->L_check_deliverables ->L_exit
+
+L_check_deliverables:
+  R core.parse "{\"kind\":\"deliverables_gate\",\"text\":\"(unspecified)\"}" ->del_ctx
+  If (core.eq 1 1) ->L_workflows_hint ->L_exit
+
+L_workflows_hint:
+  R core.parse "{\"kind\":\"workflows_hint\",\"text\":\"(see source doc)\"}" ->wf_ctx
+  J wf_ctx
+
+L_exit:
+  J "markdown_import_agent_ok"

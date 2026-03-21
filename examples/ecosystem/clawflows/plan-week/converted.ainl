@@ -1,0 +1,75 @@
+# Imported from Markdown (workflow) — parsed Clawflows-style graph.
+# Source: https://raw.githubusercontent.com/nikilster/clawflows/main/workflows/available/community/plan-week/WORKFLOW.md
+# Workflow: plan-week
+# Schedule → cron: 0 9 * * * (default (no schedule matched))
+
+S core cron "0 9 * * *"
+
+L_cron:
+  Call L_step_1 ->_r1
+  Call L_step_2 ->_r2
+  Call L_step_3 ->_r3
+  Call L_step_4 ->_r4
+  Call L_step_5 ->_r5
+  Call L_step_6 ->_r6
+  Call L_step_7 ->_r7
+  Call L_step_8 ->_r8
+  Call L_step_9 ->_r9
+  If (core.eq 1 1) ->L_exit ->L_exit
+
+L_step_1:
+  R core.parse "{\"step\":1,\"title\":\"Review upcoming calendar — Use your calendar skill to pull all events, meetings, and appointments for the next 7 days.\",\"workflow\":\"plan-week\",\"source\":\"md_import\"}" ->step_payload
+  R core.now ->now
+  R cache set "md_import" "plan-week/step_1" step_payload ->_c1
+  J step_payload
+
+L_step_2:
+  R core.parse "{\"step\":2,\"title\":\"Identify busy days — Flag days with back-to-back meetings or heavy schedules. Note any days with open blocks for deep work.\",\"workflow\":\"plan-week\",\"source\":\"md_import\"}" ->step_payload
+  R core.now ->now
+  R cache set "md_import" "plan-week/step_2" step_payload ->_c2
+  J step_payload
+
+L_step_3:
+  R core.parse "{\"step\":3,\"title\":\"Check for conflicts — Look for double-bookings, overlapping events, or meetings that might need to be moved.\",\"workflow\":\"plan-week\",\"source\":\"md_import\"}" ->step_payload
+  R core.now ->now
+  R cache set "md_import" "plan-week/step_3" step_payload ->_c3
+  J step_payload
+
+L_step_4:
+  R core.parse "{\"step\":4,\"title\":\"Set top 3 priorities — Ask the user: \\\"What are the 3 most important things you want to accomplish this week?\\\" If they have existing goals or projects, reference those.\",\"workflow\":\"plan-week\",\"source\":\"md_import\"}" ->step_payload
+  R core.now ->now
+  R cache set "md_import" "plan-week/step_4" step_payload ->_c4
+  J step_payload
+
+L_step_5:
+  R core.parse "{\"step\":5,\"title\":\"Prep for Monday — Highlight what's happening tomorrow specifically. Early meetings, deadlines, or things to prepare the night before.\",\"workflow\":\"plan-week\",\"source\":\"md_import\"}" ->step_payload
+  R core.now ->now
+  R cache set "md_import" "plan-week/step_5" step_payload ->_c5
+  J step_payload
+
+L_step_6:
+  R core.parse "{\"step\":6,\"title\":\"Share the plan — Deliver a clean summary of the week ahead.\",\"workflow\":\"plan-week\",\"source\":\"md_import\"}" ->step_payload
+  R core.now ->now
+  R cache set "md_import" "plan-week/step_6" step_payload ->_c6
+  J step_payload
+
+L_step_7:
+  R core.parse "{\"step\":7,\"title\":\"Finish project proposal\",\"workflow\":\"plan-week\",\"source\":\"md_import\"}" ->step_payload
+  R core.now ->now
+  R cache set "md_import" "plan-week/step_7" step_payload ->_c7
+  J step_payload
+
+L_step_8:
+  R core.parse "{\"step\":8,\"title\":\"Schedule annual checkup\",\"workflow\":\"plan-week\",\"source\":\"md_import\"}" ->step_payload
+  R core.now ->now
+  R cache set "md_import" "plan-week/step_8" step_payload ->_c8
+  J step_payload
+
+L_step_9:
+  R core.parse "{\"step\":9,\"title\":\"Clean out garage\",\"workflow\":\"plan-week\",\"source\":\"md_import\"}" ->step_payload
+  R core.now ->now
+  R cache set "md_import" "plan-week/step_9" step_payload ->_c9
+  J step_payload
+
+L_exit:
+  J "markdown_import_workflow_ok"

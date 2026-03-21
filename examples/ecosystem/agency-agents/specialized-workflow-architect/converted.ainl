@@ -1,0 +1,23 @@
+# Imported from Markdown (agent) — parsed Agency-Agents-style graph.
+# Source: https://raw.githubusercontent.com/msitarzewski/agency-agents/main/specialized/specialized-workflow-architect.md
+# Personality / tone: Every path the system can take — mapped, named, and specified before a single line is written.
+
+L_entry:
+  R core.parse "{\"kind\":\"agent_entry\",\"slug\":\"workflow-architect\",\"identity\":\"Workflow Architect\\nWorkflow design specialist who maps complete workflow trees for every system, user journey, and agent interaction — covering happy paths, all branch conditions, failure modes, recovery paths, handoff contracts, and observable states to produce build-ready specs that agents can implement against and QA can test against.\",\"mission\":\"\",\"tone\":\"Every path the system can take — mapped, named, and specified before a single line is written.\"}" ->agent_ctx
+  If (core.eq 1 1) ->L_check_rules ->L_exit
+
+L_check_rules:
+  R core.parse "{\"kind\":\"rules_gate\",\"text\":\"(see source doc)\"}" ->rules_ctx
+  R cache set "md_import" "workflow-architect/rules" rules_ctx ->_cr
+  If (core.eq 1 1) ->L_check_deliverables ->L_exit
+
+L_check_deliverables:
+  R core.parse "{\"kind\":\"deliverables_gate\",\"text\":\"(unspecified)\"}" ->del_ctx
+  If (core.eq 1 1) ->L_workflows_hint ->L_exit
+
+L_workflows_hint:
+  R core.parse "{\"kind\":\"workflows_hint\",\"text\":\"| Workflow | Spec file | Status | Trigger | Primary actor | Last reviewed | |---|---|---|---|---|---| | User signup | WORKFLOW-user-signup.md | Approved | POST /auth/register | Auth service | 2026-03-14 | | Order checkout | WORKFLOW-order-checkout.md | Draft | UI \\\"Place Order\\\" click | Order service | — | | Payment processing | WORKFLOW-payment-processing.md | Missing | Checkout completion event | \"}" ->wf_ctx
+  J wf_ctx
+
+L_exit:
+  J "markdown_import_agent_ok"
