@@ -139,7 +139,7 @@ ainl import agency-agents
 
 Curated templates with `original.md`, `converted.ainl`, and notes: **[`examples/ecosystem/README.md`](examples/ecosystem/README.md)**.
 
-**Weekly auto-sync:** the repo can refresh those sample trees from upstream on a schedule via GitHub Actions — see **[`.github/workflows/sync-ecosystem.yml`](.github/workflows/sync-ecosystem.yml)** (Monday 04:00 UTC, plus manual **workflow_dispatch**). PRs are opened only when `examples/ecosystem/**` conversions change. That workflow also **creates** the GitHub labels `ecosystem`, `automation`, `workflow`, and `agent` if missing (idempotent), then applies `ecosystem` + `automation` to the sync PR.
+**Weekly auto-sync:** the repo can refresh those sample trees from upstream on a schedule via GitHub Actions — see **[`.github/workflows/sync-ecosystem.yml`](.github/workflows/sync-ecosystem.yml)** (Monday 04:00 UTC, plus manual **workflow_dispatch**). PRs are opened only when `examples/ecosystem/**` conversions change. That workflow also **creates** the GitHub labels `ecosystem`, `automation`, `workflow`, and `agent` if missing (idempotent), then applies `ecosystem` + `automation` to the sync PR. If your org **disallows `GITHUB_TOKEN` from opening PRs**, set repository secret **`GH_PAT`** (PAT with repo + PR access to this repo only); see **[`docs/ECOSYSTEM_OPENCLAW.md`](docs/ECOSYSTEM_OPENCLAW.md)** — no access to upstream Clawflows/Agency-Agents orgs is required (public raw fetches only).
 
 ### Contributing workflows & agents
 

@@ -1,5 +1,10 @@
 # Weekly refresh of examples/ecosystem/* from upstream Clawflows & Agency-Agents Markdown.
 # Converts via the same path as: ainl import clawflows / ainl import agency-agents
+#
+# PR creation: default GITHUB_TOKEN is enough on many repos. If your org disables
+# "Actions can create/approve pull requests" for GITHUB_TOKEN, add a fine-scoped PAT
+# as repository secret GH_PAT (repo scope). The workflow uses GH_PAT when set, else github.token.
+# Upstream repos are only fetched over HTTPS as public raw URLs — no org access needed there.
 name: Sync ecosystem (Clawflows & Agency-Agents)
 
 on:
@@ -32,7 +37,7 @@ jobs:
 
       - name: Ensure GitHub labels exist (idempotent)
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
         run: |
           gh label create ecosystem --color "0E8A16" --description "Ecosystem examples / imports" 2>/dev/null || true
           gh label create automation --color "5319E7" --description "Scheduled or bot-driven changes" 2>/dev/null || true
@@ -74,7 +79,7 @@ jobs:
       - name: Open PR if ecosystem conversions changed
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ github.token }}
+          token: ${{ secrets.GH_PAT || github.token }}
           commit-message: "chore: auto-sync upstream Clawflows & Agency-Agents conversions"
           title: "chore: sync upstream Clawflows & Agency-Agents to AINL"
           body: |
