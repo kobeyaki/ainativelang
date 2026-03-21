@@ -1,6 +1,6 @@
 # OpenClaw integration
 
-**Hub (all MCP hosts):** [`HOST_MCP_INTEGRATIONS.md`](HOST_MCP_INTEGRATIONS.md) — **`ainl install-mcp --host openclaw`** (same as **`ainl install-openclaw`**).
+**Hub (all MCP hosts):** [`getting_started/HOST_MCP_INTEGRATIONS.md`](getting_started/HOST_MCP_INTEGRATIONS.md) — **`ainl install-mcp --host openclaw`** (same as **`ainl install-openclaw`**).
 
 [![OpenClaw Skill](https://img.shields.io/badge/OpenClaw%20Skill-AINL-blue)](https://github.com/sbhooley/ainativelang/tree/main/skills/openclaw)
 
@@ -67,7 +67,7 @@ If no shell rc file is updated, the command prints a one-line **`PATH`** tip you
 
 ## See also
 
-- **All MCP hosts:** **[`HOST_MCP_INTEGRATIONS.md`](HOST_MCP_INTEGRATIONS.md)**
+- **All MCP hosts:** **[`getting_started/HOST_MCP_INTEGRATIONS.md`](getting_started/HOST_MCP_INTEGRATIONS.md)**
 - Skill files: **[`skills/openclaw/README.md`](../skills/openclaw/README.md)**
 - ZeroClaw parallel: **[`docs/ZEROCLAW_INTEGRATION.md`](ZEROCLAW_INTEGRATION.md)**
 - MCP operator guide: **[`docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`](operations/EXTERNAL_ORCHESTRATION_GUIDE.md)** (stdio **`ainl-mcp`**, OpenClaw **`openclaw.json`**)

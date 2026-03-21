@@ -181,7 +181,7 @@ executors (webhooks, internal services, or a multi-backend gateway), see
 [`docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`](integrations/EXTERNAL_EXECUTOR_BRIDGE.md).
 That document is **MCP-first** for OpenClaw / NemoClaw / ZeroClaw: prefer `ainl-mcp` when the
 host is MCP-capable; use the HTTP bridge pattern when workers are not exposed
-as MCP. **OpenClaw** onboarding ( **`openclaw.json`** + **`ainl install-mcp --host openclaw`** ): **[`docs/OPENCLAW_INTEGRATION.md`](OPENCLAW_INTEGRATION.md)**. **ZeroClaw** onboarding: **[`docs/ZEROCLAW_INTEGRATION.md`](ZEROCLAW_INTEGRATION.md)** · hub **[`docs/HOST_MCP_INTEGRATIONS.md`](HOST_MCP_INTEGRATIONS.md)**.
+as MCP. **OpenClaw** onboarding ( **`openclaw.json`** + **`ainl install-mcp --host openclaw`** ): **[`docs/OPENCLAW_INTEGRATION.md`](OPENCLAW_INTEGRATION.md)**. **ZeroClaw** onboarding: **[`docs/ZEROCLAW_INTEGRATION.md`](ZEROCLAW_INTEGRATION.md)** · hub **[`getting_started/HOST_MCP_INTEGRATIONS.md`](getting_started/HOST_MCP_INTEGRATIONS.md)**.
 
 ### ZeroClaw skill
 

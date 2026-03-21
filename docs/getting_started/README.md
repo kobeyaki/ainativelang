@@ -73,7 +73,7 @@ Configure your MCP-compatible host (Gemini CLI, Claude Code, Codex, etc.) to
 use the `ainl-mcp` stdio transport. The host can then call `ainl_validate`,
 `ainl_compile`, `ainl_capabilities`, `ainl_security_report`, and `ainl_run`.
 
-**OpenClaw** hosts can merge **`mcpServers.ainl`** automatically: **[`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md)** (**`ainl install-openclaw`**). **ZeroClaw:** **[`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md)**.
+Unified hub (all MCP hosts): **[`HOST_MCP_INTEGRATIONS.md`](HOST_MCP_INTEGRATIONS.md)** (**`ainl install-mcp --host …`**). **OpenClaw:** **[`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md)** · **ZeroClaw:** **[`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md)**.
 
 MCP v1 runs with safe defaults (core-only adapters, conservative limits).
 
@@ -112,6 +112,7 @@ understand their deployment environment.
 
 ## Related sections
 
+- MCP host integrations (OpenClaw, ZeroClaw, …): [`HOST_MCP_INTEGRATIONS.md`](HOST_MCP_INTEGRATIONS.md)
 - What AINL is: [`../overview/README.md`](../overview/README.md)
 - Why the model exists: [`../fundamentals/README.md`](../fundamentals/README.md)
 - Full reference map: [`../DOCS_INDEX.md`](../DOCS_INDEX.md)
