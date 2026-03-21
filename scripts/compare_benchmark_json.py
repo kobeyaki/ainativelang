@@ -143,6 +143,10 @@ def check_worse(
 ) -> None:
     if old_v is None or new_v is None:
         return
+    # RSS (and similar) often rounds to 0.0 in baselines; relative regression is undefined
+    # and any tiny positive measurement would fail (limit=0). Skip until baseline is non-zero.
+    if "peak_rss_delta_mb" in path and old_v <= 0.0:
+        return
     limit = old_v * (1.0 + threshold)
     if new_v > limit + 1e-15:
         ratio = new_v / old_v if old_v else float("inf")

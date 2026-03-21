@@ -1,11 +1,11 @@
 {
   "schema_version": "1.2",
-  "generated_at_utc": "2026-03-21T14:26:07.596226+00:00",
+  "generated_at_utc": "2026-03-21T17:04:15.236745+00:00",
   "kind": "runtime",
   "execution_mode_graph": "graph-preferred",
   "warmup_runs": 1,
   "timed_runs": 2,
-  "execution_reliability_runs": 3,
+  "execution_reliability_runs": 10,
   "mode_request": "both",
   "profile_request": "canonical_strict_valid",
   "headline_profile": "canonical_strict_valid",
@@ -31,8 +31,8 @@
               "error": null,
               "compile_time_ms_mean": 0.522500010750567,
               "latency_ms": {
-                "mean_ms": 0.023625005269423127,
-                "p50_ms": 0.023625005269423127,
+                "mean_ms": 0.0385889499938,
+                "p50_ms": 0.0385889499938,
                 "p95_ms": 0.026099997921846807,
                 "min_ms": 0.020875013433396816,
                 "max_ms": 0.026374997105449438,
@@ -48,7 +48,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.000265,
@@ -72,8 +72,8 @@
               "error": null,
               "compile_time_ms_mean": 0.20284700440242887,
               "latency_ms": {
-                "mean_ms": 0.013374999980442226,
-                "p50_ms": 0.013374999980442226,
+                "mean_ms": 0.0217379500015,
+                "p50_ms": 0.0217379500015,
                 "p95_ms": 0.015062499733176082,
                 "min_ms": 0.011500000255182385,
                 "max_ms": 0.015249999705702066,
@@ -89,7 +89,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.000135,
@@ -113,15 +113,15 @@
               "error": null,
               "compile_time_ms_mean": 0.9376809854681293,
               "latency_ms": {
-                "mean_ms": 0.03664550604298711,
-                "p50_ms": 0.03664550604298711,
+                "mean_ms": 0.0720584000049,
+                "p50_ms": 0.0720584000049,
                 "p95_ms": 0.03838925622403622,
                 "min_ms": 0.03470800584182143,
                 "max_ms": 0.038583006244152784,
                 "warmup_runs": 1,
                 "timed_runs": 2
               },
-              "peak_rss_delta_mb": 0.0,
+              "peak_rss_delta_mb": 0.01953125,
               "adapter_calls_last_run": 1,
               "trace_events_last_run": 24,
               "llm_tokens_estimated": 0,
@@ -130,7 +130,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.000595,
@@ -163,7 +163,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.0005175,
@@ -200,8 +200,8 @@
               "error": null,
               "compile_time_ms_mean": 0.3138610045425594,
               "latency_ms": {
-                "mean_ms": 0.01649999467190355,
-                "p50_ms": 0.01649999467190355,
+                "mean_ms": 0.0372771499997,
+                "p50_ms": 0.0372771499997,
                 "p95_ms": 0.017399988428223878,
                 "min_ms": 0.015500001609325409,
                 "max_ms": 0.017499987734481692,
@@ -217,7 +217,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.000205,
@@ -241,8 +241,8 @@
               "error": null,
               "compile_time_ms_mean": 0.4553609954503675,
               "latency_ms": {
-                "mean_ms": 0.027208501705899835,
-                "p50_ms": 0.027208501705899835,
+                "mean_ms": 0.0556214500023,
+                "p50_ms": 0.0556214500023,
                 "p95_ms": 0.02983334707096219,
                 "min_ms": 0.02429200685583055,
                 "max_ms": 0.03012499655596912,
@@ -258,7 +258,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.00039,
@@ -291,7 +291,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.000475,
@@ -328,8 +328,8 @@
               "error": null,
               "compile_time_ms_mean": 0.4125279956497252,
               "latency_ms": {
-                "mean_ms": 0.01916650217026472,
-                "p50_ms": 0.01916650217026472,
+                "mean_ms": 0.0426761999989,
+                "p50_ms": 0.0426761999989,
                 "p95_ms": 0.0204791605938226,
                 "min_ms": 0.017707992810755968,
                 "max_ms": 0.020625011529773474,
@@ -345,7 +345,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.000345,
@@ -378,7 +378,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.0002325,
@@ -424,7 +424,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.0004725,
@@ -459,7 +459,7 @@
             "artifact_count": 10,
             "ok_count": 6,
             "fail_count": 4,
-            "mean_latency_mean_ms_across_ok": 0.022753418306820095
+            "mean_latency_mean_ms_across_ok": 0.044660016666849996
           }
         }
       ]
@@ -484,8 +484,8 @@
               "error": null,
               "compile_time_ms_mean": 0.4329999986415108,
               "latency_ms": {
-                "mean_ms": 0.02618749567773193,
-                "p50_ms": 0.02618749567773193,
+                "mean_ms": 0.0394167000053,
+                "p50_ms": 0.0394167000053,
                 "p95_ms": 0.034755935485009104,
                 "min_ms": 0.016667007002979517,
                 "max_ms": 0.035707984352484345,
@@ -501,7 +501,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.000265,
@@ -525,8 +525,8 @@
               "error": null,
               "compile_time_ms_mean": 0.19176400383003056,
               "latency_ms": {
-                "mean_ms": 0.010083007509820163,
-                "p50_ms": 0.010083007509820163,
+                "mean_ms": 0.0219914499922,
+                "p50_ms": 0.0219914499922,
                 "p95_ms": 0.010720202408265322,
                 "min_ms": 0.00937501317821443,
                 "max_ms": 0.010791001841425896,
@@ -542,7 +542,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.000135,
@@ -566,15 +566,15 @@
               "error": null,
               "compile_time_ms_mean": 0.6704029995792856,
               "latency_ms": {
-                "mean_ms": 0.03258351352997124,
-                "p50_ms": 0.03258351352997124,
+                "mean_ms": 0.0717187999953,
+                "p50_ms": 0.0717187999953,
                 "p95_ms": 0.03348307509440929,
                 "min_ms": 0.031584000680595636,
                 "max_ms": 0.03358302637934685,
                 "warmup_runs": 1,
                 "timed_runs": 2
               },
-              "peak_rss_delta_mb": 0.0,
+              "peak_rss_delta_mb": 0.01171875,
               "adapter_calls_last_run": 1,
               "trace_events_last_run": 24,
               "llm_tokens_estimated": 0,
@@ -583,7 +583,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.000595,
@@ -616,7 +616,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.0005175,
@@ -653,8 +653,8 @@
               "error": null,
               "compile_time_ms_mean": 0.3098613330318282,
               "latency_ms": {
-                "mean_ms": 0.01645849260967225,
-                "p50_ms": 0.01645849260967225,
+                "mean_ms": 0.0355949500005,
+                "p50_ms": 0.0355949500005,
                 "p95_ms": 0.01795834250515327,
                 "min_ms": 0.014791992725804448,
                 "max_ms": 0.01812499249354005,
@@ -670,7 +670,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.000205,
@@ -694,8 +694,8 @@
               "error": null,
               "compile_time_ms_mean": 0.4174443408070753,
               "latency_ms": {
-                "mean_ms": 0.024374996428377926,
-                "p50_ms": 0.024374996428377926,
+                "mean_ms": 0.0553004999944,
+                "p50_ms": 0.0553004999944,
                 "p95_ms": 0.025575612380634993,
                 "min_ms": 0.023040978703647852,
                 "max_ms": 0.025709014153108,
@@ -711,7 +711,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.00039,
@@ -744,7 +744,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.000475,
@@ -781,8 +781,8 @@
               "error": null,
               "compile_time_ms_mean": 0.41702766126642626,
               "latency_ms": {
-                "mean_ms": 0.019208498997613788,
-                "p50_ms": 0.019208498997613788,
+                "mean_ms": 0.0415006000054,
+                "p50_ms": 0.0415006000054,
                 "p95_ms": 0.02063365827780217,
                 "min_ms": 0.017624988686293364,
                 "max_ms": 0.02079200930893421,
@@ -798,7 +798,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.000345,
@@ -831,7 +831,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.0002325,
@@ -877,7 +877,7 @@
               "llm_token_usage": {
                 "adapter_reported_input_tokens": null,
                 "adapter_reported_output_tokens": null,
-                "note": "N/A \u2014 runtime does not log LLM adapter tokens in this benchmark."
+                "note": "N/A — runtime does not log LLM adapter tokens in this benchmark."
               },
               "estimated_cost_usd_per_run": {
                 "gpt-4o": 0.0004725,
@@ -912,7 +912,7 @@
             "artifact_count": 10,
             "ok_count": 6,
             "fail_count": 4,
-            "mean_latency_mean_ms_across_ok": 0.02148266745886455
+            "mean_latency_mean_ms_across_ok": 0.044253833332183336
           }
         }
       ]
@@ -948,7 +948,7 @@
     "estimation_assumptions": {
       "input_token_fraction": 0.7,
       "prompt_overhead_multiplier": 1.5,
-      "note": "Costs are illustrative unless adapter-reported input/output tokens exist. Runtime uses AINL **source** tiktoken count \u00d7 overhead; size uses **aggregate emitted** tiktoken count \u00d7 overhead when metric is tiktoken."
+      "note": "Costs are illustrative unless adapter-reported input/output tokens exist. Runtime uses AINL **source** tiktoken count × overhead; size uses **aggregate emitted** tiktoken count × overhead when metric is tiktoken."
     }
   },
   "baselines": {
@@ -985,15 +985,15 @@
           "ok": true,
           "error": null,
           "latency_ms": {
-            "mean_ms": 2.4502915039192885,
-            "p50_ms": 2.4502915039192885,
+            "mean_ms": 2.84310025,
+            "p50_ms": 2.84310025,
             "p95_ms": 2.5620791653636843,
             "min_ms": 2.326082991203293,
             "max_ms": 2.574500016635284,
             "warmup_runs": 1,
             "timed_runs": 2
           },
-          "peak_rss_delta_mb": 0.0625,
+          "peak_rss_delta_mb": 0.08984375,
           "adapter_calls_last_run": null,
           "notes": "No RuntimeEngine; adapter_calls N/A for handwritten baselines.",
           "execution_reliability": {
@@ -1077,8 +1077,8 @@
           "ok": true,
           "error": null,
           "latency_ms": {
-            "mean_ms": 4.567687501548789,
-            "p50_ms": 4.567687501548789,
+            "mean_ms": 5.5743534,
+            "p50_ms": 5.5743534,
             "p95_ms": 4.594181243737694,
             "min_ms": 4.5382500102277845,
             "max_ms": 4.597124992869794,
@@ -1110,7 +1110,7 @@
           "latency_ms_stddev": 0.004153929159568345,
           "failure_samples": []
         },
-        "ainl_latency_mean_ms": 0.027208501705899835,
+        "ainl_latency_mean_ms": 0.0556214500023,
         "ainl_peak_rss_delta_mb": 0.0,
         "ainl_ok": true,
         "handwritten_sources_tiktoken": 1454,
@@ -1163,7 +1163,7 @@
             "warmup_runs": 1,
             "timed_runs": 2
           },
-          "peak_rss_delta_mb": 0.046875,
+          "peak_rss_delta_mb": 0.05859375,
           "adapter_calls_last_run": null,
           "notes": "No RuntimeEngine; adapter_calls N/A for handwritten baselines.",
           "execution_reliability": {
