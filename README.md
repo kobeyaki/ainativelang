@@ -827,7 +827,29 @@ AI Native Lang uses an open-core licensing model.
 
 ## OpenClaw integration
 
-All agent orchestration, cron unification, memory bridging, and OpenClaw-specific supervision glue lives in **`openclaw/bridge/`** (with backward-compatible **`scripts/`** shims). See **[`openclaw/bridge/README.md`](openclaw/bridge/README.md)** for runners, drift checks, `AINL_WORKSPACE` cron patterns, and the `ainl_bridge_main.py` entrypoint. Production token/budget monitoring (daily **`~/.openclaw/workspace/memory/YYYY-MM-DD.md`** appends, weekly trends, sentinel): **[`docs/operations/UNIFIED_MONITORING_GUIDE.md`](docs/operations/UNIFIED_MONITORING_GUIDE.md)**.
+All agent orchestration, cron unification, memory bridging, and OpenClaw-specific supervision glue lives in **`openclaw/bridge/`** (with backward-compatible **`scripts/`** shims). See **[`openclaw/bridge/README.md`](openclaw/bridge/README.md)** for runners, drift checks, `AINL_WORKSPACE` cron patterns, and the `ainl_bridge_main.py` entrypoint.
+
+---
+
+## Production monitoring
+
+OpenClaw-scheduled **bridge wrappers** report token usage, enforce budget awareness, and write operator-facing markdown under **`~/.openclaw/workspace/memory/YYYY-MM-DD.md`** (override with `OPENCLAW_MEMORY_DIR` / `OPENCLAW_DAILY_MEMORY_DIR`).
+
+| Piece | What it does |
+|-------|----------------|
+| **`token-budget-alert`** | Daily (`0 23 * * *` UTC): `## Token Usage Report` append, monitor-cache **stat** / optional **prune** when cache is large, **one consolidated** notify (`Daily AINL Status - … UTC`) when lines are queued (Telegram/OpenClaw queue). |
+| **Sentinel duplicate guard** | Live runs use `token_report_today_sent` / `token_report_today_touch` (default file `/tmp/token_report_today_sent`; override **`AINL_TOKEN_REPORT_SENTINEL`**) so the **main** report is not appended twice the same UTC day. **`--dry-run`** skips sentinel and main append. |
+| **`weekly-token-trends`** | Weekly Sunday 09:00 UTC (`0 9 * * 0`): scans recent daily `*.md` files, parses `## Token Usage Report`, appends **`## Weekly Token Trends`**. |
+| **Docs & ops** | Operator hub: **[`docs/operations/UNIFIED_MONITORING_GUIDE.md`](docs/operations/UNIFIED_MONITORING_GUIDE.md)** · Wrapper detail: **[`docs/openclaw/BRIDGE_TOKEN_BUDGET_ALERT.md`](docs/openclaw/BRIDGE_TOKEN_BUDGET_ALERT.md)** · Cron drift & registry: **[`docs/CRON_ORCHESTRATION.md`](docs/CRON_ORCHESTRATION.md)** |
+
+**Quick validate (no writes):**
+
+```bash
+python3 openclaw/bridge/run_wrapper_ainl.py token-budget-alert --dry-run
+python3 openclaw/bridge/run_wrapper_ainl.py weekly-token-trends --dry-run
+```
+
+Wrappers live under **`openclaw/bridge/wrappers/`** (`token_budget_alert.ainl`, `weekly_token_trends.ainl`); adapter logic in **`openclaw/bridge/bridge_token_budget_adapter.py`**.
 
 ---
 
