@@ -3,7 +3,23 @@
   "policy": {
     "strict-valid": "Must compile with strict_mode=true.",
     "non-strict-only": "Must compile with strict_mode=false and fail strict_mode=true.",
-    "legacy-compat": "Retained for training/compatibility context; not a strict conformance target."
+    "legacy-compat": "Retained for training/compatibility context; not a strict conformance target.",
+    "viable_for_aggregate": "When false, artifact is excluded from primary (viable) benchmark aggregates for public_mixed / compatibility_only; see scripts/benchmark_size.py. Omitted paths default by class + emit-size heuristic."
+  },
+  "viable_for_aggregate": {
+    "examples/autonomous_ops/status_snapshot_to_queue.lang": false,
+    "examples/autonomous_ops/backup_freshness_to_queue.lang": false,
+    "examples/autonomous_ops/pipeline_readiness_snapshot.lang": false,
+    "examples/openclaw/backup_manager.lang": false,
+    "examples/openclaw/lead_enrichment.lang": false,
+    "examples/openclaw/agent_read_result.lang": false,
+    "examples/openclaw/agent_send_task.lang": false,
+    "examples/openclaw/memory_daily_log_note.lang": false,
+    "examples/openclaw/memory_token_cost_state.lang": false,
+    "examples/openclaw/monitor_status_advice_read.lang": false,
+    "examples/openclaw/monitor_status_advice_request.lang": false,
+    "examples/openclaw/token_cost_advice_read.lang": false,
+    "examples/openclaw/token_cost_advice_request.lang": false
   },
   "examples": {
     "strict-valid": [

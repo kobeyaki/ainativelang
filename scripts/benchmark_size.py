@@ -118,6 +118,95 @@ def load_artifact_class_map(path: Path, *, section: str) -> Dict[str, str]:
     return out
 
 
+def load_viable_for_aggregate_overrides(path: Path) -> Dict[str, bool]:
+    """Per-path overrides: True = force viable, False = force excluded from viable subset."""
+    profile = load_json(path)
+    raw = profile.get("viable_for_aggregate")
+    if not isinstance(raw, dict):
+        return {}
+    return {str(k): bool(v) for k, v in raw.items()}
+
+
+# Non-strict / legacy rows below this aggregate emit size (active metric) are excluded from viable subset
+# unless forced True in artifact_profiles.json (public_mixed / compatibility_only only).
+VIABLE_EMIT_AGGREGATE_MIN = 50
+# Large sources with very low emit/source ratio (legacy ops shells) skew aggregates downward; exclude unless override True.
+VIABLE_SOURCE_LARGE_MIN = 400
+VIABLE_EMIT_RATIO_MAX = 0.22
+
+
+def _row_in_viable_aggregate_subset(
+    row: Dict[str, Any],
+    *,
+    profile_name: str,
+    overrides: Dict[str, bool],
+) -> bool:
+    if profile_name not in ("public_mixed", "compatibility_only"):
+        return True
+    rel = row["artifact"]
+    cls = row.get("class") or ""
+    if rel in overrides:
+        return overrides[rel]
+    if cls == "strict-valid":
+        return True
+    agg = int(row.get("aggregate_generated_output_size") or 0)
+    src = int(row.get("ainl_source_size") or 0)
+    rr = row.get("aggregate_ratio_vs_source")
+    if (
+        isinstance(rr, (int, float))
+        and src >= VIABLE_SOURCE_LARGE_MIN
+        and float(rr) < VIABLE_EMIT_RATIO_MAX
+    ):
+        return False
+    return agg >= VIABLE_EMIT_AGGREGATE_MIN
+
+
+def _summarize_artifact_rows(rows: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
+    totals_all = {t: 0 for t in TARGET_ORDER}
+    source_total = 0
+    aggregate_total = 0
+    target_structure_totals: Dict[str, Dict[str, int]] = {}
+    for row in rows:
+        source_total += int(row.get("ainl_source_size") or 0)
+        aggregate_total += int(row.get("aggregate_generated_output_size") or 0)
+        tmap = row.get("targets") or {}
+        for t in TARGET_ORDER:
+            ent = tmap.get(t) or {}
+            sz = ent.get("size")
+            if sz is not None:
+                totals_all[t] += int(sz)
+        for t, struct in (row.get("target_structure") or {}).items():
+            agg = target_structure_totals.setdefault(str(t), {})
+            for k, v in (struct or {}).items():
+                agg[k] = agg.get(k, 0) + int(v)
+    return {
+        "artifact_count": len(rows),
+        "ainl_source_total": source_total,
+        "targets_total": totals_all,
+        "aggregate_generated_output_total": aggregate_total,
+        "aggregate_ratio_vs_source": _ratio(aggregate_total, source_total),
+        "target_structure_totals": target_structure_totals,
+    }
+
+
+def apply_viable_aggregate_subset(
+    profile_payload: Dict[str, Any],
+    *,
+    profile_name: str,
+    overrides: Dict[str, bool],
+) -> None:
+    """Mutates profile_payload: per-row viable_for_aggregate, viable_aggregate, excluded_legacy_count."""
+    rows: List[Dict[str, Any]] = list(profile_payload.get("artifacts") or [])
+    viable_rows: List[Dict[str, Any]] = []
+    for row in rows:
+        ok = _row_in_viable_aggregate_subset(row, profile_name=profile_name, overrides=overrides)
+        row["viable_for_aggregate"] = ok
+        if ok:
+            viable_rows.append(row)
+    profile_payload["viable_aggregate"] = _summarize_artifact_rows(viable_rows)
+    profile_payload["excluded_legacy_count"] = int(len(rows) - len(viable_rows))
+
+
 def discover_baseline_groups(baselines_root: Path) -> List[Path]:
     """Subdirs containing both ``pure_async_python.py`` and ``langgraph_version.py``."""
     if not baselines_root.is_dir():
@@ -550,8 +639,10 @@ def run_profile_benchmark(
 
 
 def _compute_size_drivers(profile_payload: Dict, *, mode_name: str, top_n: int = 3) -> Dict:
-    summary = profile_payload.get("summary", {})
-    artifacts = profile_payload.get("artifacts", [])
+    summary = profile_payload.get("viable_aggregate") or profile_payload.get("summary", {})
+    artifacts = list(profile_payload.get("artifacts", []))
+    if "viable_aggregate" in profile_payload:
+        artifacts = [r for r in artifacts if r.get("viable_for_aggregate")]
     aggregate_total = int(summary.get("aggregate_generated_output_total", 0) or 0)
     targets_total = summary.get("targets_total", {}) or {}
     target_rows = []
@@ -621,9 +712,8 @@ def build_report(
     for mode_name, mode_data in mode_payloads.items():
         for profile in mode_data.get("profiles", []):
             profile["size_drivers"] = _compute_size_drivers(profile, mode_name=mode_name, top_n=3)
-    # 3.3: includes per-artifact compile_time_ms_mean (mean of 3 timed compiles); optional blocks:
-    # handwritten_baseline_size_comparison, economics, compile_reliability_runs.
-    schema_version = "3.3"
+    # 3.4: viable_aggregate + excluded_legacy_count per profile (public_mixed / compatibility_only).
+    schema_version = "3.4"
     out: Dict[str, Any] = {
         "schema_version": schema_version,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -811,15 +901,28 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
     lines.append("- They are not guaranteed tokenizer-cost or LLM pricing results in `approx_chunks` mode.")
     lines.append("- They are not a proxy for runtime performance or product quality by themselves.")
     lines.append("")
+    lines.append(
+        "> **Viable subset (`public_mixed` / `compatibility_only`):** headline ratios use **viable** aggregates — "
+        "`viable_for_aggregate: false` in `tooling/artifact_profiles.json` excludes; non-strict rows with aggregate "
+        f"emit &lt; {VIABLE_EMIT_AGGREGATE_MIN} ({report['metric']} units) are excluded; non-strict rows with "
+        f"source ≥ {VIABLE_SOURCE_LARGE_MIN} and emit/source ratio &lt; {VIABLE_EMIT_RATIO_MAX} are excluded "
+        "(legacy ops shells). Override any path to `true` / `false` in JSON. Strict-valid rows in `public_mixed` "
+        "stay viable. **Legacy-inclusive** totals: [Including Legacy Artifacts](#including-legacy-artifacts)."
+    )
+    lines.append("")
 
     headline = report["headline_profile"]
     modes = report["modes"]
     full_mode = modes.get("full_multitarget")
     mini_mode = modes.get("minimal_emit")
+
+    def _md_viable_aggregate(prof: Dict[str, Any]) -> Dict[str, Any]:
+        return prof.get("viable_aggregate") or prof.get("summary") or {}
+
     lines.append("## Mode Comparison (Headline + Mixed)")
     lines.append("")
-    lines.append("| Profile | Full aggregate ratio | Minimal aggregate ratio |")
-    lines.append("|---|---:|---:|")
+    lines.append("| Profile | Full ratio (viable) | Minimal ratio (viable) | Viable artifacts |")
+    lines.append("|---|---:|---:|---|")
     for pname in (headline, "public_mixed", "compatibility_only"):
         full = (
             next((p for p in full_mode["profiles"] if p["name"] == pname), None) if full_mode else None
@@ -828,9 +931,16 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
             next((p for p in mini_mode["profiles"] if p["name"] == pname), None) if mini_mode else None
         )
         if full and mini:
-            lines.append(
-                f"| {pname} | {full['summary']['aggregate_ratio_vs_source']:.2f}x | {mini['summary']['aggregate_ratio_vs_source']:.2f}x |"
-            )
+            fs = _md_viable_aggregate(full)
+            ms = _md_viable_aggregate(mini)
+            fr = fs.get("aggregate_ratio_vs_source")
+            mr = ms.get("aggregate_ratio_vs_source")
+            fr_s = f"{float(fr):.2f}x" if fr is not None else "—"
+            mr_s = f"{float(mr):.2f}x" if mr is not None else "—"
+            n_full = int(fs.get("artifact_count") or 0)
+            n_all = len(full.get("artifacts") or [])
+            via = f"{n_full}/{n_all}" if n_all else str(n_full)
+            lines.append(f"| {pname} | {fr_s} | {mr_s} | {via} |")
     lines.append("")
     lines.append(
         "Compatibility/non-strict artifacts are segmented and not used as the primary benchmark headline."
@@ -868,12 +978,18 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
         mode_payload = modes[mode_name]
         lines.append(f"## Details ({mode_name})")
         lines.append("")
-        lines.append("| Profile | Artifact count | AINL source total | Aggregate generated output total | Aggregate ratio |")
-        lines.append("|---|---:|---:|---:|---:|")
+        lines.append(
+            "| Profile | Viable artifacts | AINL source Σ (viable) | Aggregate Σ (viable) | Ratio (viable) | Excluded legacy |"
+        )
+        lines.append("|---|---:|---:|---:|---:|---:|")
         for p in mode_payload["profiles"]:
-            s = p["summary"]
+            vs = p.get("viable_aggregate") or p["summary"]
+            ex = int(p.get("excluded_legacy_count") or 0)
+            ratio = vs.get("aggregate_ratio_vs_source")
+            r_s = f"{float(ratio):.2f}x" if ratio is not None else "—"
             lines.append(
-                f"| {p['name']} | {s['artifact_count']} | {s['ainl_source_total']} | {s['aggregate_generated_output_total']} | {s['aggregate_ratio_vs_source']:.2f}x |"
+                f"| {p['name']} | {vs['artifact_count']} | {vs['ainl_source_total']} | "
+                f"{vs['aggregate_generated_output_total']} | {r_s} | {ex} |"
             )
         lines.append("")
         for p in mode_payload["profiles"]:
@@ -886,6 +1002,33 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
     hb = report.get("handwritten_baseline_size_comparison")
     if hb:
         lines.extend(_render_handwritten_baseline_size_markdown(hb, report))
+
+    lines.append("## Including Legacy Artifacts")
+    lines.append("")
+    lines.append(
+        "Legacy files (pure-cron shells, OpenClaw micro-wrappers, aggregate emit below the viable threshold, "
+        f"or paths marked `viable_for_aggregate: false`) are **still compiled and listed** in the per-artifact "
+        "tables; they are **excluded only** from the **viable** summary rows above for `public_mixed` and "
+        "`compatibility_only`. Canonical strict-valid profile totals are unchanged (all viable)."
+    )
+    lines.append("")
+    for mode_name in sorted(modes.keys()):
+        mode_payload = modes[mode_name]
+        lines.append(f"### {mode_name} — legacy-inclusive totals")
+        lines.append("")
+        lines.append(
+            "| Profile | Artifact count | AINL source total | Aggregate generated output total | Aggregate ratio |"
+        )
+        lines.append("|---|---:|---:|---:|---:|")
+        for p in mode_payload["profiles"]:
+            s = p["summary"]
+            ratio = s.get("aggregate_ratio_vs_source")
+            r_s = f"{float(ratio):.2f}x" if ratio is not None else "—"
+            lines.append(
+                f"| {p['name']} | {s['artifact_count']} | {s['ainl_source_total']} | "
+                f"{s['aggregate_generated_output_total']} | {r_s} |"
+            )
+        lines.append("")
 
     lines.append("## Supported vs Unsupported Claims")
     lines.append("")
@@ -1082,6 +1225,7 @@ def main() -> int:
         artifact_profiles_path = Path(args.artifact_profiles)
         benchmark_manifest_path = Path(args.benchmark_manifest)
         benchmark_manifest = load_benchmark_manifest(benchmark_manifest_path)
+        viable_overrides = load_viable_for_aggregate_overrides(artifact_profiles_path)
         if args.metric == "approx_chunks":
             logger.warning(
                 "metric=approx_chunks is legacy; prefer default tiktoken for production-relevant sizing."
@@ -1129,19 +1273,23 @@ def main() -> int:
                     cost_models=cost_models or None,
                     compile_reliability_runs=int(args.compile_reliability_runs),
                 )
-                profiles_payload.append(
-                    {
-                        "name": profile_name,
-                        "description": cfg.get("description", ""),
-                        "selection": {
-                            "artifact_profiles_section": cfg["artifact_profiles_section"],
-                            "classes": cfg["classes"],
-                            "artifact_count": len(selected),
-                        },
-                        "artifacts": result["artifacts"],
-                        "summary": result["summary"],
-                    }
+                prof = {
+                    "name": profile_name,
+                    "description": cfg.get("description", ""),
+                    "selection": {
+                        "artifact_profiles_section": cfg["artifact_profiles_section"],
+                        "classes": cfg["classes"],
+                        "artifact_count": len(selected),
+                    },
+                    "artifacts": result["artifacts"],
+                    "summary": result["summary"],
+                }
+                apply_viable_aggregate_subset(
+                    prof,
+                    profile_name=profile_name,
+                    overrides=viable_overrides,
                 )
+                profiles_payload.append(prof)
             mode_payloads[mode_name] = {"profiles": profiles_payload}
 
         handwritten_cmp: Optional[Dict[str, Any]] = None

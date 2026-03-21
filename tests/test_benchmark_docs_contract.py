@@ -54,6 +54,7 @@ def test_benchmark_markdown_contains_interpretation_sections():
         "## What These Numbers Are Not",
         "## Size Drivers (Actionable Diagnosis)",
         "## Residual Overhead Audit (minimal_emit)",
+        "## Including Legacy Artifacts",
     ]
     for section in required_sections:
         assert section in text

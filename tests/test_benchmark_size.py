@@ -247,7 +247,7 @@ def test_machine_output_shape_and_math(tmp_path: Path):
         benchmark_manifest=manifest,
         mode_payloads={"full_multitarget": {"profiles": [payload]}, "minimal_emit": {"profiles": [payload]}},
     )
-    assert report["schema_version"] == "3.3"
+    assert report["schema_version"] == "3.4"
     row = report["modes"]["full_multitarget"]["profiles"][0]["artifacts"][0]
     assert row["ainl_source_size"] == 3
     assert row["aggregate_generated_output_size"] == 13
@@ -262,6 +262,69 @@ def test_machine_output_shape_and_math(tmp_path: Path):
     assert drivers["top_targets"]
     assert "target" in drivers["top_targets"][0]
     assert "size" in drivers["top_targets"][0]
+
+
+def test_viable_excludes_large_source_low_ratio_non_strict():
+    prof = {
+        "artifacts": [
+            {
+                "artifact": "examples/big.lang",
+                "class": "non-strict-only",
+                "ainl_source_size": 500,
+                "aggregate_generated_output_size": 50,
+                "aggregate_ratio_vs_source": 0.1,
+                "targets": {t: {"size": None} for t in benchmark_size.TARGET_ORDER},
+                "target_structure": {},
+            }
+        ]
+    }
+    benchmark_size.apply_viable_aggregate_subset(
+        prof,
+        profile_name="compatibility_only",
+        overrides={},
+    )
+    assert prof["artifacts"][0]["viable_for_aggregate"] is False
+
+
+def test_apply_viable_aggregate_subset_public_mixed():
+    prof = {
+        "artifacts": [
+            {
+                "artifact": "examples/strict.ainl",
+                "class": "strict-valid",
+                "ainl_source_size": 100,
+                "aggregate_generated_output_size": 10,
+                "targets": {t: {"size": None} for t in benchmark_size.TARGET_ORDER},
+                "target_structure": {},
+            },
+            {
+                "artifact": "examples/tiny.lang",
+                "class": "non-strict-only",
+                "ainl_source_size": 200,
+                "aggregate_generated_output_size": 30,
+                "targets": {t: {"size": None} for t in benchmark_size.TARGET_ORDER},
+                "target_structure": {},
+            },
+            {
+                "artifact": "examples/forced.lang",
+                "class": "non-strict-only",
+                "ainl_source_size": 50,
+                "aggregate_generated_output_size": 30,
+                "targets": {t: {"size": None} for t in benchmark_size.TARGET_ORDER},
+                "target_structure": {},
+            },
+        ]
+    }
+    benchmark_size.apply_viable_aggregate_subset(
+        prof,
+        profile_name="public_mixed",
+        overrides={"examples/forced.lang": True},
+    )
+    flags = [r["viable_for_aggregate"] for r in prof["artifacts"]]
+    assert flags == [True, False, True]
+    assert prof["excluded_legacy_count"] == 1
+    assert prof["viable_aggregate"]["artifact_count"] == 2
+    assert prof["viable_aggregate"]["ainl_source_total"] == 150
 
 
 def test_explicit_failure_on_compile_error(tmp_path: Path):
