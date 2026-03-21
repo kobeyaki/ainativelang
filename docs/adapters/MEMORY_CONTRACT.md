@@ -1,5 +1,9 @@
 ## AINL Memory Contract (v1, extension-level)
 
+> **OpenClaw (MCP skill):** **[`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md)** — **`skills/openclaw/`**, **`ainl install-openclaw`**, **`ainl-mcp`**; not the bridge **daily markdown** path below.
+>
+> **ZeroClaw:** **[`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md)** — skill + **`ainl-mcp`**; not the OpenClaw **`~/.openclaw/workspace/memory/`** layout described below.
+
 Status: **design + v1 adapter implementation**. This document describes the v1
 memory contract as an extension-level adapter. It does **not** change compiler
 or core runtime semantics.

@@ -1,0 +1,112 @@
+# AINL — OpenClaw skill
+
+Deterministic compiled graphs for [OpenClaw](https://github.com/openclaw/openclaw): **importer**, **CLI**, **`ainl-mcp`** merged into **`~/.openclaw/openclaw.json`**, and a **`~/.openclaw/bin/ainl-run`** compile-then-run wrapper after bootstrap.
+
+OpenClaw is normally installed with **npm** and **`openclaw onboard`**. This skill adds the **Python** **`ainl-lang`** toolchain and wires **MCP** + **`ainl-run`** for OpenClaw’s config layout.
+
+**Not ZeroClaw:** there is no `zeroclaw skills install <git url>` here. Use **ClawHub** (when the skill is published there), **manual folder copy**, or a **standalone git repo** you clone yourself.
+
+## Where skills live
+
+- **User scope:** `~/.openclaw/skills/<skill-name>/` (typical)
+- **Workspace scope:** `<your-openclaw-workspace>/skills/` — default workspace is often **`~/.openclaw/workspace`**
+
+Copy this directory so you have `SKILL.md`, `install.sh`, and `README.md` next to each other.
+
+## Standalone repo (optional)
+
+To publish as a **repository root** (not nested under `skills/` in the monorepo), copy this folder to **[github.com/sbhooley/ainl-openclaw-skill](https://github.com/sbhooley/ainl-openclaw-skill)** (or any repo) with this layout:
+
+```text
+ainl-openclaw-skill/
+├── SKILL.md
+├── install.sh
+└── README.md
+```
+
+Users clone or download the repo, then copy the folder into **`~/.openclaw/skills/ainl-openclaw-skill/`** (or add via **ClawHub** when listed). OpenClaw does **not** mirror ZeroClaw’s `skills install <url>` one-liner.
+
+## Install and use
+
+### Option A — ClawHub
+
+If this skill appears on **ClawHub**, install it the way OpenClaw documents for registry skills (UI or CLI), then run the installer from the skill directory:
+
+```bash
+cd ~/.openclaw/skills/<skill-folder>
+chmod +x install.sh
+./install.sh
+```
+
+### Option B — Manual copy from monorepo
+
+This folder lives under the main AINL repo as [`skills/openclaw/`](./):
+
+```bash
+cp -R /path/to/ainativelang/skills/openclaw ~/.openclaw/skills/ainl
+cd ~/.openclaw/skills/ainl
+chmod +x install.sh
+./install.sh
+```
+
+### Option C — Manual (no skill folder)
+
+```bash
+pip install 'ainl-lang[benchmark,mcp]'
+ainl install-openclaw
+```
+
+### Flags
+
+Pass **`ainl install-openclaw`** flags through the script:
+
+```bash
+./install.sh --verbose
+./install.sh --dry-run
+```
+
+### Skip global npm
+
+If you already manage the OpenClaw CLI yourself:
+
+```bash
+OPENCLAW_SKIP_NPM=1 ./install.sh
+```
+
+## What gets set up
+
+1. **Optional `npm install -g openclaw@latest`** — refreshes the OpenClaw CLI when **npm** is on PATH (skipped if **`OPENCLAW_SKIP_NPM=1`**).
+2. **`pip install --upgrade 'ainl-lang[benchmark,mcp]'`** — compiler, importer, benchmarks extras, MCP deps.
+3. **`ainl install-openclaw`** — pip self-upgrade path, **`mcpServers.ainl`** in **`~/.openclaw/openclaw.json`**, and **`~/.openclaw/bin/ainl-run`**.
+
+Add **`~/.openclaw/bin`** to **PATH** if you want to invoke **`ainl-run`** without a full path (the installer prints a hint).
+
+## Typical commands
+
+| Command | Description |
+|--------|-------------|
+| `ainl import …` | Import Markdown or ecosystem sources into `.ainl` |
+| `ainl compile <file.ainl>` | Compile / validate |
+| `ainl run <file.ainl>` | Run via CLI where the graph supports it |
+| `~/.openclaw/bin/ainl-run <file.ainl>` | After `install-openclaw`: shim entrypoint |
+
+## Try in OpenClaw
+
+After a successful install:
+
+> Import the morning briefing using AINL.
+
+Point the importer at the right source (Markdown path or ecosystem subcommand).
+
+## Files
+
+| File | Role |
+|------|------|
+| `SKILL.md` | Skill manifest + `metadata.openclaw` + agent instructions |
+| `install.sh` | Optional npm OpenClaw CLI + pip + `ainl install-openclaw` |
+| `README.md` | Human-facing install and use |
+
+## Upstream
+
+- [github.com/sbhooley/ainativelang](https://github.com/sbhooley/ainativelang)
+- [github.com/openclaw/openclaw](https://github.com/openclaw/openclaw)

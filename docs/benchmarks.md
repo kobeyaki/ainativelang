@@ -31,7 +31,7 @@ Human-written baselines (`--compare-baselines`) anchor claims against real Pytho
 
 ## Where to read results
 
-- **Ecosystem import examples:** trees under **`examples/ecosystem/`** (Clawflows- and Agency-Agents-style Markdown → AINL) are **kept fresh via weekly auto-sync** from upstream [Clawflows](https://github.com/nikilster/clawflows) and [Agency-Agents](https://github.com/msitarzewski/agency-agents) repos — see [`.github/workflows/sync-ecosystem.yml`](../.github/workflows/sync-ecosystem.yml) and **[`docs/ECOSYSTEM_OPENCLAW.md`](ECOSYSTEM_OPENCLAW.md)**.
+- **Ecosystem import examples:** trees under **`examples/ecosystem/`** (Clawflows- and Agency-Agents-style Markdown → AINL) are **kept fresh via weekly auto-sync** from upstream [Clawflows](https://github.com/nikilster/clawflows) and [Agency-Agents](https://github.com/msitarzewski/agency-agents) repos — see [`.github/workflows/sync-ecosystem.yml`](../.github/workflows/sync-ecosystem.yml) and **[`docs/ECOSYSTEM_OPENCLAW.md`](ECOSYSTEM_OPENCLAW.md)**. **OpenClaw** and **ZeroClaw** both consume these paths (CLI, MCP, **OpenClaw skill** — **[`docs/OPENCLAW_INTEGRATION.md`](OPENCLAW_INTEGRATION.md)**, or **ZeroClaw skill** — **[`docs/ZEROCLAW_INTEGRATION.md`](ZEROCLAW_INTEGRATION.md)**).
 - **Human-readable size report (start here):** repository root **[`BENCHMARK.md`](../BENCHMARK.md)** — transparency notes at top; viable vs legacy-inclusive sections; per-artifact **Notes** column. On **ainativelang.com**, the same content is published as the [Benchmarks](/benchmark) page.
 - **Machine-readable size JSON:** `tooling/benchmark_size.json` (schema `3.5+`).
 - **Runtime JSON:** `tooling/benchmark_runtime_results.json` (generated; tracked in git as the CI baseline when committed).
@@ -91,3 +91,5 @@ Pull requests and pushes run **`benchmark-regression`** (see `.github/workflows/
 - `scripts/benchmark_size.py`, `scripts/benchmark_runtime.py`, `tooling/bench_metrics.py`
 - `docs/TEST_PROFILES.md` — pytest profile matrix
 - `docs/architecture/COMPILE_ONCE_RUN_MANY.md` — architectural framing
+- `docs/OPENCLAW_INTEGRATION.md` — **OpenClaw skill**, **`ainl install-openclaw`**, and links to **`examples/ecosystem/`** (auto-sync, MCP importer tools)
+- `docs/ZEROCLAW_INTEGRATION.md` — **ZeroClaw skill**, **`ainl install-zeroclaw`**, and links to **`examples/ecosystem/`** (auto-sync, MCP importer tools)

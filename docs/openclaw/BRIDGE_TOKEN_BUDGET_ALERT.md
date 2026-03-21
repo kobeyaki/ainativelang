@@ -1,6 +1,6 @@
 # Bridge Token Budget Alert System
 
-**See also:** [`openclaw/bridge/README.md`](../../openclaw/bridge/README.md) (runner, monitoring table, cron snippets) · [`docs/operations/UNIFIED_MONITORING_GUIDE.md`](../operations/UNIFIED_MONITORING_GUIDE.md) (full stack: weekly trends, cron, env reference, drift)
+**See also:** [`openclaw/bridge/README.md`](../../openclaw/bridge/README.md) (runner, monitoring table, cron snippets) · [`docs/operations/UNIFIED_MONITORING_GUIDE.md`](../operations/UNIFIED_MONITORING_GUIDE.md) (full stack: weekly trends, cron, env reference, drift) · **OpenClaw MCP skill** (`ainl install-openclaw`): [`docs/OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md) · **ZeroClaw** (separate path): [`docs/ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md)
 
 ---
 

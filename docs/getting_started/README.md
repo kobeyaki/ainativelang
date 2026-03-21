@@ -73,6 +73,8 @@ Configure your MCP-compatible host (Gemini CLI, Claude Code, Codex, etc.) to
 use the `ainl-mcp` stdio transport. The host can then call `ainl_validate`,
 `ainl_compile`, `ainl_capabilities`, `ainl_security_report`, and `ainl_run`.
 
+**OpenClaw** hosts can merge **`mcpServers.ainl`** automatically: **[`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md)** (**`ainl install-openclaw`**). **ZeroClaw:** **[`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md)**.
+
 MCP v1 runs with safe defaults (core-only adapters, conservative limits).
 
 Full quickstart: section 9 of
@@ -96,7 +98,7 @@ executes deterministically.
 ## Core first, advanced later
 
 Start with the core compiler/runtime and the paths above. Advanced surfaces
-(agent coordination, memory migration, OpenClaw extensions) are documented
+(agent coordination, memory migration, OpenClaw extensions — **`docs/OPENCLAW_INTEGRATION.md`** (skill + MCP) and **`openclaw/bridge/`** (cron/memory), ZeroClaw skill — **`docs/ZEROCLAW_INTEGRATION.md`**) are documented
 under [`../advanced/`](../advanced/) and are intended for operators who
 understand their deployment environment.
 

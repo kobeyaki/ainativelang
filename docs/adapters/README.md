@@ -5,7 +5,7 @@ Use this section to understand how AINL reaches external systems and how capabil
 ## Key docs
 
 - [`../reference/ADAPTER_REGISTRY.md`](../reference/ADAPTER_REGISTRY.md) — adapter inventory and contracts
-- [`OPENCLAW_ADAPTERS.md`](OPENCLAW_ADAPTERS.md) — OpenClaw integration guide
+- [`OPENCLAW_ADAPTERS.md`](OPENCLAW_ADAPTERS.md) — OpenClaw integration guide (adapter verbs / bridge); **OpenClaw MCP skill:** [`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md) · **ZeroClaw** MCP skill: [`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md)
 - [`../operations/UNIFIED_MONITORING_GUIDE.md`](../operations/UNIFIED_MONITORING_GUIDE.md) — bridge token budget, weekly trends, daily markdown **`~/.openclaw/workspace/memory/YYYY-MM-DD.md`**, cron, sentinel, env vars
 - [`MEMORY_CONTRACT.md`](MEMORY_CONTRACT.md) — memory contract and state surfaces
 - [`MEMORY_CONTRACT_V1_1_RFC.md`](MEMORY_CONTRACT_V1_1_RFC.md) — additive v1.1 proposal for deterministic query metadata and filters

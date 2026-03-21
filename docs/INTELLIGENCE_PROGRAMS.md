@@ -1,6 +1,6 @@
 # Intelligence programs (`intelligence/*.lang`)
 
-AINL sources under `intelligence/` support **OpenClaw-style** automation: memory compaction, session signals, token-aware bootstrap context, and scheduled digests. They are **examples / operator programs** — not part of the core language spec.
+AINL sources under `intelligence/` support **OpenClaw-style** automation: memory compaction, session signals, token-aware bootstrap context, and scheduled digests. They are **examples / operator programs** — not part of the core language spec. **ZeroClaw** users usually integrate via **`docs/ZEROCLAW_INTEGRATION.md`** (skill + **`ainl-mcp`**), not this monitor registry layout.
 
 ## Programs
 

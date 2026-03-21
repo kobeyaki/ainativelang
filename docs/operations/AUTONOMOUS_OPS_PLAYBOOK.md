@@ -164,7 +164,7 @@ Concretely, cooldown / persistent-state behavior today is modeled by:
 - comparing those values to the current time or thresholds in user code
 - branching (or choosing to emit/skip) based on those comparisons
 
-Examples of this pattern (canonical + compatibility + OpenClaw):
+Examples of this pattern (canonical + compatibility + OpenClaw-style / ZeroClaw-adaptable monitors):
 
 - `examples/monitor_escalation.ainl` — scheduled escalation vs noop based on conditions.
 - `examples/cron/monitor_and_alert.ainl` — compatibility cron flow with monitoring intent.

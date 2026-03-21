@@ -19,6 +19,12 @@
     <img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License: Apache-2.0" />
   </a>
   <img src="https://img.shields.io/badge/MCP-v1%20server-blueviolet" alt="MCP v1" />
+  <a href="https://github.com/sbhooley/ainativelang/tree/main/skills/ainl">
+    <img src="https://img.shields.io/badge/ZeroClaw%20Skill-AINL-blue" alt="ZeroClaw Skill: AINL" />
+  </a>
+  <a href="https://github.com/sbhooley/ainativelang/tree/main/skills/openclaw">
+    <img src="https://img.shields.io/badge/OpenClaw%20Skill-AINL-blue" alt="OpenClaw Skill: AINL" />
+  </a>
   <img src="https://img.shields.io/badge/graph--first-deterministic%20IR-orange" alt="Graph-first deterministic IR" />
   <img src="https://img.shields.io/badge/AI%20workflow-language-brightgreen" alt="AI workflow language" />
 </p>
@@ -28,6 +34,8 @@
 **AINL helps turn AI from "a smart conversation" into "a structured worker."**
 
 It is designed for teams building AI workflows that need multiple steps, state and memory, tool use, repeatable execution, validation and control, and lower dependence on long prompt loops.
+
+**Compile-once, run-many:** you author (or import) a graph once; the runtime executes it deterministically without re-spending LLM tokens on orchestration each time. Size economics are tracked with **tiktoken cl100k_base**; the **viable subset** (e.g. **public_mixed**) shows about **~1.02×** leverage for **minimal_emit** vs unstructured baselines—see **[`BENCHMARK.md`](BENCHMARK.md)**, **[`docs/benchmarks.md`](docs/benchmarks.md)**, and **[`docs/architecture/COMPILE_ONCE_RUN_MANY.md`](docs/architecture/COMPILE_ONCE_RUN_MANY.md)**.
 
 > [!TIP]
 > **New to AINL?**
@@ -42,12 +50,14 @@ It is designed for teams building AI workflows that need multiple steps, state a
 > - **Understand AINL first:** [ainativelang.com](https://ainativelang.com)
 > - **Run it now (CLI / runner / MCP):** [Choose Your Path](#choose-your-path)
 > - **Read the docs hub:** [`docs/README.md`](docs/README.md)
-> - **See updated benchmarks (tiktoken, viable subsets):** [`BENCHMARK.md`](BENCHMARK.md) · [`docs/benchmarks.md`](docs/benchmarks.md#benchmark-highlights-march-2026)
+> - **See updated benchmarks (tiktoken cl100k_base, viable subset, minimal_emit fallback stub):** [`BENCHMARK.md`](BENCHMARK.md) · [`docs/benchmarks.md`](docs/benchmarks.md#benchmark-highlights-march-2026)
+> - **ZeroClaw skill (one-command install → deterministic graphs):** [`docs/ZEROCLAW_INTEGRATION.md`](docs/ZEROCLAW_INTEGRATION.md) · [`skills/ainl/`](skills/ainl/) · curated trees **[`examples/ecosystem/`](examples/ecosystem/)**
+> - **OpenClaw skill + bootstrap:** [`docs/OPENCLAW_INTEGRATION.md`](docs/OPENCLAW_INTEGRATION.md) · [`skills/openclaw/`](skills/openclaw/) · **`ainl install-openclaw`**
 > - **Using Claude Code / Cowork / Dispatch-style tools?** See the MCP/integration guidance in [`docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`](docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md) and [`docs/INTEGRATION_STORY.md`](docs/INTEGRATION_STORY.md)
 
 > TECHNICALS: AINL is a compact, graph-canonical, AI-native programming system for building deterministic workflows, multi-target applications, and operational agents without relying on ever-growing prompt loops.
 
-**Performance & benchmarks (updated Mar 2026):** Size results use **tiktoken cl100k_base** (billing-aligned for GPT-4o–class models). See **[`BENCHMARK.md`](BENCHMARK.md)** for the full tables and transparency notes; narrative hub **[`docs/benchmarks.md`](docs/benchmarks.md)** (highlights, commands, CI). Runtime economics and optional reliability batches: **`tooling/benchmark_runtime_results.json`** via `make benchmark` / `scripts/benchmark_runtime.py`.
+**Performance & benchmarks (updated Mar 2026):** Size results use **tiktoken cl100k_base** (billing-aligned for GPT-4o–class models). Reports separate **viable subset** rows from **legacy-inclusive** aggregates; **minimal_emit fallback stub** and **emitter compaction** (e.g. prisma / react_ts stubs) are documented in the transparency blocks. See **[`BENCHMARK.md`](BENCHMARK.md)** for tables; narrative hub **[`docs/benchmarks.md`](docs/benchmarks.md)** (highlights, commands, CI). Runtime economics and optional reliability batches: **`tooling/benchmark_runtime_results.json`** via `make benchmark` / `scripts/benchmark_runtime.py`.
 
 ---
 
@@ -120,7 +130,9 @@ See **Includes & modules** below for `timeout.ainl`, strict rules, and the start
 
 ## Ecosystem & OpenClaw integration
 
-Import **Clawflows**-style `WORKFLOW.md` or **Agency-Agents**-style personality Markdown into a **deterministic** `.ainl` graph (cron trigger, sequential `Call` steps or agent gates, optional `memory` / `queue` hooks for OpenClaw-style bridges). If structured parsing cannot extract steps or agent fields, the importer **falls back** to the Phase‑1 compiling stub.
+Import **Clawflows**-style `WORKFLOW.md` or **Agency-Agents**-style personality Markdown into a **deterministic** `.ainl` graph (cron trigger, sequential `Call` steps or agent gates, optional `memory` / `queue` hooks for OpenClaw-style bridges). If structured parsing cannot extract steps or agent fields, the importer **falls back** to a compiling **minimal_emit fallback stub** (Phase‑1 style) so you still get valid, reviewable graph source.
+
+The same path is exposed over MCP as **`ainl_list_ecosystem`**, **`ainl_import_clawflow`**, **`ainl_import_agency_agent`**, and **`ainl_import_markdown`** (stdio **`ainl-mcp`**). **Weekly auto-sync** ( **[`.github/workflows/sync-ecosystem.yml`](.github/workflows/sync-ecosystem.yml)** ) refreshes **[`examples/ecosystem/`](examples/ecosystem/)** from upstream public Markdown; community additions use **[`.github/PULL_REQUEST_TEMPLATE/`](.github/PULL_REQUEST_TEMPLATE/)** (workflow / agent templates).
 
 ```bash
 ainl import markdown https://raw.githubusercontent.com/nikilster/clawflows/main/workflows/available/community/check-calendar/WORKFLOW.md \
@@ -136,6 +148,32 @@ Shortcuts (fetch five samples from upstream into `examples/ecosystem/` — requi
 ainl import clawflows
 ainl import agency-agents
 ```
+
+### Install AINL as a ZeroClaw skill
+
+```bash
+zeroclaw skills install https://github.com/sbhooley/ainativelang/tree/main/skills/ainl
+```
+
+This installs the AINL importer, runtime shim, and MCP tools directly into ZeroClaw.
+
+**Bootstrap** (PyPI self-upgrade, **`ainl-mcp`** in **`~/.zeroclaw/mcp.json`**, **`~/.zeroclaw/bin/ainl-run`**, **`PATH`** hint): from the skill directory run **`./install.sh`**, or run **`ainl install-zeroclaw`** (use **`--dry-run`** / **`--verbose`** as needed). Alternative skill URL (standalone repo, when published): `https://github.com/sbhooley/ainl-zeroclaw-skill`.
+
+**Try in chat:** *“Import the morning briefing using AINL.”* (Then point the agent at a Clawflows URL, a preset from **`ainl_list_ecosystem`**, or **`ainl import markdown …`**.)
+
+Details: **[`docs/ZEROCLAW_INTEGRATION.md`](docs/ZEROCLAW_INTEGRATION.md)** · skill files: **[`skills/ainl/README.md`](skills/ainl/README.md)**.
+
+### Install AINL as an OpenClaw skill
+
+[OpenClaw](https://github.com/openclaw/openclaw) uses **npm** + **`openclaw onboard`** for the host CLI. AINL is added as a **skill folder** (not via **`zeroclaw skills install`**): copy **[`skills/openclaw/`](skills/openclaw/)** to **`~/.openclaw/skills/`** or **`<workspace>/skills/`**, or install from **ClawHub** when the skill is listed there.
+
+**Bootstrap** (PyPI self-upgrade, **`mcpServers.ainl`** in **`~/.openclaw/openclaw.json`**, **`~/.openclaw/bin/ainl-run`**, **`PATH`** hint): from the skill directory run **`./install.sh`**, or run **`ainl install-openclaw`** (use **`--dry-run`** / **`--verbose`** as needed). **`install.sh`** may run **`npm install -g openclaw@latest`** when npm is on PATH; set **`OPENCLAW_SKIP_NPM=1`** to skip.
+
+**Try in chat:** *“Import the morning briefing using AINL.”*
+
+Details: **[`docs/OPENCLAW_INTEGRATION.md`](docs/OPENCLAW_INTEGRATION.md)** · skill files: **[`skills/openclaw/README.md`](skills/openclaw/README.md)**.
+
+**Standalone skill repo (optional, later):** publish the contents of **[`skills/openclaw/`](skills/openclaw/)** as the root of **[github.com/sbhooley/ainl-openclaw-skill](https://github.com/sbhooley/ainl-openclaw-skill)** so users can clone or vendor a single-purpose tree (same three files: `SKILL.md`, `install.sh`, `README.md`).
 
 Curated templates with `original.md`, `converted.ainl`, and notes: **[`examples/ecosystem/README.md`](examples/ecosystem/README.md)**.
 

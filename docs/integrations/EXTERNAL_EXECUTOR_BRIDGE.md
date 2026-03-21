@@ -8,10 +8,10 @@
 
 ## Integration preference (read this first)
 
-**For OpenClaw / NemoClaw agents, prefer the existing MCP server (`ainl-mcp`).**  
-That path is purpose-built for workflow-level integration with MCP-compatible hosts. Entrypoint: `scripts/ainl_mcp_server.py` (CLI: `ainl-mcp`). Exposure profiles: `tooling/mcp_exposure_profiles.json`. Quickstart: `AI_AGENT_QUICKSTART_OPENCLAW.md`.
+**For OpenClaw / NemoClaw / ZeroClaw agents, prefer the existing MCP server (`ainl-mcp`).**  
+That path is purpose-built for workflow-level integration with MCP-compatible hosts. Entrypoint: `scripts/ainl_mcp_server.py` (CLI: `ainl-mcp`). Exposure profiles: `tooling/mcp_exposure_profiles.json`. OpenClaw-oriented quickstart: `AI_AGENT_QUICKSTART_OPENCLAW.md`. **OpenClaw** skill + **`ainl install-openclaw`** (`~/.openclaw/openclaw.json`): [`docs/OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md). **ZeroClaw** skill + `~/.zeroclaw/` bootstrap: [`docs/ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md).
 
-**Use this HTTP bridge pattern for generic external executors** (Zapier-style webhooks, internal microservices, bespoke fan-out gateways, CI callbacks, or any worker that is not exposed as MCP). It is the **secondary** integration style relative to MCP for OpenClaw-family stacks.
+**Use this HTTP bridge pattern for generic external executors** (Zapier-style webhooks, internal microservices, bespoke fan-out gateways, CI callbacks, or any worker that is not exposed as MCP). It is the **secondary** integration style relative to MCP for OpenClaw-family stacks (including **ZeroClaw** when using MCP).
 
 ---
 
@@ -27,7 +27,7 @@ This document defines a **small JSON contract** so many backends (plugins, agent
 
 | Situation | Prefer |
 |-----------|--------|
-| OpenClaw / NemoClaw agent driving AINL tools from an MCP host | **MCP** (`ainl-mcp`) |
+| OpenClaw / NemoClaw / ZeroClaw agent driving AINL tools from an MCP host | **MCP** (`ainl-mcp`) |
 | Third-party SaaS, legacy REST service, internal queue worker | **HTTP bridge** (`http.Post` + contract below) |
 | One gateway that fans out to N executor types | **HTTP bridge** (single URL; gateway routes by `executor` id) |
 

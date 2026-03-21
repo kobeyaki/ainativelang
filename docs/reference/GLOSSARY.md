@@ -1,5 +1,9 @@
 # AI Native Lang (AINL) Glossary
 
+> **OpenClaw (MCP skill):** **[`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md)** — **`skills/openclaw/`**, **`ainl install-openclaw`**, **`~/.openclaw/openclaw.json`** (`mcpServers.ainl`), stdio **`ainl-mcp`**. (Distinct from **OpenClaw bridge** cron/memory under **`openclaw/bridge/`**.)
+>
+> **ZeroClaw:** Host integration via **ZeroClaw skill**, **`ainl install-zeroclaw`**, and **`ainl-mcp`** — see **[`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md)** (distinct from **OpenClaw** bridge/cron docs).
+
 ## AINL
 AI Native Lang. A language designed for AI-first authoring and execution workflows.
 
@@ -53,7 +57,10 @@ Training-data composition strategy mixing gold examples and repair/check-rewrite
 Targeted dataset generated from failing prompt IDs to improve weak families.
 
 ## OpenClaw
-An extension and operator-focused surface area built on top of canonical AINL, used for advanced adapters, orchestration, and multi-agent workflows.
+An extension and operator-focused surface area built on top of canonical AINL, used for advanced adapters, orchestration, and multi-agent workflows. **MCP skill + bootstrap:** **[`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md)** (**`skills/openclaw/`**, **`ainl install-openclaw`**, **`~/.openclaw/openclaw.json`**, **`~/.openclaw/bin/ainl-run`**). **Bridge / cron / daily markdown memory:** **`openclaw/bridge/`** and **[`../operations/UNIFIED_MONITORING_GUIDE.md`](../operations/UNIFIED_MONITORING_GUIDE.md)**.
+
+## ZeroClaw
+A separate MCP-first onboarding path for AINL: **ZeroClaw skill** in-repo, **`ainl install-zeroclaw`** (`~/.zeroclaw/mcp.json`, **`ainl-run`** shim), and stdio **`ainl-mcp`**. Documented in **[`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md)**; does not replace OpenClaw **`openclaw/bridge/`** cron/memory layouts.
 
 ## Adapter Registry
 The catalog of available runtime adapters, their identifiers, and supported capabilities as defined in `docs/reference/ADAPTER_REGISTRY.md`.

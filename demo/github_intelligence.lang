@@ -1,0 +1,115 @@
+D RepoScore(repo_id: str, title: str, url: str, stars: int, description: str, relevance: float)
+
+include "modules/common/token_cost_memory.ainl" as mem
+include "modules/common/generic_memory.ainl" as gen
+include "modules/intelligence-report.ainl" as intel
+
+S services
+  # Run daily at 2 AM
+  services.github_intelligence (cron: "0 2 * * *", tz: "America/Chicago", agentTurn: "github_intelligence")
+S
+
+S main
+  R core.now ->now
+  X today (core.iso_ts now)
+
+  # Search queries for each keyword phrase
+  X queries [
+    "ai agents",
+    "agentic ai",
+    "autonomous agents",
+    "multi-agent system",
+    "agent orchestration"
+  ]
+
+  # Fetch and aggregate results
+  X all_repos ([])
+  ForEach queries as q ->_search
+    R web search (core.join ["GitHub repositories about " q " AI agents"]) ->raw_results
+    # raw_results is a JSON array; we'll parse and extract repos
+    X parsed (core.parse raw_results)
+    # For each result, create a RepoScore entry
+    ForEach parsed as r ->_collect
+      # Extract basic fields (title, url, text snippet)
+      X title (r.title)
+      X url (r.id)
+      X desc (r.text)
+      # Placeholder: stars unknown from web search; set 0, we can't fetch details
+      X stars (0)
+      # Relevance: simple keyword match in title/desc
+      X q_lower (core.lower q)
+      X title_lower (core.lower title)
+      X desc_lower (core.lower desc)
+      X in_title (core.contains title_lower q_lower)
+      X in_desc (core.contains desc_lower q_lower)
+      X relevance (0.0)
+      If in_title ->_titled
+        X relevance (0.7)
+        J _scored
+      : _titled
+      If in_desc ->_descd
+        X relevance (0.5)
+        J _scored
+      : _descd
+      X relevance (0.3)
+      : _scored
+      # Build repo record and collect
+      X repo ({
+        "repo_id": (core.stringify (core.hash url)),  # deterministic ID from URL
+        "title": title,
+        "url": url,
+        "stars": stars,
+        "description": desc,
+        "relevance": relevance,
+        "found_at": today
+      })
+      X all_repos (core.append all_repos repo)
+    EndFor
+  EndFor
+
+  # Deduplicate by repo_id (keep highest relevance)
+  X unique_repos ([])
+  X seen_ids ([])
+  ForEach all_repos as r ->_dedup
+    X rid (r.repo_id)
+    If (core.contains seen_ids rid) ->_skip
+      X seen_ids (core.append seen_ids rid)
+      X unique_repos (core.append unique_repos r)
+    : _skip
+    # continue
+  EndFor
+
+  # Sort by relevance descending, then stars descending
+  X sorted (unique_repos)  # AINL sort would be via memory; we'll skip and just take top N by scanning
+  X top_n ([])
+  X threshold (0.5)
+  # Simple top 10 filter with relevance threshold
+  ForEach unique_repos as r ->_top
+    If (core.gt r.relevance threshold) ->_include
+      X top_n (core.append top_n r)
+    : _include
+    # continue
+  EndFor
+
+  # Build summary message for Telegram
+  X count (core.length top_n)
+  If (core.eq count 0) ->_none
+    R email G "AINL GitHub Intelligence" "No new high-relevance repositories found today."
+    J _done
+  : _none
+    # Build message lines
+    X lines (["🟢 GitHub Intelligence Digest:", ""])
+    ForEach top_n as r ->_lines
+      X line (core.join [
+        "• " r.title " (" r.url ") — " r.description " [relevance: " (core.stringify r.relevance) "]"]
+      X lines (core.append lines line)
+    EndFor
+    X summary (core.join lines "\n")
+    # Send to Telegram via message adapter
+    R message send summary
+    # Also write to IntelligenceReport
+    R db P "IntelligenceReport" (mem.intel_report_payload "GitHub Intelligence" "ok" result=top_n delivery_status="delivered")
+  : _done
+
+  Ret 0
+E

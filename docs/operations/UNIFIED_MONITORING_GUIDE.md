@@ -1,5 +1,7 @@
 # Unified AINL + OpenClaw Monitoring Guide
 
+**Scope:** OpenClaw bridge memory under **`~/.openclaw/workspace/`**, cron wrappers, and token-budget monitors. **OpenClaw MCP skill** (stdio **`ainl-mcp`**, **`openclaw.json`**) is separate: **[`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md)**. **ZeroClaw** uses a different layout (**`~/.zeroclaw/`**, **`ainl install-zeroclaw`**); see **[`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md)**.
+
 **Audience:** operators who run OpenClaw cron, the AINL bridge runner, and daily markdown memory.
 
 **Cross-links:** [`docs/openclaw/BRIDGE_TOKEN_BUDGET_ALERT.md`](../openclaw/BRIDGE_TOKEN_BUDGET_ALERT.md) (token budget deep dive) · [`openclaw/bridge/README.md`](../../openclaw/bridge/README.md) (commands, env, cron patterns) · [`docs/CRON_ORCHESTRATION.md`](../CRON_ORCHESTRATION.md) (drift + registry)

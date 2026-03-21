@@ -233,7 +233,7 @@ If someone asks "What is canonical AINL today?", the answer should be:
 
 - Wrapper runner, cron drift checker, memory append CLI, and thin triggers (`run_wrapper_ainl.py`, `cron_drift_check.py`, `ainl_memory_append_cli.py`, `trigger_ainl_wrapper.py`, `sync_node_to_ainl_memory.py`).
 - **Production monitoring stack (token budget, cache prune, weekly trends, consolidated notifications, duplicate guard)** implemented as bridge wrappers + `bridge_token_budget_adapter.py` — **not** part of canonical core syntax. Operator-facing documentation: **`docs/operations/UNIFIED_MONITORING_GUIDE.md`** (memory files default to **`~/.openclaw/workspace/memory/YYYY-MM-DD.md`**).
-- Documentation for OpenClaw cron payloads, session keys, and parallel `daemon.sh` operation (`openclaw/bridge/README.md`, `docs/ainl_openclaw_unified_integration.md`, `docs/CRON_ORCHESTRATION.md`, `docs/openclaw/BRIDGE_TOKEN_BUDGET_ALERT.md`, `docs/operations/UNIFIED_MONITORING_GUIDE.md`).
+- Documentation for OpenClaw cron payloads, session keys, and parallel `daemon.sh` operation (`openclaw/bridge/README.md`, `docs/ainl_openclaw_unified_integration.md`, `docs/CRON_ORCHESTRATION.md`, `docs/openclaw/BRIDGE_TOKEN_BUDGET_ALERT.md`, `docs/operations/UNIFIED_MONITORING_GUIDE.md`). **ZeroClaw:** `docs/ZEROCLAW_INTEGRATION.md`.
 - **Examples** that call OpenClaw-oriented adapters (e.g. `examples/openclaw_full_unification.ainl`) are **integration samples**, not canonical training material.
 
 Treat **`openclaw/bridge/`** as the **official home** for cron/daemon/supervisor **unification glue** that ties AINL to OpenClaw. The compiler, core runtime, and `modules/common/` remain free of that glue; bridge scripts import them as libraries.

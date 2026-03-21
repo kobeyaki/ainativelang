@@ -1,4 +1,4 @@
-# Ecosystem examples & OpenClaw-oriented imports
+# Ecosystem examples & OpenClaw- / ZeroClaw-oriented imports
 
 **Examples in `examples/ecosystem/` are kept fresh via weekly auto-sync from upstream Clawflows & Agency-Agents repos** (GitHub Actions: [`.github/workflows/sync-ecosystem.yml`](../.github/workflows/sync-ecosystem.yml), Monday 04:00 UTC, plus manual **workflow_dispatch**). The job runs `ainl import clawflows` / `ainl import agency-agents` and opens a PR when conversions under `examples/ecosystem/**` change.
 
@@ -17,12 +17,14 @@ Never commit the PAT; rotate it if leaked.
 ## What lives here
 
 - **Curated templates:** [`examples/ecosystem/README.md`](../examples/ecosystem/README.md) — `original.md`, `converted.ainl`, per-folder `README.md`.
-- **CLI & flags:** root [`README.md`](../README.md) → *Ecosystem & OpenClaw integration* (`ainl import markdown`, `ainl import clawflows`, `ainl compile`, `--generate-soul`, etc.).
-- **MCP (Claude Code / Cursor / Gemini CLI):** [`docs/INTEGRATION_STORY.md`](INTEGRATION_STORY.md) (*Import Clawflows & Agency-Agents via MCP*) and [`docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`](operations/EXTERNAL_ORCHESTRATION_GUIDE.md) §9.
+- **CLI & flags:** root [`README.md`](../README.md) → *Ecosystem & OpenClaw / ZeroClaw integration* (`ainl import markdown`, `ainl import clawflows`, `ainl compile`, `--generate-soul`, etc.). When parsing fails, the importer may emit a **minimal_emit fallback stub** so graphs still compile for review.
+- **MCP (Claude Code / Cursor / Gemini CLI / OpenClaw / ZeroClaw):** [`docs/INTEGRATION_STORY.md`](INTEGRATION_STORY.md) (*Import Clawflows & Agency-Agents via MCP*) and [`docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`](operations/EXTERNAL_ORCHESTRATION_GUIDE.md) §9 — tools **`ainl_list_ecosystem`**, **`ainl_import_clawflow`**, **`ainl_import_agency_agent`**, **`ainl_import_markdown`**. **OpenClaw skill + bootstrap:** [`docs/OPENCLAW_INTEGRATION.md`](OPENCLAW_INTEGRATION.md) · **ZeroClaw skill:** [`docs/ZEROCLAW_INTEGRATION.md`](ZEROCLAW_INTEGRATION.md).
 - **Community PRs:** [`.github/PULL_REQUEST_TEMPLATE/`](../.github/PULL_REQUEST_TEMPLATE/) (workflow / agent submission templates).
 
-Converted graphs often include **cron**, **sequential `Call` steps**, and optional **`memory` / `queue`** hooks for OpenClaw-style bridges (sync workflow uses `--no-openclaw-bridge` for portable samples; re-import locally without that flag when you want bridge ops).
+Converted graphs often include **cron**, **sequential `Call` steps**, and optional **`memory` / `queue`** hooks for **OpenClaw**-style bridges (sync workflow uses `--no-openclaw-bridge` for portable samples; re-import locally without that flag when you want bridge ops). **OpenClaw** users wire the same importer and MCP tools via **[`skills/openclaw/`](../skills/openclaw/)** and **`ainl install-openclaw`** (`~/.openclaw/openclaw.json`, **`ainl-mcp`**); see **[`OPENCLAW_INTEGRATION.md`](OPENCLAW_INTEGRATION.md)**. **ZeroClaw** users consume the same surface via the **[ZeroClaw skill](ZEROCLAW_INTEGRATION.md)** and **`ainl install-zeroclaw`** (`~/.zeroclaw/mcp.json`, **`ainl-mcp`**).
 
 ## See also
 
+- **OpenClaw skill & bootstrap:** [`docs/OPENCLAW_INTEGRATION.md`](OPENCLAW_INTEGRATION.md)
+- **ZeroClaw skill & bootstrap:** [`docs/ZEROCLAW_INTEGRATION.md`](ZEROCLAW_INTEGRATION.md)
 - **Benchmarks & viable leverage context:** [`docs/benchmarks.md`](benchmarks.md), [`BENCHMARK.md`](../BENCHMARK.md)

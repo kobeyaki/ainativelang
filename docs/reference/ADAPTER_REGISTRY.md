@@ -1,5 +1,9 @@
 # AI Native Lang (AINL) Adapter Registry (AINL 1.0)
 
+> **OpenClaw (MCP skill):** For **`skills/openclaw/`**, **`ainl install-openclaw`**, and **`~/.openclaw/openclaw.json`** MCP wiring, see **[`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md)**.
+>
+> **ZeroClaw:** For the **ZeroClaw skill**, **`ainl install-zeroclaw`**, and **`~/.zeroclaw/`** MCP wiring, see **[`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md)**. This catalog lists adapters for all hosts, including OpenClaw **extension** tiers (`extension_openclaw`, `ocl.*`, etc.).
+
 This document describes the **small‑model‑friendly adapter set** exposed by this implementation. It is a human + machine readable catalog for agents.
 
 The machine-readable source of truth is:

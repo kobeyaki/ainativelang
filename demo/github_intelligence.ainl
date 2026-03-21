@@ -1,0 +1,29 @@
+S services
+  S github_intelligence (cron: "0 2 * * *", tz: "America/Chicago", agentTurn: "github_intelligence")
+S
+
+S main
+  R core.now ->now
+  X unproc (R db F "GithubRepo" (O.processed == false))
+  X cnt (core.length unproc)
+
+  If (core.ne cnt 0) ->_has_repos
+    Ret 0
+  :_has_repos
+
+  X lines (["🟢 GitHub Intelligence Digest:", ""])
+  ForEach unproc as O ->_each
+    X line (core.join ["• " O.title " (" O.url ") — ⭐ " (core.stringify O.stars)])
+    X lines (core.append lines line)
+    X lines (core.append lines "")
+  EndFor
+
+  X summary (core.join lines "\n")
+  R message send summary
+
+  ForEach unproc as O ->_mark
+    R db P "GithubRepo" (O.repoId) { data: { processed: true, processedAt: now } }
+  EndFor
+
+  Ret 0
+E

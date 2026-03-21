@@ -1,4 +1,4 @@
-# Bot onboarding (AINL / OpenClaw repo)
+# Bot onboarding (AINL / OpenClaw / ZeroClaw repo)
 
 Short entrypoint for bots (and other agents) newly exposed to this repo. Use this to orient quickly and to follow the expected implementation discipline.
 
@@ -68,7 +68,9 @@ When proposing or implementing work that touches adapters or examples, check the
 | Memory contract | `docs/adapters/MEMORY_CONTRACT.md` |
 | Safe use / threat model | `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md` |
 | OpenClaw / AI agent quickstart | `AI_AGENT_QUICKSTART_OPENCLAW.md` (see also `OPENCLAW_AI_AGENT.md`) |
-| OpenClaw bridge monitoring (token budget, weekly trends, daily memory path) | `docs/operations/UNIFIED_MONITORING_GUIDE.md` (also `docs/ainl_openclaw_unified_integration.md`, `openclaw/bridge/README.md`) |
+| OpenClaw skill + MCP bootstrap | `docs/OPENCLAW_INTEGRATION.md` (`skills/openclaw/`, `ainl install-openclaw`, `~/.openclaw/openclaw.json`) |
+| ZeroClaw skill + MCP bootstrap | `docs/ZEROCLAW_INTEGRATION.md` (`ainl install-zeroclaw`, `~/.zeroclaw/`) |
+| OpenClaw bridge monitoring (token budget, weekly trends, daily memory path) | `docs/operations/UNIFIED_MONITORING_GUIDE.md` (also `docs/ainl_openclaw_unified_integration.md`, `openclaw/bridge/README.md`) — not used for ZeroClaw daily memory |
 
 ---
 

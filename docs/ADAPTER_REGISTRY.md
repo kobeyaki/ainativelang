@@ -1,5 +1,9 @@
 # Moved
 
+> **OpenClaw (MCP skill):** **[`OPENCLAW_INTEGRATION.md`](OPENCLAW_INTEGRATION.md)** — **`skills/openclaw/`**, **`ainl install-openclaw`**, **`ainl-mcp`** (separate from **`openclaw/bridge/`** docs).
+>
+> **ZeroClaw:** **[`ZEROCLAW_INTEGRATION.md`](ZEROCLAW_INTEGRATION.md)** — skill + **`ainl install-zeroclaw`** + **`ainl-mcp`** (separate from OpenClaw bridge docs).
+
 This compatibility stub preserves old links for `docs/ADAPTER_REGISTRY.md`.
 
 This document now lives at [`reference/ADAPTER_REGISTRY.md`](reference/ADAPTER_REGISTRY.md).

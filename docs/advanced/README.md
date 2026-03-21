@@ -12,6 +12,6 @@ Use this section for operator-only, experimental, and coordination-heavy surface
 ## Related sections
 
 - Bot onboarding: [`../BOT_ONBOARDING.md`](../BOT_ONBOARDING.md)
-- OpenClaw bridge monitoring: [`../operations/UNIFIED_MONITORING_GUIDE.md`](../operations/UNIFIED_MONITORING_GUIDE.md)
+- OpenClaw bridge monitoring: [`../operations/UNIFIED_MONITORING_GUIDE.md`](../operations/UNIFIED_MONITORING_GUIDE.md) · **OpenClaw MCP skill:** [`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md) · **ZeroClaw:** [`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md)
 - Adapters: [`../adapters/README.md`](../adapters/README.md)
 - Reference contracts: [`../reference/README.md`](../reference/README.md)

@@ -21,10 +21,10 @@ It covers:
 - optional advanced layers (memory, coordination).
 
 This guide is **framework-agnostic**. It applies equally to any orchestrator,
-including NemoClaw, OpenShell, OpenClaw, Kubernetes-based platforms, and custom
+including NemoClaw, OpenShell, OpenClaw, ZeroClaw, Kubernetes-based platforms, and custom
 hosts.
 
-**See also (reverse direction — AINL calls out to workers):** For **OpenClaw / NemoClaw**, prefer the **MCP server** (`ainl-mcp`, `scripts/ainl_mcp_server.py`). For **generic HTTP-backed executors** (webhooks, internal services, custom fan-out gateways), see [`docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`](../integrations/EXTERNAL_EXECUTOR_BRIDGE.md).
+**See also (reverse direction — AINL calls out to workers):** For **OpenClaw / NemoClaw**, prefer the **MCP server** (`ainl-mcp`, `scripts/ainl_mcp_server.py`). **OpenClaw** hosts can merge **`mcpServers.ainl`** into **`~/.openclaw/openclaw.json`** with **`ainl install-openclaw`** (see [`docs/OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md)). For **ZeroClaw**, see the **ZeroClaw skill** quickstart and **`ainl install-zeroclaw`** bootstrap in [`docs/ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md). For **generic HTTP-backed executors** (webhooks, internal services, custom fan-out gateways), see [`docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`](../integrations/EXTERNAL_EXECUTOR_BRIDGE.md).
 
 ---
 
@@ -409,7 +409,23 @@ steps vs prose-only specs; on viable-subset, tokenizer-aligned scenarios that
 lines up with roughly **~1.02× viable leverage** vs unstructured prompts (see
 `BENCHMARK.md`, `docs/benchmarks.md`).
 
-**Checked-in samples:** examples under **`examples/ecosystem/`** in the repo are **kept fresh via weekly auto-sync** from upstream Clawflows and Agency-Agents (see **`.github/workflows/sync-ecosystem.yml`** and **`docs/ECOSYSTEM_OPENCLAW.md`**).
+**Checked-in samples:** examples under **`examples/ecosystem/`** in the repo are **kept fresh via weekly auto-sync** from upstream Clawflows and Agency-Agents (see **`.github/workflows/sync-ecosystem.yml`** and **`docs/ECOSYSTEM_OPENCLAW.md`**). Community workflow/agent submissions use **[`.github/PULL_REQUEST_TEMPLATE/`](../../.github/PULL_REQUEST_TEMPLATE/)**.
+
+### ZeroClaw skill (optional host)
+
+Users on **[ZeroClaw](https://github.com/zeroclaw-labs/zeroclaw)** can install the bundled **ZeroClaw skill** from this repository (no Rust changes required):
+
+```bash
+zeroclaw skills install https://github.com/sbhooley/ainativelang/tree/main/skills/ainl
+```
+
+Then run **`./install.sh`** from the skill checkout or **`ainl install-zeroclaw`** to merge **`ainl-mcp`** into **`~/.zeroclaw/mcp.json`**, install **`~/.zeroclaw/bin/ainl-run`**, and refresh **`ainl-lang[benchmark,mcp]`** from PyPI. **Example prompt:** *“Import the morning briefing using AINL.”* Full walkthrough: **`docs/ZEROCLAW_INTEGRATION.md`**.
+
+### OpenClaw skill (optional host)
+
+Users on **[OpenClaw](https://github.com/openclaw/openclaw)** can add the **AINL skill** from this repository by copying **[`skills/openclaw/`](../../skills/openclaw/)** into **`~/.openclaw/skills/`** or **`<workspace>/skills/`**, or via **ClawHub** when listed (OpenClaw does not use **`zeroclaw skills install`**).
+
+Then run **`./install.sh`** from the skill directory or **`ainl install-openclaw`** to merge **`mcpServers.ainl`** into **`~/.openclaw/openclaw.json`** (stdio **`ainl-mcp`**), install **`~/.openclaw/bin/ainl-run`**, and refresh **`ainl-lang[benchmark,mcp]`** from PyPI. **Example prompt:** *“Import the morning briefing using AINL.”* Full walkthrough: **`docs/OPENCLAW_INTEGRATION.md`**.
 
 ### Exposed MCP resources
 

@@ -1,5 +1,9 @@
 # Capability Registry and Tool API v2 Projection
 
+> **OpenClaw (MCP skill):** For **OpenClaw** onboarding (**`skills/openclaw/`**, **`ainl install-openclaw`**, **`ainl-mcp`**, **`~/.openclaw/`**), see **[`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md)**.
+>
+> **ZeroClaw:** For **ZeroClaw** onboarding (skill, **`ainl install-zeroclaw`**, **`ainl-mcp`**, **`~/.zeroclaw/`**), see **[`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md)**. This file is the capability metadata map for tools and agents generally.
+
 This document describes the metadata-only capability registry used to surface
 AINL capabilities to tools and agents, and how Tool API v2 projects a subset
 of that registry into a machine-readable `tools` descriptor.

@@ -2,6 +2,10 @@
 
 When the same work can be triggered from **OpenClaw cron**, **AINL `S core cron`**, and **OS-level cron / launchd / systemd**, you need a small **governance layer** so agents and humans know what is authoritative, what is documentation-only, and when things have drifted.
 
+**ZeroClaw** integration (skill, **`ainl-mcp`**, **`~/.zeroclaw/`**) does **not** use OpenClaw’s cron JSON contract — see **`docs/ZEROCLAW_INTEGRATION.md`**.
+
+**OpenClaw MCP skill** (**`ainl install-openclaw`**, **`~/.openclaw/openclaw.json`**) wires stdio **`ainl-mcp`** only — see **`docs/OPENCLAW_INTEGRATION.md`**. It does **not** replace this cron governance doc or **`openclaw/bridge/`** runners.
+
 The model is **portable**: it applies to **any** OpenClaw install and **any** repository that ships a JSON registry and (optionally) AINL sources. Nothing here assumes a particular username, disk path, or job title.
 
 This repo ships **three coordinated artifacts** (no automatic writes to OpenClaw or crontab):

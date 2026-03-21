@@ -1,5 +1,9 @@
 # Reference
 
+> **OpenClaw (MCP skill):** Start at **[`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md)** for **`skills/openclaw/`**, **`ainl install-openclaw`**, and **`~/.openclaw/openclaw.json`** — before bridge-only **`openclaw/bridge/`** docs below.
+>
+> **ZeroClaw:** Start at **[`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md)** for the skill, **`ainl install-zeroclaw`**, and **`ainl-mcp`** — before deep-diving adapter tiers and OpenClaw extension metadata below.
+
 Use this section for schemas, indexes, contracts, maintenance docs, and other reference-style material.
 
 All schema-level docs should live together here to avoid splitting closely related contracts across conceptual folders.
@@ -12,6 +16,8 @@ All schema-level docs should live together here to avoid splitting closely relat
 - [`GRAPH_SCHEMA.md`](GRAPH_SCHEMA.md) — graph schema
 - [`TOOL_API.md`](TOOL_API.md) — structured tool API contract
 - [`CAPABILITY_REGISTRY.md`](CAPABILITY_REGISTRY.md) — capability metadata and Tool API v2 projection
+- [`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md) — OpenClaw skill + **`ainl install-openclaw`** (pair with **`openclaw/bridge/`** + monitoring guide)
+- [`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md) — ZeroClaw skill + MCP bootstrap (pair with OpenClaw bridge docs)
 - [`GLOSSARY.md`](GLOSSARY.md) — shared terminology
  - [`AINL_V0_9_PROFILE.md`](AINL_V0_9_PROFILE.md) — v0.9 small-model profile (beginner subset of the spec)
 

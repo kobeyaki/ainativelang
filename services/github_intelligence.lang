@@ -1,0 +1,66 @@
+# GitHub Intelligence Digest
+# Searches web for new GitHub repos on AI agents, deduplicates, and sends Telegram summary.
+S core cron "0 2 * * *"
+
+L0: R core now ->ts J L1
+
+L1: X query "site:github.com (\"ai agents\" OR \"agentic ai\" OR \"autonomous agents\" OR \"multi-agent system\" OR \"agent orchestration\")"
+   X max_results 20
+   J L2
+
+L2: R web search query ->raw J L3
+L3: X gh_results raw J L4
+
+L4: X total (core.len gh_results)
+   If (core.eq total 0) ->L_no_results ->L5
+
+L5: X added 0
+   X total_new 0
+   X body ""
+   J L6
+
+L6: ForEach gh_results as item ->L_loop_end
+      X url item.id
+      # Must be a GitHub URL (https://github.com/)
+      X gh_ok (core.eq (core.substr url 0 19) "https://github.com/")
+      If (core.eq gh_ok false) ->L_loop_non_gh ->L_loop_check_seen
+: L_loop_non_gh
+      J L_loop_continue
+: L_loop_check_seen
+      X seen_val (R memory get "intel" "github_seen" item.id)
+      If (core.ne seen_val null) ->L_loop_seen_skip ->L_loop_new
+: L_loop_new
+      X total_new (core.add total_new 1)
+      R memory put "intel" "github_seen" item.id true
+      If (core.lt added 10) ->L_loop_add_line ->L_loop_after_add
+: L_loop_add_line
+      X line (core.concat ["• ", item.title, "\n🔗 ", item.id, "\n\n"])
+      X body (core.concat body line)
+      X added (core.add added 1)
+: L_loop_after_add
+      J L_loop_continue
+: L_loop_seen_skip
+: L_loop_continue
+      EndFor
+: L_loop_end
+
+L7: If (core.eq total_new 0) ->L_no_new ->L_build_summary
+
+L8: X header "🔍 GitHub Intelligence Digest\n\n"
+   X count_str (core.stringify total_new)
+   If (core.gt total_new 10) ->L_summary_with_limit ->L_summary_normal
+: L_summary_normal
+   X intro (core.concat header "Found " count_str " new repositories:\n\n")
+   J L_assemble
+: L_summary_with_limit
+   X intro (core.concat header "Found " count_str " new repositories (showing first 10):\n\n")
+: L_assemble
+   X footer "\n— End"
+   X summary (core.concat intro body footer)
+   Ret summary
+
+: L_no_new
+   Ret "🔍 GitHub Intelligence Digest\n\nNo new repositories found."
+
+: L_no_results
+   Ret "🔍 GitHub Intelligence Digest\n\nNo repositories matched the query."

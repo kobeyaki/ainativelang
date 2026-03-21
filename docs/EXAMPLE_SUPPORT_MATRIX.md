@@ -15,7 +15,7 @@ Primary machine-readable sources:
 **Not in that contract unless added explicitly:**
 
 - **`demo/`** — operator demos and experiments; may lag strict profiles; not treated as canonical training targets by default.
-- **`intelligence/`** — OpenClaw-oriented monitors and helpers; indexed in `docs/INTELLIGENCE_PROGRAMS.md`; **outside** `artifact_profiles.json` unless a path is added there on purpose.
+- **`intelligence/`** — OpenClaw-oriented monitors and helpers (not ZeroClaw-specific); indexed in `docs/INTELLIGENCE_PROGRAMS.md`; **outside** `artifact_profiles.json` unless a path is added there on purpose.
 
 Evaluators should **not** assume every `.lang` / `.ainl` file in the repo shares the same `strict-valid` / `non-strict-only` guarantees as listed `examples/`.
 
@@ -73,7 +73,7 @@ should not be treated as the canonical public language surface.
 | `examples/internal_tool.lang` | `non-strict-only` | Compatibility example |
 | `examples/ticketing.lang` | `non-strict-only` | Compatibility example |
 | `examples/cron/monitor_and_alert.ainl` | `non-strict-only` | Compatibility cron example |
-| `examples/integrations/executor_bridge_min.ainl` | `non-strict-only` | HTTP external executor bridge (see `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`; MCP preferred for OpenClaw) |
+| `examples/integrations/executor_bridge_min.ainl` | `non-strict-only` | HTTP external executor bridge (see `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`; MCP preferred for OpenClaw / ZeroClaw) |
 | `examples/integrations/executor_bridge_adapter_min.ainl` | `non-strict-only` | Optional `bridge` adapter — executor keys mapped to URLs on the host |
 
 ### OpenClaw Compatibility Family

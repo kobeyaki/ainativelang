@@ -4,7 +4,9 @@ Use this section to understand example support levels, recommended examples, and
 
 ## Key docs
 
-- **[`../ECOSYSTEM_OPENCLAW.md`](../ECOSYSTEM_OPENCLAW.md)** — Clawflows / Agency-Agents **`examples/ecosystem/`** (weekly auto-sync from upstream; OpenClaw-oriented imports)
+- **[`../ECOSYSTEM_OPENCLAW.md`](../ECOSYSTEM_OPENCLAW.md)** — Clawflows / Agency-Agents **`examples/ecosystem/`** (weekly auto-sync from upstream; OpenClaw- and ZeroClaw-oriented imports)
+- **[`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md)** — **OpenClaw skill**, **`ainl install-openclaw`**, MCP importer tools, **`tiktoken cl100k_base`** / **viable subset** context
+- **[`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md)** — **ZeroClaw skill**, **`ainl install-zeroclaw`**, MCP importer tools, **`tiktoken cl100k_base`** / **viable subset** context
 - [`../EXAMPLE_SUPPORT_MATRIX.md`](../EXAMPLE_SUPPORT_MATRIX.md) — support classification for examples
 - **`examples/bad_include.ainl`** — intentionally broken include (strict / `ainl visualize` error demos); not in strict-valid profiles
 - Visualize any example: `ainl visualize path/to/example.ainl --output diagram.md` (see root `README.md`, `docs/architecture/GRAPH_INTROSPECTION.md` §7)

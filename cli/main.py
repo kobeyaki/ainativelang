@@ -664,6 +664,32 @@ def main() -> None:
     cmp.add_argument("--strict", action="store_true")
     cmp.set_defaults(func=cmd_check)
 
+    def cmd_install_zeroclaw(args: argparse.Namespace) -> int:
+        from tooling.zeroclaw_install import run_install_zeroclaw
+
+        return run_install_zeroclaw(dry_run=bool(args.dry_run), verbose=bool(args.verbose))
+
+    zcw = sub.add_parser(
+        "install-zeroclaw",
+        help="Bootstrap AINL for ZeroClaw: pip upgrade, ~/.zeroclaw/mcp.json, bin/ainl-run, PATH hint",
+    )
+    zcw.add_argument("--dry-run", action="store_true", help="Print actions only; no pip or file writes")
+    zcw.add_argument("--verbose", "-v", action="store_true", help="Log each step to stderr")
+    zcw.set_defaults(func=cmd_install_zeroclaw)
+
+    def cmd_install_openclaw(args: argparse.Namespace) -> int:
+        from tooling.openclaw_install import run_install_openclaw
+
+        return run_install_openclaw(dry_run=bool(args.dry_run), verbose=bool(args.verbose))
+
+    ocl = sub.add_parser(
+        "install-openclaw",
+        help="Bootstrap AINL for OpenClaw: pip upgrade, ~/.openclaw/openclaw.json MCP, bin/ainl-run, PATH hint",
+    )
+    ocl.add_argument("--dry-run", action="store_true", help="Print actions only; no pip or file writes")
+    ocl.add_argument("--verbose", "-v", action="store_true", help="Log each step to stderr")
+    ocl.set_defaults(func=cmd_install_openclaw)
+
     gld = sub.add_parser("golden", help="Run golden fixtures from examples")
     gld.add_argument("--examples-dir", default=str(Path(__file__).resolve().parent.parent / "examples"))
     gld.add_argument("--trace", action="store_true")

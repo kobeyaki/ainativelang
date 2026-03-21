@@ -104,6 +104,8 @@ CI and release verification now explicitly include:
 
 ### Advanced coordination (extension / OpenClaw, experimental)
 
+**ZeroClaw** (skill + **`ainl install-zeroclaw`** + **`ainl-mcp`**) is documented separately in **`docs/ZEROCLAW_INTEGRATION.md`** and is not the same as the OpenClaw bridge / coordination substrate below.
+
 This release also includes a **local, file-backed coordination substrate** and
 OpenClaw-oriented examples. These features are:
 

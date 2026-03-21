@@ -18,7 +18,7 @@ AINL docs are organized by user intent and conceptual layer rather than by file 
 - [`case_studies/`](case_studies/README.md) — narrative proof, production lessons, and applied explanations
 - [`competitive/`](competitive/README.md) — comparative framing and “AINL vs X” materials
 - [`operations/`](operations/README.md) — autonomous ops, monitors, and deployment-style operational docs
-- [`advanced/`](advanced/README.md) — operator-only, OpenClaw, and advanced coordination surfaces
+- [`advanced/`](advanced/README.md) — operator-only, OpenClaw / ZeroClaw-adjacent ops, and advanced coordination surfaces
 - [`reference/`](reference/README.md) — schemas, contracts, indexes, and reference-style maps
 
 ## Recommended paths
@@ -26,16 +26,18 @@ AINL docs are organized by user intent and conceptual layer rather than by file 
 - New to the project: start with [`overview/`](overview/README.md), then [`getting_started/`](getting_started/README.md)
 - Trying to understand the category: read [`fundamentals/`](fundamentals/README.md)
 - Implementing or extending AINL: read [`language/`](language/README.md), [`architecture/`](architecture/README.md), and [`runtime/`](runtime/README.md)
-- Working with integrations or OpenClaw: read [`adapters/`](adapters/README.md) and [`advanced/`](advanced/README.md). Generic external executors via HTTP bridge (multi-backend capable): [`integrations/EXTERNAL_EXECUTOR_BRIDGE.md`](integrations/EXTERNAL_EXECUTOR_BRIDGE.md) — **MCP (`ainl-mcp`) first** for OpenClaw/NemoClaw.
+- Working with integrations, **OpenClaw**, or **ZeroClaw**: read [`adapters/`](adapters/README.md) and [`advanced/`](advanced/README.md); **OpenClaw skill** onboarding is **[`OPENCLAW_INTEGRATION.md`](OPENCLAW_INTEGRATION.md)** (**`ainl install-openclaw`**, **`~/.openclaw/openclaw.json`**); **ZeroClaw skill** onboarding is **[`ZEROCLAW_INTEGRATION.md`](ZEROCLAW_INTEGRATION.md)**. Generic external executors via HTTP bridge (multi-backend capable): [`integrations/EXTERNAL_EXECUTOR_BRIDGE.md`](integrations/EXTERNAL_EXECUTOR_BRIDGE.md) — **MCP (`ainl-mcp`) first** for OpenClaw / NemoClaw / ZeroClaw.
+- **OpenClaw skill + `ainl install-openclaw`:** [`OPENCLAW_INTEGRATION.md`](OPENCLAW_INTEGRATION.md) — ClawHub or manual copy, **`~/.openclaw/`** MCP + **`ainl-run`**; links **[`examples/ecosystem/`](../examples/ecosystem/)** and benchmarks (**viable subset**, **~1.02×** context).
+- **ZeroClaw skill + `ainl install-zeroclaw`:** [`ZEROCLAW_INTEGRATION.md`](ZEROCLAW_INTEGRATION.md) — one-command skill install, **`~/.zeroclaw/`** MCP + **`ainl-run`** shim; links **[`examples/ecosystem/`](../examples/ecosystem/)** and benchmarks (**viable subset**, **~1.02×** context).
 - Looking for proof and practical examples: read [`case_studies/`](case_studies/README.md) and [`operations/`](operations/README.md)
 - **Performance & benchmarks:** reproducible **tiktoken cl100k_base** size tables in **[`BENCHMARK.md`](../BENCHMARK.md)**; narrative hub **[`benchmarks.md`](benchmarks.md)** (highlights, `make benchmark` / `make benchmark-ci`, runtime + LLM eval links)
-- **Clawflows / Agency-Agents ecosystem & OpenClaw hooks:** **[`ECOSYSTEM_OPENCLAW.md`](ECOSYSTEM_OPENCLAW.md)** — `examples/ecosystem/` (weekly auto-sync), CLI, MCP, PR templates
+- **Clawflows / Agency-Agents ecosystem & OpenClaw / ZeroClaw hooks:** **[`ECOSYSTEM_OPENCLAW.md`](ECOSYSTEM_OPENCLAW.md)** — `examples/ecosystem/` (weekly auto-sync), CLI, MCP, PR templates; **OpenClaw** path **[`OPENCLAW_INTEGRATION.md`](OPENCLAW_INTEGRATION.md)** · **ZeroClaw** path **[`ZEROCLAW_INTEGRATION.md`](ZEROCLAW_INTEGRATION.md)**
 
-## Operations & monitoring (OpenClaw bridge)
+## Operations & monitoring (OpenClaw bridge; see also ZeroClaw)
 
 Production token/budget monitoring, daily memory appends, weekly trends, cron examples, and troubleshooting are documented in one place:
 
-- **[`operations/UNIFIED_MONITORING_GUIDE.md`](operations/UNIFIED_MONITORING_GUIDE.md)** — *Unified AINL + OpenClaw Monitoring Guide* (memory path **`~/.openclaw/workspace/memory/YYYY-MM-DD.md`**, `token-budget-alert`, `weekly-token-trends`, sentinel guard, env vars)
+- **[`operations/UNIFIED_MONITORING_GUIDE.md`](operations/UNIFIED_MONITORING_GUIDE.md)** — *Unified AINL + OpenClaw Monitoring Guide* (memory path **`~/.openclaw/workspace/memory/YYYY-MM-DD.md`**, `token-budget-alert`, `weekly-token-trends`, sentinel guard, env vars). **OpenClaw** MCP + skill bootstrap: **[`OPENCLAW_INTEGRATION.md`](OPENCLAW_INTEGRATION.md)**. **ZeroClaw** does not use that memory layout; use **[`ZEROCLAW_INTEGRATION.md`](ZEROCLAW_INTEGRATION.md)** for **`~/.zeroclaw/`** MCP + **`ainl install-zeroclaw`**.
 
 Supporting detail:
 

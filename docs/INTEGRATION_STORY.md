@@ -32,7 +32,7 @@ AINL was designed to reduce these specific pains:
 ```
 ┌──────────────────────────────────────────────────────────┐
 │  Your platform / orchestrator                            │
-│  (OpenClaw, NemoClaw, custom host)                       │
+│  (OpenClaw, NemoClaw, ZeroClaw, custom host)             │
 │                                                          │
 │  ┌────────────────────────────────────────────────────┐  │
 │  │  Container / sandbox                               │  │
@@ -179,9 +179,25 @@ For the full state model, see `docs/architecture/STATE_DISCIPLINE.md`.
 For the **reverse direction** — workflows that call **out** to non-MCP HTTP
 executors (webhooks, internal services, or a multi-backend gateway), see
 [`docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`](integrations/EXTERNAL_EXECUTOR_BRIDGE.md).
-That document is **MCP-first** for OpenClaw/NemoClaw: prefer `ainl-mcp` when the
+That document is **MCP-first** for OpenClaw / NemoClaw / ZeroClaw: prefer `ainl-mcp` when the
 host is MCP-capable; use the HTTP bridge pattern when workers are not exposed
-as MCP.
+as MCP. **OpenClaw** onboarding ( **`openclaw.json`** + **`ainl install-openclaw`** ): **[`docs/OPENCLAW_INTEGRATION.md`](OPENCLAW_INTEGRATION.md)**. **ZeroClaw** onboarding: **[`docs/ZEROCLAW_INTEGRATION.md`](ZEROCLAW_INTEGRATION.md)**.
+
+### ZeroClaw skill
+
+**[ZeroClaw](https://github.com/zeroclaw-labs/zeroclaw)** can consume AINL as a **ZeroClaw skill** checked into this repo:
+
+```bash
+zeroclaw skills install https://github.com/sbhooley/ainativelang/tree/main/skills/ainl
+```
+
+Run **`./install.sh`** or **`ainl install-zeroclaw`** so **`ainl-mcp`** is registered under **`~/.zeroclaw/`** and **`ainl-run`** is on **`PATH`**. Narrative, chat examples, and ecosystem links: **[`docs/ZEROCLAW_INTEGRATION.md`](ZEROCLAW_INTEGRATION.md)**. **Try:** *“Import the morning briefing using AINL.”*
+
+### OpenClaw skill
+
+**[OpenClaw](https://github.com/openclaw/openclaw)** can consume AINL as a **skill** under **`~/.openclaw/skills`** or **`<workspace>/skills`** (copy **[`skills/openclaw/`](../skills/openclaw/)** or use **ClawHub** when available — not **`zeroclaw skills install`**).
+
+Run **`./install.sh`** or **`ainl install-openclaw`** so **`mcpServers.ainl`** is merged into **`~/.openclaw/openclaw.json`** and **`~/.openclaw/bin/ainl-run`** is available. Walkthrough: **[`docs/OPENCLAW_INTEGRATION.md`](OPENCLAW_INTEGRATION.md)**. **Try:** *“Import the morning briefing using AINL.”*
 
 ### Import Clawflows & Agency-Agents via MCP
 
@@ -194,7 +210,7 @@ the server).
 
 **Examples in `examples/ecosystem/`** in the repo are **kept fresh via weekly auto-sync** from upstream Clawflows and Agency-Agents (see **`.github/workflows/sync-ecosystem.yml`** and **`docs/ECOSYSTEM_OPENCLAW.md`**).
 
-**Example chat prompts** (Claude Code, Cursor, Gemini CLI, or any MCP host):
+**Example chat prompts** (Claude Code, Cursor, Gemini CLI, ZeroClaw, or any MCP host):
 
 - *“Run `ainl_list_ecosystem`, then import the **morning journal** Clawflow into AINL and validate the returned source with `ainl_validate`.”*
 - *“Hey Claude, import the **morning briefing** Clawflow using AINL—use preset slug `morning-journal` or paste the raw `WORKFLOW.md` URL, then show me the graph.”*
@@ -202,11 +218,8 @@ the server).
 
 **Benefits:** upstream Markdown stays human-authored; AINL adds **compile-time
 graph structure** (cron, sequential `Call` steps or agent gates, optional
-OpenClaw-style `memory` / `queue` hooks) for **deterministic execution** at the
-workflow layer. On tokenizer-aligned, viable-subset workloads, that structure
-pairs with roughly **~1.02× viable leverage** vs ad-hoc prompt-only flows—see
-[`BENCHMARK.md`](../BENCHMARK.md) and [`benchmarks.md`](benchmarks.md)
-for definitions and commands.
+OpenClaw-style `memory` / `queue` hooks; on **OpenClaw**, the same surface via **`skills/openclaw`** and **`ainl install-openclaw`**; on **ZeroClaw**, the same importer and MCP tools via the **ZeroClaw skill** and **`ainl install-zeroclaw`**) for **deterministic execution** at the
+workflow layer—**compile-once, run-many** at the orchestration boundary. On tokenizer-aligned **viable subset** workloads (**tiktoken cl100k_base**), that structure pairs with roughly **~1.02×** leverage vs ad-hoc prompt-only flows; **legacy-inclusive** tables and **minimal_emit fallback stub** behavior are documented honestly in [`BENCHMARK.md`](../BENCHMARK.md) and [`benchmarks.md`](benchmarks.md).
 
 **Governance:** these tools perform **outbound HTTPS**. They are enabled in
 `safe_workflow` and `full` exposure profiles (`tooling/mcp_exposure_profiles.json`).
@@ -303,7 +316,7 @@ For a cost analysis of compile-once vs invoke-every-run architectures, see
 ## Positioning
 
 AINL is **architecturally suited** to sit inside sandboxed, operator-controlled
-agent environments such as OpenClaw, NemoClaw, and custom agent hosts. It
+agent environments such as OpenClaw, NemoClaw, ZeroClaw, and custom agent hosts. It
 reduces workflow sprawl, prompt-loop chaos, brittle orchestration, messy state,
 and poor reproducibility by providing a structured, graph-canonical execution
 layer with explicit state discipline and operator governance.
@@ -319,6 +332,8 @@ AINL does not claim "compatible with" any specific platform. It claims to be
 - Case study — graph-native vs prompt-loop agents: `docs/case_studies/graph_agents_vs_prompt_agents.md`
 - Case study — runtime cost advantage: `docs/case_studies/HOW_AINL_SAVES_MONEY.md`
 - OpenClaw agent quickstart: `AI_AGENT_QUICKSTART_OPENCLAW.md`
+- OpenClaw skill + bootstrap: `docs/OPENCLAW_INTEGRATION.md`
+- ZeroClaw skill + bootstrap: `docs/ZEROCLAW_INTEGRATION.md`
 - OpenClaw example workflows: `examples/openclaw/`
 - Workflow patterns for small models: `docs/PATTERNS.md`
 - Competitive landscape: `README.md` (Competitive Landscape section)

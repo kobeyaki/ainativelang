@@ -55,11 +55,13 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
 - Structured audit logging: `docs/operations/AUDIT_LOGGING.md`
 - Runtime container guide: `docs/operations/RUNTIME_CONTAINER_GUIDE.md`
 - External orchestration guide: `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md` — includes MCP agent role templates, desktop-safe recipe, end-to-end validator/inspector/runner example, and Claude Code / Cowork / Dispatch guidance
-- **AINL → external workers (HTTP bridge contract):** `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md` — generic `http.Post` envelope for non-MCP executors; **OpenClaw/NemoClaw should prefer `ainl-mcp` first** (see doc)
+- **AINL → external workers (HTTP bridge contract):** `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md` — generic `http.Post` envelope for non-MCP executors; **OpenClaw / NemoClaw / ZeroClaw should prefer `ainl-mcp` first** (see doc); **OpenClaw skill:** `docs/OPENCLAW_INTEGRATION.md` · **ZeroClaw skill:** `docs/ZEROCLAW_INTEGRATION.md`
 - Batch repo-automation guide: `docs/operations/BATCH_AUTOMATION_GUIDE.md` — inspect-first, worktree-safe, deterministic, auditable batch flows for Dispatch-style environments
 - Integration story (AINL in agent stacks): `docs/INTEGRATION_STORY.md`
+- **OpenClaw skill + bootstrap (`ainl install-openclaw`, `~/.openclaw/openclaw.json`, `examples/ecosystem/`):** `docs/OPENCLAW_INTEGRATION.md`
+- **ZeroClaw skill + bootstrap (`ainl install-zeroclaw`, `~/.zeroclaw/mcp.json`, `examples/ecosystem/`):** `docs/ZEROCLAW_INTEGRATION.md`
 - Case studies: `docs/case_studies/` — graph-native vs prompt-loop agents, runtime cost advantage, long-context memory
-- OpenClaw agent quickstart: `AI_AGENT_QUICKSTART_OPENCLAW.md`
+- OpenClaw agent quickstart: `AI_AGENT_QUICKSTART_OPENCLAW.md` · **OpenClaw skill + MCP:** `docs/OPENCLAW_INTEGRATION.md`
 - Workflow patterns: `docs/PATTERNS.md`
 - Safe optimization policy (language vs compiler optimization guardrails): `docs/runtime/SAFE_OPTIMIZATION_POLICY.md`
 - Machine-readable support levels: `tooling/support_matrix.json`
@@ -77,7 +79,7 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
 - Maintainer release operations: `docs/RELEASING.md`
 - Reproducible size benchmark report (tiktoken **cl100k_base**, viable vs legacy-inclusive transparency): `BENCHMARK.md`
 - Benchmark hub (highlights Mar 2026, metrics glossary, `make benchmark` / `make benchmark-ci`, CI gate, LLM/cloud bench): `docs/benchmarks.md`
-- Ecosystem examples (Clawflows / Agency-Agents, weekly auto-sync, OpenClaw hooks, MCP pointers): `docs/ECOSYSTEM_OPENCLAW.md`
+- Ecosystem examples (Clawflows / Agency-Agents, weekly auto-sync, OpenClaw / ZeroClaw hooks, MCP pointers): `docs/ECOSYSTEM_OPENCLAW.md` · **OpenClaw:** `docs/OPENCLAW_INTEGRATION.md` · **ZeroClaw:** `docs/ZEROCLAW_INTEGRATION.md`
 - Benchmark generator script: `scripts/benchmark_size.py`
 - Machine-readable benchmark output: `tooling/benchmark_size.json`
 - Runtime benchmark script: `scripts/benchmark_runtime.py`
@@ -105,7 +107,7 @@ These docs describe **advanced, extension/OpenClaw, and coordination** features.
 They are intended for operators and advanced users, not as the safe-default
 entry point for new users or unsupervised agents.
 
-- OpenClaw agent quickstart: `AI_AGENT_QUICKSTART_OPENCLAW.md`
+- OpenClaw agent quickstart: `AI_AGENT_QUICKSTART_OPENCLAW.md` · **OpenClaw skill + MCP:** `docs/OPENCLAW_INTEGRATION.md`
 - Agent coordination contract (multi-agent envelopes/spec): `docs/advanced/AGENT_COORDINATION_CONTRACT.md`
 - Safe use and threat model: `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md`
 - Adapter inventory and conventions (including extension/OpenClaw adapters): `docs/reference/ADAPTER_REGISTRY.md`, `docs/adapters/OPENCLAW_ADAPTERS.md`
@@ -114,14 +116,14 @@ entry point for new users or unsupervised agents.
 - Structured audit logging: `docs/operations/AUDIT_LOGGING.md`
 - Runtime container guide: `docs/operations/RUNTIME_CONTAINER_GUIDE.md`
 - External orchestration guide: `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`
-- **HTTP bridge for generic external executors** (secondary to MCP for OpenClaw/NemoClaw): `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`
+- **HTTP bridge for generic external executors** (secondary to MCP for OpenClaw / NemoClaw / ZeroClaw): `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`
 - MCP server (workflow-level integration for MCP-compatible hosts): `scripts/ainl_mcp_server.py`
 - MCP exposure profiles (tool/resource scoping): `tooling/mcp_exposure_profiles.json`
 - Autonomous ops monitors index: `docs/operations/AUTONOMOUS_OPS_MONITORS.md`
-- **Unified AINL + OpenClaw bridge monitoring** (token budget alert, weekly trends, sentinel, daily memory path): `docs/operations/UNIFIED_MONITORING_GUIDE.md`
+- **Unified AINL + OpenClaw bridge monitoring** (token budget alert, weekly trends, sentinel, daily memory path): `docs/operations/UNIFIED_MONITORING_GUIDE.md` — **OpenClaw** MCP + skill: `docs/OPENCLAW_INTEGRATION.md` · **ZeroClaw** uses `docs/ZEROCLAW_INTEGRATION.md` (`~/.zeroclaw/`, not `~/.openclaw/` memory)
 - OpenClaw bridge runner reference: `openclaw/bridge/README.md`
 - Token budget wrapper (bridge): `docs/openclaw/BRIDGE_TOKEN_BUDGET_ALERT.md`
-- AINL ↔ OpenClaw integration (wrappers, env): `docs/ainl_openclaw_unified_integration.md`
+- AINL ↔ OpenClaw integration (wrappers, env): `docs/ainl_openclaw_unified_integration.md` — **OpenClaw skill + MCP:** `docs/OPENCLAW_INTEGRATION.md` · **ZeroClaw:** `docs/ZEROCLAW_INTEGRATION.md`
 - Cron orchestration / drift: `docs/CRON_ORCHESTRATION.md`
 - Standardized health envelope (monitor payloads): `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`
 - Memory contract and v1 adapter: `docs/adapters/MEMORY_CONTRACT.md`
