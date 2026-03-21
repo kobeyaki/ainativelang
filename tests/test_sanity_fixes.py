@@ -211,8 +211,9 @@ T name:S
 '''
     ir = c.compile(code)
     react = c.emit_react(ir)
-    assert "AINL emitted React/TSX" in react
-    assert "React.FC" in react
+    assert "AINL React/TSX" in react
+    assert "useState<Int>" in react
+    assert "useState<String>" in react
     assert "(0)" in react
     assert '("")' in react or "(\"\")" in react
 

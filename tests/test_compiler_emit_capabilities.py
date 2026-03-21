@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from compiler_v2 import AICodeCompiler
+from tooling.bench_metrics import tiktoken_count
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -81,3 +82,16 @@ def test_core_cron_without_cr_entries_adds_minimal_python_api_fallback():
     stub = AICodeCompiler(strict_mode=False).emit_python_api(ir)
     assert "asyncio.run(main())" in stub
     assert "FastAPI" not in stub
+
+
+def test_compact_prisma_react_emit_smoke_and_token_budget():
+    """Compact prisma/react emit: valid shape + materially smaller than pre-compaction baselines."""
+    c = AICodeCompiler(strict_mode=False)
+    ir = c.compile("D User id:I name:S\nU Dash\nT rows:J\n")
+    pr = c.emit_prisma_schema(ir)
+    assert 'generator client' in pr and "model User" in pr and "Steven Hooley" in pr
+    assert tiktoken_count(pr) < 55
+
+    rx = c.emit_react(ir)
+    assert "export const Dash" in rx and "useState" in rx and "Steven Hooley" in rx
+    assert tiktoken_count(rx) < 85

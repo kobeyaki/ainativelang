@@ -49,7 +49,7 @@ def test_diagnostic_classifier_substrings_remain_present(code: str, expected_sub
                 "emit_ir_json_sha256": "e7a91952312898a9f5a036c515b1b914705b1bcdcac06cd7ed0961f40d798116",
                 "emit_openapi_sha256": "25afd06f70d158286c9a39aa23415b8ed87619f4705c97c56c67e88653f0a805",
                 "emit_server_sha256": "f6bb40b5dccdcd4bed39a7708e402f94532e2345cc1b732be3914a7c590cda62",
-                "emit_react_sha256": "d26e7a902e294c5bbc776229f7515e95d5bf9e6f2d657e7cbcd0d58041f29296",
+                "emit_react_sha256": "25e1fe1ba3bf5e91937e07974fb3a604afdad6d306aab3229f5d769c755b83f7",
             },
         ),
         (
@@ -61,7 +61,7 @@ def test_diagnostic_classifier_substrings_remain_present(code: str, expected_sub
                 "emit_ir_json_sha256": "e501c8da6da8904f03af99fd0d73c01aadff697485e9617f7007f377a068284f",
                 "emit_openapi_sha256": "264d34063bacf9343560e06e4d505242f3dcd8971a00ed52c670dc2fc6b82d9c",
                 "emit_server_sha256": "78bf2178ac822946213ba08acf1d41e9557fe1c352bbfa84386bc40924af3e0a",
-                "emit_react_sha256": "d26e7a902e294c5bbc776229f7515e95d5bf9e6f2d657e7cbcd0d58041f29296",
+                "emit_react_sha256": "25e1fe1ba3bf5e91937e07974fb3a604afdad6d306aab3229f5d769c755b83f7",
             },
         ),
     ],
