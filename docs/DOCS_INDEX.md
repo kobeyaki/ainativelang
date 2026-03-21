@@ -76,8 +76,12 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
 - Post-release immediate roadmap: `docs/POST_RELEASE_ROADMAP.md`
 - Maintainer release operations: `docs/RELEASING.md`
 - Reproducible size benchmark report: `BENCHMARK.md`
+- Benchmark hub (size, runtime, CI, LLM/cloud bench): `docs/benchmarks.md`
 - Benchmark generator script: `scripts/benchmark_size.py`
 - Machine-readable benchmark output: `tooling/benchmark_size.json`
+- Runtime benchmark script: `scripts/benchmark_runtime.py`
+- Shared bench metrics (tiktoken, pricing helpers): `tooling/bench_metrics.py`
+- Benchmark JSON regression checker: `scripts/compare_benchmark_json.py`
 - Compile-once / run-many proof pack: `docs/architecture/COMPILE_ONCE_RUN_MANY.md`
   - Includes `scripts/summarize_runs.py` for aggregating `RuntimeEngine.run(..., trace=True)` JSON payloads into small health summaries.
 - Launch copy pack: `docs/launch/SHORT_POST.md`, `docs/launch/TECHNICAL_POST.md`

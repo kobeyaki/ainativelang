@@ -375,6 +375,34 @@ def _target_structure_breakdown(
     return {"total_chunks": count_fn(rendered)}
 
 
+def _compile_time_mean_three_ms(source_text: str, compiler: Any) -> Dict[str, Any]:
+    """Wall-clock compile latency: mean of three timed ``compile(..., emit_graph=True)`` calls.
+
+    Runs after the primary compile path succeeds; uses the same emit_graph flag as the
+    reliability probe so numbers are comparable. Failures still advance the loop but do
+    not contribute to the mean.
+    """
+    times_ms: List[float] = []
+    failures = 0
+    for _ in range(3):
+        try:
+            t0 = time.perf_counter()
+            ir = compiler.compile(source_text, emit_graph=True)
+            elapsed_ms = (time.perf_counter() - t0) * 1000.0
+            if ir.get("errors"):
+                failures += 1
+            else:
+                times_ms.append(elapsed_ms)
+        except Exception:
+            failures += 1
+    mean = float(statistics.mean(times_ms)) if times_ms else None
+    return {
+        "compile_time_ms_mean": mean,
+        "compile_time_ms_samples": 3,
+        "compile_time_ms_failures_in_probe": failures,
+    }
+
+
 def _compile_reliability_probe(source_text: str, compiler: Any, n_runs: int) -> Dict[str, Any]:
     """Repeat compile *n_runs* times for stability (same artifact, cold-ish compiler path)."""
     times_ms: List[float] = []
@@ -468,10 +496,12 @@ def run_profile_benchmark(
 
         aggregate = sum(target_sizes[t] for t in included)
         aggregate_total += aggregate
+        compile_timing = _compile_time_mean_three_ms(source_text, compiler)
         row: Dict[str, Any] = {
             "artifact": rel,
             "class": class_map.get(rel, "unclassified"),
             "ainl_source_size": source_size,
+            **compile_timing,
             "included_targets": list(included),
             "excluded_targets": excluded,
             "targets": {
@@ -583,11 +613,9 @@ def build_report(
     for mode_name, mode_data in mode_payloads.items():
         for profile in mode_data.get("profiles", []):
             profile["size_drivers"] = _compute_size_drivers(profile, mode_name=mode_name, top_n=3)
-    schema_version = "3.0"
-    if handwritten_baseline_size_comparison:
-        schema_version = "3.1"
-    if cost_models or compile_reliability_runs:
-        schema_version = "3.2"
+    # 3.3: includes per-artifact compile_time_ms_mean (mean of 3 timed compiles); optional blocks:
+    # handwritten_baseline_size_comparison, economics, compile_reliability_runs.
+    schema_version = "3.3"
     out: Dict[str, Any] = {
         "schema_version": schema_version,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -625,6 +653,17 @@ def _reliability_cell(row: Dict[str, Any]) -> str:
     return f"{sr:.0f}% σ={std:.3f}ms"
 
 
+def _compile_time_cell(row: Dict[str, Any]) -> str:
+    m = row.get("compile_time_ms_mean")
+    if m is None:
+        return "—"
+    fails = int(row.get("compile_time_ms_failures_in_probe") or 0)
+    base = f"{float(m):.3f}"
+    if fails:
+        return f"{base} ({fails}/3 failed)"
+    return base
+
+
 def _render_profile_table(profile: Dict, cost_models: List[str], compile_rel_runs: int) -> List[str]:
     cost_h = ""
     if cost_models:
@@ -635,10 +674,10 @@ def _render_profile_table(profile: Dict, cost_models: List[str], compile_rel_run
         cost_h = "| " + " | ".join(labels) + " |"
     rel_h = "| Compile reliability |" if compile_rel_runs > 0 else ""
     lines = [
-        "| Artifact | Class | AINL source | React/TS | Python API | Prisma | MT5 | Scraper | Cron | Aggregate generated output | Aggregate ratio | Included targets |"
+        "| Artifact | Class | AINL source | Compile ms (mean×3) | React/TS | Python API | Prisma | MT5 | Scraper | Cron | Aggregate generated output | Aggregate ratio | Included targets |"
         + cost_h
         + rel_h,
-        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|"
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|"
         + ("|---:|" * len(cost_models) if cost_models else "")
         + ("|---|" if compile_rel_runs > 0 else ""),
     ]
@@ -652,6 +691,7 @@ def _render_profile_table(profile: Dict, cost_models: List[str], compile_rel_run
             row["artifact"],
             row["class"],
             str(row["ainl_source_size"]),
+            _compile_time_cell(row),
             _fmt_size(t["react_ts"]["size"]),
             _fmt_size(t["python_api"]["size"]),
             _fmt_size(t["prisma"]["size"]),
@@ -705,6 +745,10 @@ def render_markdown(report: Dict, benchmark_manifest: Dict) -> str:
         lines.append("- `nonempty_lines` measures structural size, not tokenizer-accurate pricing.")
     else:
         lines.append("- `tiktoken` uses `tooling/bench_metrics.py` (shared with runtime benchmarks).")
+    lines.append(
+        "- **Compile ms (mean×3):** mean wall time of three ``compile(..., emit_graph=True)`` calls per artifact "
+        "(see JSON ``compile_time_ms_mean``); unrelated to optional compile-reliability batches."
+    )
     econ = report.get("economics") or {}
     if econ:
         lines.append("- **Economics:** estimated LLM $/run from token budgets (see JSON `economics`).")
@@ -862,10 +906,10 @@ def _render_handwritten_baseline_size_markdown(hb: Dict[str, Any], report: Dict[
         lines.append(f"### Emit mode `{mode}`")
         lines.append("")
         hdr = (
-            "| Workflow | AINL reference | AINL emit (active) | AINL emit (tiktoken) | "
+            "| Workflow | AINL reference | Compile ms (mean×3) | AINL emit (active) | AINL emit (tiktoken) | "
             "Pure lines | Lang lines | Pure tk | Lang tk | AINL tk ÷ Pure tk | AINL tk ÷ Lang tk |"
         )
-        sep = "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|"
+        sep = "|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|"
         for mname in cm:
             hdr += f" AINL `{mname}` USD | HW `{mname}` USD |"
             sep += "---:|---:|"
@@ -885,6 +929,7 @@ def _render_handwritten_baseline_size_markdown(hb: Dict[str, Any], report: Dict[
             row_cells = [
                 name,
                 f"`{rel}`",
+                "—",
                 str(md.get("ainl_aggregate_emit_active_metric", "—")),
                 str(md.get("ainl_aggregate_emit_tiktoken", "—")),
                 str(bs.get("pure_nonempty_lines", "—")),

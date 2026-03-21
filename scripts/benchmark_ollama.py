@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-Benchmark multiple local Ollama models on AINL generation quality.
+Benchmark local Ollama models (and optionally Anthropic Claude) on AINL generation quality.
 
 Usage:
   ainl-ollama-benchmark --models qwen2.5:7b,llama3.1:8b --prompts data/evals/ollama_prompts.jsonl
+  ainl-ollama-benchmark --models qwen2.5:7b --cloud-model claude-3-5-sonnet  # needs ANTHROPIC_API_KEY
 """
 from __future__ import annotations
 
@@ -13,10 +14,12 @@ import json
 import os
 import sys
 import time
-from typing import Any, Dict, List
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scripts.eval_ollama import (
+    SYSTEM_PROMPT,
     guidance_from_errors,
     guidance_items_from_errors,
     guidance_items_from_viability,
@@ -28,10 +31,57 @@ from compiler_v2 import AICodeCompiler
 from scripts.retrieval_playbook import compose_playbook_context, load_playbooks
 from scripts.viability import evaluate_viability
 
+GenerateFn = Callable[[str, str, int], str]
 
-def eval_model(
-    model: str,
-    host: str,
+# CLI shortcuts → Anthropic API model ids (override by passing a full id to --cloud-model).
+CLOUD_MODEL_ALIASES: Dict[str, str] = {
+    "claude-3-5-sonnet": "claude-3-5-sonnet-20241022",
+    "claude-3-5-sonnet-latest": "claude-3-5-sonnet-20241022",
+}
+
+
+def anthropic_resolve_model(user_model: str) -> str:
+    return CLOUD_MODEL_ALIASES.get(user_model.strip(), user_model.strip())
+
+
+def anthropic_generate(model: str, prompt: str, timeout_s: int, extra_context: str = "") -> str:
+    """Call Claude Messages API with temperature=0 for deterministic scoring."""
+    try:
+        from anthropic import Anthropic
+    except ImportError as exc:
+        raise RuntimeError(
+            "The anthropic package is required for --cloud-model. Install with: pip install anthropic"
+        ) from exc
+    api_key = (os.environ.get("ANTHROPIC_API_KEY") or "").strip()
+    if not api_key:
+        raise RuntimeError("ANTHROPIC_API_KEY is not set")
+    resolved = anthropic_resolve_model(model)
+    client = Anthropic(api_key=api_key, timeout=timeout_s)
+    user_parts: List[str] = []
+    if extra_context.strip():
+        user_parts.append("Playbook guidance:\n" + extra_context.strip())
+    user_parts.append("Task:\n" + prompt)
+    user_content = "\n\n".join(user_parts)
+    message = client.messages.create(
+        model=resolved,
+        max_tokens=16384,
+        temperature=0,
+        system=SYSTEM_PROMPT,
+        messages=[{"role": "user", "content": user_content}],
+    )
+    texts: List[str] = []
+    for block in message.content:
+        btext = getattr(block, "text", None)
+        if btext:
+            texts.append(btext)
+    return "".join(texts).strip()
+
+
+def eval_with_backend(
+    *,
+    model_label: str,
+    backend: str,
+    generate_fn: GenerateFn,
     prompts: List[Dict[str, Any]],
     timeout_s: int,
     with_viability: bool = False,
@@ -39,6 +89,7 @@ def eval_model(
     playbook_top_k: int = 2,
     max_retries: int = 0,
 ) -> Dict[str, Any]:
+    """Run the same synthesis + compile loop as Ollama, using *generate_fn* for text."""
     compiler = AICodeCompiler(strict_mode=True)
     t0 = time.time()
     rows: List[Dict[str, Any]] = []
@@ -59,7 +110,7 @@ def eval_model(
                 full_context = pb_context
                 if retry_context:
                     full_context = (full_context + "\n\nRetry fixes:\n" + retry_context).strip()
-                gen = ollama_generate(host=host, model=model, prompt=prompt, timeout_s=timeout_s, extra_context=full_context)
+                gen = generate_fn(prompt, full_context, timeout_s)
                 ir = compiler.compile(gen)
                 errs = ir.get("errors", [])
                 viability = evaluate_viability(gen) if with_viability else {"ok": True}
@@ -132,9 +183,11 @@ def eval_model(
         for v in sorted(guidance_counts.values(), key=lambda x: x["count"], reverse=True)[:3]
     ]
     avg_err = (sum(r.get("error_count", 0) for r in rows) / len(rows)) if rows else 0.0
+    avg_retries = (sum(r.get("retries_used", 0) for r in rows) / len(rows)) if rows else 0.0
     avg_chars = (sum(r.get("generated_chars", 0) for r in rows) / len(rows)) if rows else 0.0
     return {
-        "model": model,
+        "model": model_label,
+        "backend": backend,
         "cases": len(rows),
         "passed": passed,
         "pass_rate": (passed / len(rows)) if rows else 0.0,
@@ -142,15 +195,104 @@ def eval_model(
         "viability_pass_rate": (viability_passed / len(rows)) if (with_viability and rows) else None,
         "top_guidance": top_guidance,
         "avg_error_count": round(avg_err, 3),
+        "avg_retries": round(avg_retries, 3),
         "avg_generated_chars": round(avg_chars, 1),
         "elapsed_s": round(elapsed, 3),
         "results": rows,
     }
 
 
+def eval_model(
+    model: str,
+    host: str,
+    prompts: List[Dict[str, Any]],
+    timeout_s: int,
+    with_viability: bool = False,
+    playbooks: List[Dict[str, Any]] | None = None,
+    playbook_top_k: int = 2,
+    max_retries: int = 0,
+) -> Dict[str, Any]:
+    def gen(prompt: str, ctx: str, to: int) -> str:
+        return ollama_generate(host=host, model=model, prompt=prompt, timeout_s=to, extra_context=ctx)
+
+    return eval_with_backend(
+        model_label=model,
+        backend="ollama",
+        generate_fn=gen,
+        prompts=prompts,
+        timeout_s=timeout_s,
+        with_viability=with_viability,
+        playbooks=playbooks,
+        playbook_top_k=playbook_top_k,
+        max_retries=max_retries,
+    )
+
+
+def eval_cloud_model(
+    model: str,
+    prompts: List[Dict[str, Any]],
+    timeout_s: int,
+    with_viability: bool = False,
+    playbooks: List[Dict[str, Any]] | None = None,
+    playbook_top_k: int = 2,
+    max_retries: int = 0,
+) -> Dict[str, Any]:
+    """Same tasks as Ollama path; uses Anthropic Messages API."""
+
+    def gen(prompt: str, ctx: str, to: int) -> str:
+        return anthropic_generate(model, prompt, to, extra_context=ctx)
+
+    return eval_with_backend(
+        model_label=anthropic_resolve_model(model),
+        backend="anthropic",
+        generate_fn=gen,
+        prompts=prompts,
+        timeout_s=timeout_s,
+        with_viability=with_viability,
+        playbooks=playbooks,
+        playbook_top_k=playbook_top_k,
+        max_retries=max_retries,
+    )
+
+
+def render_ranked_markdown_table(ranked: List[Dict[str, Any]], *, with_viability: bool) -> str:
+    """Human-readable table for local + cloud backends (printed to stderr)."""
+    lines = [
+        "",
+        "## Model comparison (Ollama + optional cloud)",
+        "",
+        "| Backend | Model | Pass rate | "
+        + ("Viability rate | " if with_viability else "")
+        + "Avg errors | Avg retries | Time (s) |",
+        "|---|---|---:|" + ("---:|" if with_viability else "") + "---:|---:|---:|",
+    ]
+    for r in ranked:
+        vr = r.get("viability_pass_rate")
+        vcell = f"{100.0 * float(vr):.1f}% | " if with_viability and vr is not None else ("— | " if with_viability else "")
+        lines.append(
+            f"| {r.get('backend', '?')} | `{r['model']}` | {100.0 * float(r['pass_rate']):.1f}% | "
+            + vcell
+            + f"{r['avg_error_count']} | {r.get('avg_retries', 0)} | {r['elapsed_s']} |"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Benchmark multiple Ollama models for AINL generation")
-    ap.add_argument("--models", required=True, help="Comma-separated model names")
+    ap = argparse.ArgumentParser(description="Benchmark Ollama and optional Anthropic models for AINL generation")
+    ap.add_argument(
+        "--models",
+        default="",
+        help="Comma-separated Ollama model names (optional if --cloud-model is set)",
+    )
+    ap.add_argument(
+        "--cloud-model",
+        default="",
+        help=(
+            "Optional Anthropic Claude model id or alias (e.g. claude-3-5-sonnet). "
+            "Requires ANTHROPIC_API_KEY and `pip install anthropic`. Default: off."
+        ),
+    )
     ap.add_argument("--prompts", default="data/evals/ollama_prompts.jsonl", help="JSONL prompts file")
     ap.add_argument("--host", default="http://127.0.0.1:11434", help="Ollama host URL")
     ap.add_argument("--timeout", type=int, default=120, help="Per-request timeout seconds")
@@ -164,12 +306,16 @@ def main() -> None:
     args = ap.parse_args()
 
     models = [m.strip() for m in args.models.split(",") if m.strip()]
+    cloud_raw = (args.cloud_model or "").strip()
+    if not models and not cloud_raw:
+        ap.error("Provide at least one of --models (Ollama) or --cloud-model (Anthropic)")
+
     prompts = load_prompts(args.prompts)
     playbooks = load_playbooks(args.playbooks) if args.with_playbook else []
 
     summaries: List[Dict[str, Any]] = []
     for model in models:
-        print(f"[bench] model={model} cases={len(prompts)}", file=sys.stderr)
+        print(f"[bench] backend=ollama model={model} cases={len(prompts)}", file=sys.stderr)
         summaries.append(
             eval_model(
                 model=model,
@@ -183,20 +329,48 @@ def main() -> None:
             )
         )
 
+    cloud_comparison: Optional[Dict[str, Any]] = None
+    if cloud_raw:
+        try:
+            print(
+                f"[bench] backend=anthropic model={anthropic_resolve_model(cloud_raw)} cases={len(prompts)}",
+                file=sys.stderr,
+            )
+            cloud_comparison = eval_cloud_model(
+                model=cloud_raw,
+                prompts=prompts,
+                timeout_s=args.timeout,
+                with_viability=args.with_viability,
+                playbooks=playbooks,
+                playbook_top_k=args.playbook_top_k,
+                max_retries=args.max_retries,
+            )
+            summaries.append(cloud_comparison)
+        except Exception as exc:
+            cloud_comparison = {
+                "skipped": True,
+                "reason": str(exc),
+                "requested_model": cloud_raw,
+            }
+            print(f"[bench] cloud model skipped: {exc}", file=sys.stderr)
+
     ranked = sorted(
         summaries,
         key=lambda x: (-x["pass_rate"], x["avg_error_count"], x["elapsed_s"]),
     )
-    report = {
+    report: Dict[str, Any] = {
         "host": args.host,
         "prompts": args.prompts,
         "ranked": ranked,
+        "cloud_model_comparison": cloud_comparison,
         "summary": [
             {
+                "backend": r["backend"],
                 "model": r["model"],
                 "pass_rate": r["pass_rate"],
                 "viability_pass_rate": r.get("viability_pass_rate"),
                 "avg_error_count": r["avg_error_count"],
+                "avg_retries": r.get("avg_retries"),
                 "elapsed_s": r["elapsed_s"],
                 "top_guidance": r.get("top_guidance", []),
             }
@@ -204,9 +378,12 @@ def main() -> None:
         ],
     }
 
-    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
+
+    md = render_ranked_markdown_table(ranked, with_viability=args.with_viability)
+    print(md, file=sys.stderr)
 
     if args.csv_out:
         csv_dir = os.path.dirname(args.csv_out)
@@ -216,10 +393,12 @@ def main() -> None:
             w = csv.DictWriter(
                 f,
                 fieldnames=[
+                    "backend",
                     "model",
                     "pass_rate",
                     "viability_pass_rate",
                     "avg_error_count",
+                    "avg_retries",
                     "elapsed_s",
                     "cases",
                     "passed",
@@ -230,10 +409,12 @@ def main() -> None:
             for r in ranked:
                 w.writerow(
                     {
+                        "backend": r.get("backend", ""),
                         "model": r["model"],
                         "pass_rate": r["pass_rate"],
                         "viability_pass_rate": r.get("viability_pass_rate"),
                         "avg_error_count": r["avg_error_count"],
+                        "avg_retries": r.get("avg_retries", 0),
                         "elapsed_s": r["elapsed_s"],
                         "cases": r["cases"],
                         "passed": r["passed"],

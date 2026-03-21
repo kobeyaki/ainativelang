@@ -427,6 +427,7 @@ Bottom line: AINL lowers overall token usage while increasing capability, predic
 - `approx_chunks` is a lexical-size proxy, not a tokenizer-billing metric
 - In `full_multitarget`, canonical strict examples show strong expansion leverage
 - In `minimal_emit`, mixed compatibility examples can be smaller or larger depending on artifact class and required targets
+- **Evidence pack:** reproducible **size** + **runtime** benchmarks (tiktoken sizing, compile-time column, latency/RSS, cost estimates, reliability batches, handwritten baselines) live in [`BENCHMARK.md`](BENCHMARK.md) with automation in `make benchmark` / `make benchmark-ci` and CI regression gating—see **[`docs/benchmarks.md`](docs/benchmarks.md)** for the full map.
 
 > AINL provides a compact, reproducible, profile-segmented way to express graph workflows and multi-target systems, while often reducing repeated AI generation effort and avoiding repeated orchestration token burn during runtime.
 
@@ -482,6 +483,7 @@ For implementation and shipped-capability status, see:
 - Spec: `docs/AINL_SPEC.md`
 - Canonical core: `docs/AINL_CANONICAL_CORE.md`
 - Full docs reference map: `docs/DOCS_INDEX.md`
+- Benchmarks & evidence (size, runtime, CI, LLM/cloud): `docs/benchmarks.md`
 
 ### Architecture and internals
 
@@ -777,7 +779,7 @@ Real output uses fully qualified IDs like `"retry/ENTRY/n1"` and clusters automa
 - **Compile-once / run-many proof pack**: see `docs/architecture/COMPILE_ONCE_RUN_MANY.md`.
 - **Program summary**: `python scripts/inspect_ainl.py examples/hello.ainl`
 - **Run summary**: `python scripts/summarize_runs.py run1.json run2.json`
-- **Approximate size benchmark**: `.venv-py310/bin/python scripts/benchmark_size.py`
+- **Benchmarks (size + runtime + CI gate):** `make benchmark` (full, updates [`BENCHMARK.md`](BENCHMARK.md)); `make benchmark-ci` (JSON-only CI-style). Narrative + metrics glossary: [`docs/benchmarks.md`](docs/benchmarks.md). Optional: `pip install -e ".[benchmark]"` for `tiktoken`/`psutil`; `pip install -e ".[anthropic]"` for `ainl-ollama-benchmark --cloud-model claude-3-5-sonnet`.
 - **Corpus tools**: `python scripts/evaluate_corpus.py --mode dual`, `python scripts/validate_corpus.py --include-negatives`, `pytest tests/test_corpus_layout.py -v`
 - **Fine-tune**: `bash scripts/setup_finetune_env.sh`, `.venv-ci-smoke/bin/python scripts/finetune_ainl.py --profile fast --epochs 1 --seed 42`
 - **Post-train inference**: `.venv-py310/bin/python scripts/infer_ainl_lora.py --adapter-path models/ainl-phi3-lora --max-new-tokens 120 --device cpu`

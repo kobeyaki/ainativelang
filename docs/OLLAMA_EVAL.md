@@ -41,10 +41,13 @@ Output:
 ainl-ollama-benchmark --models qwen2.5:7b,llama3.1:8b --prompts data/evals/ollama_prompts.jsonl
 ```
 
+`--models` can be omitted if you only run a cloud baseline (see below).
+
 Output:
 
 - Ranked report: `data/evals/ollama_benchmark_report.json`
 - Ranking keys: pass rate (desc), avg error count (asc), elapsed time (asc)
+- **Stderr:** markdown table “Model comparison (Ollama + optional cloud)” for quick diffs
 - Optional summary CSV:
 
 ```bash
@@ -52,6 +55,20 @@ ainl-ollama-benchmark --models qwen2.5:7b,llama3.1:8b \
   --csv-out data/evals/ollama_benchmark_summary.csv \
   --with-viability
 ```
+
+### Optional: Anthropic Claude (cloud baseline)
+
+Run the **same** prompt suite through **Claude 3.5 Sonnet** (Messages API, `temperature=0`) alongside local Ollama models:
+
+```bash
+pip install -e ".[anthropic]"
+export ANTHROPIC_API_KEY=...
+ainl-ollama-benchmark --models qwen2.5:7b --cloud-model claude-3-5-sonnet --prompts data/evals/ollama_prompts.jsonl
+```
+
+- Alias `claude-3-5-sonnet` resolves to a pinned API model id; pass a full Anthropic model string to override.
+- If the key is missing or `anthropic` is not installed, the cloud leg is **skipped** with a stderr warning; Ollama results still print.
+- JSON field `cloud_model_comparison` holds the cloud summary (or `{ "skipped": true, "reason": ... }`).
 
 Standalone viability check for one `.lang` file:
 
