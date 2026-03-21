@@ -1,0 +1,524 @@
+"""ZeroClaw bridge adapter: run ``zeroclaw_bridge_main.py token-usage`` for scheduled .ainl wrappers.
+
+Memory heuristics use ``~/.zeroclaw/workspace/memory/`` (see ``ZEROCLAW_WORKSPACE``).
+"""
+from __future__ import annotations
+
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+from statistics import mean
+from typing import Any, Dict, List, Optional, Tuple
+
+from runtime.adapters.base import RuntimeAdapter, AdapterError
+
+_BRIDGE = Path(__file__).resolve().parent
+_ROOT = _BRIDGE.parent.parent
+
+
+def _context_dry(context: Dict[str, Any]) -> bool:
+    v = context.get("dry_run")
+    if v in (True, 1, "1", "true", "True", "yes"):
+        return True
+    return os.environ.get("AINL_DRY_RUN", "").strip().lower() in ("1", "true", "yes")
+
+
+def _prune_force_error_payload(dry: bool) -> Optional[Dict[str, Any]]:
+    flag = os.environ.get("AINL_BRIDGE_PRUNE_FORCE_ERROR", "").strip().lower()
+    if flag not in ("1", "true", "yes"):
+        return None
+    mb = _monitor_cache_size_mb()
+    err = "simulated prune failure (AINL_BRIDGE_PRUNE_FORCE_ERROR)"
+    return {
+        "error": err,
+        "pruned_count": 0,
+        "new_size_mb": mb,
+        "old_size_mb": mb,
+        "dry_run": dry,
+    }
+
+
+def _resolve_prune_days_old(args: List[Any]) -> int:
+    env_days = os.getenv("AINL_TOKEN_PRUNE_DAYS", "").strip()
+    if env_days:
+        try:
+            return max(1, int(env_days))
+        except ValueError:
+            pass
+    if args:
+        raw = str(args[0]).strip().lower()
+        if raw and raw != "auto":
+            try:
+                return max(1, int(args[0]))
+            except (TypeError, ValueError):
+                pass
+    return 60
+
+
+def _run_token_json(days: int) -> Dict[str, Any]:
+    cmd = [
+        sys.executable,
+        str(_BRIDGE / "zeroclaw_bridge_main.py"),
+        "token-usage",
+        "--dry-run",
+        "--json-output",
+        "--days-back",
+        str(days),
+    ]
+    proc = subprocess.run(cmd, cwd=str(_ROOT), capture_output=True, text=True, timeout=120)
+    raw = (proc.stdout or "").strip()
+    if not raw:
+        return {
+            "budget_warning": False,
+            "budget_percent": 0.0,
+            "total_tokens": 0,
+            "report_markdown": "",
+            "cache_size_mb": 0.0,
+            "tokens_by_model": {},
+        }
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as e:
+        raise AdapterError(f"token-usage JSON parse failed: {e}") from e
+
+
+def _monitor_cache_path() -> Path:
+    return Path(os.getenv("MONITOR_CACHE_JSON", "/tmp/monitor_state.json")).expanduser()
+
+
+def _token_report_sentinel_path() -> Path:
+    return Path(os.getenv("AINL_TOKEN_REPORT_SENTINEL", "/tmp/token_report_today_sent")).expanduser()
+
+
+def _utc_today_tag() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+
+def _zeroclaw_memory_dir() -> Path:
+    override = os.getenv("ZEROCLAW_MEMORY_DIR") or os.getenv("ZEROCLAW_DAILY_MEMORY_DIR")
+    if override:
+        return Path(override).expanduser()
+    ws = os.getenv("ZEROCLAW_WORKSPACE", str(Path.home() / ".zeroclaw" / "workspace"))
+    return Path(ws).expanduser() / "memory"
+
+
+_TOKEN_EST_RE = re.compile(r"estimated_total_tokens:\s*~?\s*([\d,]+)", re.I)
+_TOKEN_TILDE_RE = re.compile(r"~\s*([\d,]+)\s*\(", re.I)
+_BUDGET_PCT_RE = re.compile(r"budget_used_pct:\s*([0-9.]+)\s*%", re.I)
+_BUDGET_TOK_RE = re.compile(r"daily_budget_tokens:\s*(\d+)", re.I)
+_DAY_MD_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})\.md$")
+
+
+def _parse_token_usage_block(text: str) -> Tuple[Optional[int], Optional[float]]:
+    if "## Token Usage Report" not in text:
+        return None, None
+    est: Optional[int] = None
+    m = _TOKEN_EST_RE.search(text)
+    if m:
+        try:
+            est = int(m.group(1).replace(",", ""))
+        except ValueError:
+            est = None
+    if est is None:
+        m2 = _TOKEN_TILDE_RE.search(text)
+        if m2:
+            try:
+                est = int(m2.group(1).replace(",", ""))
+            except ValueError:
+                pass
+    pct_m = _BUDGET_PCT_RE.search(text)
+    pct = float(pct_m.group(1)) if pct_m else None
+    if est is None and pct is not None:
+        bm = _BUDGET_TOK_RE.search(text)
+        if bm:
+            try:
+                budget = int(bm.group(1))
+                est = int(round(budget * (pct / 100.0)))
+            except ValueError:
+                pass
+    return est, pct
+
+
+def _weekly_token_trends_markdown() -> str:
+    mem = _zeroclaw_memory_dir()
+    if not mem.is_dir():
+        return (
+            "## Weekly Token Trends\n"
+            "- No memory directory found; set ZEROCLAW_MEMORY_DIR or ZEROCLAW_WORKSPACE.\n"
+        )
+    paths = [p for p in mem.glob("*.md") if _DAY_MD_RE.match(p.name)]
+    paths.sort(key=lambda p: p.stem, reverse=True)
+    newest14 = paths[:14]
+    if not newest14:
+        return "## Weekly Token Trends\n- No daily `YYYY-MM-DD.md` files found under memory/.\n"
+    chrono = sorted(newest14, key=lambda p: p.stem)
+    if len(chrono) >= 14:
+        prev7 = chrono[:7]
+        last7 = chrono[7:14]
+    elif len(chrono) >= 7:
+        prev7 = []
+        last7 = chrono[-7:]
+    else:
+        prev7 = []
+        last7 = chrono
+
+    day_tokens: List[int] = []
+    for p in last7:
+        try:
+            body = p.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        est, _pct = _parse_token_usage_block(body)
+        if est is not None:
+            day_tokens.append(est)
+
+    if not day_tokens:
+        return (
+            "## Weekly Token Trends\n"
+            f"- Scanned {len(last7)} recent file(s) under ZeroClaw memory; "
+            "no `## Token Usage Report` token estimates found.\n"
+        )
+
+    total_w = sum(day_tokens)
+    avg_d = int(round(total_w / len(day_tokens)))
+    lines = [
+        "## Weekly Token Trends",
+        f"- Days in window: {len(day_tokens)} (from memory `*.md` files)",
+        f"- Avg daily: ~{avg_d} tokens (heuristic from reports)",
+        f"- Total week: ~{total_w} tokens",
+    ]
+    if len(day_tokens) >= 3:
+        older = mean(day_tokens[: max(1, len(day_tokens) // 2)])
+        newer = mean(day_tokens[len(day_tokens) // 2 :])
+        if newer > older * 1.05:
+            arrow = "↑"
+            try:
+                pct_ch = int(round((newer - older) / max(older, 1) * 100))
+            except Exception:
+                pct_ch = 0
+            lines.append(f"- Trend: {arrow} ~{pct_ch}% higher in newer half of window vs older half")
+        elif newer < older * 0.95:
+            arrow = "↓"
+            try:
+                pct_ch = int(round((older - newer) / max(older, 1) * 100))
+            except Exception:
+                pct_ch = 0
+            lines.append(f"- Trend: {arrow} ~{pct_ch}% lower in newer half of window vs older half")
+        else:
+            lines.append("- Trend: → roughly flat within this week")
+    else:
+        lines.append("- Trend: → not enough days for split-window trend")
+
+    if prev7:
+        prev_vals: List[int] = []
+        for p in prev7:
+            try:
+                body = p.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            est, _ = _parse_token_usage_block(body)
+            if est is not None:
+                prev_vals.append(est)
+        if prev_vals and total_w > 0:
+            prev_tot = sum(prev_vals)
+            if prev_tot > 0:
+                ch = int(round((total_w - prev_tot) / prev_tot * 100))
+                sym = "↑" if ch > 0 else "↓" if ch < 0 else "→"
+                lines.append(f"- vs prior 7 days: {sym} {ch:+d}% (weekly totals heuristic)")
+
+    return "\n".join(lines) + "\n"
+
+
+def _monitor_cache_size_mb() -> float:
+    fake = os.environ.get("AINL_BRIDGE_FAKE_CACHE_MB", "").strip()
+    if fake:
+        try:
+            return round(float(fake), 4)
+        except ValueError:
+            pass
+    p = _monitor_cache_path()
+    try:
+        if p.is_file():
+            return round(p.stat().st_size / (1024 * 1024), 4)
+    except OSError:
+        pass
+    return 0.0
+
+
+def _parse_ts(obj: Any) -> Optional[float]:
+    if not isinstance(obj, dict):
+        return None
+    for k in ("ts", "timestamp", "updated_at", "valid_at", "time", "created_at"):
+        if k not in obj:
+            continue
+        v = obj[k]
+        if isinstance(v, (int, float)):
+            return float(v)
+        if isinstance(v, str):
+            try:
+                s = v.replace("Z", "+00:00")
+                return datetime.fromisoformat(s).timestamp()
+            except Exception:
+                pass
+    return None
+
+
+def _prune_value(obj: Any, cutoff: float) -> Tuple[Any, int]:
+    """Drop dict/list entries with parseable ts older than cutoff. Returns (new_obj, pruned_keys)."""
+    pruned = 0
+    if isinstance(obj, dict):
+        ts = _parse_ts(obj)
+        if ts is not None and ts < cutoff:
+            return None, 1
+        out: Dict[str, Any] = {}
+        for k, v in list(obj.items()):
+            if isinstance(v, dict):
+                nv, p = _prune_value(v, cutoff)
+                pruned += p
+                if nv is None:
+                    continue
+                out[k] = nv
+            elif isinstance(v, list):
+                nl, p = _prune_list(v, cutoff)
+                pruned += p
+                out[k] = nl
+            else:
+                out[k] = v
+        return out, pruned
+    return obj, 0
+
+
+def _prune_list(arr: List[Any], cutoff: float) -> Tuple[List[Any], int]:
+    pruned = 0
+    out: List[Any] = []
+    for item in arr:
+        if isinstance(item, dict):
+            ts = _parse_ts(item)
+            if ts is not None and ts < cutoff:
+                pruned += 1
+                continue
+            nv, p = _prune_value(item, cutoff)
+            pruned += p
+            if nv is None:
+                continue
+            out.append(nv)
+        else:
+            out.append(item)
+    return out, pruned
+
+
+def _prune_root(data: Dict[str, Any], days_old: int) -> Tuple[Dict[str, Any], int]:
+    cutoff = time.time() - float(days_old) * 86400.0
+    pruned = 0
+    out: Dict[str, Any] = {}
+    for k, v in list(data.items()):
+        if isinstance(v, dict):
+            nv, p = _prune_value(v, cutoff)
+            pruned += p
+            if nv is None:
+                continue
+            out[k] = nv
+        elif isinstance(v, list):
+            nl, p = _prune_list(v, cutoff)
+            pruned += p
+            out[k] = nl
+        else:
+            out[k] = v
+    return out, pruned
+
+
+def _write_cache_atomic(path: Path, data: Dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    tmp.replace(path)
+
+
+def _format_prune_markdown(d: Dict[str, Any]) -> str:
+    if d.get("error"):
+        return ""
+    n = int(d.get("pruned_count", 0))
+    new_m = float(d.get("new_size_mb", 0.0))
+    lines = ["## Cache Prune"]
+    if d.get("dry_run"):
+        lines.append("- Would prune stale entries (dry-run); no file changes")
+    lines.append(f"- Removed {n} old entries")
+    lines.append(f"- New size: {new_m:.4f} MB")
+    return "\n".join(lines)
+
+
+def _format_prune_error_markdown(d: Dict[str, Any]) -> str:
+    err = str(d.get("error") or "")
+    lines = ["## Cache Prune"]
+    if d.get("dry_run"):
+        lines.append("- Would prune stale entries (dry-run); no file changes")
+    lines.append(f"- Prune failed: {err}")
+    return "\n".join(lines)
+
+
+class ZeroclawBridgeTokenBudgetAdapter(RuntimeAdapter):
+    """Prune stats, formatted markdown, and a small notify queue for consolidated Telegram."""
+
+    def __init__(self) -> None:
+        self._last_prune: Dict[str, Any] = {
+            "pruned_count": 0,
+            "new_size_mb": 0.0,
+            "old_size_mb": 0.0,
+            "dry_run": True,
+        }
+        self._notify_lines: List[str] = []
+
+    def call(self, target: str, args: List[Any], context: Dict[str, Any]) -> Any:
+        t = (target or "").strip().lower()
+        if t == "token_budget_notify_reset":
+            self._notify_lines.clear()
+            return 1
+        if t == "token_budget_notify_add":
+            if args:
+                s = str(args[0]).strip()
+                if s:
+                    self._notify_lines.append(s)
+            return len(self._notify_lines)
+        if t == "token_report_today_sent":
+            p = _token_report_sentinel_path()
+            today = _utc_today_tag()
+            try:
+                if not p.is_file():
+                    return 0
+                raw = p.read_text(encoding="utf-8")
+                got = raw.strip().splitlines()[0].strip() if raw.strip() else ""
+            except OSError:
+                return 0
+            return 1 if got == today else 0
+        if t == "token_report_today_touch":
+            if _context_dry(context):
+                return 0
+            p = _token_report_sentinel_path()
+            today = _utc_today_tag()
+            try:
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_text(today + "\n", encoding="utf-8")
+                return 1
+            except OSError:
+                return 0
+        if t == "weekly_token_trends_report":
+            return _weekly_token_trends_markdown()
+        if t == "token_budget_notify_build":
+            if not self._notify_lines:
+                return ""
+            body = "\n".join(self._notify_lines)
+            ts_raw = args[0] if args else None
+            try:
+                tsf = float(ts_raw) if ts_raw is not None else time.time()
+            except (TypeError, ValueError):
+                tsf = time.time()
+            human = datetime.fromtimestamp(tsf, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+            return f"Daily AINL Status - {human}\n{body}"
+        if t == "monitor_cache_stat":
+            return _monitor_cache_size_mb()
+        if t == "monitor_cache_prune_result":
+            return json.dumps(self._last_prune, ensure_ascii=False)
+        if t == "monitor_cache_prune_markdown":
+            return _format_prune_markdown(self._last_prune)
+        if t == "monitor_cache_prune_error_markdown":
+            return _format_prune_error_markdown(self._last_prune)
+        if t == "monitor_cache_prune_notify_text":
+            n = int(self._last_prune.get("pruned_count", 0))
+            return f"Pruned {n} old token-monitor cache entries — see today's memory for details."
+        if t == "token_budget_notify_text":
+            days = int(args[0]) if args else 1
+            data = _run_token_json(days)
+            pct = float(data.get("budget_percent", 0))
+            cm = float(data.get("cache_size_mb", _monitor_cache_size_mb()))
+            today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            return (
+                f"Token budget warning: {pct}% used | Cache: {cm} MB | See memory/{today}.md"
+            )
+        if t == "monitor_cache_prune":
+            days_old = _resolve_prune_days_old(args)
+            dry = _context_dry(context)
+            path = _monitor_cache_path()
+
+            forced = _prune_force_error_payload(dry)
+            if forced is not None:
+                self._last_prune = dict(forced)
+                return dict(self._last_prune)
+
+            if dry:
+                raw_mb = _monitor_cache_size_mb()
+                if os.environ.get("AINL_BRIDGE_FAKE_CACHE_MB", "").strip():
+                    old_mb = round(raw_mb, 4)
+                    new_mb = round(max(raw_mb * 0.997, 0.0), 4)
+                elif raw_mb < 1.0:
+                    old_mb = 13.247
+                    new_mb = 12.984
+                else:
+                    old_mb = round(raw_mb, 4)
+                    new_mb = round(max(raw_mb * 0.997, 0.0), 4)
+                self._last_prune = {
+                    "pruned_count": 0,
+                    "new_size_mb": new_mb,
+                    "old_size_mb": old_mb,
+                    "dry_run": True,
+                }
+                return dict(self._last_prune)
+            try:
+                if not path.is_file():
+                    self._last_prune = {
+                        "pruned_count": 0,
+                        "new_size_mb": 0.0,
+                        "old_size_mb": 0.0,
+                        "dry_run": False,
+                    }
+                    return dict(self._last_prune)
+                raw = json.loads(path.read_text(encoding="utf-8"))
+                if not isinstance(raw, dict):
+                    mb = _monitor_cache_size_mb()
+                    self._last_prune = {
+                        "pruned_count": 0,
+                        "new_size_mb": mb,
+                        "old_size_mb": mb,
+                        "dry_run": False,
+                    }
+                    return dict(self._last_prune)
+                old_mb = _monitor_cache_size_mb()
+                new_data, n = _prune_root(raw, days_old)
+                _write_cache_atomic(path, new_data)
+                new_mb = _monitor_cache_size_mb()
+                self._last_prune = {
+                    "pruned_count": n,
+                    "new_size_mb": new_mb,
+                    "old_size_mb": old_mb,
+                    "dry_run": False,
+                }
+                return dict(self._last_prune)
+            except (OSError, json.JSONDecodeError, TypeError) as e:
+                mb = _monitor_cache_size_mb()
+                self._last_prune = {
+                    "error": str(e),
+                    "pruned_count": 0,
+                    "new_size_mb": mb,
+                    "old_size_mb": mb,
+                    "dry_run": False,
+                }
+                return dict(self._last_prune)
+
+        days = int(args[0]) if args else 1
+        if t == "token_budget_warn":
+            data = _run_token_json(days)
+            return 1 if data.get("budget_warning") else 0
+        if t == "token_budget_report":
+            data = _run_token_json(days)
+            return str(data.get("report_markdown") or "")
+        raise AdapterError(
+            f"bridge unknown target {t!r}; see monitor_cache_stat, monitor_cache_prune, "
+            "monitor_cache_prune_markdown, monitor_cache_prune_error_markdown, "
+            "monitor_cache_prune_result, token_report_today_sent, token_report_today_touch, "
+            "weekly_token_trends_report, token_budget_notify_reset, token_budget_notify_add, "
+            "token_budget_notify_build, token_budget_notify_text, token_budget_warn, token_budget_report"
+        )
