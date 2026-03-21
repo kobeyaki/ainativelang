@@ -29,6 +29,19 @@ AINL docs are organized by user intent and conceptual layer rather than by file 
 - Working with integrations or OpenClaw: read [`adapters/`](adapters/README.md) and [`advanced/`](advanced/README.md). Generic external executors via HTTP bridge (multi-backend capable): [`integrations/EXTERNAL_EXECUTOR_BRIDGE.md`](integrations/EXTERNAL_EXECUTOR_BRIDGE.md) — **MCP (`ainl-mcp`) first** for OpenClaw/NemoClaw.
 - Looking for proof and practical examples: read [`case_studies/`](case_studies/README.md) and [`operations/`](operations/README.md)
 
+## Operations & monitoring (OpenClaw bridge)
+
+Production token/budget monitoring, daily memory appends, weekly trends, cron examples, and troubleshooting are documented in one place:
+
+- **[`operations/UNIFIED_MONITORING_GUIDE.md`](operations/UNIFIED_MONITORING_GUIDE.md)** — *Unified AINL + OpenClaw Monitoring Guide* (memory path **`~/.openclaw/workspace/memory/YYYY-MM-DD.md`**, `token-budget-alert`, `weekly-token-trends`, sentinel guard, env vars)
+
+Supporting detail:
+
+- [`openclaw/BRIDGE_TOKEN_BUDGET_ALERT.md`](openclaw/BRIDGE_TOKEN_BUDGET_ALERT.md) — token budget wrapper reference
+- [`openclaw/bridge/README.md`](../openclaw/bridge/README.md) — bridge runner, tools table, cron snippets
+- [`CRON_ORCHESTRATION.md`](CRON_ORCHESTRATION.md) — drift checks and registry discipline
+- [`ainl_openclaw_unified_integration.md`](ainl_openclaw_unified_integration.md) — integration boundaries and env vars
+
 ## Notes
 
 - **What is AINL?** [`WHAT_IS_AINL.md`](WHAT_IS_AINL.md) (docs hub primer; includes v1.2 capabilities). Root copy: [`../WHAT_IS_AINL.md`](../WHAT_IS_AINL.md).

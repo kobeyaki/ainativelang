@@ -68,6 +68,7 @@ When proposing or implementing work that touches adapters or examples, check the
 | Memory contract | `docs/adapters/MEMORY_CONTRACT.md` |
 | Safe use / threat model | `docs/advanced/SAFE_USE_AND_THREAT_MODEL.md` |
 | OpenClaw / AI agent quickstart | `AI_AGENT_QUICKSTART_OPENCLAW.md` (see also `OPENCLAW_AI_AGENT.md`) |
+| OpenClaw bridge monitoring (token budget, weekly trends, daily memory path) | `docs/operations/UNIFIED_MONITORING_GUIDE.md` (also `docs/ainl_openclaw_unified_integration.md`, `openclaw/bridge/README.md`) |
 
 ---
 

@@ -8,6 +8,8 @@ See also: [`MEMORY_CONTRACT_V1_1_RFC.md`](MEMORY_CONTRACT_V1_1_RFC.md) for an
 additive proposal that keeps deterministic behavior while adding optional query
 metadata and filters (no vector semantics, no policy cognition).
 
+**OpenClaw daily markdown (bridge):** Operator workflows that append human-readable logs via `openclaw_memory` typically use **`~/.openclaw/workspace/memory/YYYY-MM-DD.md`** (directory overridable with `OPENCLAW_MEMORY_DIR`). That path is **orthogonal** to the SQLite-backed `memory` adapter contract below; see [`docs/operations/UNIFIED_MONITORING_GUIDE.md`](../operations/UNIFIED_MONITORING_GUIDE.md) for token-budget and related bridge monitoring.
+
 **Implementation note (v1.1 additive):** the current adapter now supports
 optional deterministic metadata (`source`, `confidence`, `tags`, `valid_at`)
 plus bounded list filters (`tags_any`, `tags_all`, created/updated ranges,

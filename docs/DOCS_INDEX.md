@@ -112,6 +112,11 @@ entry point for new users or unsupervised agents.
 - MCP server (workflow-level integration for MCP-compatible hosts): `scripts/ainl_mcp_server.py`
 - MCP exposure profiles (tool/resource scoping): `tooling/mcp_exposure_profiles.json`
 - Autonomous ops monitors index: `docs/operations/AUTONOMOUS_OPS_MONITORS.md`
+- **Unified AINL + OpenClaw bridge monitoring** (token budget alert, weekly trends, sentinel, daily memory path): `docs/operations/UNIFIED_MONITORING_GUIDE.md`
+- OpenClaw bridge runner reference: `openclaw/bridge/README.md`
+- Token budget wrapper (bridge): `docs/openclaw/BRIDGE_TOKEN_BUDGET_ALERT.md`
+- AINL ↔ OpenClaw integration (wrappers, env): `docs/ainl_openclaw_unified_integration.md`
+- Cron orchestration / drift: `docs/CRON_ORCHESTRATION.md`
 - Standardized health envelope (monitor payloads): `docs/operations/STANDARDIZED_HEALTH_ENVELOPE.md`
 - Memory contract and v1 adapter: `docs/adapters/MEMORY_CONTRACT.md`
   - v1.1 additive RFC (deterministic metadata/filtering only): `docs/adapters/MEMORY_CONTRACT_V1_1_RFC.md`

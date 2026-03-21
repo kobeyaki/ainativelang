@@ -15,6 +15,8 @@
 
 If you only read docs or run existing scripts with no code changes, you may skip the full preflight; for any **implementation** work, the preflight is required.
 
+**Bridge monitoring / token budget / cron payloads:** Before changing `openclaw/bridge/wrappers/*.ainl`, `bridge_token_budget_adapter.py`, or OpenClaw jobs that call `run_wrapper_ainl.py`, read **`docs/operations/UNIFIED_MONITORING_GUIDE.md`** and align **`tooling/cron_registry.json`** per **`docs/CRON_ORCHESTRATION.md`**.
+
 ---
 
 ## Required preflight steps

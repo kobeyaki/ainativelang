@@ -2,6 +2,7 @@
 
 ## v1.2.3 (March 20, 2026)
 
+- **docs(ops)**: add **`docs/operations/UNIFIED_MONITORING_GUIDE.md`** (unified AINL + OpenClaw monitoring); expand **`docs/openclaw/BRIDGE_TOKEN_BUDGET_ALERT.md`**; cross-link hub from **`docs/README.md`**, **`docs/DOCS_INDEX.md`**, **`docs/operations/README.md`**, **`docs/CRON_ORCHESTRATION.md`**, **`docs/AINL_CANONICAL_CORE.md`**, **`docs/ainl_openclaw_unified_integration.md`**, **`docs/adapters/*`**, **`docs/BOT_ONBOARDING.md`**, **`docs/OPENCLAW_IMPLEMENTATION_PREFLIGHT.md`**, **`docs/operations/AUTONOMOUS_OPS_PLAYBOOK.md`**, **`docs/operations/AUTONOMOUS_OPS_MONITORS.md`**, **`docs/advanced/README.md`**, **`docs/adapters/MEMORY_CONTRACT.md`**; standardize daily memory path **`~/.openclaw/workspace/memory/YYYY-MM-DD.md`**; refresh **`openclaw/bridge/README.md`** monitoring tables and env reference
 - **feat(modules)**: add reusable memory helper include modules for production monitor flows:
   - `modules/common/token_cost_memory.ainl` for deterministic `workflow` namespace writes/lists
   - `modules/common/ops_memory.ainl` for deterministic `ops` namespace writes/lists

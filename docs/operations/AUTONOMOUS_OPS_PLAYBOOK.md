@@ -246,6 +246,8 @@ For **extension/OpenClaw autonomous-ops snapshot emitters**, see:
 - `examples/autonomous_ops/backup_freshness_to_queue.lang`
 - `examples/autonomous_ops/pipeline_readiness_snapshot.lang`
 
+For **production OpenClaw bridge monitoring** (daily token budget append to **`~/.openclaw/workspace/memory/YYYY-MM-DD.md`**, weekly token trends, consolidated notify, sentinel duplicate guard), see **`docs/operations/UNIFIED_MONITORING_GUIDE.md`** and **`docs/operations/AUTONOMOUS_OPS_MONITORS.md`** (bridge layer table).
+
 These are non-strict, extension-level examples that:
 
 - gather operational facts from `svc`/`cache`/`core`

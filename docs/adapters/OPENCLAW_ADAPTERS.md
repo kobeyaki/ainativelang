@@ -102,3 +102,15 @@ A simple reasoning chain for small models:
    - Use `tooling/ir_compact.py` and `tooling/ir_compact_patch.py` to propose minimal graph edits.
 
 This keeps the integration **transparent and auditable**: AINL describes the workflow; OpenClaw performs the actions; policy and oversight guardrails run on the IR and traces.
+
+---
+
+## 6. Related: production bridge runner & monitoring
+
+For the **shipped** OpenClaw bridge (cron payloads, `run_wrapper_ainl.py`, daily markdown memory, token-budget and weekly-trends wrappers), read:
+
+- [`../ainl_openclaw_unified_integration.md`](../ainl_openclaw_unified_integration.md) — integration boundaries and env vars
+- [`../operations/UNIFIED_MONITORING_GUIDE.md`](../operations/UNIFIED_MONITORING_GUIDE.md) — unified monitoring (memory path **`~/.openclaw/workspace/memory/YYYY-MM-DD.md`**, sentinel, consolidated notify)
+- [`../../openclaw/bridge/README.md`](../../openclaw/bridge/README.md) — bridge tools table and cron examples
+- [`../openclaw/BRIDGE_TOKEN_BUDGET_ALERT.md`](../openclaw/BRIDGE_TOKEN_BUDGET_ALERT.md) — token budget wrapper reference
+- [`../CRON_ORCHESTRATION.md`](../CRON_ORCHESTRATION.md) — drift checks and registry discipline

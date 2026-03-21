@@ -22,6 +22,19 @@ This document provides a quick reference for all AINL autonomous operations moni
 
 ---
 
+## Bridge layer: token budget & weekly trends (distinct from `scripts/run_*.py`)
+
+These run through **`openclaw/bridge/run_wrapper_ainl.py`** and append to OpenClaw **daily markdown** (**`~/.openclaw/workspace/memory/YYYY-MM-DD.md`** by default), not the SQLite `memory` adapter envelopes in the table above.
+
+| Wrapper | Schedule (in `.ainl`) | Doc |
+|---------|----------------------|-----|
+| `token-budget-alert` | `0 23 * * *` UTC | [`docs/openclaw/BRIDGE_TOKEN_BUDGET_ALERT.md`](../openclaw/BRIDGE_TOKEN_BUDGET_ALERT.md) |
+| `weekly-token-trends` | `0 9 * * 0` | [`docs/operations/UNIFIED_MONITORING_GUIDE.md`](UNIFIED_MONITORING_GUIDE.md) |
+
+Single operator guide: [`UNIFIED_MONITORING_GUIDE.md`](UNIFIED_MONITORING_GUIDE.md) · Bridge README: [`openclaw/bridge/README.md`](../../openclaw/bridge/README.md).
+
+---
+
 ## Notes
 
 - All monitors use the **Standardized Health Envelope** (version 1.0) for `queue` messages.

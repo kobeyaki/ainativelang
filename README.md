@@ -825,6 +825,12 @@ AI Native Lang uses an open-core licensing model.
 
 ---
 
+## OpenClaw integration
+
+All agent orchestration, cron unification, memory bridging, and OpenClaw-specific supervision glue lives in **`openclaw/bridge/`** (with backward-compatible **`scripts/`** shims). See **[`openclaw/bridge/README.md`](openclaw/bridge/README.md)** for runners, drift checks, `AINL_WORKSPACE` cron patterns, and the `ainl_bridge_main.py` entrypoint. Production token/budget monitoring (daily **`~/.openclaw/workspace/memory/YYYY-MM-DD.md`** appends, weekly trends, sentinel): **[`docs/operations/UNIFIED_MONITORING_GUIDE.md`](docs/operations/UNIFIED_MONITORING_GUIDE.md)**.
+
+---
+
 ## KEYWORDS
 - AI-native programming language
 - agent workflow language

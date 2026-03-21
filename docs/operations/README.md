@@ -4,6 +4,7 @@ Use this section for real deployment-style operational docs: monitors, playbooks
 
 ## Key docs
 
+- [`UNIFIED_MONITORING_GUIDE.md`](UNIFIED_MONITORING_GUIDE.md) — **Unified AINL + OpenClaw monitoring** (token budget, weekly trends, cron, sentinel, **`~/.openclaw/workspace/memory/YYYY-MM-DD.md`**, env vars, troubleshooting)
 - [`AUTONOMOUS_OPS_PLAYBOOK.md`](AUTONOMOUS_OPS_PLAYBOOK.md) — current autonomous ops reality
 - [`AUTONOMOUS_OPS_MONITORS.md`](AUTONOMOUS_OPS_MONITORS.md) — monitor index
 - [`STANDARDIZED_HEALTH_ENVELOPE.md`](STANDARDIZED_HEALTH_ENVELOPE.md) — common message envelope
