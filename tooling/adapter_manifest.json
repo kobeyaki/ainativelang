@@ -10,19 +10,24 @@
         "SUB",
         "MUL",
         "DIV",
+        "IDIV",
         "MIN",
         "MAX",
         "CLAMP",
         "CONCAT",
+        "FILTER_HIGH_SCORE",
         "SPLIT",
         "JOIN",
         "LOWER",
         "UPPER",
         "REPLACE",
+        "SUBSTR",
         "PARSE",
         "STRINGIFY",
         "NOW",
         "ISO",
+        "ISO_TS",
+        "ENV",
         "SLEEP",
         "ECHO"
       ],
@@ -365,6 +370,42 @@
       "network_facing": true,
       "sandbox_safe": false,
       "notes": "HTTP to local CRM; default base URL from adapters/openclaw_defaults.py (non-standard port, override CRM_API_BASE). CRM_PATH_* env vars; GET cache for find_github_intelligence; dry_run skips writes."
+    },
+    "classify": {
+      "support_tier": "compatibility",
+      "strict_contract": true,
+      "recommended_lane": "noncanonical",
+      "verbs": ["SCORE_RELEVANCE"],
+      "effect_default": "io",
+      "privilege_tier": "network",
+      "destructive": true,
+      "network_facing": true,
+      "sandbox_safe": false,
+      "notes": "Strict allowlist placeholder for bridge-backed relevance scoring (e.g. apollo-x-bot); implement via gateway or executor bridge."
+    },
+    "state": {
+      "support_tier": "compatibility",
+      "strict_contract": true,
+      "recommended_lane": "noncanonical",
+      "verbs": ["GET_SEEN_IDS", "MARK_SEEN"],
+      "effect_default": "io",
+      "privilege_tier": "local_state",
+      "destructive": true,
+      "network_facing": false,
+      "sandbox_safe": true,
+      "notes": "Strict allowlist placeholder for dedupe / seen-id state (e.g. apollo-x-bot); implement via SQLite or bridge."
+    },
+    "x": {
+      "support_tier": "compatibility",
+      "strict_contract": true,
+      "recommended_lane": "noncanonical",
+      "verbs": ["SEARCH", "POST_REPLY"],
+      "effect_default": "io",
+      "privilege_tier": "network",
+      "destructive": true,
+      "network_facing": true,
+      "sandbox_safe": false,
+      "notes": "Strict allowlist placeholder for X/Twitter-shaped bridge calls; production graphs use bridge.POST with executor keys instead."
     }
   }
 }
