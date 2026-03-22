@@ -1,0 +1,9 @@
+# OpenAI-style system message: model must answer with a JSON array only (no markdown).
+# Reusable for any chat completion that expects a raw JSON array in the assistant message.
+# Usage: include "../modules/llm/json_array_system.ainl" as llm_json_system then Call llm_json_system/ENTRY ->my_system_var
+# Output: json_array_system_text (string)
+LENTRY:
+  R core.PARSE "\"You output only valid JSON arrays. No markdown.\"" ->json_array_system_text
+  J json_array_system_text
+LEXIT_OK:
+  J "ok"

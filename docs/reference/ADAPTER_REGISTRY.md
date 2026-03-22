@@ -120,7 +120,7 @@ The adapter also includes a **small built-in retry/backoff** layer:
 - **name**: `bridge`
 - **verbs**: `Post`
 - **effect**: `io-write` (network); delegates to the same stack as `http.Post`
-- **when to use**: Host supplies a **table of executor id → URL** (CLI `--bridge-endpoint` or runner `adapters.bridge.endpoints`). Programs call `R bridge.Post <executor_key> <body_var> ->resp` instead of embedding URLs in source. See `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`.
+- **when to use**: Host supplies a **table of executor id → URL** (CLI `--bridge-endpoint` or runner `adapters.bridge.endpoints`). Programs call `R bridge.Post <executor_key> <body_var> ->resp` instead of embedding URLs in source. See `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md` for the recommended **request envelope** (JSON Schema: `schemas/executor_bridge_request.schema.json`; AINL helper: `modules/common/executor_bridge_request.ainl`).
 
 ### 2.4.1 Slot schema
 

@@ -5,6 +5,7 @@ Use this section to understand how AINL reaches external systems and how capabil
 ## Key docs
 
 - [`../reference/ADAPTER_REGISTRY.md`](../reference/ADAPTER_REGISTRY.md) — adapter inventory and contracts
+- [`../integrations/EXTERNAL_EXECUTOR_BRIDGE.md`](../integrations/EXTERNAL_EXECUTOR_BRIDGE.md) — JSON body contract for `http.Post` / `bridge.Post` to external workers; [`../../schemas/executor_bridge_request.schema.json`](../../schemas/executor_bridge_request.schema.json), [`../../modules/common/executor_bridge_request.ainl`](../../modules/common/executor_bridge_request.ainl)
 - [`OPENCLAW_ADAPTERS.md`](OPENCLAW_ADAPTERS.md) — OpenClaw integration guide (adapter verbs / bridge); **OpenClaw MCP skill:** [`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md) · **ZeroClaw** MCP skill: [`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md)
 - [`../operations/UNIFIED_MONITORING_GUIDE.md`](../operations/UNIFIED_MONITORING_GUIDE.md) — bridge token budget, weekly trends, daily markdown **`~/.openclaw/workspace/memory/YYYY-MM-DD.md`**, cron, sentinel, env vars
 - [`MEMORY_CONTRACT.md`](MEMORY_CONTRACT.md) — memory contract and state surfaces

@@ -19,7 +19,8 @@ All schema-level docs should live together here to avoid splitting closely relat
 - [`../OPENCLAW_INTEGRATION.md`](../OPENCLAW_INTEGRATION.md) — OpenClaw skill + **`ainl install-openclaw`** (pair with **`openclaw/bridge/`** + monitoring guide)
 - [`../ZEROCLAW_INTEGRATION.md`](../ZEROCLAW_INTEGRATION.md) — ZeroClaw skill + MCP bootstrap (pair with OpenClaw bridge docs)
 - [`GLOSSARY.md`](GLOSSARY.md) — shared terminology
- - [`AINL_V0_9_PROFILE.md`](AINL_V0_9_PROFILE.md) — v0.9 small-model profile (beginner subset of the spec)
+- [`AINL_V0_9_PROFILE.md`](AINL_V0_9_PROFILE.md) — v0.9 small-model profile (beginner subset of the spec)
+- **HTTP executor-bridge request (JSON):** [`../../schemas/executor_bridge_request.schema.json`](../../schemas/executor_bridge_request.schema.json) — JSON Schema for the §3 envelope in [`../integrations/EXTERNAL_EXECUTOR_BRIDGE.md`](../integrations/EXTERNAL_EXECUTOR_BRIDGE.md); Python mirror [`../../schemas/executor_bridge_validate.py`](../../schemas/executor_bridge_validate.py)
 
 ## Related sections
 

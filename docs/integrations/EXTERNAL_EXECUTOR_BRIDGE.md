@@ -35,6 +35,10 @@ This document defines a **small JSON contract** so many backends (plugins, agent
 
 ## 3. Request envelope (recommended)
 
+**Machine-readable schema:** [`schemas/executor_bridge_request.schema.json`](../../schemas/executor_bridge_request.schema.json) (JSON Schema 2020-12). Python helper: `schemas/executor_bridge_validate.validate_executor_bridge_request` (call from gateways or tests when you want a shared check).
+
+**AINL reuse:** compile-time include [`modules/common/executor_bridge_request.ainl`](../../modules/common/executor_bridge_request.ainl) — set `ainl_bridge_request_json` to the JSON **text**, then `Call …/bridge_req/ENTRY` to parse once (see module header).
+
 Hosts should accept a JSON body shaped like:
 
 ```json
@@ -72,6 +76,7 @@ Bridge implementations should return normal HTTP status codes (e.g. 2xx for hand
 - **Base URLs, API keys, and mTLS** belong in **host / runner configuration**, not in public example repos.
 - Grant **`http`** (and the target host) only via **capability allowlists** on programs that need outbound calls (`capabilities.allow` in IR / runner policy).
 - Treat bridge endpoints as **privileged**: authenticate, rate-limit, and validate `executor` against an allowlist on the server.
+- **Request shape:** Prefer validating inbound JSON against [`schemas/executor_bridge_request.schema.json`](../../schemas/executor_bridge_request.schema.json) (or call `schemas.executor_bridge_validate.validate_executor_bridge_request` from Python). A permissive pattern is to validate only when the decoded body is a **dict** and includes **`executor`** (so `llm.classify`-style bodies without that field stay loose).
 
 ---
 
@@ -154,7 +159,7 @@ Together, bridge-side queuing and AINL-side limits prevent a single workflow fro
 
 1. **Docs** (this file) — contract + MCP-first positioning.
 2. **Examples** (Phase 1) — `examples/integrations/executor_bridge_min.ainl` posts a minimal envelope to `http://127.0.0.1:17300/v1/execute` (change for your environment). Local mock: `python3 scripts/mock_executor_bridge.py`. See `examples/integrations/README.md`. The sample branches with `X http_status get resp status` then `If http_status=200 ->…` so the condition matches graph-friendly `If` semantics (avoid raw `(core.ne resp.status …)` in the condition slot for graph-preferred runs).
-3. **Tests** (Phase 2) — `tests/test_executor_bridge_integration.py` runs the Phase 1 example against an in-process HTTP mock (no live network, no manual `mock_executor_bridge.py`).
+3. **Tests** (Phase 2) — `tests/test_executor_bridge_integration.py` runs the Phase 1 example against an in-process HTTP mock (no live network, no manual `mock_executor_bridge.py`). **`tests/test_executor_bridge_envelope.py`** covers the schema helper. Optional: add an app-local integration test that drives your bridge gateway + main graph in dry-run mode.
 4. **Optional `bridge` adapter** (Phase 3) — `R bridge.Post <executor_key> <body_var> ->resp` resolves `<executor_key>` to a URL via host config (`ainl run --enable-adapter bridge --bridge-endpoint key=URL`, or runner `adapters.bridge.endpoints`). Same response envelope as `http.Post`. See `docs/reference/ADAPTER_REGISTRY.md` §2.4 and `examples/integrations/executor_bridge_adapter_min.ainl`.
 5. **Phase 4** (this document, §6–§7) — multi-backend fan-out, Flask-shaped routing sketch, capacity guidance, and explicit pointer to [`runtime/engine.py`](../../runtime/engine.py) for limit fields; no new language or runtime behavior.
 
@@ -164,6 +169,9 @@ None of these steps require changing the default **`core`-only** capability prof
 
 ## 9. Related links
 
+- **Production-style layout:** App-local trees typically pair an **`ExecutorBridgeAdapter`** (or equivalent) with a small HTTP gateway, `modules/promoter/`-style **`req_*` shells** that compose [`modules/common/executor_bridge_request.ainl`](../../modules/common/executor_bridge_request.ainl), and **`.txt` prompts** beside the gateway. Optional reusable LLM `include` in [`modules/llm/`](../../modules/llm/README.md). Naming and boundaries: [`docs/language/AINL_CORE_AND_MODULES.md` §8](../language/AINL_CORE_AND_MODULES.md#8-repository-strict-include-libraries-ainl).
+- **Schema & validation:** [`schemas/executor_bridge_request.schema.json`](../../schemas/executor_bridge_request.schema.json), [`schemas/executor_bridge_validate.py`](../../schemas/executor_bridge_validate.py)
+- **Graph execution note:** dotted `R core.*` steps pass the first operand through the frame resolver for `target` (so `core.PARSE` can consume a variable holding JSON text under graph-preferred execution); see `runtime/engine.py` (`_exec_r_call`).
 - MCP server: `scripts/ainl_mcp_server.py`, `tooling/mcp_exposure_profiles.json`
 - OpenClaw quickstart: `AI_AGENT_QUICKSTART_OPENCLAW.md`
 - External orchestration (host → AINL): `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`

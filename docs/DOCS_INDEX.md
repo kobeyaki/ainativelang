@@ -56,7 +56,8 @@ Use [`docs/README.md`](README.md) as the primary navigation hub, then use this f
 - Runtime container guide: `docs/operations/RUNTIME_CONTAINER_GUIDE.md`
 - External orchestration guide: `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md` — includes MCP agent role templates, desktop-safe recipe, end-to-end validator/inspector/runner example, and Claude Code / Cowork / Dispatch guidance
 - **MCP host hub (OpenClaw, ZeroClaw, future):** `docs/getting_started/HOST_MCP_INTEGRATIONS.md` — **`ainl install-mcp --host …`**, skill + CLI pattern, maintainer notes (`tooling/mcp_host_install.py`); stub at `docs/HOST_MCP_INTEGRATIONS.md` for old links
-- **AINL → external workers (HTTP bridge contract):** `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md` — generic `http.Post` envelope for non-MCP executors; **OpenClaw / NemoClaw / ZeroClaw should prefer `ainl-mcp` first** (see doc); **OpenClaw skill:** `docs/OPENCLAW_INTEGRATION.md` · **ZeroClaw skill:** `docs/ZEROCLAW_INTEGRATION.md`
+- **AINL → external workers (HTTP bridge contract):** `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md` — generic `http.Post` / optional `bridge.Post` envelope for non-MCP executors; **OpenClaw / NemoClaw / ZeroClaw should prefer `ainl-mcp` first** (see doc); **OpenClaw skill:** `docs/OPENCLAW_INTEGRATION.md` · **ZeroClaw skill:** `docs/ZEROCLAW_INTEGRATION.md`
+  - **Artifacts:** JSON Schema `schemas/executor_bridge_request.schema.json`; Python `schemas/executor_bridge_validate.validate_executor_bridge_request`; AINL include `modules/common/executor_bridge_request.ainl`; tests `tests/test_executor_bridge_envelope.py`, `tests/test_executor_bridge_integration.py`
 - Batch repo-automation guide: `docs/operations/BATCH_AUTOMATION_GUIDE.md` — inspect-first, worktree-safe, deterministic, auditable batch flows for Dispatch-style environments
 - Integration story (AINL in agent stacks): `docs/INTEGRATION_STORY.md`
 - **OpenClaw skill + bootstrap (`ainl install-mcp --host openclaw`, `~/.openclaw/openclaw.json`, `examples/ecosystem/`):** `docs/OPENCLAW_INTEGRATION.md`
@@ -117,7 +118,7 @@ entry point for new users or unsupervised agents.
 - Structured audit logging: `docs/operations/AUDIT_LOGGING.md`
 - Runtime container guide: `docs/operations/RUNTIME_CONTAINER_GUIDE.md`
 - External orchestration guide: `docs/operations/EXTERNAL_ORCHESTRATION_GUIDE.md`
-- **HTTP bridge for generic external executors** (secondary to MCP for OpenClaw / NemoClaw / ZeroClaw): `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md`
+- **HTTP bridge for generic external executors** (secondary to MCP for OpenClaw / NemoClaw / ZeroClaw): `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md` — pair with `schemas/executor_bridge_request.schema.json`, `modules/common/executor_bridge_request.ainl`, and `schemas/executor_bridge_validate.py`
 - MCP server (workflow-level integration for MCP-compatible hosts): `scripts/ainl_mcp_server.py`
 - MCP exposure profiles (tool/resource scoping): `tooling/mcp_exposure_profiles.json`
 - Autonomous ops monitors index: `docs/operations/AUTONOMOUS_OPS_MONITORS.md`

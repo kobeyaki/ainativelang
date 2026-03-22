@@ -212,7 +212,23 @@ A future note can define a concrete layout (op enum, var table, node table, edge
 
 ---
 
-## 8. Backward compatibility
+## 8. Repository: strict `include` libraries (`.ainl`)
+
+The repository ships **strict-safe** subgraph files merged at compile time via `include "<path>" as <alias>`. These are **convenience libraries**, not part of the normative spec in §§1–7; they follow the same `ENTRY` / `LEXIT_*` subgraph contract as described in tooling and [`modules/common/README.md`](../../modules/common/README.md).
+
+| Location | Reuse | Index |
+|----------|--------|--------|
+| **`modules/common/`** | Any program (`demo/`, `examples/`, `intelligence/`, apps); includes **`executor_bridge_request.ainl`** for HTTP bridge JSON envelopes | [modules/common/README.md](../../modules/common/README.md) |
+| **`modules/llm/`** | LLM / OpenAI-shaped **system** strings and JSON discipline (strict `include` subgraphs) | [modules/llm/README.md](../../modules/llm/README.md) |
+| **`modules/openclaw/`** | OpenClaw cron sketches | See headers in each `.ainl` |
+| **App-local `modules/promoter/`** (next to your bridge / gateway) | One deployment’s bridge JSON shells + main graph; **not** shared across products | Keep README + `include` layout beside the gateway that owns executor keys |
+| **App-local `prompts/`** (e.g. `.txt` beside the gateway) | LLM system/instruction copy loaded at runtime — version as code, not secrets | Point your gateway at a directory via config / env (same idea as `PROMOTER_PROMPTS_DIR`) |
+
+**Rule of thumb:** If an include mentions a specific `run_id`, executor key, or product copy for one deployment, keep it **next to that app** (e.g. `my-app/modules/`). Long **LLM prose** can live as **`.txt` / `.md` files** next to the gateway and be read at runtime. If it is a **generic** strict subgraph usable with any bridge/HTTP LLM call, put it under **`modules/llm/`** or **`modules/common/`**.
+
+---
+
+## 9. Backward compatibility
 
 - Unprefixed core ops remain valid. **V** is deprecated in favor of **Set** / **Filt** / **Sort**. Surface aliases (e.g. `FRetry`, `RagSrc`) are **surface-only** and must normalize to canonical op names in IR.
 - Step-list form remains an allowed serialization; compilers may emit both `legacy.steps` and `nodes`/`edges`. Semantics are defined by the graph.

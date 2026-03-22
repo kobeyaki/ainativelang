@@ -3,6 +3,7 @@
 ## HTTP external executor bridge
 
 - **Program:** [`executor_bridge_min.ainl`](executor_bridge_min.ainl) — posts the [EXTERNAL_EXECUTOR_BRIDGE](../../docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md) JSON envelope via `http.Post`.
+- **Contract artifacts:** JSON Schema [`../../schemas/executor_bridge_request.schema.json`](../../schemas/executor_bridge_request.schema.json); Python validator [`../../schemas/executor_bridge_validate.py`](../../schemas/executor_bridge_validate.py); optional AINL include [`../../modules/common/executor_bridge_request.ainl`](../../modules/common/executor_bridge_request.ainl) to parse JSON **text** in the frame before `bridge.Post`.
 - **MCP-first:** For OpenClaw / NemoClaw agents, use **`ainl-mcp`**, not this pattern.
 
 ### Try it locally
