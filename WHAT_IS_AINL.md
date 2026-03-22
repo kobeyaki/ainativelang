@@ -154,7 +154,7 @@ AINL is a programming and execution system for structured AI workflows.
 
 AINL can **compose** programs at compile time with **`include path [as alias]`**. Each included file contributes labels under **`alias/LABEL`** (for example `retry/ENTRY`, `retry/EXIT_OK`). Strict mode expects a clear **entry** (`LENTRY` → `alias/ENTRY`) and **exit** labels (`LEXIT_*`), so callers use **`Call retry/ENTRY ->result`** and inspect a stable graph.
 
-Starter modules in-repo: `modules/common/retry.ainl`, `modules/common/timeout.ainl`, `modules/common/access_aware_memory.ainl` (optional access metadata on **`memory`**). **Agents** get reusable, validated building blocks and predictable qualified ids in IR instead of duplicating large graphs. See `tests/test_includes.py`, `docs/WHAT_IS_AINL.md`, and root **README** *Includes & modules*.
+Starter modules in-repo: `modules/common/retry.ainl`, `modules/common/timeout.ainl`, `modules/common/access_aware_memory.ainl` (optional access metadata on **`memory`**), `modules/common/executor_bridge_request.ainl` (parse a standard **HTTP bridge** request JSON string in the frame — pair with `docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md` §3 and `schemas/executor_bridge_request.schema.json`). **Agents** get reusable, validated building blocks and predictable qualified ids in IR instead of duplicating large graphs. See `tests/test_includes.py`, `docs/WHAT_IS_AINL.md`, and root **README** *Includes & modules*.
 
 ## Current capabilities (v1.2 snapshot)
 

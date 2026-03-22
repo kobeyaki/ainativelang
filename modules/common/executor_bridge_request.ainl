@@ -1,0 +1,20 @@
+# modules/common/executor_bridge_request.ainl
+# Parse a JSON string in the frame into the standard executor-bridge request object.
+#
+# Contract (caller must set before Call):
+#   ainl_bridge_request_json — JSON *text* for the request body (not an already-parsed object).
+#   Use R core.ECHO "<json string>" ->ainl_bridge_request_json or put a string from another step.
+#   See docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md and schemas/executor_bridge_request.schema.json.
+#
+# Usage:
+#   include "modules/common/executor_bridge_request.ainl" as bridge_req
+#   R core.ECHO "{\"executor\":\"my.worker\",...}" ->ainl_bridge_request_json
+#   Call bridge_req/ENTRY ->req
+#   R bridge.POST my.worker req ->resp
+
+LENTRY:
+  R core.PARSE ainl_bridge_request_json ->_ainl_bridge_parsed
+  J _ainl_bridge_parsed
+
+LEXIT_OK:
+  J "ok"

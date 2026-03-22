@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sbhooley/ainativelang/schemas/executor_bridge_request.schema.json",
+  "title": "Executor bridge request",
+  "description": "Recommended JSON body for AINL → HTTP bridge calls (see docs/integrations/EXTERNAL_EXECUTOR_BRIDGE.md).",
+  "type": "object",
+  "required": ["executor"],
+  "properties": {
+    "run_id": { "type": "string" },
+    "step_id": { "type": "string" },
+    "executor": { "type": "string", "minLength": 1 },
+    "payload": { "type": "object" },
+    "timeout_s": { "type": "integer", "minimum": 1 }
+  },
+  "additionalProperties": true
+}
