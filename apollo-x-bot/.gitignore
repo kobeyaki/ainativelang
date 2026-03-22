@@ -1,5 +1,11 @@
 gateway.log
 gateway.pid
+gateway.stdout
+promoter.log
+# Local scratch / one-off patches (not source)
+gateway_patch.py
+# Optional dev symlinks to repo-root modules/ (use ../modules/ in graphs instead)
+modules/
 __pycache__/
 *.pyc
 .env
