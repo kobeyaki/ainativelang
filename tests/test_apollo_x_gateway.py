@@ -108,6 +108,32 @@ def test_gateway_llm_json_array_extract_and_merge(tmp_path):
     assert merged["items"][0]["why"] == "ok"
 
 
+def test_gateway_llm_classify_raw_without_messages_falls_back_not_envelope_error(tmp_path):
+    """classify_response=raw without messages must not trigger envelope_missing_messages (legacy path)."""
+    state_path = tmp_path / "st.sqlite"
+    gw._STATE = gw.PromoterState(state_path)
+    old_dry = os.environ.get("PROMOTER_DRY_RUN")
+    os.environ["PROMOTER_DRY_RUN"] = "1"
+    try:
+        os.environ.pop("OPENAI_API_KEY", None)
+        os.environ.pop("LLM_API_KEY", None)
+        out = gw.handle_llm_classify(
+            {
+                "classify_response": "raw",
+                "tweets": [{"id": "z", "text": "OpenClaw orchestration"}],
+            },
+            gw._STATE,
+        )
+        assert isinstance(out, list)
+        assert out[0]["id"] == "z"
+        assert float(out[0]["score"]) >= 1.0
+    finally:
+        if old_dry is None:
+            os.environ.pop("PROMOTER_DRY_RUN", None)
+        else:
+            os.environ["PROMOTER_DRY_RUN"] = old_dry
+
+
 def test_gateway_llm_classify_legacy_list_shape(tmp_path):
     """Default classify (no envelope flags) still returns a JSON list for FILTER_HIGH_SCORE."""
     state_path = tmp_path / "st.sqlite"

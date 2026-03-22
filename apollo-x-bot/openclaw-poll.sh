@@ -32,10 +32,14 @@ GATEWAY="${GATEWAY%/}"
 export PROMOTER_STATE_PATH="${PROMOTER_STATE_PATH:-$ROOT/apollo-x-bot/data/promoter_state.sqlite}"
 # Default: apollo-x-bot/data/promoter_memory.sqlite — backs record_decision / memory.put (override AINL_MEMORY_DB=...). Same DB can host access_aware_memory-style writes if you add them at graph top level.
 export AINL_MEMORY_DB="${AINL_MEMORY_DB:-$ROOT/apollo-x-bot/data/promoter_memory.sqlite}"
+# Bridge HTTP client timeout (seconds). Default 5s in cli is too low for batched llm.classify via OpenRouter; align with executor payload timeout_s (~120).
+HTTP_TIMEOUT_S="${AINL_HTTP_TIMEOUT_S:-120}"
 
 cd "$ROOT"
 exec "$PY" -m cli.main run "$ROOT/apollo-x-bot/ainl-x-promoter.ainl" --strict --label _poll \
+  --http-timeout-s "$HTTP_TIMEOUT_S" \
   --enable-adapter bridge \
+  --enable-adapter api \
   --enable-adapter memory \
   --memory-db "$AINL_MEMORY_DB" \
   --bridge-endpoint "x.search=${GATEWAY}/v1/x.search" \

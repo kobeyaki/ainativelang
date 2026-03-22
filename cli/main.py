@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import os
 import re
 from pathlib import Path
 from typing import Any, Dict, List
@@ -60,6 +61,7 @@ def _adapter_registry_from_args(args: argparse.Namespace):
         "txn",
         "auth",
         "wasm",
+        "memory",
     ]
     if args.replay_adapters:
         data = json.loads(Path(args.replay_adapters).read_text(encoding="utf-8"))
@@ -194,20 +196,29 @@ def _register_enabled_adapters(reg: AdapterRegistry, args: argparse.Namespace) -
         reg.register("db", _InMemoryDbAdapter())
     if "api" in enabled:
         reg.register("api", _NullApiAdapter())
-    if "wasm" in enabled:
-        modules: Dict[str, str] = {}
-        for raw in (getattr(args, "wasm_module", None) or []):
-            if "=" not in raw:
-                raise SystemExit("--wasm-module entries must be name=path")
-            name, path = raw.split("=", 1)
-            name = name.strip()
-            path = path.strip()
-            if not name or not path:
-                raise SystemExit("--wasm-module entries must be name=path")
-            modules[name] = path
-        if not modules:
-            raise SystemExit("--enable-adapter wasm requires at least one --wasm-module name=path")
-        reg.register("wasm", WasmAdapter(modules=modules, allowed_modules=(getattr(args, "wasm_allow_module", None) or None)))
+        if "wasm" in enabled:
+            modules: Dict[str, str] = {}
+            for raw in (getattr(args, "wasm_module", None) or []):
+                if "=" not in raw:
+                    raise SystemExit("--wasm-module entries must be name=path")
+                name, path = raw.split("=", 1)
+                name = name.strip()
+                path = path.strip()
+                if not name or not path:
+                    raise SystemExit("--wasm-module entries must be name=path")
+                modules[name] = path
+            if not modules:
+                raise SystemExit("--enable-adapter wasm requires at least one --wasm-module name=path")
+            reg.register("wasm", WasmAdapter(modules=modules, allowed_modules=(getattr(args, "wasm_allow_module", None) or None)))
+        if "memory" in enabled:
+            from runtime.adapters.memory import MemoryAdapter
+
+            mem_db = (
+                str(getattr(args, "memory_db", "") or "").strip()
+                or os.environ.get("AINL_MEMORY_DB")
+                or str(Path.home() / ".openclaw" / "ainl_memory.sqlite3")
+            )
+            reg.register("memory", MemoryAdapter(db_path=mem_db))
 
 
 def _pretty_runtime_error(err: Exception) -> str:
@@ -623,7 +634,7 @@ def main() -> None:
     runp.add_argument(
         "--enable-adapter",
         action="append",
-        choices=["http", "bridge", "sqlite", "fs", "tools", "ext", "db", "api", "wasm"],
+        choices=["http", "bridge", "sqlite", "fs", "tools", "ext", "db", "api", "wasm", "memory"],
         default=[],
     )
     runp.add_argument(
@@ -634,7 +645,12 @@ def main() -> None:
         help="With --enable-adapter bridge: map executor key to POST URL (repeatable)",
     )
     runp.add_argument("--http-allow-host", action="append", default=[])
-    runp.add_argument("--http-timeout-s", type=float, default=5.0)
+    runp.add_argument(
+        "--http-timeout-s",
+        type=float,
+        default=5.0,
+        help="Per-request timeout for http + bridge adapters (seconds). Use 60–120+ for LLM-backed bridge routes.",
+    )
     runp.add_argument("--http-max-response-bytes", type=int, default=1_000_000)
     runp.add_argument("--sqlite-db", default="")
     runp.add_argument("--sqlite-allow-write", action="store_true")
@@ -648,6 +664,11 @@ def main() -> None:
     runp.add_argument("--tools-allow", action="append", default=[])
     runp.add_argument("--wasm-module", action="append", default=[], help="WASM module mapping: name=/abs/path/module.wasm")
     runp.add_argument("--wasm-allow-module", action="append", default=[], help="Optional wasm module allowlist")
+    runp.add_argument(
+        "--memory-db",
+        default="",
+        help="SQLite path for --enable-adapter memory (defaults to AINL_MEMORY_DB or ~/.openclaw/ainl_memory.sqlite3)",
+    )
     runp.add_argument("--max-steps", type=int, default=None)
     runp.add_argument("--max-depth", type=int, default=None)
     runp.add_argument("--max-adapter-calls", type=int, default=None)

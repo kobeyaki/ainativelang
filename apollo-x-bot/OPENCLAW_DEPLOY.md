@@ -52,6 +52,10 @@ export APOLLO_PROMOTER_ENV="$HOME/.openclaw/apollo-x-promoter.env"
 
 `openclaw-poll.sh` sources `APOLLO_PROMOTER_ENV` if set and the file exists.
 
+### Bridge client HTTP timeout
+
+`ainl run` defaults to **`--http-timeout-s 5`**, which is often **too short** for **`llm.classify`** (OpenRouter / slow models can take many seconds per batch). **`openclaw-poll.sh`** passes **`--http-timeout-s 120`** by default. Override with **`AINL_HTTP_TIMEOUT_S`** (exported before the script runs). **`run-with-gateway.sh`** does the same for local dry-runs. Without this, polls can fail with **http transport error: timed out** while the gateway is still working.
+
 ---
 
 ## 3. Run the gateway under supervision

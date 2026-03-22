@@ -35,6 +35,7 @@ on startup (see `_load_local_dotenv`). Override path with `PROMOTER_DOTENV=/path
 from __future__ import annotations
 
 import base64
+import errno
 import hashlib
 import hmac
 import json
@@ -422,11 +423,15 @@ def _http_inner_dict(body: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _classify_wants_envelope(inner: Dict[str, Any]) -> bool:
+    """True only when the client supplied OpenAI-style chat messages.
+
+    Do **not** treat ``classify_response=raw`` alone as envelope mode: the executor-bridge
+    payload often sets that flag together with ``tweets`` but omits ``messages`` on malformed
+    or probe requests; those should fall through to the legacy tweet+prompt path instead of
+    ``envelope_missing_messages``.
+    """
     msgs = inner.get("messages")
-    if isinstance(msgs, list) and len(msgs) > 0:
-        return True
-    r = str(inner.get("classify_response") or inner.get("response") or "").strip().lower()
-    return r in ("raw", "v2", "envelope")
+    return isinstance(msgs, list) and len(msgs) > 0
 
 
 def _merge_scores_onto_tweets(tweets: List[Any], parsed: List[Any]) -> List[Dict[str, Any]]:
@@ -609,43 +614,48 @@ def _load_prompt_file(name: str) -> Optional[str]:
 
 
 def handle_x_search(body: Dict[str, Any], state: PromoterState) -> Dict[str, Any]:
-    payload = body.get("payload") or body
-    query = str((payload if isinstance(payload, dict) else {}).get("query") or "")
-    if _env_bool("PROMOTER_DRY_RUN", False):
-        sample = [
-            {
-                "id": "dry1",
-                "text": "OpenClaw + ZeroClaw: orchestration, deterministic agent memory workflows.",
-                "user_id": "u1",
-            }
-        ]
-        state.audit("x.search", {"dry_run": True, "query": query})
-        _gw_debug("x.search dry_run=1 tweets=1 (sample)")
-        return {"tweets": sample, "dry_run": True}
-    use_since = _env_bool("PROMOTER_SEARCH_USE_SINCE_ID", True)
-    since = state.kv_get("x_search_since_id") if use_since else None
-    out = _x_recent_search(query, since_id=since, max_results=_search_max_results())
-    n = 0
-    extra = ""
-    if isinstance(out, dict):
-        tw = out.get("tweets")
-        if isinstance(tw, list):
-            n = len(tw)
-        if out.get("warning"):
-            extra += f" warning={out.get('warning')!r}"
-        if out.get("error"):
-            extra += f" error={out.get('error')!r}"
-        meta = out.get("meta") if isinstance(out.get("meta"), dict) else {}
-        nid = meta.get("newest_id")
-        # Defer advancing x_search_since_id until promoter.search_cursor_commit (end of graph) so a
-        # crash mid-loop does not skip tweets that were returned but not yet processed.
-        if use_since and nid and not out.get("error"):
-            state.kv_set("x_search_pending_newest_id", str(nid))
-            extra += " pending_since_id=1"
-        if use_since and since:
-            extra += " since_id_in_request=1"
-    _gw_debug(f"x.search tweets={n} query_chars={len(query)}{extra}")
-    return out
+    try:
+        payload = body.get("payload") or body
+        query = str((payload if isinstance(payload, dict) else {}).get("query") or "")
+        if _env_bool("PROMOTER_DRY_RUN", False):
+            sample = [
+                {
+                    "id": "dry1",
+                    "text": "OpenClaw + ZeroClaw: orchestration, deterministic agent memory workflows.",
+                    "user_id": "u1",
+                }
+            ]
+            state.audit("x.search", {"dry_run": True, "query": query})
+            _gw_debug("x.search dry_run=1 tweets=1 (sample)")
+            return {"tweets": sample, "dry_run": True}
+        use_since = _env_bool("PROMOTER_SEARCH_USE_SINCE_ID", True)
+        since = state.kv_get("x_search_since_id") if use_since else None
+        out = _x_recent_search(query, since_id=since, max_results=_search_max_results())
+        n = 0
+        extra = ""
+        if isinstance(out, dict):
+            tw = out.get("tweets")
+            if isinstance(tw, list):
+                n = len(tw)
+            if out.get("warning"):
+                extra += f" warning={out.get('warning')!r}"
+            if out.get("error"):
+                extra += f" error={out.get('error')!r}"
+            meta = out.get("meta") if isinstance(out.get("meta"), dict) else {}
+            nid = meta.get("newest_id")
+            # Defer advancing x_search_since_id until promoter.search_cursor_commit (end of graph) so a
+            # crash mid-loop does not skip tweets that were returned but not yet processed.
+            if use_since and nid and not out.get("error"):
+                state.kv_set("x_search_pending_newest_id", str(nid))
+                extra += " pending_since_id=1"
+            if use_since and since:
+                extra += " since_id_in_request=1"
+        _gw_debug(f"x.search tweets={n} query_chars={len(query)}{extra}")
+        return out
+    except Exception as e:
+        import traceback
+        _gw_debug(f"x.search exception: {e!r}\n{traceback.format_exc()}")
+        raise
 
 
 def handle_llm_classify(body: Dict[str, Any], state: PromoterState) -> Any:
@@ -791,6 +801,9 @@ def handle_llm_merge_classify_rows(body: Dict[str, Any], state: PromoterState) -
         f"llm.merge_classify_rows n_in={len(tweets)} n_out={len(merged)} "
         f"n_score_ge_{_fl}={_count_classify_pass(merged)}"
     )
+    # Debug: log merged items' ids
+    for i, item in enumerate(merged):
+        _gw_debug(f"merge output[{i}] id={item.get('id')!r} keys={list(item.keys())}")
     return {"items": merged}
 
 
@@ -843,7 +856,10 @@ def handle_promoter_gate_eval(body: Dict[str, Any], state: PromoterState) -> Dic
     dedupe = _env_bool("PROMOTER_DEDUPE_REPLIED_TWEETS", True)
     daily_count = state.count_today_replies()
 
+    _gw_debug(f"gate_eval tweet_id={tweet_id!r} user_id={user_id!r} daily_count={daily_count}/{max_day}")
+
     if dedupe and state.has_replied_to_tweet(tweet_id):
+        _gw_debug("gate_eval skip reason=already_replied_tweet")
         return {
             "proceed": False,
             "reason": "already_replied_tweet",
@@ -852,6 +868,7 @@ def handle_promoter_gate_eval(body: Dict[str, Any], state: PromoterState) -> Dic
             "daily_cap": max_day,
         }
     if daily_count >= max_day:
+        _gw_debug("gate_eval skip reason=daily_reply_cap")
         return {
             "proceed": False,
             "reason": "daily_reply_cap",
@@ -860,6 +877,7 @@ def handle_promoter_gate_eval(body: Dict[str, Any], state: PromoterState) -> Dic
             "daily_cap": max_day,
         }
     if not state.user_cooldown_ok(user_id, cool_h):
+        _gw_debug("gate_eval skip reason=user_cooldown")
         return {
             "proceed": False,
             "reason": "user_cooldown",
@@ -867,6 +885,7 @@ def handle_promoter_gate_eval(body: Dict[str, Any], state: PromoterState) -> Dic
             "daily_count": daily_count,
             "daily_cap": max_day,
         }
+    _gw_debug("gate_eval proceed")
     return {
         "proceed": True,
         "reason": None,
@@ -893,6 +912,8 @@ def handle_process_tweet(body: Dict[str, Any], state: PromoterState) -> Dict[str
     tweet_id = str(tweet.get("id", ""))
     user_id = str(tweet.get("user_id", ""))
     dry = _env_bool("PROMOTER_DRY_RUN", False)
+
+    _gw_debug(f"process_tweet payload keys={list(tweet.keys())} id_raw={tweet.get('id')!r}")
 
     max_day = _env_int("PROMOTER_MAX_REPLIES_PER_DAY", 10)
     cool_h = float(_env_int("PROMOTER_USER_COOLDOWN_HOURS", 48))
@@ -1029,6 +1050,10 @@ def handle_maybe_daily(body: Dict[str, Any], state: PromoterState) -> Dict[str, 
 
 _STATE: Optional[PromoterState] = None
 
+# Client closed the socket early (timeout, cancel) — normal; do not log tracebacks from worker threads.
+_CLIENT_DISCONNECT = (BrokenPipeError, ConnectionResetError, ConnectionAbortedError)
+
+
 ROUTES = {
     "/v1/kv.get": handle_kv_get,
     "/v1/kv.set": handle_kv_set,
@@ -1049,6 +1074,22 @@ ROUTES = {
 class GatewayHandler(BaseHTTPRequestHandler):
     def log_message(self, fmt: str, *args: Any) -> None:
         sys.stderr.write("%s - %s\n" % (self.address_string(), fmt % args))
+
+    def send_error(self, code: int, message: Optional[str] = None, explain: Optional[str] = None) -> None:
+        try:
+            super().send_error(code, message, explain)
+        except _CLIENT_DISCONNECT:
+            pass
+
+    def _send_json_body(self, status: int, data: bytes) -> None:
+        try:
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+        except _CLIENT_DISCONNECT:
+            pass
 
     def do_POST(self) -> None:
         path = urllib.parse.urlparse(self.path).path
@@ -1079,19 +1120,11 @@ class GatewayHandler(BaseHTTPRequestHandler):
             out = handler(body, _STATE)
         except Exception as e:
             err = json.dumps({"ok": False, "error": str(e)}).encode("utf-8")
-            self.send_response(500)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
-            self.send_header("Content-Length", str(len(err)))
-            self.end_headers()
-            self.wfile.write(err)
+            self._send_json_body(500, err)
             return
 
         data = json.dumps(out, ensure_ascii=False).encode("utf-8")
-        self.send_response(200)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(data)))
-        self.end_headers()
-        self.wfile.write(data)
+        self._send_json_body(200, data)
 
 
 _DOTENV_PRESERVE_IF_SET = frozenset(
@@ -1148,7 +1181,17 @@ def main() -> int:
     host = os.environ.get("PROMOTER_GATEWAY_HOST", "127.0.0.1")
     port = _env_int("PROMOTER_GATEWAY_PORT", 17301)
     _STATE = PromoterState(_state_path())
-    httpd = ThreadingHTTPServer((host, port), GatewayHandler)
+    try:
+        httpd = ThreadingHTTPServer((host, port), GatewayHandler)
+    except OSError as e:
+        if e.errno == errno.EADDRINUSE:
+            print(
+                f"apollo-x gateway: cannot bind {host!r}:{port} (address already in use). "
+                f"Stop the other process on this port or set PROMOTER_GATEWAY_PORT to a free port.",
+                file=sys.stderr,
+            )
+            return 1
+        raise
     print(f"apollo-x gateway on http://{host}:{port}/v1/… (see apollo-x-bot/README.md)", file=sys.stderr)
     try:
         httpd.serve_forever()

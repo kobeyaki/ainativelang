@@ -18,11 +18,18 @@ fi
 [[ "$_host_was_set" -eq 1 ]] && export PROMOTER_GATEWAY_HOST="$_saved_gw_host"
 if [[ "$_dry_was_set" -eq 1 ]]; then
   export PROMOTER_DRY_RUN="$_saved_dry"
-else
-  # This script defaults to dry-run even when .env sets PROMOTER_DRY_RUN=0.
+fi
+# If not set by caller or .env, default to dry-run for safety
+if [ -z "${PROMOTER_DRY_RUN+set}" ]; then
   export PROMOTER_DRY_RUN=1
 fi
 PY="${PYTHON:-python3}"
+# Ensure Python can find the cli module in the repo root
+if [ -z "${PYTHONPATH+set}" ]; then
+  export PYTHONPATH="$ROOT"
+else
+  export PYTHONPATH="$ROOT:$PYTHONPATH"
+fi
 GWHOST="${PROMOTER_GATEWAY_HOST:-127.0.0.1}"
 GWPORT="${PROMOTER_GATEWAY_PORT:-17301}"
 export PROMOTER_STATE_PATH="${PROMOTER_STATE_PATH:-$ROOT/apollo-x-bot/data/promoter_state.sqlite}"
@@ -38,8 +45,11 @@ trap cleanup EXIT
 sleep 0.5
 
 BASE="http://${GWHOST}:${GWPORT}"
+HTTP_TIMEOUT_S="${AINL_HTTP_TIMEOUT_S:-120}"
 "$PY" -m cli.main run "$ROOT/apollo-x-bot/ainl-x-promoter.ainl" --strict --label _poll \
+  --http-timeout-s "$HTTP_TIMEOUT_S" \
   --enable-adapter bridge \
+  --enable-adapter api \
   --enable-adapter memory \
   --memory-db "$AINL_MEMORY_DB" \
   --bridge-endpoint "x.search=${BASE}/v1/x.search" \

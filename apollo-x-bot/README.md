@@ -46,7 +46,7 @@ The graph uses `R bridge.POST <executor_key> <json_body>` (see `docs/integration
 | Key | Path | Role |
 |-----|------|------|
 | `x.search` | `POST /v1/x.search` | Recent search (or dry-run sample tweets); records pending `newest_id` for cursor commit |
-| `llm.classify` | `POST /v1/llm.classify` | **Default:** merged scored tweet list (same as before). **Envelope mode** (opt-in): set `classify_response` / `response` to `raw`, `v2`, or `envelope`, or send a non-empty `messages` array — response is `{ v, kind, raw_text, error, items }` (`items` holds heuristic rows when dry-run and no LLM key). |
+| `llm.classify` | `POST /v1/llm.classify` | **Default (no `messages`):** merged scored tweet list from server-built prompts + `tweets[]`. **Envelope mode** only when the body includes a **non-empty** `messages` array (OpenAI-style chat); then the response is `{ v, kind, raw_text, error, items }`. A bare `classify_response=raw` without `messages` does **not** force envelope mode (avoids spurious `envelope_missing_messages` on partial requests). |
 | `llm.json_array_extract` | `POST /v1/llm.json_array_extract` | Parse first JSON array from a string (`text` or `payload.text`); `{ ok, array, reason?, error? }` — used by `modules/llm/llm_safe_json_parse.ainl`. |
 | `llm.merge_classify_rows` | `POST /v1/llm.merge_classify_rows` | Merge `score_rows` / `parsed` onto `tweets` (same rules as legacy classify); returns `{ items }`. |
 | `promoter.text_contains_any` | `POST /v1/promoter.text_contains_any` | Case-insensitive substring hits: `haystack` + `phrases[]` → `{ hit_count, any }`. |
@@ -85,6 +85,8 @@ Call rd/ENTRY ->_
 You can put variables in **`apollo-x-bot/.env`** (`KEY=value` per line). The gateway loads that file automatically; `run-with-gateway.sh` and `openclaw-poll.sh` also `source` it so `ainl run` sees the same values. The repo root `.gitignore` already ignores `.env`. Production can instead use `~/.openclaw/apollo-x-promoter.env` via `APOLLO_PROMOTER_ENV` (see `OPENCLAW_DEPLOY.md`).
 
 **Troubleshooting:** If debug shows `X_BEARER_TOKEN` missing but `.env` has it, fix an empty export in your shell (`export X_BEARER_TOKEN=`) or rely on the gateway: non-empty values in `.env` **overwrite** the environment when the process starts. Use `PROMOTER_GATEWAY_DEBUG=1` and check the `startup:` lines for `dotenv_path` / `exists` / `bearer_set`. Delete `data/promoter_state.sqlite` (or change `PROMOTER_STATE_PATH`) to reset **already_posted_today**, **search cursor**, **replied-tweet dedupe**, and related keys during dev.
+
+**AINL bridge HTTP timeout:** `cli.main run` defaults to **`--http-timeout-s 5`**, which is often too short for batched `llm.classify` (OpenRouter / slow models). **`openclaw-poll.sh`** and **`run-with-gateway.sh`** pass **`--http-timeout-s 120`** (override with **`AINL_HTTP_TIMEOUT_S`**). If you invoke `ainl run` yourself, set **`--http-timeout-s`** to at least the gateway/LLM latency you expect (executor payloads in this graph already use `timeout_s` up to **120**).
 
 | Variable | Purpose |
 |----------|---------|
