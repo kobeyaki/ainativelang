@@ -233,6 +233,17 @@ T: Document AINL debugging, scaling, optimization patterns for operational handb
 S: @ainativelang grew 192 → 197 followers (+5) on 2026-03-23; 496 tweet IDs tracked in engagement state
 
 
+### Session Summary — 2026-03-25
+S: @ainativelang grew 215→242 followers on March 25 (+27 best single-day gain to date)
+S: Growth trajectory steady all day: +6 AM, +9 midday, +12 PM/evening surge
+S: Growth cron ran hourly all day at $0/run (no LLM orchestration calls)
+S: Engage-bot still at last run 2026-03-23; seen-set stable at 496 tweet IDs
+S: Next milestone target: 250 followers (8 away at end of day)
+S: AINL content engine (ainl-x-promoter.ainl) executing deterministically every hour
+L: Evening surge pattern confirmed again: 6–9 PM EDT generates 3–5 followers/hour
+L: Growth rate accelerating: March 23 +5, March 24 +18, March 25 +27
+D: Engage-bot not re-triggered on March 25; decision deferred
+
 ### Session Summary — ainl-setup
 D: Created persistent venv at /data/.openclaw/workspace/ainl-venv/ for AINL CLI tools
 D: Use /tmp/ainl-venv as temporary venv; migrate to persistent location for production
@@ -262,6 +273,16 @@ S: - Current follower count: 252 (3 AM run). Total growth 192→252 (+60 followe
 S: - Content engine (ainl-x-promoter.ainl) firing hourly with zero runtime cost ($0/run)
 S: - Engage-bot last ran 2026-03-23 at 8:06 AM; seen-set stable at 496 tweet IDs
 P: - Next milestone target: 500 followers (248 away at current pace ~3–4 days)
+
+## Consolidated — 2026-03-27T07:00:00Z
+S: - @ainativelang at 302 followers (2:02 AM March 27 cron run) ✅
+S: - Growth trajectory: March 26 was strongest day (+55). March 27 early: +5 (02:02 run, baseline 297)
+S: - Total cumulative growth: 192 → 302 (+110 followers, ~148 hours)
+S: - Content engine (ainl-x-promoter.ainl) executing hourly at $0/run (deterministic, no LLM orchestration)
+S: - Engage-bot still paused; seen-set reset to 0 (no engagements since March 23 8:06 AM)
+S: - Milestones reached: 100✅ 250✅ 300✅; next: 500 (+198 away at current pace ~4 days)
+P: - Re-enable engage-bot when follower growth trajectory stabilizes (post-300 consolidation)
+L: - Growth accelerating despite engage-bot pause — indicates strong organic momentum from content engine alone
 
 
 ### Session Summary — 2026-03-24
