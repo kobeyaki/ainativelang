@@ -1,0 +1,57 @@
+# content-calendar.lang
+# Generates a rotating 7-day content calendar for Useful Coin.
+# Themes: mascot lore, community wins, meme formats, "nothing can stop us" narrative.
+# Uses cache to avoid regenerating if already fresh (< 24h old).
+# Output: structured JSON plan with platform, content_type, theme, timing.
+S useful_coin cron "0 6 * * *"
+
+L0:
+  R core now ->ts
+  J L1
+L1:
+  R cache get "calendar" "last_generated" ->last_gen
+  J L2
+L2:
+  Set age_raw last_gen
+  R core.sub ts age_raw ->elapsed
+  J L3
+L3:
+  R core.div elapsed 3600 ->hours_old
+  J L4
+L4:
+  If hours_old ->L5 ->L10
+L5:
+  R cache get "calendar" "plan" ->cached_plan
+  J L99
+L10:
+  Set day0 {"platform":"x","content_type":"meme","theme":"nothing_can_stop_us","time":"09:00","agent":"whimsy-injector"}
+  J L11
+L11:
+  Set day1 {"platform":"reddit","content_type":"community_post","theme":"community_wins","time":"11:00","agent":"reddit-community-builder"}
+  J L12
+L12:
+  Set day2 {"platform":"tiktok","content_type":"short_video","theme":"mascot_lore","time":"15:00","agent":"tiktok-strategist"}
+  J L13
+L13:
+  Set day3 {"platform":"x","content_type":"growth_experiment","theme":"viral_loop","time":"09:00","agent":"growth-hacker"}
+  J L14
+L14:
+  Set day4 {"platform":"reddit","content_type":"meme","theme":"nothing_can_stop_us","time":"12:00","agent":"content-creator"}
+  J L15
+L15:
+  Set day5 {"platform":"tiktok","content_type":"brand_moment","theme":"mascot_lore","time":"16:00","agent":"brand-guardian"}
+  J L16
+L16:
+  Set day6 {"platform":"x","content_type":"image_post","theme":"community_wins","time":"10:00","agent":"image-prompt-engineer"}
+  J L17
+L17:
+  Set plan {"generated_at":ts,"days":[day0,day1,day2,day3,day4,day5,day6]}
+  J L18
+L18:
+  R cache set "calendar" "plan" plan ->_
+  J L19
+L19:
+  R cache set "calendar" "last_generated" ts ->_
+  J L99
+L99:
+  J plan

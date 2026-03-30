@@ -1,0 +1,76 @@
+# orchestrator.lang
+# Master daily workflow for Useful Coin.
+# Runs in sequence: content-calendar -> social-monitor -> growth-loop
+# Handles errors gracefully with fallback paths.
+# Outputs a daily summary JSON.
+S useful_coin cron "0 7 * * *"
+
+L0:
+  R core now ->ts
+  J L1
+
+# Step 1: Refresh content calendar
+L1:
+  Call L10 ->calendar_result
+  J L2
+
+# Step 2: Run social monitor
+L2:
+  Call L20 ->social_result
+  J L3
+
+# Step 3: Run growth loop
+L3:
+  Call L30 ->growth_result
+  J L4
+
+# Step 4: Assemble and cache daily summary
+L4:
+  Set summary {"date":ts,"calendar":calendar_result,"social":social_result,"growth":growth_result}
+  J L5
+L5:
+  R cache set "orchestrator" "last_summary" summary ->_
+  J L6
+L6:
+  R queue Put daily_summary summary ->_
+  J L99
+
+# Sub: content calendar (reads from cache, returns plan)
+L10:
+  R cache get "calendar" "plan" ->plan
+  J L11
+L11:
+  If plan ->L12 ->L13
+L12:
+  J plan
+L13:
+  Set plan {"status":"no_calendar","note":"run content-calendar.lang first"}
+  J plan
+
+# Sub: social monitor (returns mention count)
+L20:
+  R social G ->mentions
+  J L21
+L21:
+  If mentions ->L22 ->L23
+L22:
+  R core len mentions ->mention_count
+  J mention_count
+L23:
+  Set mention_count 0
+  J mention_count
+
+# Sub: growth loop (returns last cached result)
+L30:
+  R cache get "growth_loop" "last_result" ->last_growth
+  J L31
+L31:
+  If last_growth ->L32 ->L33
+L32:
+  J last_growth
+L33:
+  Set last_growth {"status":"no_result","note":"growth-loop not yet run today"}
+  J last_growth
+
+L99:
+  J summary

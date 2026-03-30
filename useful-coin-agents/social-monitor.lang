@@ -1,0 +1,53 @@
+# social-monitor.lang
+# Polls for Useful Coin mentions and engagement signals.
+# Deduplicates via cache (last-seen IDs).
+# Persists new mentions to SQLite (useful-coin.db).
+# Queues an alert if engagement count exceeds threshold.
+S useful_coin cron "*/15 * * * *"
+
+L0:
+  R social G ->mentions
+  J L1
+L1:
+  R cache get "social" "last_seen_ts" ->last_seen
+  J L2
+L2:
+  R sqlite query "useful-coin.db" "SELECT COUNT(*) as total FROM mentions" ->existing_count
+  J L3
+L3:
+  Filt new_mentions mentions ts last_seen
+  J L4
+L4:
+  Set mention_count 0
+  J L5
+L5:
+  R sqlite execute "useful-coin.db" "CREATE TABLE IF NOT EXISTS mentions (id TEXT PRIMARY KEY, text TEXT, ts INTEGER)" ->_
+  J L6
+L6:
+  If new_mentions ->L7 ->L20
+L7:
+  R core now ->ts_now
+  J L8
+L8:
+  R sqlite execute "useful-coin.db" "INSERT OR IGNORE INTO mentions (id, text, ts) VALUES (?, ?, ?)" ->_
+  J L9
+L9:
+  R cache set "social" "last_seen_ts" ts_now ->_
+  J L10
+L10:
+  Set mention_count_raw new_mentions
+  R core len mention_count_raw ->mention_count
+  J L11
+L11:
+  R core.gt mention_count 5 ->spike
+  J L12
+L12:
+  If spike ->L13 ->L20
+L13:
+  Set alert_payload {"event":"engagement_spike","count":mention_count,"ts":ts_now}
+  J L14
+L14:
+  R queue Put alerts alert_payload ->_
+  J L20
+L20:
+  J mention_count

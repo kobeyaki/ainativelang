@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-03-29T12:04:59.346162",
+  "total_memory_lines": 393,
+  "selected_high_signal": 86,
+  "tokens_allocated": 2000,
+  "tokens_used": 1998,
+  "bootstrap_generated": true,
+  "bootstrap_path": ".openclaw/bootstrap/session_context.md",
+  "daily_remaining_before": 171000,
+  "daily_remaining_after": 169002
+}

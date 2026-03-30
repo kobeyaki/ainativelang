@@ -1,0 +1,67 @@
+# growth-loop.lang
+# Reads today's content task from the calendar cache.
+# Routes to the right specialist agent via the agent adapter:
+#   - growth-hacker: acquisition experiments / viral loops
+#   - content-creator: copy and written content
+#   - image-prompt-engineer: visual/image generation prompts
+# Caches the result with a timestamp to avoid duplicate runs.
+S useful_coin cron "0 9 * * *"
+
+L0:
+  R core now ->ts
+  J L1
+L1:
+  R cache get "growth_loop" "last_run" ->last_run
+  J L2
+L2:
+  R core.sub ts last_run ->since_last
+  J L3
+L3:
+  R core.gt since_last 3600 ->should_run
+  J L4
+L4:
+  If should_run ->L5 ->L99
+L5:
+  R cache get "calendar" "plan" ->plan
+  J L6
+L6:
+  If plan ->L7 ->L99
+L7:
+  R core now ->ts_now
+  J L8
+L8:
+  Set today_task plan.days.0
+  J L9
+L9:
+  Set agent_id today_task.agent
+  J L10
+L10:
+  R core.eq agent_id "growth-hacker" ->is_growth
+  J L11
+L11:
+  If is_growth ->L20 ->L12
+L12:
+  R core.eq agent_id "image-prompt-engineer" ->is_image
+  J L13
+L13:
+  If is_image ->L30 ->L40
+L20:
+  R agent send_task growth-hacker {"task":"viral_loop_experiment","coin":"UsefulCoin","mascot":"boxing_coin","theme":"nothing_can_stop_us"} ->result
+  J L50
+L30:
+  R agent send_task image-prompt-engineer {"task":"generate_meme_prompt","coin":"UsefulCoin","mascot":"boxing_gloves_coin","style":"bold_energetic"} ->result
+  J L50
+L40:
+  R agent send_task content-creator {"task":"write_post","platform":today_task.platform,"theme":today_task.theme,"coin":"UsefulCoin"} ->result
+  J L50
+L50:
+  Set cached_result {"result":result,"ts":ts_now,"agent":agent_id}
+  J L51
+L51:
+  R cache set "growth_loop" "last_result" cached_result ->_
+  J L52
+L52:
+  R cache set "growth_loop" "last_run" ts_now ->_
+  J L99
+L99:
+  J result

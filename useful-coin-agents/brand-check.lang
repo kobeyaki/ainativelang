@@ -1,0 +1,52 @@
+# brand-check.lang
+# Validates a content piece before it goes out.
+# Flags: price talk, financial promises, drama/fighting language.
+# Returns: {"status":"approved"} or {"status":"flagged","reason":"..."}
+# Can be called standalone or from orchestrator.
+S useful_coin api /brand-check
+
+E /check P ->L0 ->result
+
+L0:
+  R core now ->ts
+  J L1
+L1:
+  Set content input.content
+  J L2
+L2:
+  R core.contains content "price" ->has_price
+  J L3
+L3:
+  If has_price ->L_flag_price ->L4
+L4:
+  R core.contains content "guaranteed" ->has_guarantee
+  J L5
+L5:
+  If has_guarantee ->L_flag_guarantee ->L6
+L6:
+  R core.contains content "will moon" ->has_moon
+  J L7
+L7:
+  If has_moon ->L_flag_moon ->L8
+L8:
+  R core.contains content "100x" ->has_100x
+  J L9
+L9:
+  If has_100x ->L_flag_100x ->L_approved
+L_flag_price:
+  Set result {"status":"flagged","reason":"contains price talk","ts":ts}
+  J L99
+L_flag_guarantee:
+  Set result {"status":"flagged","reason":"contains financial promise (guaranteed)","ts":ts}
+  J L99
+L_flag_moon:
+  Set result {"status":"flagged","reason":"contains hype language (will moon)","ts":ts}
+  J L99
+L_flag_100x:
+  Set result {"status":"flagged","reason":"contains financial promise (100x)","ts":ts}
+  J L99
+L_approved:
+  Set result {"status":"approved","ts":ts}
+  J L99
+L99:
+  J result

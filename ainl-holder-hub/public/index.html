@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AINL Holder Hub</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0a; color: #fff; font-family: 'Space Grotesk', sans-serif; min-height: 100vh; }
+
+  /* Nav */
+  .nav { display: flex; justify-content: center; gap: 12px; padding: 20px; flex-wrap: wrap; }
+  .nav-btn { background: #1a1a1a; border: 1px solid #333; color: #999; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 0.95rem; transition: all 0.2s; }
+  .nav-btn:hover { border-color: #ff6b35; color: #fff; }
+  .nav-btn.active { background: #ff6b35; border-color: #ff6b35; color: #fff; font-weight: 700; }
+
+  /* Sections */
+  .section { display: none; max-width: 800px; margin: 0 auto; padding: 20px; }
+  .section.active { display: block; }
+
+  /* Hero */
+  .hero { text-align: center; padding: 40px 20px 20px; }
+  .hero h1 { font-size: 2.5rem; color: #ff6b35; margin-bottom: 8px; }
+  .hero h1 span { color: #fff; }
+  .hero p { color: #999; font-size: 1rem; line-height: 1.6; max-width: 600px; margin: 0 auto; }
+
+  /* Inputs & Buttons */
+  .wallet-input { width: 100%; max-width: 500px; padding: 14px 20px; background: #1a1a1a; border: 2px solid #333; border-radius: 12px; color: #fff; font-size: 1rem; font-family: inherit; text-align: center; display: block; margin: 0 auto 16px; }
+  .wallet-input:focus { outline: none; border-color: #ff6b35; }
+  .wallet-input::placeholder { color: #555; }
+  .btn { background: linear-gradient(135deg, #ff6b35, #ff4500); color: #fff; border: none; padding: 14px 36px; font-size: 1rem; font-weight: 700; border-radius: 12px; cursor: pointer; font-family: inherit; transition: transform 0.2s, box-shadow 0.2s; display: block; margin: 0 auto; }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255, 107, 53, 0.3); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .error-msg { color: #ff4444; margin-top: 12px; font-size: 0.9rem; text-align: center; }
+  .success-msg { color: #4CAF50; margin-top: 12px; font-size: 0.9rem; text-align: center; }
+
+  /* Result Card */
+  .result-card { background: #111; border: 2px solid #222; border-radius: 16px; padding: 30px; margin: 20px auto; max-width: 500px; text-align: center; display: none; }
+  .result-card.show { display: block; }
+  .result-card.whale { border-color: #ff6b35; box-shadow: 0 0 40px rgba(255, 107, 53, 0.15); }
+  .result-card.pro { border-color: #ffd700; box-shadow: 0 0 40px rgba(255, 215, 0, 0.1); }
+  .result-card.basic { border-color: #666; }
+  .result-card.none { border-color: #ff4444; }
+  .tier-emoji { font-size: 3.5rem; margin-bottom: 8px; }
+  .tier-name { font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; }
+  .tier-balance { color: #999; font-size: 0.9rem; margin-bottom: 16px; }
+  .perks h3 { color: #ff6b35; margin-bottom: 10px; font-size: 0.95rem; }
+  .perks li { color: #ccc; padding: 6px 0; border-bottom: 1px solid #1a1a1a; list-style: none; font-size: 0.9rem; }
+  .perks li::before { content: '✦ '; color: #ff6b35; }
+
+  /* Tiers Grid */
+  .tiers-grid { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+  .tier-card { background: #111; border: 1px solid #222; border-radius: 12px; padding: 24px; flex: 1; min-width: 200px; max-width: 230px; text-align: center; }
+  .tier-card h3 { margin: 8px 0 4px; }
+  .tier-card .min { color: #ff6b35; font-weight: 700; margin-bottom: 10px; font-size: 0.9rem; }
+  .tier-card ul { list-style: none; text-align: left; }
+  .tier-card li { color: #999; font-size: 0.8rem; padding: 3px 0; }
+  .tier-card li::before { content: '→ '; color: #ff6b35; }
+
+  /* Image Gen */
+  .gen-container { max-width: 500px; margin: 0 auto; text-align: center; }
+  .prompt-input { width: 100%; padding: 14px 20px; background: #1a1a1a; border: 2px solid #333; border-radius: 12px; color: #fff; font-size: 1rem; font-family: inherit; resize: vertical; min-height: 80px; margin-bottom: 16px; }
+  .prompt-input:focus { outline: none; border-color: #ff6b35; }
+  .prompt-input::placeholder { color: #555; }
+  .gen-result { margin-top: 20px; }
+  .gen-result img { max-width: 100%; border-radius: 12px; border: 2px solid #ff6b35; }
+  .gen-info { color: #999; font-size: 0.85rem; margin-top: 8px; }
+  .gen-note { color: #666; font-size: 0.8rem; margin-top: 12px; font-style: italic; }
+
+  /* Leaderboard */
+  .leaderboard { max-width: 600px; margin: 0 auto; }
+  .lb-header { display: flex; justify-content: space-between; padding: 12px 16px; color: #666; font-size: 0.8rem; text-transform: uppercase; border-bottom: 1px solid #222; }
+  .lb-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #111; transition: background 0.2s; }
+  .lb-row:hover { background: #111; }
+  .lb-rank { width: 40px; font-weight: 700; color: #ff6b35; }
+  .lb-wallet { flex: 1; font-family: monospace; font-size: 0.9rem; color: #ccc; }
+  .lb-balance { text-align: right; min-width: 120px; font-weight: 600; }
+  .lb-tier { width: 40px; text-align: center; font-size: 1.2rem; }
+  .lb-row:nth-child(1) .lb-rank { color: #ffd700; font-size: 1.2rem; }
+  .lb-row:nth-child(2) .lb-rank { color: #c0c0c0; }
+  .lb-row:nth-child(3) .lb-rank { color: #cd7f32; }
+  .loading { text-align: center; color: #666; padding: 40px; }
+
+  /* Footer */
+  .footer { padding: 40px 20px; text-align: center; color: #444; font-size: 0.8rem; margin-top: 40px; }
+  .footer a { color: #ff6b35; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>🧠 <span>AINL</span> Holder Hub</h1>
+  <p>Token-gated perks for $AINL holders. Verify your wallet, generate AI art, climb the leaderboard.</p>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="showSection('verify')">🤖 Verify</button>
+  <button class="nav-btn" onclick="showSection('generate')">🎨 Image Gen</button>
+  <button class="nav-btn" onclick="showSection('leaderboard')">🏆 Leaderboard</button>
+</div>
+
+<!-- VERIFY SECTION -->
+<div class="section active" id="sec-verify">
+  <input type="text" class="wallet-input" id="walletInput" placeholder="Paste your Solana wallet address">
+  <button class="btn" id="checkBtn" onclick="checkWallet()">Check Holdings 🔍</button>
+  <div class="error-msg" id="verifyError"></div>
+
+  <div class="result-card" id="resultCard">
+    <div class="tier-emoji" id="tierEmoji"></div>
+    <div class="tier-name" id="tierName"></div>
+    <div class="tier-balance" id="tierBalance"></div>
+    <div class="perks"><h3>Your Perks</h3><ul id="perksList"></ul></div>
+  </div>
+
+  <div class="tiers-grid">
+    <div class="tier-card">
+      <div style="font-size: 2rem;">🤖</div>
+      <h3>Basic</h3>
+      <div class="min">100K $AINL</div>
+      <ul><li>Holder dashboard</li><li>3 AI images/day</li></ul>
+    </div>
+    <div class="tier-card">
+      <div style="font-size: 2rem;">⭐</div>
+      <h3>Pro</h3>
+      <div class="min">1M $AINL</div>
+      <ul><li>Everything in Basic</li><li>10 AI images/day</li><li>Alpha channel</li></ul>
+    </div>
+    <div class="tier-card">
+      <div style="font-size: 2rem;">🐋</div>
+      <h3>Whale</h3>
+      <div class="min">10M $AINL</div>
+      <ul><li>Everything in Pro</li><li>50 AI images/day</li><li>Governance votes</li></ul>
+    </div>
+  </div>
+</div>
+
+<!-- IMAGE GEN SECTION -->
+<div class="section" id="sec-generate">
+  <div class="gen-container">
+    <input type="text" class="wallet-input" id="genWallet" placeholder="Your Solana wallet address">
+    <textarea class="prompt-input" id="genPrompt" placeholder="Describe your image... (AINL starfish branding is applied automatically)"></textarea>
+    <button class="btn" id="genBtn" onclick="generateImage()">Generate Image 🎨</button>
+    <div class="error-msg" id="genError"></div>
+    <div class="success-msg" id="genSuccess"></div>
+    <div class="gen-result" id="genResult"></div>
+    <p class="gen-note">All images are generated on-brand with the AINL starfish mascot style. Share them on X!</p>
+  </div>
+</div>
+
+<!-- LEADERBOARD SECTION -->
+<div class="section" id="sec-leaderboard">
+  <div class="leaderboard" id="leaderboard">
+    <div class="lb-header">
+      <span style="width:40px">#</span>
+      <span style="flex:1">Wallet</span>
+      <span style="min-width:120px;text-align:right">Balance</span>
+      <span style="width:40px;text-align:center">Tier</span>
+    </div>
+    <div class="loading" id="lbLoading">Loading top holders...</div>
+  </div>
+</div>
+
+<div class="footer">
+  <p>$AINL — AI Native Language | <a href="https://ainativelang.com">ainativelang.com</a> | <a href="https://x.com/AINativeLang">@AINativeLang</a></p>
+  <p style="margin-top: 8px;">Contract: 56hrCR3n7danhHNjWaU4VeUHpE1eRE9VRBWpHRPKpump</p>
+</div>
+
+<script>
+// Navigation
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'leaderboard') loadLeaderboard();
+}
+
+// Verify
+const PERKS = {
+  whale: ['Holder dashboard access', 'AI image generator (50/day)', 'Alpha channel', 'Governance votes', 'AINL compiler access (coming soon)', 'Agent marketplace (coming soon)'],
+  pro: ['Holder dashboard access', 'AI image generator (10/day)', 'Alpha channel', 'AINL compiler access (coming soon)'],
+  basic: ['Holder dashboard access', 'AI image generator (3/day)'],
+  none: [],
+};
+
+async function checkWallet() {
+  const wallet = document.getElementById('walletInput').value.trim();
+  const btn = document.getElementById('checkBtn');
+  const err = document.getElementById('verifyError');
+  const card = document.getElementById('resultCard');
+  err.textContent = '';
+  card.className = 'result-card';
+  card.classList.remove('show');
+  if (!wallet || wallet.length < 32) { err.textContent = 'Enter a valid Solana wallet address'; return; }
+  btn.disabled = true; btn.textContent = 'Checking...';
+  try {
+    const res = await fetch('/api/balance/' + wallet);
+    const data = await res.json();
+    if (data.error) { err.textContent = data.error; return; }
+    document.getElementById('tierEmoji').textContent = data.emoji;
+    document.getElementById('tierName').textContent = data.name;
+    document.getElementById('tierBalance').textContent = data.balanceFormatted + ' $AINL';
+    const list = document.getElementById('perksList'); list.innerHTML = '';
+    const perks = PERKS[data.tier] || [];
+    if (perks.length === 0) { const li = document.createElement('li'); li.textContent = 'Hold 100K+ $AINL to unlock perks'; list.appendChild(li); }
+    else perks.forEach(p => { const li = document.createElement('li'); li.textContent = p; list.appendChild(li); });
+    card.classList.add('show', data.tier);
+    // Auto-fill gen wallet
+    document.getElementById('genWallet').value = wallet;
+  } catch (e) { err.textContent = 'Failed to check. Try again.'; }
+  finally { btn.disabled = false; btn.textContent = 'Check Holdings 🔍'; }
+}
+
+// Image Gen
+async function generateImage() {
+  const wallet = document.getElementById('genWallet').value.trim();
+  const prompt = document.getElementById('genPrompt').value.trim();
+  const btn = document.getElementById('genBtn');
+  const err = document.getElementById('genError');
+  const suc = document.getElementById('genSuccess');
+  const result = document.getElementById('genResult');
+  err.textContent = ''; suc.textContent = ''; result.innerHTML = '';
+  if (!wallet || wallet.length < 32) { err.textContent = 'Enter your wallet address first'; return; }
+  if (!prompt) { err.textContent = 'Describe the image you want'; return; }
+  btn.disabled = true; btn.textContent = 'Generating... ⏳';
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet, prompt }),
+    });
+    const data = await res.json();
+    if (data.error) { err.textContent = data.error; return; }
+    suc.textContent = `Generated! ${data.remaining} remaining today.`;
+    result.innerHTML = '<img src="' + data.imageUrl + '" alt="Generated AINL art"><p class="gen-info">Right-click to save. Share on X with $AINL!</p>';
+  } catch (e) { err.textContent = 'Generation failed. Try again.'; }
+  finally { btn.disabled = false; btn.textContent = 'Generate Image 🎨'; }
+}
+
+// Leaderboard
+let lbLoaded = false;
+async function loadLeaderboard() {
+  if (lbLoaded) return;
+  try {
+    const res = await fetch('/api/leaderboard');
+    const data = await res.json();
+    const container = document.getElementById('leaderboard');
+    document.getElementById('lbLoading').remove();
+    data.forEach((h, i) => {
+      const row = document.createElement('div');
+      row.className = 'lb-row';
+      row.innerHTML = '<span class="lb-rank">' + (i + 1) + '</span>' +
+        '<span class="lb-wallet">' + h.walletShort + '</span>' +
+        '<span class="lb-balance">' + h.balanceFormatted + '</span>' +
+        '<span class="lb-tier">' + h.tier + '</span>';
+      container.appendChild(row);
+    });
+    lbLoaded = true;
+  } catch (e) {
+    document.getElementById('lbLoading').textContent = 'Failed to load leaderboard';
+  }
+}
+
+document.getElementById('walletInput').addEventListener('keypress', e => { if (e.key === 'Enter') checkWallet(); });
+</script>
+</body>
+</html>

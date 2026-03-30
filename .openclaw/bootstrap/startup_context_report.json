@@ -1,0 +1,62 @@
+{
+  "execution": {
+    "timestamp": "2026-03-28T22:04:39Z",
+    "cron_job_id": "d587963a-e10a-434e-8d45-7951b50658f8",
+    "module": "token_aware_startup_context.lang",
+    "status": "COMPLETE"
+  },
+  "budget_state": {
+    "daily_cap": 200000,
+    "used_current_session": 27000,
+    "daily_remaining": 173000,
+    "daily_remaining_pct": 86.5,
+    "allocation_budget": 2000,
+    "budget_gate": "PASS",
+    "note": "Daily remaining well above 5000-token threshold. Allocation clamped to 2000 (10% of 173k = 17.3k, capped at 2000 max)."
+  },
+  "context_injection": {
+    "high_signal_lines_extracted": 52,
+    "estimated_tokens_consumed": 1847,
+    "budget_utilization": "92.4%",
+    "selection_strategy": "Terse prefixes (D:/P:/T:/L:/S:) + keyword signals (important, fixed, config, preference, todo, lesson, setting, cron)",
+    "file_written": ".openclaw/bootstrap/session_context.md",
+    "lines_sampled": [
+      "Identity: The AINL King ⚡",
+      "Role: Operator, strategist, and autonomous agent for the AINL project",
+      "Building: AINL — an AI project positioning itself as a serious, institutional player",
+      "What it is: AI Native Language — graph-canonical, AI-native programming system",
+      "Core thesis: Move orchestration out of the model into a deterministic execution substrate",
+      "Already in production: Running in live OpenClaw-integrated workflows",
+      "Token: $AINL (on-chain presence confirmed via DexScreener 2026-03-19)",
+      "X Handle: @ainativelang",
+      "X Strategy: Institutional voice — technically grounded, calm, authoritative",
+      "Cost savings: $180.90/month (7.2× cheaper than traditional agent loops)"
+    ]
+  },
+  "next_session_memory_pool": {
+    "pool_built": true,
+    "access_level": "access_aware",
+    "namespace": "workflow",
+    "kind": "workflow.context_injection_snapshot",
+    "ttl_seconds": 604800,
+    "tags": ["intelligence", "context_injection", "workflow"],
+    "snapshot_id": "ctx-2026-03-28T22:04:39Z",
+    "payload": {
+      "tokens": 1847,
+      "lines": 52,
+      "generated_at": "2026-03-28T22:04:39Z"
+    }
+  },
+  "cache_persistence": {
+    "workflow.context_injection_tokens": 1847,
+    "workflow.context_injection_lines": 52,
+    "workflow.context_injection_last": "2026-03-28T22:04:39Z"
+  },
+  "summary": {
+    "budget_status": "HEALTHY",
+    "context_ready": "YES",
+    "next_session_preload": "COMPLETE",
+    "injection_success": true,
+    "estimated_next_session_speedup": "25-30% faster context window utilization (pre-loaded high-signal memory reduces first-turn inference cost)"
+  }
+}
