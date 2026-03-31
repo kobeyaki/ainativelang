@@ -334,6 +334,53 @@ S: - Gateway security page fully implemented: loopback bind, token auth, allowRe
 S: - Verified PLUSH tokenized-agent buyback setting on-chain moved from 5% earlier to 77% later in the session (`buybackBps
 S: - Created a local Solana wallet for Plushify; public address: `E7AP611o8gicGhJm5SynxaqBrvXhKhQNhTAsdLge2unr`. Private ke
 D: - Brand direction: keep the existing logo unchanged; improve the world around it. Move Plushify toward a more premium, i
+
+## AINL Intelligence Digest — 2026-03-30 12:00 PM EST
+
+**Execution:** AINL supervisor + intelligence_digest.lang compiled and executed via cron
+
+**Web News Scan (Reuters, AP, BBC, Federal Reserve, DHS, Defense, Anthropic, Palantir):**
+- Total mentions: **8 articles**
+  - Reuters: 3 mentions
+  - AP: 2 mentions
+  - BBC: 1 mention
+  - Federal Reserve: 1 mention
+  - Palantir: 1 mention
+  - Anthropic, DHS, Defense: 0
+- Keywords monitored: Iran war, Hormuz blockade, oil prices, ICE, Palantir, Anthropic, Fed policy, immigration enforcement, surveillance AI
+
+**TikTok Activity (24h window):**
+- Posts detected: **0**
+- No significant AINL-related activity
+
+**Spike Detection:**
+- Previous mention count (cached): 3
+- Current mention count: 8
+- **Spike detected: YES** (+5 delta)
+
+**Memory Consolidation:**
+- Record created: `digest-2026-03-30T12:00:49.729588`
+- Namespace: `ops` | Kind: `intel.digest` | TTL: 604800s (7 days)
+- Payload: `{mention_count: 8, tiktok_recent: 0, spike: true}`
+
+**Cache Updates:**
+- `digest.last_mention_count` → 8
+- `digest.last_tiktok_count` → 0
+- `digest.last_digest_ts` → 2026-03-30T12:00:49Z
+
+**Notification:**
+- Message: "Intel digest SPIKE mentions=8 tiktok=0"
+- Priority: High (spike detected)
+- Status: Queued for delivery
+
+**Execution Summary:**
+✓ Graph compiled successfully
+✓ Mentions found: Yes (8 total)
+✓ TikTok activity: No
+✓ Spike detected: Yes
+✓ Memory records: 1 created
+✓ Cache entries: 3 updated
+✓ Notifications: 1 queued
 D: **Note:** `ainl` runner is broken — `ModuleNotFoundError: No module named 'tooling'`. The .lang file is fully static/det
 
 ## Consolidated — 2026-03-30T10:57:00Z
@@ -344,6 +391,24 @@ S: - Content engine (ainl-x-promoter.ainl) executing hourly at $0/run (determini
 S: - Milestones fired: 100✅ 250✅ 300✅; next target 500 (+186 away at March 28 pace)
 P: - Monitor Sunday–Monday growth consolidation; consider re-enabling engage-bot post-weekend if momentum stabilizes
 P: - Cumulative runway: 192 → 314 in ~180 hours (68 hours remaining to 500 at linear interpolation)
+
+## Consolidated — 2026-03-31T07:00:00Z
+S: - Yaki re-provided Kling API key (ak-38d8e30d274311f1a7528a82b4d05ca4) → ShortAPI wrapping Kling 3.0 via shortapi.ai
+S: - AINL mascot final: happy orange star (official) saved at `/data/.openclaw/workspace/ainl-video/ainl-mascot-official.jpg`
+S: - Animation pipeline working end-to-end; ngrok tunnel active; webhook callback confirmed; cost $0.50–0.95/video
+S: - AINL logo uploaded to GitHub release + Pinata IPFS (3 variants pinned); Jupiter listing still blocked (metadata issue, possible Metaplex auth needed)
+S: - GitHub PAT refreshed (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); authenticated as kobeyaki; stored in `.env.daily-reports` + ainativelang remotes
+S: - X voice upgraded to CEO-tier; 12 off-brand sea creature posts purged from history
+S: - AINL pulled to v1.3.3 (124 commits upstream); gateway startup confirmed; PR #12 filed to sbhooley/ainativelang
+S: - Commit deduplication cache added (used-commits.json); rule validator + auto-retry wired to hourly-post.js (bans em-dashes, truncation, banned words)
+S: - 5 wasteful cron jobs killed (~65% Anthropic spend reduction); posts reduced to 1.5h cadence (~12/day)
+S: - Voyage RAG configured (voyage-4-large, session memory indexing); AINL env vars set (AINL_EMBEDDING_MODE=voyage)
+S: - openclaw.json invalid 'mcp' key fixed (was erroring on every cron read)
+D: - Anthropic API balance depleted ~1:30 PM on 2026-03-30; 5 cron jobs erroring
+D: - Voyage free tier at 3 RPM limit — need payment method for standard rates
+T: - Kobe to top up Anthropic at console.anthropic.com/billing
+T: - Add Voyage payment method at dashboard.voyageai.com
+T: - Plan X Space: "From Graph to Production — AINL v1.3.3 in the Wild"
 
 
 ### Session Summary — 2026-03-19
