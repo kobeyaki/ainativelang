@@ -534,3 +534,21 @@ S: Heartbeat routing changed to target="last" for Telegram DM
 S: AINL venv installed at /data/.openclaw/workspace/ainl-venv/
 D: Submitted and merged PR to AINL GitHub repo
 T: Add mascot images to Useful Coin website
+
+
+## Consolidated — 2026-03-31T07:30:34.541481Z
+S: - Gateway security page fully implemented: loopback bind, token auth, allowRealIpFallback=false, dangerouslyDisableDevic
+S: - Verified PLUSH tokenized-agent buyback setting on-chain moved from 5% earlier to 77% later in the session (`buybackBps
+S: - Created a local Solana wallet for Plushify; public address: `E7AP611o8gicGhJm5SynxaqBrvXhKhQNhTAsdLge2unr`. Private ke
+D: - Brand direction: keep the existing logo unchanged; improve the world around it. Move Plushify toward a more premium, i
+D: **Note:** `ainl` runner is broken — `ModuleNotFoundError: No module named 'tooling'`. The .lang file is fully static/det
+D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
+S: - Configured Voyage RAG: voyage-4-large, session memory indexing enabled in OpenClaw
+D: - Fixed openclaw.json invalid 'mcp' key that was causing config errors on every cron read
+
+## Consolidated — 2026-04-01T07:00:00Z
+S: - AINL intelligence digest baseline established on March 31: 0 mentions detected, 0 TikTok posts, no spike
+S: - Intel digest compile-to-execution cycle confirmed: intelligence_digest.lang → IR 1.0.0 → deterministic execution
+S: - Digest memory records created with 7-day TTL (ops namespace); cache keys set for delta comparison on subsequent runs
+S: - Next digest run scheduled 6 PM EST 2026-03-31; spike detection ready for activation on >0 mention delta
+P: - Baseline established; spike alerts will fire on mention_count increase from 0 or TikTok activity >0
