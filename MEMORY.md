@@ -552,3 +552,21 @@ S: - Intel digest compile-to-execution cycle confirmed: intelligence_digest.lang
 S: - Digest memory records created with 7-day TTL (ops namespace); cache keys set for delta comparison on subsequent runs
 S: - Next digest run scheduled 6 PM EST 2026-03-31; spike detection ready for activation on >0 mention delta
 P: - Baseline established; spike alerts will fire on mention_count increase from 0 or TikTok activity >0
+
+
+## Consolidated — 2026-04-01T07:30:23.538873
+S: - Gateway security page fully implemented: loopback bind, token auth, allowRealIpFallback=false, dangerouslyDisableDevic
+S: - Verified PLUSH tokenized-agent buyback setting on-chain moved from 5% earlier to 77% later in the session (`buybackBps
+S: - Created a local Solana wallet for Plushify; public address: `E7AP611o8gicGhJm5SynxaqBrvXhKhQNhTAsdLge2unr`. Private ke
+D: - Brand direction: keep the existing logo unchanged; improve the world around it. Move Plushify toward a more premium, i
+- Netlify site ID: 1608d506-4538-4c21-89de-fc93edebcb3c
+- PR URL: https://github.com/sbhooley/ainativelang/pull/1
+D: **Note:** `ainl` runner is broken — `ModuleNotFoundError: No module named 'tooling'`. The .lang file is fully static/det
+**Cron Job ID:** `8bd04990-6070-4d03-90fd-6274bfa3c675`
+- AINL: Graph compiled once, deterministic execution; LLM only at decision nodes (classify, generate)
+- GitHub PAT: `/data/.openclaw/workspace/.env.daily-reports`
+- **Record ID:** digest-1774526613
+- **TTL:** 604800s (7 days)
+D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
+- Record ID: `digest-2026-03-31T12:00:45.238134`
+- TTL: 604800 seconds (7 days)
