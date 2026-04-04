@@ -579,3 +579,11 @@ S: - Created a local Solana wallet for Plushify; public address: `E7AP611o8gicGh
 D: - Brand direction: keep the existing logo unchanged; improve the world around it. Move Plushify toward a more premium...
 D: **Note:** `ainl` runner is broken — `ModuleNotFoundError: No module named 'tooling'`. The .lang file is fully static/...
 D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3....
+
+
+## Consolidated — 2026-04-03T07:30:26.008315
+D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
+
+
+## Consolidated — 2026-04-03T03:30:32.163679
+D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
