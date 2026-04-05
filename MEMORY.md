@@ -587,3 +587,13 @@ D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirm
 
 ## Consolidated — 2026-04-03T03:30:32.163679
 D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
+
+
+## Consolidated — 2026-04-04T07:30:23.996911
+S: - Gateway security page fully implemented: loopback bind, token auth, allowRealIpFallback=false, dangerouslyDisableDevic
+S: - Verified PLUSH tokenized-agent buyback setting on-chain moved from 5% earlier to 77% later in the session (`buybackBps
+S: - Created a local Solana wallet for Plushify; public address: `E7AP611o8gicGhJm5SynxaqBrvXhKhQNhTAsdLge2unr`. Private ke
+D: - Brand direction: keep the existing logo unchanged; improve the world around it. Move Plushify toward a more premium, i
+D: **Note:** `ainl` runner is broken — `ModuleNotFoundError: No module named 'tooling'`. The .lang file is fully static/det
+D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
+D: - Memory search fixed: switched to OpenAI text-embedding-3-small, confirmed working after gateway restart at 11:21am
