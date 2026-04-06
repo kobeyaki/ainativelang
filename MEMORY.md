@@ -597,3 +597,20 @@ D: - Brand direction: keep the existing logo unchanged; improve the world around
 D: **Note:** `ainl` runner is broken — `ModuleNotFoundError: No module named 'tooling'`. The .lang file is fully static/det
 D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
 D: - Memory search fixed: switched to OpenAI text-embedding-3-small, confirmed working after gateway restart at 11:21am
+
+## Consolidation [2026-04-05T03:30:23.934085]
+
+D: - Off-peak posting disabled (2-7am ET)
+
+## Consolidated — 2026-04-06T07:00:00Z
+S: - AINL content engine posting every 2h on rotation; 60+ posts indexed; no critical alerts; system stable and running continuously
+S: - Engagement bot processed 700+ unique tweet IDs; machine running; GitHub repo clean (0 open issues)
+S: - X account voice remains institutional; short, punchy formats ("compile once. the model becomes pure logic.") perform strongest
+P: - Cost angle posts need rest cycle (48-72h); rotate emphasis to compiler narrative and architecture credibility
+P: - Build killer 8-10 tweet thread on AINL architecture (compile-time vs runtime, graph-canonical IR, cost math) as highest-leverage unlock
+L: - No major competitor staked "compile-time orchestration" category; AINL has clear positioning wedge
+L: - Model commoditization thesis ("as models get cheaper, the orchestration layer becomes the moat") is AINL's macro bet
+D: - Anthropic balance depleted on 2026-03-30; baseline/growth reporter crons may be dark (verify status)
+T: - Verify Anthropic credits and balance; check cron list for consecutiveErrors on baseline/growth jobs
+T: - Configure Brave API key for web search in daily briefings (unlocks market intel collection)
+T: - Build architectural thread explaining AINL's compiler, graph-canonical IR, and cost advantage
