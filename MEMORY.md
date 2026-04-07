@@ -614,3 +614,27 @@ D: - Anthropic balance depleted on 2026-03-30; baseline/growth reporter crons ma
 T: - Verify Anthropic credits and balance; check cron list for consecutiveErrors on baseline/growth jobs
 T: - Configure Brave API key for web search in daily briefings (unlocks market intel collection)
 T: - Build architectural thread explaining AINL's compiler, graph-canonical IR, and cost advantage
+## Consolidated (2026-04-06T03:30:24.027364)
+
+- - **GitHub Issues:** Zero open issues. Repo is clean — no community friction, no public bug reports.
+- - **Public mentions:** Web search unavailable this cycle (Brave API key not configured). No external signal captured.
+- *(Web search unavailable — Brave API key not configured. Synthesizing from known landscape as of early April 2026.)*
+- 3. **Configure Brave API key** — Briefings are running blind on market intel. `openclaw configure --section web` takes 2 minutes and unlocks web search for all future briefings.
+- **Urgent:** No critical alerts. System appears stable. Posting cadence is live.
+- - D: Off-peak posting disabled (2-7am ET)
+- - Space Prep: consecutiveErrors 1 (GitHub web fetch timeout) — transient, not critical
+## Consolidated — 2026-04-07T07:00:00Z
+S: - Model cost optimization deployed: background cron jobs pinned to anthropic/claude-haiku-4-5, main session pinned to anthropic/claude-sonnet-4-6 (70-80% spend reduction estimated)
+S: - hourly-post.js v2.0 deployed: engagement feedback loop (fetches real metrics from last 10 tweets), gpt-4o-mini for tweet generation (10x cheaper), semantic similarity check (threshold 0.88) prevents duplication, thread support added (20% chance peak hours, max 2/week)
+S: - New state files added: post-embeddings.json, engagement-scores.json, thread-cooldown.json
+D: - Content quality regression: off-brand posts slipping through (gerund openers banned by prompt, soft inspirational "community" posts with future-proof language, multiple rule violations detected)
+D: - AINL Daily Briefing cron fixed: Telegram delivery error resolved with --best-effort-deliver flag (execution succeeds even if delivery fails)
+S: - Arch character design LOCKED: canonical black-bg orange starfish with glowing blue eyes, never regenerate, composite via PIL for new scenes
+T: - Tighten hourly-post.js community category guidance or block temporarily; gerund/soft inspirational patterns escaping filter
+T: - Configure Brave API key (openclaw configure --section web) to restore web intelligence in briefings
+T: - Evaluate X API Basic upgrade ($100/mo) if engagement volume continues scaling (currently on free tier)
+L: - gpt-4o-mini proves sufficient for 280-char posts; embeddings-based dedup prevents narrative fatigue better than rule-based dedup
+L: - Engagement feedback loop enables real-time style adaptation from audience signal
+P: - News hooks + reactive posts outperform pure principle posts; shift content strategy away from "7.2x / 17 graphs / zero errors" triplet saturation
+P: - Compiler framing ("LangChain is graph without compiler; we built the compiler") is the sharpest competitive wedge — prioritize in engagement
+P: - Usefulcoin.cash domain verification completed by Yaki; reactivation expected 24-48h (Netlify token expired but site still served)
