@@ -1,0 +1,19 @@
+{
+  "namespace": "ops",
+  "kind": "intel.digest",
+  "record_id": "digest-1776127117",
+  "payload": {
+    "mention_count": 0,
+    "tiktok_recent": 0,
+    "spike": false,
+    "ts": 1776127117
+  },
+  "ttl": 604800,
+  "source": "intelligence.intelligence_digest",
+  "tags": [
+    "intelligence",
+    "digest",
+    "ops"
+  ],
+  "valid_at": "2026-04-13T20:38:37.123443Z"
+}

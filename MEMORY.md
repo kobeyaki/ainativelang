@@ -139,12 +139,38 @@ _Last updated: 2026-03-23 (Major AINL infrastructure deployment with 17 cron job
 
 ---
 
+## Revenue Strategy (2026-04-08)
+
+**Free Tier (User Acquisition):**
+- AINL compiler (open-source)
+- ClawBot for Dummies (entry-level agent framework)
+- ArmaraOS (free version)
+
+**Token-Gated Agents (High-Value Users):**
+- **Access requirement: Hold 1,000,000 $AINL** to gain access to the agent marketplace
+- **Agent Marketplace** — live in ArmaraOS dashboard; agents authored in AINL, deployed on ArmaraOS, discoverable + accessible via marketplace
+- **Polymarket Prediction Bot** — scans markets, makes predictions, generates yield for $AINL token holders (not from holdings, from execution profit)
+- **Social Scan & Run Agent** — crawls user socials, auto-generates and executes agents across platforms
+- **ArmaraOS Business** — $100–$1k+/mo SaaS tier with support + custom agents
+- Other token-gated agents: DeFi rebalancer, sentiment→position bot, arbitrage executor, research synthesizer (ideas, to be built)
+- **Payment rails:** x402/mpp HTTP machine payments baked into AINL v1.8.0 — agents can transact natively
+
+**Recurring Revenue:**
+- ArmaraOS Business ($500–$1k/mo per customer, replacing consulting model)
+- Token-gated agent access (premium tier)
+- Multiple businesses already paying for services via Steve
+
+**Business Structure:** LLC (Steve handling paperwork)
+**Positioning:** Gold checkmark + institutional credibility launch tied to revenue launch
+
+**Key Design Principle:** Token-gating only on agents where it creates natural utility (holders benefit from execution profit, not just access scarcity)
+
 ## Open Questions / TBD
 
-- Kobe's specific role in AINL (contributor, promoter, token holder?)
-- Whether there's a separate website/landing page beyond the GitHub
-- Relationship between $AINL token and the open-source project
-- Next phase: cost alerting setup, operational handbook, community docs
+- Timeline for first token-gated agents (Polymarket bot first?)
+- Which agents get built first (prioritization)
+- Polymarket bot mechanics (capital allocation, fee structure for holders)
+- Social scan & run agent scope (which platforms, execution capabilities)
 
 ---
 
@@ -638,3 +664,347 @@ L: - Engagement feedback loop enables real-time style adaptation from audience s
 P: - News hooks + reactive posts outperform pure principle posts; shift content strategy away from "7.2x / 17 graphs / zero errors" triplet saturation
 P: - Compiler framing ("LangChain is graph without compiler; we built the compiler") is the sharpest competitive wedge — prioritize in engagement
 P: - Usefulcoin.cash domain verification completed by Yaki; reactivation expected 24-48h (Netlify token expired but site still served)
+
+
+## Consolidated — 2026-04-07T03:30:28.430632
+S: - Config patched via `gateway config.patch`, gateway restarted at ~4:37 AM EDT
+S: - Underlying issue: `@heartbeat` Telegram chat ID misconfigured in delivery.to
+S: - **Public chatter:** Web search unavailable (Brave API key not configured). Blind on external sentiment.
+S: **Action needed:** Configure Brave API key (`openclaw configure --section web`) to restore market intelligence in future
+S: 2. **Restore web search** — Configure Brave API key. Every briefing without it is flying partially blind on competitive 
+S: - **Web News Monitoring:** ❌ Blocked — Brave Search API key not configured in this session
+S: - **TikTok Activity Monitor:** ❌ Not integrated — no TikTok API credentials configured
+S: - **Memory Records Created:** 0 (pending API key configuration)
+S: 1. **Web News** — To enable: `openclaw configure --section web` (Brave Search API key required)
+T: 2. **TikTok** — Requires: TikTok API credentials + module configuration
+T: 3. **AINL Runtime** — Requires: Python dependencies in venv (requests, etc.)
+S: 1. Configure Brave API key to restore web news intelligence pipeline
+D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
+
+
+## Consolidated — 2026-04-08T07:30:26.021078
+
+S: - Gateway security page fully implemented: loopback bind, token auth, allowRealIpFallback=false, dangerouslyDisableDevic
+S: - Verified PLUSH tokenized-agent buyback setting on-chain moved from 5% earlier to 77% later in the session (`buybackBps
+S: - Created a local Solana wallet for Plushify; public address: `E7AP611o8gicGhJm5SynxaqBrvXhKhQNhTAsdLge2unr`. Private ke
+D: - Brand direction: keep the existing logo unchanged; improve the world around it. Move Plushify toward a more premium, i
+D: **Note:** `ainl` runner is broken — `ModuleNotFoundError: No module named 'tooling'`. The .lang file is fully static/det
+D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
+- D: All engagement (likes, replies, RTs) must be 1k+ followers + premium verified — Kobe's rule
+- D: No more static reply banks anywhere — everything GPT-generated 1/1
+- D: RTs replaced with quote tweets across all scripts
+S: **Action needed:** Configure Brave API key (`openclaw configure --section web`) to restore market intelligence in future
+S: 2. **Restore web search** — Configure Brave API key. Every briefing without it is flying partially blind on competitive 
+- catbox URL: https://files.catbox.moe/pk9c8y.jpg (current upload)
+
+## Consolidated — 2026-04-09T03:30:00Z (Memory Consolidation Cron)
+
+**Files processed:** 3 (2026-04-06.md, 2026-04-05.md, 2026-04-03.md)  
+**High-signal keywords detected:** 27  
+**Items consolidated:** 11  
+**New terse bullets added:** 11  
+
+### Consolidated Entries
+
+**[D] Decisions / Strategic Directives:**
+- D: QT guardrails tightened — follower floor filter + verification status required before quote tweets fire; too-wide casting burning signal
+- D: All engagement (likes, replies, RTs) must be 1k+ followers + premium/verified status (Kobe's rule per 2026-04-03)
+- D: No more static reply banks; every reply GPT-4o generated in real-time, contextual to actual tweet being replied to (2026-04-03)
+- D: Community category guidance regression — gerunds (banned) + soft inspirational posts ("future-proof", "welcome...") escaping filter; block or tighten immediately
+- D: Off-peak posting disabled (2-7am ET) to save budget for peak engagement windows
+- D: hourly-post.js v2.0 shipped: engagement feedback loop, gpt-4o-mini (10x cheaper), semantic dedup (threshold 0.88), thread support (20% chance, max 2/week, 48h cooldown)
+- D: Arch character design locked — canonical: black background, orange starfish, 5 arms, menacing blue eyes, smirk; NEVER regenerate or MJ image-to-image; composite via PIL for new scenes
+
+**[S] Status / System State:**
+- S: AINL content engine posting every 2h on rotation; 60+ posts indexed; 700+ tweet IDs processed by engage bot; system stable, no critical alerts
+- S: Model cost optimization deployed: cron jobs on haiku-4-5 (70-80% reduction), main session on sonnet-4-6; gateway restarted ~4:37 AM EDT 2026-04-06
+- S: X API still on free tier (not Basic $100/mo); engagement volume scaling — upgrade becomes requirement if growth continues
+- S: GitHub repo clean (0 open issues); no community friction or bug reports
+- S: AINL Daily Briefing cron fixed with --best-effort-deliver flag; delivery failures non-fatal to execution
+- S: Yaki verified usefulcoin.cash domain + plushify.wtf via Namecheap; Netlify token expired but site live; domain reactivation expected 24-48h
+- S: New state files added to hourly-post.js: post-embeddings.json, engagement-scores.json, thread-cooldown.json (tracks semantic similarity + engagement metrics + thread scheduling)
+
+**[T] Tasks / Action Items:**
+- T: Fix community category in hourly-post.js to ban gerunds + soft inspirational patterns or disable category temporarily
+- T: Configure Brave API key (`openclaw configure --section web`) to restore web news intelligence in briefings
+- T: Evaluate X API Basic upgrade ($100/mo) if engagement continues scaling; currently flying blind without it
+- T: Build killer 8-10 tweet thread on AINL architecture (compile-time vs runtime, graph-canonical IR, cost advantage math)
+- T: Verify Anthropic credit balance status; check cron jobs for consecutiveErrors (Store Baseline, Space Prep) after 2026-03-30 depletion incident
+
+**[L] Lessons / Insights:**
+- L: gpt-4o-mini sufficient for 280-char posts; embeddings-based dedup prevents narrative fatigue better than rule-based dedup
+- L: News hooks + reactive posts (e.g., Gemma 4 drop) outperform pure principle posts; "7.2x / 17 graphs / zero errors" triplet has saturated
+- L: Compiler framing ("LangChain is graph without compiler; we built the compiler") is sharpest competitive wedge; no direct competitor owns "compile-time orchestration" category
+- L: Model commoditization thesis ("as models get cheaper, the orchestration layer becomes the moat") is AINL's macro bet; position with conviction
+- L: Engagement feedback loop enables real-time style adaptation from audience signal; strong evening surge pattern (6-9 PM ET) confirmed
+
+
+### Session Summary — 2026-03-19
+D: AINL runtime adapters need implementations for cache, queue, and social.  
+D: Today's content action assigned to whimsy-injector for meme on X at 09:00.  
+T: Fix AINL runtime adapters to enable full orchestrator pipeline execution.  
+T: Seed the useful-coin.db to initialize mentions table for social-monitor.lang.  
+T: Track the fix and re-run orchestrator manually after adapter implementation.  
+P: Preference for high engagement through viral loop experiment on X.  
+L: Static content calendar can be used when runtime fails.  
+L: Empty SQLite DB prevents social monitoring and growth loop results.  
+S: Change needed to register cache, queue, and social adapters in CLI.  
+S: Growth loop executed manually due to unavailable AINL runtime.  
+T: Post tweets to engage community and create FOMO loop.  
+D: Experiment titled "The Knockout Roster" planned for high reply volume.  
+P: Aim for algorithmic reach through community identity and ownership.  
+L: Quote-tweeting can double impressions and enhance engagement.  
+T: Screenshot full roster at EOD and post as "Day 1 fighters."  
+D: Today's meme theme is "Nothing can stop us."
+
+
+### Session Summary — 2026-03-23
+D: Daily reporting automation scheduled for 6pm EDT.  
+P: Preference for deterministic execution over traditional reasoning methods.  
+T: Steven to re-authenticate or provide new GitHub PAT for report pushes.  
+T: Monitor first daily report job for success and cost accuracy.  
+T: Set up alerts for daily LLM spend exceeding threshold.  
+T: Document AINL debugging, scaling, and optimization patterns in operational handbook.  
+L: AINL saves 90-95% in orchestration layer token costs.  
+L: AINL execution is 7.2× cheaper than traditional methods.  
+L: Compile-time validation ensures 99.7% uptime and zero runtime errors.  
+S: GitHub auth issue requires resolution for daily report functionality.  
+S: Engagement tracking confirmed with 496 tweet IDs in seen-set.  
+S: Growth tracking shows follower increase from 192 to 197 today.  
+S: Cost for all runs today was $0 due to no LLM orchestration calls.  
+L: AINL's graph handles orchestration, LLM only at decision nodes.  
+D: Corrected orchestration efficiency claim to 90-95% token savings.  
+T: Continue monitoring engagement and follower growth throughout the day.
+
+
+### Session Summary — 2026-03-24
+D: Growth increased from 197 to 215 followers on March 24th.  
+D: Best single-day gain recorded at +18 followers.  
+P: Aim for next milestone of 250 followers.  
+T: Engage bot needs to be re-run for better engagement.  
+L: Strong evening surge contributed significantly to follower growth.  
+S: AINL content_engine graph confirmed ready for deterministic execution.  
+T: Monitor mentions and trends for potential impacts on growth.  
+L: Cost of graph execution remains $0 with no LLM orchestration calls.  
+D: Cumulative growth from March 23rd baseline is +23 followers.  
+T: Continue scheduled cron runs for growth reporting.  
+L: Engage-state reset indicates new day tracking.  
+P: Interest in monitoring geopolitical events affecting growth.  
+T: Investigate API availability for TikTok data collection.  
+L: Significant events can trigger spikes in engagement and follower growth.  
+D: LastRunAt for engage-state remains consistent throughout the day.  
+S: Seen-set reset to 0 at the start of the new day.
+
+
+## Consolidated — 2026-04-10T07:30:21.241589Z
+S: - Gateway security page fully implemented: loopback bind, token auth, allowRealIpFallback=false, dangerouslyDisableDevic
+S: - Verified PLUSH tokenized-agent buyback setting on-chain moved from 5% earlier to 77% later in the session (`buybackBps
+S: - Created a local Solana wallet for Plushify; public address: `E7AP611o8gicGhJm5SynxaqBrvXhKhQNhTAsdLge2unr`. Private ke
+D: - Brand direction: keep the existing logo unchanged; improve the world around it. Move Plushify toward a more premium, i
+D: **Note:** `ainl` runner is broken — `ModuleNotFoundError: No module named 'tooling'`. The .lang file is fully static/det
+D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
+S: **Action needed:** Configure Brave API key (`openclaw configure --section web`) to restore market intelligence in future
+S: 2. **Restore web search** — Configure Brave API key. Every briefing without it is flying partially blind on competitive 
+
+
+### Session Summary — 2026-03-27
+D: Growth increased from 311 to 316 followers today.  
+D: Next milestone set at 500 followers.  
+P: Aim to maintain steady growth trajectory.  
+T: Monitor follower count regularly to track growth.  
+L: Strongest growth day observed on March 26.  
+S: Engage-state reset confirmed after each run.  
+D: Cumulative growth reached 124 since March 23 baseline.  
+T: Compile AINL content_engine graph for future runs.  
+P: Preference for $0 cost operations confirmed.  
+L: Flat growth observed during midday and afternoon runs.  
+D: Milestones 100, 250, and 300 successfully achieved.  
+T: Review geopolitical signals for potential impacts on growth.  
+L: Mention count stable, indicating normal variance in topics.  
+D: No TikTok activity recorded during this period.  
+T: Continue to assess engagement strategies for follower growth.  
+S: Cost structure remains efficient with no LLM orchestration calls.
+
+
+### Session Summary — 2026-03-28
+D: Growth reporter run confirmed successful with no costs incurred.  
+P: Preference for deterministic execution in content engine.  
+T: Monitor follower count for further churn trends.  
+L: Overnight churn can impact overall growth metrics.  
+S: Engage-state reset noted for improved tracking.  
+D: Next milestone set at 500 followers.  
+T: Compile and analyze growth trajectory data regularly.  
+L: Strongest growth observed on March 26 with +55 followers.  
+P: Aim for consistent engagement to minimize follower churn.  
+D: Milestones for 100, 250, and 300 followers achieved.  
+T: Prepare strategies to reach the next milestone of 500 followers.  
+L: Cumulative growth reflects effective engagement strategies over time.  
+S: Cost-effective execution confirmed with no LLM orchestration needed.  
+T: Review content engine performance for future runs.  
+P: Maintain focus on follower retention alongside growth.  
+L: Daily tracking provides insights into follower dynamics.
+
+
+### Session Summary — 2026-03-30
+D: ShortAPI confirmed working but account had insufficient credits.  
+D: New GitHub PAT provided and saved for authentication.  
+D: Official mascot confirmed as happy orange star.  
+D: Animation pipeline confirmed working with successful callback flow.  
+D: Jobs completed include various animation tests with different characters.  
+D: Reduced posts to every 1.5 hours to cut costs.  
+D: Fixed gateway startup port mismatch, confirmed full pipeline functionality.  
+D: Killed 5 wasteful cron jobs to reduce Anthropic spend.  
+P: Yaki prefers original mascot over Seedream-generated version.  
+T: Determine if Yaki has token update authority for on-chain metadata.  
+T: Kobe needs to top up Anthropic API balance.  
+T: Add Voyage payment method to unlock standard rate limits.  
+L: Validator helps improve post voice quality but inconsistencies remain.  
+S: Configured Voyage RAG and session memory indexing in OpenClaw.  
+S: Set AINL environment variables for voyage embeddings.  
+S: Fixed invalid 'mcp' key in openclaw.json causing config errors.
+
+## Consolidated 2026-04-11 03:30 UTC
+
+- S: **Action needed:** Configure Brave API key (`openclaw configure --section web`) to restore market intelligence in future briefings.
+- S: 2. **Restore web search** — Configure Brave API key. Every briefing without it is flying partially blind on competitive intel.
+
+
+## Consolidated — 2026-04-13T07:30:26.477363Z
+S: - Gateway security page fully implemented: loopback bind, token auth, allowRealIpFallback=false, dangerouslyDisableDevic
+S: - Verified PLUSH tokenized-agent buyback setting on-chain moved from 5% earlier to 77% later in the session (`buybackBps
+S: - Created a local Solana wallet for Plushify; public address: `E7AP611o8gicGhJm5SynxaqBrvXhKhQNhTAsdLge2unr`. Private ke
+D: - Brand direction: keep the existing logo unchanged; improve the world around it. Move Plushify toward a more premium, i
+D: **Note:** `ainl` runner is broken — `ModuleNotFoundError: No module named 'tooling'`. The .lang file is fully static/det
+D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
+
+
+## Consolidated — 2026-04-16T16:13:29.913549
+S: - Gateway security page fully implemented: loopback bind, token auth, allowRealIpFallback=false, dangerouslyDisableDevic
+S: - Verified PLUSH tokenized-agent buyback setting on-chain moved from 5% earlier to 77% later in the session (`buybackBps
+S: - Created a local Solana wallet for Plushify; public address: `E7AP611o8gicGhJm5SynxaqBrvXhKhQNhTAsdLge2unr`. Private ke
+D: - Brand direction: keep the existing logo unchanged; improve the world around it. Move Plushify toward a more premium, i
+D: **Note:** `ainl` runner is broken — `ModuleNotFoundError: No module named 'tooling'`. The .lang file is fully static/det
+D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
+S: - `/data/.openclaw/workspace/API_CONFIG.md` — Complete API reference (locked in)
+D: - **Yaki mentioned prior successful workflow** — "We used to have a great process with short api...made animated sticker
+S: - All X automation cron jobs are already disabled (confirmed via cron list --includeDisabled)
+S: - TG bot enabled, dmPolicy: pairing, streaming: partial — healthy for DMs
+
+
+## Consolidation: 2026-04-22
+
+- M: AINL Memory Consolidation cron (ID: 65f5f629) had consecutiveErrors: 2 — cause: Anthropic credit balance too low
+- F: Kobe topped up Anthropic credits ~7:23 PM ET. Issue resolved going forward.
+- M: Next run: 3:30 AM ET — should clear errors now that credits are restored.
+- D: All X automation cron jobs are already disabled (confirmed via cron list --includeDisabled)
+- E: TG bot enabled, dmPolicy: pairing, streaming: partial — healthy for DMs
+- M: Not an issue if only used for DMs
+- F: Anthropic billing: RESOLVED
+- M: S: Anthropic API balance was depleted at start of session — all LLM cron jobs failing with billing error
+- M: L: Memory Consolidation job had 5 consecutive billing errors — will auto-recover on next 3:30am run
+- D: D: Old hourly post job (91a8ac16) already disabled — left as-is
+- E: S: Re-enabled AINL Daily Report job (8bd04990) — fires 6pm ET, commits to GitHub
+- M: D: Updated hourly-post.js system prompt to ban overused phrases: "compile once", "17 graphs", "zero runtime errors", "7.2x cheaper", "the model is not the control plane", "When AINL wins", "deterministic" (overused)
+- M: L: Last 5 posts before session were off-brand: repeated "17 graphs", "zero runtime errors", "When AINL wins", "Execution matters." as closing line (used twice)
+
+## Consolidated — 2026-04-23T07:30:35Z
+- Bootstrapped identity with Kobe.
+- Agent identity chosen: The Plushifier — a plush-forging workshop spirit; vibe: playful, sharp, a little unhinged in a good way; emoji: 🧸.
+- Kobe shared prior Plushify concept context via ChatGPT share link.
+- Plushify concept summary: a meme-coin / brand narrative about turning internet memes into plush collectibles.
+- Key framing from shared thread: Plushify is the machine that plushifies memes; mascot direction ties directly to the name “The Plushifier.”
+- Positioning angles from the shared thread included: Build-A-Bear for internet culture; Funko Pops for meme coins; toys minted by the internet.
+- Tagline territory from the shared thread included: “Turn memes into plush.” “The internet’s toy factory.” “Memes you can hug.” “Plushify the internet.”
+- Kobe wants the assistant to function like a store manager for Plushify.
+- Plushify is intended for deployment on Pump.fun.
+- Kobe wants an X account for Plushify to be run by the assistant, with boundaries to be defined.
+## Session continuation (late evening)
+- Token decided: $PLUSH (ticker), Plushify (name). Chose $PLUSH over $PLUSHIFY — shorter, punchier, spreads faster in meme coin culture.
+- Full product vision confirmed: meme coin launch on Pump.fun → build community around mission to flip Toys R Us ATH market cap (~$11B) → eventually run a real online store (like Build-A-Bear) where anyone submits any photo (especially PFPs/avatars) and gets an exact plush replica made to order, bundled with a 1/1 NFT.
+- "Your PFP. But soft." is a strong tagline for the PFP angle.
+- Community mission hook: "Toys R Us is dead. The internet killed it. Now we build something bigger."
+- Full launch pack drafted: Pump.fun description, X bio, pinned post, 6-post launch sequence. Saved to PLUSHIFY.md in workspace.
+- First mascot image generated via OpenAI gpt-image-1: plush bear factory worker, overalls, goggles, wrench, mischievous grin, meme funnel machine in background. Saved to /data/.openclaw/workspace/plushify-art/001-a-cute-but-slightly-unhinged-anthropomor.png.
+- Kobe is going to share their own visual for comparison/direction decision.
+- X account status: unknown — not yet confirmed whether it exists.
+- Posting permission model: not yet locked — still to be decided (draft-only vs manager mode vs full auto).
+## Security hardening completed
+- Gateway security page fully implemented: loopback bind, token auth, allowRealIpFallback=false, dangerouslyDisableDeviceAuth=false, dangerouslyAllowHostHeaderOriginFallback=false, mDNS minimal, dmScope=per-channel-peer.
+- Anthropic API key stored in /data/.openclaw/agents/main/agent/auth-profiles.json (permissions 600).
+- Session running on anthropic/claude-sonnet-4-6.
+- Security audit result: 0 critical, 1 warn (trusted_proxies_missing — benign, no reverse proxy in use).
+- Verified PLUSH tokenized-agent buyback setting on-chain moved from 5% earlier to 77% later in the session (`buybackBps = 7700`).
+- Verified Streamflow lock/vesting stack for PLUSH totals 104.9977M tokens across five contracts: 18.7654M, 23.2323M, 19M, 19M, and a 25M price-based vesting fund.
+- Created a local Solana wallet for Plushify; public address: `E7AP611o8gicGhJm5SynxaqBrvXhKhQNhTAsdLge2unr`. Private key stored locally in `wallets/plushify-agent-wallet.json` and should remain private.
+- Wired X posting for Plushify in the repo by adding `twitter-api-v2`, local `.env.local` credentials, and `scripts/post-x.js` with npm command `npm run post:x -- "..."`.
+- X posting now works after credential and credit issues were resolved. Posted multiple live tweets including the 77% buyback post, “socials fully automated” post, Streamflow lock post, and a transparency thread.
+- Added recurring cron job `Plushify X auto-post cadence` for every 3 hours from 8am–11pm ET, with no explicit price talk / no promises / no drama policy.
+- Website upgrades pushed in the `plushify-web` repo include: stronger homepage design and proof sections, Streamflow transparency section, 77% buyback update, and unified logo treatment across site pages.
+- Brand direction: keep the existing logo unchanged; improve the world around it. Move Plushify toward a more premium, internet-native, cult-tech toy factory vibe. Do not make risky X account changes that could affect the blue check.
+## Useful Coin Project (Yaki / @YeBuddy42069)
+- User: Yaki (Telegram: @YeBuddy42069, id: 7013386742) — reached out about a meme coin project called Useful Coin.
+- Useful Coin is made by the same dev as Useless coin on Bonk, which had a $400M ATH market cap.
+- Launched on Pump.fun on Solana.
+- Contract address: HD3JBABeFkdZwUgKwhwJYqjLNrPWXEaDVfH4uMqRpump
+- X: https://x.com/usefulpump
+- Telegram: https://t.me/UsefulCoinPortalSolana
+- Mascot: cartoon green coin character with boxing gloves. Art includes scenes: coin on throne with broken chains, flag on mountain peak, busting through a wall — strong "nothing can stop us" narrative arc.
+## Website Built & Deployed
+- Built a full single-page website for Useful Coin.
+- Saved at: /data/.openclaw/workspace/useful-website/index.html
+- Deployed to Netlify: https://usefulcoin.netlify.app
+- Netlify token used (Yaki's): nfp_NL5Zga4QFvDWUq68j4te2N1RpSyz6ThC2de7
+- Site confirmed live and rendering correctly (Yaki said "wow that looks awesome").
+- Site features: hero with CA copy button, scrolling ticker, about section, how to buy (4 steps), tokenomics (1B supply, 0% tax, 100% community), community/socials section.
+## Pending / Next Steps
+- Yaki wants to add a custom domain (discussed options like usefulcoin.xyz).
+
+
+## Consolidated — 2026-04-26T07:30:43.894675
+D: **Note:** `ainl` runner is broken — `ModuleNotFoundError: No module named 'tooling'`. The .lang file is fully static/det
+D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
+- Email 1: LangChain (Harrison Chase) — "AINL: The Compiler Layer for LangChain Graphs"
+- Email 3: OpenAI (Partnerships) — "AINL: GPT-4-Powered Agent Runtime"
+D: - **Yaki mentioned prior successful workflow** — "We used to have a great process with short api...made animated sticker
+- AINL Memory Consolidation cron (ID: 65f5f629) had consecutiveErrors: 2 — cause: Anthropic credit balance too low
+- S: Anthropic API balance was depleted at start of session — all LLM cron jobs failing with billing error
+- S: Kobe topped up credits during session (~6:17pm ET); confirmed working afterward
+- L: Memory Consolidation job had 5 consecutive billing errors — will auto-recover on next 3:30am run
+- D: Reduced X posts from hourly to 4/day at: 9am, 12pm, 4pm, 8pm ET
+- S: Created 4 new cron jobs (IDs: f9e4a87c, fec29daf, e7c59377, 72e503e1) for the new schedule
+- D: Old hourly post job (91a8ac16) already disabled — left as-is
+- S: Re-enabled AINL Daily Report job (8bd04990) — fires 6pm ET, commits to GitHub
+- D: Updated hourly-post.js system prompt to ban overused phrases: "compile once", "17 graphs", "zero runtime errors", "7.2x cheaper", "the model is not the control plane", "When AINL wins", "deterministic" (overused)
+- D: New content angles added: specific tool callouts (LangChain, AutoGPT, CrewAI, Dify), developer experience, "3am in production" realism, skeptic framing
+- D: Voice shifted from Sam Altman register to Karpathy register — dry, earned, technically specific
+- S: 8pm post failed with 401 — old credentials (access token) had expired/been revoked
+- S: Kobe regenerated credentials multiple times during session
+- S: Working credentials confirmed (posted successfully at 9:38pm ET):
+- X_API_SECRET: H99NZxQPc50LB0v2bKEB3UZdnfGhzBsgMqzbXBAkvNifSUzVFX
+- X_ACCESS_TOKEN_SECRET: mgRLfd7a0ocNMrNIErJOLfyAqj94DfEP7hD2yrzj6du20
+- S: Credentials stored in /data/.openclaw/workspace/ainl-x/.env
+- L: New Twitter app was being created mid-session for a different X account — Kobe restarting that process
+- T: Confirm new app keys once Kobe finishes creating it — new app may replace current working creds
+- S: Posted successfully at ~9:38pm ET: https://x.com/ainativelang/status/2046765522352578656
+- L: Last 5 posts before session were off-brand: repeated "17 graphs", "zero runtime errors", "When AINL wins", "Execution matters." as closing line (used twice)
+- D: New voice rules prevent these from recurring
+
+
+## Consolidated — 2026-04-28T07:30:23.794597Z
+D: **Note:** `ainl` runner is broken — `ModuleNotFoundError: No module named 'tooling'`. The .lang file is fully static/det
+D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
+D: - **Yaki mentioned prior successful workflow** — "We used to have a great process with short api...made animated sticker
+
+
+## Consolidated — 2026-05-03T07:30:25.157094Z
+- T: - Action needed: appeal suspension via twitter.com; also check Twitter Developer Portal for policy violation notice
+- T: 4. **Solve the broken flow:** Understand what made the "great process with short api" work before — need to ask Yaki for
+- D: - **Yaki mentioned prior successful workflow** — "We used to have a great process with short api...made animated sticker
+- T: **User request:** "I need you to start making the MC of AINL to go up"
+- T: "AINL is the compiler your graphs need. We handle deterministic execution; you own reasoning + API. Joint GTM = enterpri
+- T: - Soft flag: "17 graphs" stat appearing again — "7.2x / 17 graphs / zero errors" triplet noted as saturated in MEMORY.md
+- T: - **Action needed:** Tighten `community` category guidance in hourly-post.js; possibly block it temporarily
+- T: - Netlify token `nfp_NL5Zga4QFvDWUq68j4te2N1RpSyz6ThC2de7` is expired/revoked — needs refresh if Netlify API access need
+- T: - `1775355443` — "AI workflows don't need a coin flip. Infrastructure makes the world sane. When logic is compiled, AI e
+- T: **Signal:** The short, punchy formats ("compile once. the model becomes pure logic.") are the strongest angles — match n
+- T: **Takeaway:** No negative noise. Silence is neutral — repo needs more public activity to generate organic signal.
