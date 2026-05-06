@@ -1,0 +1,4 @@
+Webhook server listening on port 3333
+Callback URL: http://localhost:3333/callback
+[2026-04-13T08:46:03.217Z] Job unknown completed. Saved to /data/.openclaw/workspace/ainl-video/webhook-results/unknown.json
+[2026-04-13T08:47:43.513Z] Job unknown completed. Saved to /data/.openclaw/workspace/ainl-video/webhook-results/unknown.json

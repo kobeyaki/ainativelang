@@ -4,6 +4,14 @@
     "google-workspace-mcp": {
       "version": "1.0.0",
       "installedAt": 1773458412654
+    },
+    "kling": {
+      "version": "1.0.0",
+      "installedAt": 1775059802793
+    },
+    "xiucheng-self-improving-agent": {
+      "version": "1.0.0",
+      "installedAt": 1775841301168
     }
   }
 }

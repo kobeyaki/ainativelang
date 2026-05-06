@@ -1,0 +1,15 @@
+# AINL 60-Second Commercial — Vidu Text-to-Video
+
+UNIFIED CINEMATIC PROMPT:
+
+"Opening: Abstract ethereal visualization of code and data flowing like crystalline water through luminous digital channels. A glowing question mark pulses at the center. Warm golden light mingles with cool cyan. Camera pans slowly, inspirational and forward-looking.
+
+Transition: A bright neon star materializes in deep cosmic space, glowing with confident cyan and orange light. Infrastructure grid lines appear subtly beneath. The star rotates with serene confidence as cosmic depth unfolds.
+
+Middle: Clean, minimal interface emerges from the star's light. Real metrics glow elegantly: '$29 per month', '99.7% uptime', '17 agents live' appear as luminous HUD elements. Star pulses as silent witness to achievement.
+
+Build: Star grows brighter. Cyan and orange light rays radiate outward. Human silhouettes appear in the distance, looking upward toward the beacon. Energy shifts to empowerment and forward momentum.
+
+Climax: Camera pulls back slowly. A vast digital landscape awakens beneath and around the star. Lines of light connect and activate like a living network. The future unfolds inevitably. Text emerges: 'github.com/sbhooley/ainativelang'. Hopeful, magnetic, inviting.
+
+Tone: Cinematic like Apple meets TED Talk. Professional, aspirational, zero harshness. Smooth transitions. Depth and luminosity throughout. This is institutional confidence visualized."

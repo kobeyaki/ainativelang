@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 480px; height: 480px;
+    background: #000;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+  }
+  .container {
+    width: 480px; height: 480px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, #0a0a1a 0%, #000 100%);
+  }
+  .grid {
+    position: absolute; inset: 0;
+    background-image: 
+      linear-gradient(rgba(0,200,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,200,255,0.04) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .scanlines {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px);
+    pointer-events: none; z-index: 10;
+  }
+
+  /* MASCOT — flies in from top */
+  .mascot-wrap {
+    position: relative;
+    margin-bottom: 8px;
+    animation: flyIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both, bounceSteady 0.6s ease-in-out 0.8s infinite alternate;
+  }
+  @keyframes flyIn {
+    from { transform: translateY(-300px) scale(1.4); opacity: 0; }
+    to   { transform: translateY(0px) scale(1); opacity: 1; }
+  }
+  @keyframes bounceSteady {
+    from { transform: translateY(0px) scale(1); filter: drop-shadow(0 0 24px rgba(255,150,0,0.7)); }
+    to   { transform: translateY(-10px) scale(1.04); filter: drop-shadow(0 0 35px rgba(255,150,0,1)); }
+  }
+  .mascot {
+    width: 120px; height: 120px;
+    filter: drop-shadow(0 0 24px rgba(255,150,0,0.7));
+  }
+
+  /* Shockwave on slam */
+  .shockwave {
+    position: absolute;
+    bottom: -10px; left: 50%;
+    transform: translateX(-50%);
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px solid rgba(255,150,0,0.8);
+    animation: shockwave 0.4s ease-out 0.65s both;
+  }
+  @keyframes shockwave {
+    from { width: 10px; height: 10px; opacity: 1; }
+    to   { width: 180px; height: 30px; opacity: 0; }
+  }
+
+  /* Top bar */
+  .top-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    padding: 10px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid rgba(0,200,255,0.15);
+    z-index: 5;
+    animation: fadeSlideDown 0.4s ease-out 0.1s both;
+  }
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .token-name { font-size: 12px; color: rgba(255,255,255,0.4); letter-spacing: 4px; }
+  .live-dot { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #00ff88; letter-spacing: 2px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: #00ff88; box-shadow: 0 0 6px #00ff88; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+  /* Buy badge */
+  .buy-badge {
+    background: linear-gradient(135deg, #00ff88, #00cc66);
+    color: #000; font-size: 10px; font-weight: bold;
+    letter-spacing: 3px; padding: 4px 18px; border-radius: 20px; margin-bottom: 10px;
+    animation: badgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s both, glow 1s 1.2s infinite alternate;
+  }
+  @keyframes badgePop {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  @keyframes glow {
+    from { box-shadow: 0 0 10px #00ff88; }
+    to   { box-shadow: 0 0 30px #00ff88, 0 0 60px rgba(0,255,136,0.3); }
+  }
+
+  /* Price change */
+  .price-change {
+    font-size: 22px; font-weight: bold; color: #00ff88;
+    letter-spacing: 2px; margin-bottom: 10px;
+    animation: slideUp 0.4s ease-out 0.85s both, flicker 0.5s 1.3s infinite alternate;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes flicker {
+    from { text-shadow: 0 0 20px rgba(0,255,136,0.8); }
+    to   { text-shadow: 0 0 40px rgba(0,255,136,1), 0 0 80px rgba(0,255,136,0.4); }
+  }
+
+  /* Stats */
+  .stats {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px; width: 380px; margin-bottom: 8px;
+  }
+  .stat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(0,200,255,0.15);
+    border-radius: 6px; padding: 6px 8px; text-align: center;
+    opacity: 0;
+    animation: statPop 0.3s ease-out both;
+  }
+  .stat:nth-child(1) { animation-delay: 0.9s; }
+  .stat:nth-child(2) { animation-delay: 1.0s; }
+  .stat:nth-child(3) { animation-delay: 1.1s; }
+  .stat:nth-child(4) { animation-delay: 1.2s; }
+  .stat:nth-child(5) { animation-delay: 1.3s; }
+  .stat:nth-child(6) { animation-delay: 1.4s; }
+  @keyframes statPop {
+    from { opacity: 0; transform: translateY(8px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .stat-label { font-size: 8px; color: rgba(255,255,255,0.3); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px; }
+  .stat-value { font-size: 13px; font-weight: bold; color: #fff; }
+  .stat-value.green { color: #00ff88; }
+  .stat-value.cyan  { color: #00ccff; }
+  .stat-value.orange{ color: #ffaa00; }
+
+  /* Milestone */
+  .milestone {
+    width: 380px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(0,200,255,0.1);
+    border-radius: 6px; padding: 6px 10px;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+    animation: statPop 0.3s ease-out 1.5s both;
+  }
+  .milestone-label { font-size: 9px; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+  .milestone-value { font-size: 10px; color: #ffaa00; font-weight: bold; }
+  .progress-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00ff88, #ffaa00); border-radius: 2px; animation: progressGrow 1s ease-out 1.6s both; }
+  @keyframes progressGrow { from { width: 0%; } to { width: 74%; } }
+
+  .wallet { font-size: 9px; color: rgba(255,255,255,0.2); letter-spacing: 1px; margin-bottom: 4px; animation: statPop 0.3s ease-out 1.6s both; }
+
+  /* Bottom bar */
+  .bottom-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 8px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid rgba(0,200,255,0.1); z-index: 5;
+    animation: fadeSlideUp 0.4s ease-out 0.1s both;
+  }
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .ainl-brand { font-size: 9px; color: rgba(255,255,255,0.2); letter-spacing: 3px; }
+  .holder-num { font-size: 9px; color: #00ccff; letter-spacing: 1px; }
+
+  /* Emoji rain */
+  .emoji { position: absolute; font-size: 18px; animation: fall linear infinite; opacity: 0; }
+  @keyframes fall {
+    0%   { transform: translateY(-30px) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.7; }
+    90%  { opacity: 0.5; }
+    100% { transform: translateY(520px) rotate(360deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="grid"></div>
+  <div class="scanlines"></div>
+
+  <div class="emoji" style="left:8%;animation-duration:3.2s;animation-delay:1.0s">💵</div>
+  <div class="emoji" style="left:20%;animation-duration:2.8s;animation-delay:1.5s">💸</div>
+  <div class="emoji" style="left:75%;animation-duration:3.5s;animation-delay:1.2s">🚀</div>
+  <div class="emoji" style="left:88%;animation-duration:2.5s;animation-delay:1.8s">💵</div>
+  <div class="emoji" style="left:50%;animation-duration:4s;animation-delay:1.3s">🌟</div>
+  <div class="emoji" style="left:35%;animation-duration:3s;animation-delay:2.0s">💸</div>
+
+  <div class="top-bar">
+    <span class="token-name">$AINL</span>
+    <span class="live-dot"><span class="dot"></span>NEW BUY</span>
+  </div>
+
+  <div class="mascot-wrap">
+    <img class="mascot" src="{{MASCOT_URL}}" />
+    <div class="shockwave"></div>
+  </div>
+
+  <div class="buy-badge">🚀 BOUGHT</div>
+  <div class="price-change">+{{PRICE_CHANGE}}% ↑</div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-label">SOL</div><div class="stat-value green">{{AMOUNT_SOL}}</div></div>
+    <div class="stat"><div class="stat-label">USD</div><div class="stat-value green">${{AMOUNT_USD}}</div></div>
+    <div class="stat"><div class="stat-label">Mkt Cap</div><div class="stat-value cyan">${{MARKET_CAP}}</div></div>
+    <div class="stat"><div class="stat-label">Holders</div><div class="stat-value cyan">{{HOLDERS}}</div></div>
+    <div class="stat"><div class="stat-label">Txns</div><div class="stat-value orange">{{TXNS}}</div></div>
+    <div class="stat"><div class="stat-label">Vol 24h</div><div class="stat-value orange">${{VOLUME}}</div></div>
+  </div>
+
+  <div class="milestone">
+    <div>
+      <div class="milestone-label">📍 NEXT MILESTONE</div>
+      <div class="progress-bar"><div class="progress-fill"></div></div>
+    </div>
+    <div class="milestone-value">${{NEXT_MC}} MC</div>
+  </div>
+
+  <div class="wallet">{{WALLET}}</div>
+
+  <div class="bottom-bar">
+    <span class="ainl-brand">AI NATIVE LANGUAGE</span>
+    <span class="holder-num">HOLDER #{{HOLDERS}}</span>
+  </div>
+</div>
+</body>
+</html>

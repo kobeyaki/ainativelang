@@ -1,0 +1,4 @@
+file '/data/.openclaw/workspace/ainl-videos/runway-v2/act1_chaos.mp4'
+file '/data/.openclaw/workspace/ainl-videos/runway-v2/act2_compile.mp4'
+file '/data/.openclaw/workspace/ainl-videos/runway-v2/act3_proof.mp4'
+file '/data/.openclaw/workspace/ainl-videos/runway-v2/act4_cta.mp4'

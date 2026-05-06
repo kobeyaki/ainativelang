@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    width: 480px;
+    height: 480px;
+    background: #000;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .container {
+    width: 480px;
+    height: 480px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, #0a0a1a 0%, #000 100%);
+  }
+
+  /* Grid lines */
+  .grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  /* Top bar */
+  .top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0,200,255,0.15);
+  }
+
+  .token-name {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .live-dot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #00ff88;
+    letter-spacing: 2px;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #00ff88;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  /* Mascot */
+  .mascot {
+    width: 140px;
+    height: 140px;
+    margin-bottom: 12px;
+    animation: bounce 0.6s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 20px rgba(255,150,0,0.6));
+  }
+
+  @keyframes bounce {
+    from { transform: translateY(0px) scale(1); }
+    to { transform: translateY(-12px) scale(1.05); }
+  }
+
+  /* Laser eyes overlay */
+  .laser-eyes {
+    position: absolute;
+    top: 145px;
+    display: flex;
+    gap: 22px;
+    animation: lasers 0.3s ease-in-out infinite alternate;
+  }
+
+  .laser {
+    width: 3px;
+    height: 60px;
+    background: linear-gradient(to bottom, #ff0000, transparent);
+    border-radius: 2px;
+    transform-origin: top;
+    transform: rotate(5deg);
+  }
+
+  .laser:last-child { transform: rotate(-5deg); }
+
+  @keyframes lasers {
+    from { opacity: 0.8; filter: blur(1px); }
+    to { opacity: 1; filter: blur(0px) drop-shadow(0 0 6px red); }
+  }
+
+  /* BUY badge */
+  .buy-badge {
+    background: linear-gradient(135deg, #00ff88, #00cc66);
+    color: #000;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    padding: 4px 16px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    animation: glow 1s infinite alternate;
+  }
+
+  @keyframes glow {
+    from { box-shadow: 0 0 10px #00ff88; }
+    to { box-shadow: 0 0 25px #00ff88, 0 0 50px rgba(0,255,136,0.3); }
+  }
+
+  /* Stats grid */
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 340px;
+    margin-bottom: 16px;
+  }
+
+  .stat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(0,200,255,0.12);
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+    animation: fadeIn 0.5s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .stat-label {
+    font-size: 9px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+
+  .stat-value {
+    font-size: 15px;
+    font-weight: bold;
+    color: #fff;
+  }
+
+  .stat-value.green { color: #00ff88; }
+  .stat-value.cyan { color: #00ccff; }
+
+  /* Wallet */
+  .wallet {
+    font-size: 10px;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  /* Bottom bar */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(0,200,255,0.1);
+  }
+
+  .ainl-brand {
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 3px;
+  }
+
+  .contract {
+    font-size: 8px;
+    color: rgba(255,255,255,0.12);
+    letter-spacing: 1px;
+  }
+
+  /* Cash particles */
+  .particle {
+    position: absolute;
+    font-size: 16px;
+    animation: fall linear infinite;
+    opacity: 0.7;
+  }
+
+  @keyframes fall {
+    from { transform: translateY(-20px) rotate(0deg); opacity: 0.7; }
+    to { transform: translateY(500px) rotate(360deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="grid"></div>
+
+  <!-- Cash particles -->
+  <div class="particle" style="left:8%;animation-duration:3.2s;animation-delay:0.1s">💵</div>
+  <div class="particle" style="left:20%;animation-duration:2.8s;animation-delay:0.7s">💸</div>
+  <div class="particle" style="left:75%;animation-duration:3.5s;animation-delay:0.3s">💵</div>
+  <div class="particle" style="left:88%;animation-duration:2.5s;animation-delay:1.1s">💸</div>
+  <div class="particle" style="left:50%;animation-duration:4s;animation-delay:0.5s">💵</div>
+
+  <div class="top-bar">
+    <span class="token-name">$AINL</span>
+    <span class="live-dot"><span class="dot"></span>BUY</span>
+  </div>
+
+  <img class="mascot" src="{{MASCOT_URL}}" />
+  <div class="laser-eyes">
+    <div class="laser"></div>
+    <div class="laser"></div>
+  </div>
+
+  <div class="buy-badge">🚀 NEW BUY</div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Amount</div>
+      <div class="stat-value green">{{AMOUNT_SOL}} SOL</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Value</div>
+      <div class="stat-value green">${{AMOUNT_USD}}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Market Cap</div>
+      <div class="stat-value cyan">${{MARKET_CAP}}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Holders</div>
+      <div class="stat-value cyan">{{HOLDERS}}</div>
+    </div>
+  </div>
+
+  <div class="wallet">{{WALLET}}</div>
+
+  <div class="bottom-bar">
+    <span class="ainl-brand">AI NATIVE LANGUAGE</span>
+    <span class="contract">56hrCR3n...RBWpHRPKpump</span>
+  </div>
+</div>
+</body>
+</html>

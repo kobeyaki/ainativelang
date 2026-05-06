@@ -1,0 +1,106 @@
+{
+  "calendar": [
+    {
+      "day": 1,
+      "date_offset": "+0d",
+      "prompt_id": "gm-001",
+      "caption": "GM ☀️\n\nNew week. New moves. The starfish is awake.",
+      "rationale": "Start warm. Introduce the character. Low pressure, high recall.",
+      "post_time": "09:00",
+      "format": ["image", "video"]
+    },
+    {
+      "day": 2,
+      "date_offset": "+1d",
+      "prompt_id": "chart-001",
+      "caption": "The chart is speaking 📊\n\nAre you listening?",
+      "rationale": "Build intrigue. Chart watchers engage. Price awareness.",
+      "post_time": "12:00",
+      "format": ["image", "video"]
+    },
+    {
+      "day": 3,
+      "date_offset": "+2d",
+      "prompt_id": "hodl-001",
+      "caption": "💎🙌 HODL\n\nThey shook. We didn't.",
+      "rationale": "Speak to the holders. Reinforce conviction.",
+      "post_time": "10:00",
+      "format": ["image", "video", "sticker"]
+    },
+    {
+      "day": 4,
+      "date_offset": "+3d",
+      "prompt_id": "shill-001",
+      "caption": "Tell a friend 📣\n\nOne post. One share. That's how this works.",
+      "rationale": "Explicit growth mechanic. Community activation.",
+      "post_time": "14:00",
+      "format": ["image", "video"]
+    },
+    {
+      "day": 5,
+      "date_offset": "+4d",
+      "prompt_id": "fud-001",
+      "caption": "FUD can't touch us 🛡️\n\nSaid what I said.",
+      "rationale": "Acknowledge the noise, dismiss it. Builds confidence in community.",
+      "post_time": "11:00",
+      "format": ["image", "video", "sticker"]
+    },
+    {
+      "day": 6,
+      "date_offset": "+5d",
+      "prompt_id": "dump-001",
+      "caption": "They sold. We bought. 😈\n\nEvery dip is a gift.",
+      "rationale": "Buy the dip energy. Turns fear into opportunity. High share rate.",
+      "post_time": "13:00",
+      "format": ["image", "video"]
+    },
+    {
+      "day": 7,
+      "date_offset": "+6d",
+      "prompt_id": "vibes-001",
+      "caption": "Vibes only ✨\n\nMid-week reset. We're still here.",
+      "rationale": "Break the intensity. Keeps feed feeling human, not just hype.",
+      "post_time": "15:00",
+      "format": ["image", "sticker"]
+    },
+    {
+      "day": 8,
+      "date_offset": "+7d",
+      "prompt_id": "whale-001",
+      "caption": "WHALE ALERT 🐋\n\nSomebody knows something.",
+      "rationale": "Mystery + intrigue. Implies insider knowledge. Drives speculation.",
+      "post_time": "10:00",
+      "format": ["image", "video"]
+    },
+    {
+      "day": 9,
+      "date_offset": "+8d",
+      "prompt_id": "moon-001",
+      "caption": "We're going to the moon 🌕\n\nBuckle up.",
+      "rationale": "Classic. Works every time. High energy to build toward day 10.",
+      "post_time": "12:00",
+      "format": ["image", "video"]
+    },
+    {
+      "day": 10,
+      "date_offset": "+9d",
+      "prompt_id": "buybot-001",
+      "caption": "NEW BUY 🔥\n\nThe starfish sees everything.",
+      "rationale": "End on the buy bot. Full circle. Drives direct action.",
+      "post_time": "11:00",
+      "format": ["video"]
+    }
+  ],
+  "sticker_pack": {
+    "batch": ["sticker-001", "sticker-002", "sticker-003", "sticker-004", "sticker-005", "sticker-006", "sticker-007", "sticker-008"],
+    "deploy_day": 3,
+    "rationale": "Drop sticker pack on day 3 when character has had 2 days of exposure. Builds attachment."
+  },
+  "total_estimated_cost": {
+    "images": "$0.30 (10 × $0.03)",
+    "videos": "$7.60 (8 × $0.95)",
+    "stickers_image_gen": "$0.24 (8 × $0.03)",
+    "background_removal": "free (Replicate rembg)",
+    "total": "~$8.14 for 10 days of content"
+  }
+}

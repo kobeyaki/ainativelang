@@ -1,0 +1,84 @@
+// AINL Memory Consolidation Module
+// Scans recent memory/*.md files and consolidates high-signal entries into MEMORY.md
+// Executed daily by cron supervisor
+
+graph MemoryConsolidation {
+  // Input: scan recent memory files (last 7 days)
+  input {
+    memoryDir: string = "/data/.openclaw/workspace/memory"
+    lookbackDays: int = 7
+    highSignalKeywords: [string] = ["important", "fixed", "config", "todo", "lesson", "setting", "changed", "enabled", "disabled", "critical", "blocked", "resolved", "deployed", "issue"]
+  }
+
+  // Step 1: Discover and read recent memory files
+  node ScanMemoryFiles {
+    @effect("filesystem.readdir")
+    list(dir: memoryDir) -> files: [string]
+    
+    @effect("time.now")
+    now() -> timestamp: int
+    
+    @constraint("files.filter(f => isRecent(f, timestamp, lookbackDays))")
+    recentFiles: [string]
+  }
+
+  // Step 2: Extract high-signal lines from each file
+  node ExtractSignalLines {
+    input files: [string]
+    
+    @effect("filesystem.read")
+    readFiles(files) -> contents: {string: string}
+    
+    @constraint("extractByKeyword(contents, highSignalKeywords)")
+    signalLines: {string: [string]}  // {filename: [signal_lines]}
+  }
+
+  // Step 3: Format as terse bullets (D:/P:/T:/L:/S: prefixes)
+  node FormatTerseBullets {
+    input signalLines: {string: [string]}
+    
+    @constraint("tersifyLines(signalLines)")
+    terseBullets: [string]
+  }
+
+  // Step 4: Load existing MEMORY.md
+  node LoadExistingMemory {
+    @effect("filesystem.read")
+    read(path: "/data/.openclaw/workspace/MEMORY.md") -> content: string
+  }
+
+  // Step 5: Deduplicate against existing entries
+  node DeduplicateEntries {
+    input terseBullets: [string]
+    input existingContent: string
+    
+    @constraint("dedup(terseBullets, existingContent)")
+    newEntries: [string]
+  }
+
+  // Step 6: Append to MEMORY.md with date stamp
+  node AppendConsolidated {
+    input newEntries: [string]
+    input existingContent: string
+    
+    @effect("time.today")
+    today() -> dateStr: string
+    
+    @constraint("appendSection(existingContent, newEntries, dateStr)")
+    updated: string
+    
+    @effect("filesystem.write")
+    write(path: "/data/.openclaw/workspace/MEMORY.md", content: updated)
+  }
+
+  // Output report
+  output {
+    itemsConsolidated: int = newEntries.length
+    filesProcessed: int = recentFiles.length
+    newBulletsAdded: [string] = newEntries
+    timestamp: string = now()
+  }
+
+  // Pipeline
+  ScanMemoryFiles -> ExtractSignalLines -> FormatTerseBullets -> DeduplicateEntries -> AppendConsolidated
+}

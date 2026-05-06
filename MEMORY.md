@@ -1008,3 +1008,65 @@ D: - **Yaki mentioned prior successful workflow** — "We used to have a great p
 - T: - `1775355443` — "AI workflows don't need a coin flip. Infrastructure makes the world sane. When logic is compiled, AI e
 - T: **Signal:** The short, punchy formats ("compile once. the model becomes pure logic.") are the strongest angles — match n
 - T: **Takeaway:** No negative noise. Silence is neutral — repo needs more public activity to generate organic signal.
+
+
+## Consolidated — 2026-05-04T07:30:37.839071Z
+D: **Note:** `ainl` runner is broken — `ModuleNotFoundError: No module named 'tooling'`. The .lang file is fully static/det
+D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
+D: - **Yaki mentioned prior successful workflow** — "We used to have a great process with short api...made animated sticker
+- D: $AINL hit $1.2M market cap earlier today (morning); dropped to ~$728K by evening
+- D: $AINL now available on Coinbase app via their DEX integration — major distribution milestone
+- S: Milestone tweet posted: https://x.com/ainativelang/status/2050964594110111745
+- S: Coinbase availability tweet posted: https://x.com/ainativelang/status/2051082328252809487
+- D: Bumped from 4 posts/day to 6 posts/day
+- S: Added two new cron jobs: "AINL Post — 6am ET" (ID: 0159575c) and "AINL Post — 2pm ET" (ID: 7fa85918)
+- S: Full schedule now: 6am, 9am, 12pm, 2pm, 4pm, 8pm ET
+- D: Two off-brand posts flagged: community post (generic dev flattery) and process post (mentioned token up 25.27% — price pumping)
+- S: Fixed hourly-post.js — token price context block now suppressed from tweet generation (only internal note, never surfaces in tweet text)
+- S: Added hard bans to system prompt: never mention price/MC/% change, never use "no fluff", never open with "The best devs..."
+- L: The model was ignoring "don't shill" soft guidance — hard bans + removing the data entirely from the prompt is more effective
+- D: Total Anthropic API spend (Mar 14 – May 2): ~$794 across billing periods
+- D: Estimated total AI spend including OpenAI: ~$870
+- D: Traditional agentic equivalent estimated at $2,500–$3,500
+- D: Steady-state monthly run rate: ~$170/month (down from heavy iteration in March)
+- D: Savings estimate: $2,130 (71% reduction)
+- S: Created infographic at ainl-x/infographic/ainl-savings-report.png — dark theme, institutional, full breakdown
+- D: Script written at ainl-x/scripts/mega-space-4-2026-05-03.md
+- D: Title: "MAGA: Make AINL Great Again"
+- D: Key talking points: $1.2M MC (earlier), Coinbase availability, 138 autonomous posts, $870 spend vs $3K traditional, roadmap (agent marketplace, token-gated agents, Polymarket bot)
+- D: Special guests mentioned for the Space
+- S: 9am post job auth error (from yesterday) self-resolved — ran OK today
+- S: 12pm, 4pm billing errors (stale from May 2) cleared after today's runs
+- S: Daily Report job (8bd04990) was last stale error — should have cleared at 6pm run
+- S: All post jobs confirmed running clean by 4pm heartbeat
+- S: Local commit pushed: "Update: $AINL hits $1.2M MC — milestone post fired, cadence upgrade" (hash: 2fce4af4, 20 files, 1764 insertions)
+- T: GitHub PAT (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) is expired/revoked — returns 401. Need fresh PAT from Kobe to push remotely.
+- T: No remote configured on workspace repo — will need to re-add origin with new PAT
+
+
+## Consolidated — 2026-05-05T07:30:21.788432Z
+D: **Note:** `ainl` runner is broken — `ModuleNotFoundError: No module named 'tooling'`. The .lang file is fully static/det
+D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
+D: - **Yaki mentioned prior successful workflow** — "We used to have a great process with short api...made animated sticker
+- D: $AINL hit ATH $1.21 today (May 4, 2026, ~11:41am EDT)
+- D: No KOL campaign, no coordinated pump — organic growth from infrastructure visibility
+- S: Mega Space #5 script written: `/data/.openclaw/workspace/ainl-x/scripts/mega-space-5-2026-05-04.md`
+- D: Space #5 theme: "ATH. The Market Caught Up to the Infrastructure."
+- D: Space #4 was actually titled "CODEX VS CLAUDE?! AI Mastermind" — 481 tuned in, 3h 33m runtime (NOT "MAGA: Make AINL Great Again" — that title was planned but may not have been used)
+- S: Bot replied "AINL! Goodnight everyone." to Bryan Johnson's tweet "Just gave Kate oral sex. Goodnight everyone."
+- D: Reply had 240 impressions, 6 likes before caught — extremely off-brand, institutional brand damage risk
+- T: DELETE that reply via Twitter API immediately
+- T: Patch auto-engage script to reject replies to tweets containing explicit/inappropriate/sexual content before engaging
+- D: Bot was pattern-matching "Goodnight everyone" style phrases with no content filter on the source tweet text
+- L: Auto-engage needs a content filter on the SOURCE tweet, not just the reply text
+- D: 131 real posted tweets since March 26
+- D: 6 posts/day schedule: 6am, 9am, 12pm, 2pm, 4pm, 8pm ET
+- D: 8 active cron jobs, all consecutiveErrors = 0
+- D: 2 pre-fix off-brand posts still in last-5 rotation (pre-fix artifacts from ~May 2):
+- D: All posts after the fix are clean
+
+
+## Consolidated — 2026-05-06T07:30:32.824937Z
+D: **Note:** `ainl` runner is broken — `ModuleNotFoundError: No module named 'tooling'`. The .lang file is fully static/det
+D: - Fixed gateway startup port mismatch (17301 vs 17302), full pipeline confirmed: `{'ok': True, runtime_version: '1.3.3'}
+D: - **Yaki mentioned prior successful workflow** — "We used to have a great process with short api...made animated sticker

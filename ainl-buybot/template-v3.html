@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    width: 480px;
+    height: 480px;
+    background: #000;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+  }
+
+  .container {
+    width: 480px;
+    height: 480px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, #0a0a1a 0%, #000 100%);
+  }
+
+  .grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(0,200,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,200,255,0.04) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  /* Scanline overlay */
+  .scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Top bar */
+  .top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0,200,255,0.15);
+    z-index: 5;
+  }
+
+  .token-name {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 4px;
+  }
+
+  .live-dot {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    color: #00ff88;
+    letter-spacing: 2px;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #00ff88;
+    box-shadow: 0 0 6px #00ff88;
+  }
+
+  /* Mascot area */
+  .mascot-wrap {
+    position: relative;
+    margin-bottom: 8px;
+    margin-top: 10px;
+  }
+
+  .mascot {
+    width: 120px;
+    height: 120px;
+    filter: drop-shadow(0 0 24px rgba(255,150,0,0.7));
+  }
+
+  /* Whale tier badge */
+
+    position: absolute;
+    top: -10px;
+    right: -20px;
+    background: linear-gradient(135deg, #ff6600, #ffaa00);
+    color: #000;
+    font-size: 9px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 10px;
+  }
+
+  /* BUY badge */
+  .buy-badge {
+    background: linear-gradient(135deg, #00ff88, #00cc66);
+    color: #000;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    padding: 4px 18px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    box-shadow: 0 0 20px rgba(0,255,136,0.5);
+  }
+
+  /* Price change */
+  .price-change {
+    font-size: 22px;
+    font-weight: bold;
+    color: #00ff88;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 20px rgba(0,255,136,0.8);
+  }
+
+  /* Stats grid */
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    width: 380px;
+    margin-bottom: 8px;
+  }
+
+  .stat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(0,200,255,0.15);
+    border-radius: 6px;
+    padding: 6px 8px;
+    text-align: center;
+  }
+
+  .stat-label {
+    font-size: 8px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .stat-value {
+    font-size: 13px;
+    font-weight: bold;
+    color: #fff;
+  }
+
+  .stat-value.green { color: #00ff88; }
+  .stat-value.cyan { color: #00ccff; }
+  .stat-value.orange { color: #ffaa00; }
+
+  /* Milestone bar */
+  .milestone {
+    width: 380px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(0,200,255,0.1);
+    border-radius: 6px;
+    padding: 6px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .milestone-label {
+    font-size: 9px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 1px;
+  }
+
+  .milestone-value {
+    font-size: 10px;
+    color: #ffaa00;
+    font-weight: bold;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    margin-top: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 74%;
+    background: linear-gradient(90deg, #00ff88, #ffaa00);
+    border-radius: 2px;
+  }
+
+  /* Wallet */
+  .wallet {
+    font-size: 9px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  /* Bottom bar */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(0,200,255,0.1);
+    z-index: 5;
+  }
+
+  .ainl-brand {
+    font-size: 9px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 3px;
+  }
+
+  .holder-num {
+    font-size: 9px;
+    color: #00ccff;
+    letter-spacing: 1px;
+  }
+
+  /* Emoji rain */
+  .emoji {
+    position: absolute;
+    font-size: 18px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="grid"></div>
+  <div class="scanlines"></div>
+
+  <!-- Emoji decorations -->
+  <div class="emoji" style="top:45px;left:18px">🚀</div>
+  <div class="emoji" style="top:55px;right:22px">💸</div>
+  <div class="emoji" style="top:180px;left:12px">🌟</div>
+  <div class="emoji" style="top:190px;right:14px">🔥</div>
+  <div class="emoji" style="top:310px;left:20px">💵</div>
+  <div class="emoji" style="top:300px;right:18px">💵</div>
+
+  <div class="top-bar">
+    <span class="token-name">$AINL</span>
+    <span class="live-dot"><span class="dot"></span>NEW BUY</span>
+  </div>
+
+  <div class="mascot-wrap">
+    <img class="mascot" src="{{MASCOT_URL}}" />
+
+  </div>
+
+  <div class="buy-badge">🚀 BOUGHT</div>
+
+  <div class="price-change">+{{PRICE_CHANGE}}% ↑</div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">SOL</div>
+      <div class="stat-value green">{{AMOUNT_SOL}}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">USD</div>
+      <div class="stat-value green">${{AMOUNT_USD}}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Mkt Cap</div>
+      <div class="stat-value cyan">${{MARKET_CAP}}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Holders</div>
+      <div class="stat-value cyan">{{HOLDERS}}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Txns</div>
+      <div class="stat-value orange">{{TXNS}}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Vol 24h</div>
+      <div class="stat-value orange">${{VOLUME}}</div>
+    </div>
+  </div>
+
+  <div class="milestone">
+    <div>
+      <div class="milestone-label">📍 NEXT MILESTONE</div>
+      <div class="progress-bar"><div class="progress-fill"></div></div>
+    </div>
+    <div class="milestone-value">${{NEXT_MC}} MC</div>
+  </div>
+
+  <div class="wallet">{{WALLET}}</div>
+
+  <div class="bottom-bar">
+    <span class="ainl-brand">AI NATIVE LANGUAGE</span>
+    <span class="holder-num">HOLDER #{{HOLDERS}}</span>
+  </div>
+</div>
+</body>
+</html>
+<style>
+.mascot { animation: bounce 0.6s ease-in-out infinite alternate; }
+@keyframes bounce { from { transform: translateY(0px); } to { transform: translateY(-10px); } }
+.buy-badge { animation: glow 1s infinite alternate; }
+@keyframes glow { from { box-shadow: 0 0 10px #00ff88; } to { box-shadow: 0 0 30px #00ff88, 0 0 60px rgba(0,255,136,0.3); } }
+.price-change { animation: flicker 0.5s infinite alternate; }
+@keyframes flicker { from { text-shadow: 0 0 20px rgba(0,255,136,0.8); } to { text-shadow: 0 0 40px rgba(0,255,136,1), 0 0 80px rgba(0,255,136,0.4); } }
+.dot { animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+.emoji { animation: fall linear infinite; }
+@keyframes fall { from { transform: translateY(-20px); opacity: 0.6; } to { transform: translateY(500px); opacity: 0; } }
+.particle1 { animation-duration: 3s; animation-delay: 0s; }
+.particle2 { animation-duration: 2.5s; animation-delay: 0.5s; }
+.particle3 { animation-duration: 3.5s; animation-delay: 1s; }
+.particle4 { animation-duration: 2.8s; animation-delay: 0.2s; }
+.particle5 { animation-duration: 4s; animation-delay: 0.7s; }
+.particle6 { animation-duration: 3.2s; animation-delay: 1.3s; }
+</style>

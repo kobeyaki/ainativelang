@@ -1,0 +1,25 @@
+{
+  "baseline_id": "ainl_baseline_20260402_060040",
+  "timestamp": "2026-04-02T06:00:40.470191+00:00",
+  "snapshot_type": "daily_intelligence_baseline",
+  "components": {
+    "memory": {
+      "path": "/data/.openclaw/workspace/memory",
+      "description": "Session memory and daily logs"
+    },
+    "cache": {
+      "path": "/data/.openclaw/workspace/.cache",
+      "description": "Runtime caches and compiled modules"
+    },
+    "metrics": {
+      "timestamp": "2026-04-02T06:00:40.470212+00:00",
+      "description": "System health and performance metrics"
+    }
+  },
+  "state_capture": {
+    "memory_files": 13,
+    "cache_entries": 0,
+    "total_size_bytes": 95523,
+    "content_hash": "7c33a2eccc79f980"
+  }
+}

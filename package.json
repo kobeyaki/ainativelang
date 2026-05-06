@@ -13,6 +13,7 @@
     "@aws-sdk/client-s3": "^3.1009.0",
     "@metaplex-foundation/js": "^0.20.1",
     "@metaplex-foundation/mpl-token-metadata": "^3.4.0",
+    "@runwayml/sdk": "^3.19.0",
     "@solana/spl-token": "^0.4.14",
     "@solana/web3.js": "^1.98.4",
     "axios": "^1.13.6",
@@ -25,6 +26,7 @@
     "nodemailer": "^8.0.2",
     "openai": "^6.29.0",
     "prisma": "^7.5.0",
+    "puppeteer": "^24.40.0",
     "sharp": "^0.34.5",
     "stripe": "^20.4.1",
     "twitter-api-v2": "^1.29.0"

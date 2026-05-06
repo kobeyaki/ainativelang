@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 480px; height: 480px; background: #000; overflow: hidden; }
+canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="480" height="480"></canvas>
+<img id="mascot" src="{{MASCOT_URL}}" style="display:none" crossorigin="anonymous" />
+<script>
+const W = 480, H = 480;
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+const mascotImg = document.getElementById('mascot');
+
+// Layout
+const MW = 180, MH = 180;
+const MX = (W - MW) / 2; // 150
+const MY = 88; // mascot resting top-y
+
+// Eye positions relative to mascot top-left at 180x180 (original 800x734)
+// Scale: 180/800=0.225, 180/734=0.2452
+// Vision-detected pupils: left(280,390) right(480,390)
+const EYE_LX = MX + Math.round(280 * MW / 800); // 213
+const EYE_RX = MX + Math.round(480 * MW / 800); // 258
+const EYE_REL_Y = Math.round(390 * MH / 734);   // 96
+
+// Text
+const TEXT = 'NEW BUY';
+const TEXT_Y = 358;
+const TEXT_SIZE = 56;
+const LETTER_SPACING = 6;
+
+// Matrix
+const MAT_COLS = Math.floor(W / 12);
+const MAT_CHARS = '01アイウエオカキクケコ$AINL♦◆';
+const matSeed = Array.from({length: MAT_COLS}, (_, i) => ((i * 1731 + 7) % 40) * 0.1);
+
+// Particles
+const PARTS = [
+  {x:24,  vy:70,  ch:'💸', delay:1.6, sz:18},
+  {x:68,  vy:90,  ch:'🚀', delay:2.1, sz:16},
+  {x:380, vy:65,  ch:'💸', delay:1.8, sz:20},
+  {x:420, vy:80,  ch:'⚡', delay:2.4, sz:16},
+  {x:200, vy:55,  ch:'💎', delay:2.8, sz:17},
+  {x:290, vy:75,  ch:'🔥', delay:2.0, sz:18},
+  {x:130, vy:85,  ch:'💵', delay:3.1, sz:16},
+  {x:450, vy:60,  ch:'🌟', delay:2.6, sz:15},
+];
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+function lerp(a,b,t){return a+(b-a)*t;}
+function easeOutElastic(t) {
+  if(t<=0||t>=1) return t;
+  return Math.pow(2,-10*t)*Math.sin((t*10-0.75)*(2*Math.PI/3))+1;
+}
+function easeOut3(t){return 1-Math.pow(1-t,3);}
+
+// Pre-compute char x positions (called after ctx font is set)
+function getCharPositions() {
+  ctx.save();
+  ctx.font = `900 ${TEXT_SIZE}px 'Courier New', monospace`;
+  ctx.letterSpacing = LETTER_SPACING + 'px';
+  const totalW = ctx.measureText(TEXT).width;
+  let positions = [];
+  let xAcc = (W - totalW) / 2;
+  for (let i = 0; i < TEXT.length; i++) {
+    const cw = ctx.measureText(TEXT[i]).width + LETTER_SPACING;
+    positions.push({ch: TEXT[i], x: xAcc, cx: xAcc + cw*0.5, w: cw});
+    xAcc += cw;
+  }
+  ctx.restore();
+  return positions;
+}
+
+let charPositions = null;
+
+// ── Mascot Y at time t ────────────────────────────────────────────────────────
+function getMascotY(t) {
+  if (t < 0.35) return -220;
+  const mt = clamp((t - 0.35) / 0.5, 0, 1);
+  const slamY = lerp(-220, MY, easeOutElastic(mt));
+  if (mt < 1) return slamY;
+  // Gentle float after settle
+  return MY + Math.sin((t - 0.85) * Math.PI * 1.1) * -7;
+}
+
+// ── Draw one frame at time t (seconds) ────────────────────────────────────────
+function drawFrame(t) {
+  // Pre-compute char positions once
+  if (!charPositions) charPositions = getCharPositions();
+
+  // ─── BACKGROUND ───
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle dark vignette
+  const vg = ctx.createRadialGradient(W/2, H/2, 60, W/2, H/2, W*0.75);
+  vg.addColorStop(0, 'rgba(8,8,18,0)');
+  vg.addColorStop(1, 'rgba(0,0,0,0.85)');
+  ctx.fillStyle = vg;
+  ctx.fillRect(0, 0, W, H);
+
+  // ─── MATRIX RAIN ───
+  if (t > 0.3) {
+    const alpha = clamp((t-0.3)/0.25, 0, 1) * 0.28;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.font = '11px monospace';
+    const spd = 0.9;
+    for (let i = 0; i < MAT_COLS; i++) {
+      const drop = (matSeed[i] + t * spd) % (H/11 + 6);
+      const y = drop * 11;
+      const ci = Math.floor((t*50 + i*11 + drop) % MAT_CHARS.length);
+      // Head
+      ctx.fillStyle = `rgba(80, 255, 160, 0.9)`;
+      ctx.fillText(MAT_CHARS[ci], i*12, y);
+      // Trail
+      for (let j=1; j<7; j++) {
+        const ty = y - j*11;
+        if (ty < 0) continue;
+        const tc = Math.floor((t*30 + i*7 + j) % MAT_CHARS.length);
+        ctx.fillStyle = `rgba(0, ${150 - j*18}, ${60 - j*7}, ${0.65 - j*0.09})`;
+        ctx.fillText(MAT_CHARS[tc], i*12, ty);
+      }
+    }
+    ctx.restore();
+  }
+
+  // ─── TV STATIC intro ───
+  if (t < 0.42) {
+    const sa = clamp(1 - t/0.32, 0, 1);
+    ctx.save();
+    ctx.globalAlpha = sa;
+    // Scanline static
+    for (let y = 0; y < H; y += 2) {
+      const br = 0.1 + 0.5 * ((Math.sin(y*0.3 + t*400) + 1)/2) * Math.random();
+      ctx.fillStyle = `rgba(${br*230},${br*230},${br*230},0.6)`;
+      ctx.fillRect(0, y, W, 1);
+    }
+    ctx.restore();
+  }
+
+  // ─── SPEED LINES flash ───
+  if (t > 0.3 && t < 0.75) {
+    const sa = clamp((t-0.3)/0.1,0,1) * clamp(1-(t-0.65)/0.1,0,1);
+    ctx.save();
+    ctx.globalAlpha = sa * 0.18;
+    ctx.strokeStyle = '#fff';
+    for (let i = 0; i < 18; i++) {
+      const angle = (i / 18) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(W/2, H/2);
+      ctx.lineTo(W/2 + Math.cos(angle)*W, H/2 + Math.sin(angle)*W);
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // ─── STROBE flash ───
+  if (t > 0.65 && t < 0.78) {
+    const sa = clamp(1-(t-0.65)/0.13, 0, 1);
+    ctx.save();
+    ctx.globalAlpha = sa * 0.7;
+    ctx.fillStyle = '#ff8800';
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+
+  // ─── MASCOT ───
+  const mascotY = getMascotY(t);
+  if (t > 0.35 && mascotImg.complete && mascotImg.naturalWidth > 0) {
+    const mt = clamp((t-0.35)/0.5, 0, 1);
+    const alpha = clamp(mt * 4, 0, 1);
+    const scale = mt < 1 ? lerp(1.6, 1, easeOut3(mt)) : 1;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    // Orange aura glow
+    const glowIntensity = 35 + 15 * Math.sin(t * 2.2);
+    ctx.shadowColor = 'rgba(255, 140, 0, 0.9)';
+    ctx.shadowBlur = glowIntensity;
+
+    const cx = MX + MW/2, cy = mascotY + MH/2;
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+    ctx.drawImage(mascotImg, -MW/2, -MH/2, MW, MH);
+    ctx.restore();
+  }
+
+  // ─── EYE GLOW / CHARGE ───
+  const eyeChargeStart = 1.0;
+  const laserFireTime  = 1.18;
+  if (t > eyeChargeStart) {
+    const eyeY = mascotY + EYE_REL_Y;
+    const chargeT = clamp((t - eyeChargeStart) / (laserFireTime - eyeChargeStart), 0, 1);
+    const pulse = 0.6 + 0.4 * Math.sin(t * 25);
+
+    [EYE_LX, EYE_RX].forEach(ex => {
+      // Inner pupil glow
+      const r = 4 + 8 * chargeT * pulse;
+      const g = ctx.createRadialGradient(ex, eyeY, 0, ex, eyeY, r * 2.5);
+      g.addColorStop(0, `rgba(255, 80, 0, ${0.95 * chargeT})`);
+      g.addColorStop(0.5, `rgba(255, 20, 0, ${0.6 * chargeT})`);
+      g.addColorStop(1, 'rgba(200, 0, 0, 0)');
+      ctx.save();
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(ex, eyeY, r * 2.5, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+
+      // Charge rings
+      if (chargeT > 0.3) {
+        for (let ring = 0; ring < 2; ring++) {
+          const rp = ((chargeT - ring * 0.15) % 0.4) / 0.4;
+          if (rp <= 0) continue;
+          const rr = rp * 22;
+          const ra = (1 - rp) * 0.5 * chargeT;
+          ctx.save();
+          ctx.strokeStyle = `rgba(255, 100, 0, ${ra})`;
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(ex, eyeY, rr, 0, Math.PI*2);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+    });
+  }
+
+  // ─── LASER BEAMS ───
+  if (t > laserFireTime) {
+    const lt = clamp((t - laserFireTime) / 0.32, 0, 1); // 0→1 as beam sweeps R
+    const eyeY = mascotY + EYE_REL_Y;
+
+    [EYE_LX, EYE_RX].forEach((ex, idx) => {
+      // Each eye fires from its own x; beams slightly vertically offset
+      const by = eyeY + (idx === 0 ? -1 : 1); // hair-thin offset for realism
+      const tipX = ex + lt * (W - ex + 10);
+      const drawW = tipX - ex;
+      if (drawW <= 0) return;
+
+      ctx.save();
+
+      // Outer diffuse glow (wide)
+      const og = ctx.createLinearGradient(ex, by - 18, ex, by + 18);
+      og.addColorStop(0,   'rgba(255,20,0,0)');
+      og.addColorStop(0.35, `rgba(255,60,0,${0.35 * (1 - lt*0.25)})`);
+      og.addColorStop(0.5,  `rgba(255,80,0,${0.55 * (1 - lt*0.25)})`);
+      og.addColorStop(0.65, `rgba(255,60,0,${0.35 * (1 - lt*0.25)})`);
+      og.addColorStop(1,   'rgba(255,20,0,0)');
+      ctx.fillStyle = og;
+      ctx.fillRect(ex, by - 18, drawW, 36);
+
+      // Mid beam
+      ctx.shadowColor = '#ff3300';
+      ctx.shadowBlur = 18;
+      const mg = ctx.createLinearGradient(ex, 0, tipX, 0);
+      mg.addColorStop(0, 'rgba(255,100,0,0.95)');
+      mg.addColorStop(0.7,'rgba(255,50,0,0.85)');
+      mg.addColorStop(1, 'rgba(255,20,0,0.6)');
+      ctx.fillStyle = mg;
+      ctx.fillRect(ex, by - 3.5, drawW, 7);
+
+      // Hot white core
+      ctx.shadowColor = '#fff';
+      ctx.shadowBlur = 8;
+      ctx.fillStyle = 'rgba(255,255,255,0.96)';
+      ctx.fillRect(ex, by - 1.2, drawW, 2.4);
+
+      // Leading edge spark
+      if (lt < 1) {
+        const sg = ctx.createRadialGradient(tipX, by, 0, tipX, by, 24);
+        sg.addColorStop(0, 'rgba(255,255,255,1)');
+        sg.addColorStop(0.25,'rgba(255,220,80,0.9)');
+        sg.addColorStop(0.6, 'rgba(255,60,0,0.4)');
+        sg.addColorStop(1, 'rgba(255,0,0,0)');
+        ctx.fillStyle = sg;
+        ctx.beginPath();
+        ctx.arc(tipX, by, 24, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    });
+  }
+
+  // ─── TEXT: NEW BUY — laser reveal ───
+  if (t > laserFireTime && charPositions) {
+    const lt = clamp((t - laserFireTime) / 0.32, 0, 1);
+    const laserX = charPositions[0].x + lt * (W - charPositions[0].x + 50);
+
+    ctx.save();
+    ctx.font = `900 ${TEXT_SIZE}px 'Courier New', monospace`;
+    ctx.letterSpacing = LETTER_SPACING + 'px';
+    ctx.textBaseline = 'middle';
+
+    charPositions.forEach(({ch, x, cx}) => {
+      if (ch === ' ') return;
+      if (laserX < cx - 5) return; // not reached yet
+
+      const dist = laserX - cx;
+      const isHot = dist < 35; // laser is passing over this char
+
+      if (isHot) {
+        // Carving — white hot
+        const heat = clamp(1 - dist/35, 0, 1);
+        ctx.fillStyle = `rgb(255, ${Math.round(lerp(160,255,heat))}, ${Math.round(heat*80)})`;
+        ctx.shadowColor = '#ff6600';
+        ctx.shadowBlur = 40 * heat + 20;
+      } else {
+        // Settled — cool to green
+        const cool = clamp((dist - 35) / 80, 0, 1);
+        const R = 0;
+        const G = Math.round(lerp(200, 255, cool));
+        const B = Math.round(lerp(50, 140, cool));
+        ctx.fillStyle = `rgb(${R}, ${G}, ${B})`;
+        ctx.shadowColor = '#00ff88';
+        ctx.shadowBlur = 22 - cool * 8 + 6 * Math.sin(t * 3.5 + cx * 0.02);
+      }
+      ctx.fillText(ch, x, TEXT_Y);
+    });
+    ctx.restore();
+  }
+
+  // ─── SCREEN CRACK on impact ───
+  const crackT = 0.68;
+  if (t > crackT && t < crackT + 1.4) {
+    const ca = clamp(1 - (t - crackT) / 1.4, 0, 1) * 0.55;
+    ctx.save();
+    ctx.globalAlpha = ca;
+    ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+    ctx.lineWidth = 1;
+    const cracks = [
+      [[240,240],[170,170],[110,130],[60,70]],
+      [[240,240],[200,155],[215,70],[175,15]],
+      [[240,240],[305,175],[365,155],[425,95]],
+      [[240,240],[285,308],[265,388],[305,460]],
+      [[240,240],[165,305],[105,345],[40,405]],
+      [[240,240],[320,325],[385,405],[445,465]],
+    ];
+    cracks.forEach(pts => {
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      pts.slice(1).forEach(p => ctx.lineTo(p[0], p[1]));
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  // ─── AMOUNT ───
+  const amountStart = 2.0;
+  if (t > amountStart) {
+    const aa = clamp((t - amountStart)/0.25, 0, 1);
+    ctx.save();
+    ctx.globalAlpha = aa;
+    ctx.font = `700 22px 'Courier New', monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#ffaa00';
+    ctx.shadowColor = '#ff8800';
+    ctx.shadowBlur = 16;
+    ctx.fillText('{{AMOUNT}}', W/2, TEXT_Y + 48);
+    ctx.restore();
+  }
+
+  // ─── WALLET (subtle) ───
+  if (t > 2.2) {
+    const wa = clamp((t - 2.2)/0.3, 0, 1) * 0.5;
+    ctx.save();
+    ctx.globalAlpha = wa;
+    ctx.font = `400 11px 'Courier New', monospace`;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#449988';
+    ctx.fillText('{{WALLET}}', W/2, TEXT_Y + 72);
+    ctx.restore();
+  }
+
+  // ─── $AINL tag ───
+  if (t > 2.1) {
+    const ta = clamp((t-2.1)/0.3, 0, 1) * 0.55;
+    ctx.save();
+    ctx.globalAlpha = ta;
+    ctx.font = `400 12px 'Courier New', monospace`;
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#00c8ff';
+    ctx.fillText('$AINL', W - 10, H - 10);
+    ctx.restore();
+  }
+
+  // ─── SOUND WAVE ───
+  if (t > 2.1) {
+    const swa = clamp((t-2.1)/0.3, 0, 1);
+    ctx.save();
+    ctx.globalAlpha = swa;
+    const bars = 22, bw = 4, gap = 2.5;
+    const totalBW = bars * (bw + gap);
+    const bx = (W - totalBW) / 2;
+    ctx.shadowColor = '#00ff88';
+    ctx.shadowBlur = 8;
+    for (let i = 0; i < bars; i++) {
+      const h = 4 + 26 * (0.5 + 0.5 * Math.sin(t*6 + i*0.65 + Math.sin(t*2.8 + i*0.3)));
+      const bright = 120 + Math.round(80 * (h/30));
+      ctx.fillStyle = `rgb(0, ${bright}, ${Math.round(bright * 0.55)})`;
+      ctx.fillRect(bx + i*(bw+gap), H - 14 - h, bw, h);
+    }
+    ctx.restore();
+  }
+
+  // ─── PARTICLES ───
+  PARTS.forEach(p => {
+    if (t < p.delay) return;
+    const pt = t - p.delay;
+    const py = -25 + p.vy * pt + 0.5 * 30 * pt * pt; // slight gravity
+    if (py > H + 30) return;
+    ctx.save();
+    ctx.font = `${p.sz}px serif`;
+    ctx.globalAlpha = clamp(1 - pt/3, 0.2, 0.88);
+    ctx.fillText(p.ch, p.x, py);
+    ctx.restore();
+  });
+
+  // ─── Shockwave ring on landing ───
+  const swT = 0.67;
+  if (t > swT && t < swT + 0.55) {
+    const sp = clamp((t - swT) / 0.55, 0, 1);
+    const rw = sp * 240, rh = sp * 55;
+    const sa = (1 - sp) * 0.9;
+    ctx.save();
+    ctx.globalAlpha = sa;
+    ctx.strokeStyle = '#ff8800';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(W/2, H*0.72, rw, rh, 0, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+// ── Expose for Puppeteer scrubbing ──────────────────────────────────────────
+window.renderFrame = function(tSec) {
+  charPositions = null; // recompute if needed (font may not be set yet)
+  drawFrame(tSec);
+};
+
+// ── Auto-play in browser ─────────────────────────────────────────────────────
+let startTs = null;
+function loop(ts) {
+  if (!startTs) startTs = ts;
+  const t = (ts - startTs) / 1000;
+  // Loop at 5 seconds
+  drawFrame(t % 5);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

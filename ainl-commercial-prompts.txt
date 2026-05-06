@@ -1,0 +1,34 @@
+# 60-Second AINL Commercial — 5-Act Structure
+
+## Act 1: The Dream (12s)
+Prompt: "Abstract, ethereal visualization of code and data flowing like water through digital channels. A question mark glows in the center, symbolizing possibility. Smooth camera pan, warm golden light mixing with cool blues. Inspirational, forward-looking. No harsh edges. Cinematic."
+
+Voiceover: "What if building AI systems didn't require a thousand orchestration loops? What if you could compile once and run deterministically across millions of workflows?"
+
+---
+
+## Act 2: The Vision (10s)
+Prompt: "A bright neon star materializes in deep cosmic space, glowing with cyan and orange light. Star slowly rotates, casting light across a dark horizon. Infrastructure grid lines appear subtly behind it. Hopeful, serene, confident. Cinematic depth."
+
+Voiceover: "There's a better infrastructure layer. One that's faster. Cheaper. Built for scale."
+
+---
+
+## Act 3: The Proof (20s)
+Prompt: "Clean, minimal interface showing real data: '$29 per month' displayed prominently, '99.7% uptime' glowing, '17 agents live'. Metrics appear as elegant HUD elements. Star pulses in background as witness. Achievement energy. Professional, authoritative."
+
+Voiceover: "Companies are already using it. 17 agents in production. $29 a month. 99.7% uptime. Zero runtime type errors. This isn't theoretical. This is real."
+
+---
+
+## Act 4: The Call (10s)
+Prompt: "Star pulses with confident cyan and orange glow. Light rays emanate outward. Human silhouettes appear in the distance, looking upward toward the star. Empowering energy. Forward momentum. Connection."
+
+Voiceover: "You can build this too. Not in a year. Not in a quarter. Now."
+
+---
+
+## Act 5: The Momentum (8s)
+Prompt: "Star glows brighter. Camera pulls back, revealing a vast digital landscape awakening. Lines of light connect and activate. Future opening up. Text appears: 'github.com/sbhooley/ainativelang'. Hopeful, inevitable, inviting."
+
+Voiceover: "The future of AI infrastructure isn't smarter models. It's better systems. Join us."

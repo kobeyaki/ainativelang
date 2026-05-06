@@ -1,0 +1,78 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-04-12T06:00:13.527371Z",
+  "date": "2026-04-12",
+  "environment": {
+    "workspace": "/data/.openclaw/workspace",
+    "hostname": "debaf65d3c92"
+  },
+  "memory": {
+    "files": {
+      "2026-03-14.md": {
+        "size_bytes": 1498
+      },
+      "2026-03-24.md": {
+        "size_bytes": 6267
+      },
+      "2026-03-28.md": {
+        "size_bytes": 1092
+      },
+      "2026-03-31.md": {
+        "size_bytes": 2089
+      },
+      "2026-04-09.md": {
+        "size_bytes": 1270
+      },
+      "2026-03-27.md": {
+        "size_bytes": 11616
+      },
+      "2026-03-18.md": {
+        "size_bytes": 3767
+      },
+      "2026-03-25.md": {
+        "size_bytes": 16285
+      },
+      "ainl-setup.md": {
+        "size_bytes": 9928
+      },
+      "2026-03-23.md": {
+        "size_bytes": 5826
+      },
+      "2026-03-30.md": {
+        "size_bytes": 5385
+      },
+      "2026-03-13.md": {
+        "size_bytes": 2956
+      },
+      "2026-04-10.md": {
+        "size_bytes": 6221
+      },
+      "2026-04-05.md": {
+        "size_bytes": 4217
+      },
+      "2026-04-06.md": {
+        "size_bytes": 9860
+      },
+      "2026-03-26.md": {
+        "size_bytes": 23254
+      },
+      "2026-03-19.md": {
+        "size_bytes": 5560
+      },
+      "2026-04-03.md": {
+        "size_bytes": 3179
+      }
+    },
+    "metrics": {
+      "memory_files": 18,
+      "total_memory_bytes": 120270,
+      "ainl_cache_files": 6889,
+      "ainl_cache_size_bytes": 1395125679
+    }
+  },
+  "comparison_points": {
+    "memory_size_bytes": 120270,
+    "ainl_cache_size_bytes": 1395125679,
+    "hash_seed": "664e0483f6139ae95b8b0d9146f542fd44d4f2b70310e552c1c8bb0ef64bc86b"
+  }
+}

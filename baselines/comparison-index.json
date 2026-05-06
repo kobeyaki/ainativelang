@@ -1,0 +1,35 @@
+{
+  "baselines": [
+    {
+      "date": "2026-04-11",
+      "timestamp": "2026-04-11T06:00:31.068709Z",
+      "file": "/data/.openclaw/workspace/baselines/baseline-2026-04-11.json",
+      "metadata": "/data/.openclaw/workspace/baselines/baseline-2026-04-11.meta.json",
+      "comparison_hash": "999eea498da3b7dbd6e44ef615792e3d575f9b8aa151170bf06fb42bce007b43"
+    },
+    {
+      "date": "2026-04-11",
+      "timestamp": "2026-04-11T06:01:24.492483Z",
+      "file": "/data/.openclaw/workspace/baselines/baseline-2026-04-11.json",
+      "metadata": "/data/.openclaw/workspace/baselines/baseline-2026-04-11.meta.json"
+    },
+    {
+      "date": "2026-04-12",
+      "timestamp": "2026-04-12T06:00:13.527371Z",
+      "file": "/data/.openclaw/workspace/baselines/baseline-2026-04-12.json",
+      "metadata": "/data/.openclaw/workspace/baselines/baseline-2026-04-12.meta.json"
+    },
+    {
+      "date": "2026-04-13",
+      "timestamp": "2026-04-13T06:00:15.609383Z",
+      "file": "/data/.openclaw/workspace/baselines/baseline-2026-04-13.json",
+      "metadata": "/data/.openclaw/workspace/baselines/baseline-2026-04-13.meta.json"
+    },
+    {
+      "date": "2026-04-14",
+      "timestamp": "2026-04-14T06:00:05.278479Z",
+      "file": "/data/.openclaw/workspace/baselines/baseline-2026-04-14.json",
+      "metadata": "/data/.openclaw/workspace/baselines/baseline-2026-04-14.meta.json"
+    }
+  ]
+}

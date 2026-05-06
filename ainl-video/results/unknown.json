@@ -1,0 +1,24 @@
+{
+  "id": "69cac2e5b066fa83d0420890",
+  "key_name": "Claw ",
+  "model": "google/nano-banana/text-to-image",
+  "args": {
+    "aspect_ratio": "16:9",
+    "num_images": 1,
+    "prompt": "High quality Solana meme coin collab artwork. Exactly 4 characters total, one of each: 1) cute orange kawaii starfish with glossy black eyes and happy smile (center), 2) ONE Pepe the Frog with white eyes, 3) ONE white Trollface, 4) ONE Wojak. No duplicates, exactly one of each character. All in detailed cartoon illustration style, vibrant colors, clean black outlines. Bright blue sky with fluffy white clouds background. Fun group pose. Professional digital illustration, 4K."
+  },
+  "result": {
+    "images": [
+      {
+        "url": "https://file.shortapi.ai/tmp/20260331/69cac2e5b066fa83d0420890/d75c5t3kq4n0008014cg.png"
+      }
+    ]
+  },
+  "status": 2,
+  "credit": "0.02",
+  "refunded": false,
+  "refunded_credit": "0",
+  "created_at": "2026-03-30T18:37:25.678Z",
+  "updated_at": "2026-03-30T18:37:40.823Z",
+  "finished_at": "2026-03-30T18:37:40.823Z"
+}

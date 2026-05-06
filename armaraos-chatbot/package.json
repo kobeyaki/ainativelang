@@ -1,0 +1,12 @@
+{
+  "name": "armaraos-chatbot",
+  "version": "1.0.0",
+  "description": "Pump.fun chat controller for ArmaraOS",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}

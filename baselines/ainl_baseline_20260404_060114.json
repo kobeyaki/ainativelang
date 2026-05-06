@@ -1,0 +1,56 @@
+{
+  "baseline_id": "ainl_baseline_20260404_060114",
+  "timestamp": "2026-04-04T06:01:14.089152+00:00",
+  "snapshot_type": "daily_intelligence_baseline",
+  "execution_context": {
+    "cron_job": "de2fc8f3-077e-47f2-9bb5-05e995f4609d",
+    "name": "AINL Store Baseline (Graph-Executed)",
+    "module": "store_baseline.lang"
+  },
+  "components": {
+    "memory": {
+      "path": "/data/.openclaw/workspace/memory",
+      "description": "Session memory and daily logs",
+      "files": 14
+    },
+    "cache": {
+      "path": "/data/.openclaw/workspace/.cache",
+      "description": "Runtime caches and compiled modules",
+      "entries": 0
+    },
+    "compiler": {
+      "path": "/data/.openclaw/workspace/ainativelang",
+      "description": "AINL compiler and runtime graphs",
+      "version": "v2"
+    },
+    "metrics": {
+      "timestamp": "2026-04-04T06:01:14.089152+00:00",
+      "description": "System health and performance metrics"
+    }
+  },
+  "state_capture": {
+    "memory_files": 14,
+    "cache_entries": 0,
+    "total_size_bytes": 98702,
+    "content_hash": "b6f424d9e1a16de1",
+    "snapshot_points": [
+      "memory_namespace='intel'",
+      "memory_kind='baseline'",
+      "record_id='2026-03-16-v1'",
+      "ttl=604800"
+    ]
+  },
+  "drift_detection": {
+    "enabled": true,
+    "comparison_baseline": "ainl_baseline_20260402_060040",
+    "delta_detection_ready": true,
+    "trend_tracking": true
+  },
+  "compilation_metadata": {
+    "lines": 18,
+    "operations": 17,
+    "labels": 6,
+    "semantic_checksum": "sha256:11ab488e34c78d9df71f8f47516a5dca687d1ee6c81068900d0ce6c9bee3d3ac",
+    "ir_version": "1.0.0"
+  }
+}

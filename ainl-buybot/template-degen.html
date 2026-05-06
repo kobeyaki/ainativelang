@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 480px; height: 480px; background: #000; overflow: hidden; }
+
+  .container {
+    width: 480px; height: 480px;
+    position: relative;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: #000;
+  }
+
+  /* TV STATIC INTRO */
+  .static {
+    position: absolute; inset: 0; z-index: 100;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    animation: staticFade 0.4s ease-out 0s both;
+  }
+  @keyframes staticFade {
+    0%   { opacity: 1; }
+    60%  { opacity: 0.8; }
+    100% { opacity: 0; pointer-events: none; }
+  }
+
+  /* MATRIX BINARY RAIN */
+  .matrix-canvas {
+    position: absolute; inset: 0; z-index: 1;
+    opacity: 0;
+    animation: matrixAppear 0.3s ease-out 0.4s both;
+  }
+  @keyframes matrixAppear { from { opacity: 0; } to { opacity: 1; } }
+
+  /* SPEED LINES */
+  .speedlines {
+    position: absolute; inset: 0; z-index: 2;
+    animation: speedIn 0.3s ease-out 0.3s both, speedOut 0.2s ease-out 0.65s both;
+  }
+  @keyframes speedIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes speedOut { from { opacity: 1; } to { opacity: 0; } }
+
+  /* STROBE/COLOR FLASH */
+  .strobe {
+    position: absolute; inset: 0; z-index: 50;
+    animation: strobe 0.5s ease-out 0.65s both;
+  }
+  @keyframes strobe {
+    0%   { background: rgba(255,100,0,0.9); }
+    20%  { background: rgba(0,255,136,0.7); }
+    40%  { background: rgba(255,100,0,0.5); }
+    60%  { background: rgba(0,200,255,0.3); }
+    100% { background: transparent; }
+  }
+
+  /* SCREEN CRACK */
+  .crack {
+    position: absolute; inset: 0; z-index: 8;
+    opacity: 0;
+    animation: crackAppear 0.1s ease-out 0.68s both, crackFade 1s ease-out 1.5s both;
+  }
+  @keyframes crackAppear { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes crackFade { from { opacity: 0.6; } to { opacity: 0; } }
+
+  .crack svg { width: 100%; height: 100%; }
+
+  /* MASCOT */
+  .mascot-wrap {
+    position: relative; z-index: 10;
+    animation: slamIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+    margin-bottom: 15px;
+  }
+  @keyframes slamIn {
+    0%   { transform: translateY(-500px) scale(2) rotate(-15deg); opacity: 0; filter: blur(4px); }
+    65%  { transform: translateY(25px) scale(0.9) rotate(3deg); opacity: 1; filter: blur(0); }
+    80%  { transform: translateY(-10px) scale(1.05) rotate(-1deg); }
+    100% { transform: translateY(0) scale(1) rotate(0); opacity: 1; }
+  }
+
+  .mascot {
+    width: 180px; height: 180px;
+    filter: drop-shadow(0 0 40px rgba(255,130,0,1));
+    animation: mascotBounce 0.6s ease-in-out 0.9s infinite alternate;
+  }
+  @keyframes mascotBounce {
+    from { transform: translateY(0); filter: drop-shadow(0 0 40px rgba(255,130,0,1)); }
+    to   { transform: translateY(-12px); filter: drop-shadow(0 0 60px rgba(255,200,0,1)) brightness(1.1); }
+  }
+
+  /* LASER EYES - full screen horizontal blasts */
+  .lasers {
+    position: absolute;
+    top: 76px; left: 0; right: 0;
+    display: flex; flex-direction: column; gap: 14px;
+    z-index: 15;
+    opacity: 0;
+    animation: lasersAppear 0.1s ease-out 0.72s both;
+  }
+  @keyframes lasersAppear { from { opacity: 0; } to { opacity: 1; } }
+  .laser-beam {
+    height: 5px; width: 0;
+    background: linear-gradient(to right, transparent 0%, #ff3300 10%, #ff0000 35%, #ffffff 50%, #ff0000 65%, #ff3300 90%, transparent 100%);
+    border-radius: 3px;
+    box-shadow: 0 0 14px #ff0000, 0 0 28px #ff4400, 0 0 50px rgba(255,0,0,0.5);
+    animation: laserShoot 0.2s ease-out 0.72s both, laserPulse 0.2s ease-in-out 0.95s infinite alternate;
+    align-self: stretch;
+  }
+  @keyframes laserShoot { from { width: 0; } to { width: 100%; } }
+  @keyframes laserPulse {
+    from { opacity: 0.85; height: 4px; box-shadow: 0 0 10px #ff0000; }
+    to   { opacity: 1; height: 6px; box-shadow: 0 0 24px #ff0000, 0 0 50px #ff2200, 0 0 80px rgba(255,0,0,0.3); }
+  }
+
+  /* Shockwave */
+  .shockwave  { position: absolute; bottom: 0; left: 50%; border-radius: 50%; border: 3px solid rgba(255,130,0,0.9); animation: sw1 0.5s ease-out 0.67s both; }
+  .shockwave2 { position: absolute; bottom: 0; left: 50%; border-radius: 50%; border: 2px solid rgba(0,200,255,0.7); animation: sw2 0.6s ease-out 0.72s both; }
+  @keyframes sw1 { 0% { width:10px;height:10px;opacity:1;margin-left:-5px;margin-bottom:-5px; } 100% { width:280px;height:60px;opacity:0;margin-left:-140px;margin-bottom:-30px; } }
+  @keyframes sw2 { 0% { width:5px;height:5px;opacity:0.8;margin-left:-2px;margin-bottom:-2px; } 100% { width:360px;height:80px;opacity:0;margin-left:-180px;margin-bottom:-40px; } }
+
+  /* GLITCH TEXT */
+  .new-buy {
+    font-family: 'Courier New', monospace;
+    font-size: 48px; font-weight: 900;
+    letter-spacing: 4px;
+    color: #00ff88;
+    text-shadow: 0 0 30px rgba(0,255,136,1), 0 0 60px rgba(0,255,136,0.5);
+    z-index: 10; position: relative;
+    animation: glitchIn 0.6s ease-out 0.9s both, textGlow 0.8s 1.5s infinite alternate;
+  }
+  @keyframes glitchIn {
+    0%  { opacity: 0; transform: scale(2); }
+    10% { opacity: 1; transform: scale(1.1) skewX(5deg); color: #ff0000; text-shadow: -4px 0 cyan; }
+    20% { transform: scale(1.05) skewX(-3deg); color: #00ffff; text-shadow: 4px 0 red; }
+    30% { transform: scale(1) skewX(2deg); color: #ff6600; }
+    40% { transform: scale(1) skewX(0); color: #00ff88; }
+    100%{ transform: scale(1); color: #00ff88; opacity: 1; }
+  }
+  @keyframes textGlow {
+    from { text-shadow: 0 0 20px rgba(0,255,136,0.8); }
+    to   { text-shadow: 0 0 50px #00ff88, 0 0 100px rgba(0,255,136,0.4), 2px 0 #ff6600, -2px 0 #00ffff; }
+  }
+
+  /* LFG line */
+  .lfg {
+    font-family: 'Courier New', monospace;
+    font-size: 20px; font-weight: bold;
+    letter-spacing: 8px; color: #ff6600;
+    text-shadow: 0 0 20px rgba(255,100,0,0.8);
+    z-index: 10; margin-top: 4px;
+    animation: fadeUp 0.4s ease-out 1.3s both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* AINL tag */
+  .ainl-tag {
+    font-family: 'Courier New', monospace;
+    font-size: 14px; letter-spacing: 8px;
+    color: rgba(0,200,255,0.6);
+    z-index: 10; margin-top: 6px;
+    animation: fadeUp 0.4s ease-out 1.5s both;
+  }
+
+  /* SOUND WAVE BAR */
+  .soundwave {
+    position: absolute; bottom: 16px;
+    display: flex; align-items: center; gap: 3px;
+    z-index: 10;
+    animation: fadeUp 0.4s ease-out 1.6s both;
+  }
+  .bar {
+    width: 4px; background: #00ff88;
+    border-radius: 2px;
+    box-shadow: 0 0 6px #00ff88;
+    animation: barDance var(--dur) ease-in-out infinite alternate;
+  }
+  @keyframes barDance {
+    from { height: var(--min); opacity: 0.6; }
+    to   { height: var(--max); opacity: 1; }
+  }
+
+  /* Emoji */
+  .emoji { position: absolute; font-size: 20px; animation: emojifall linear infinite; opacity: 0; z-index: 3; }
+  @keyframes emojifall {
+    0%   { transform: translateY(-30px) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.9; }
+    90%  { opacity: 0.7; }
+    100% { transform: translateY(520px) rotate(360deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="static"></div>
+  <div class="strobe"></div>
+
+  <!-- Matrix canvas -->
+  <canvas class="matrix-canvas" id="matrix" width="480" height="480"></canvas>
+
+  <!-- Speed lines SVG -->
+  <svg class="speedlines" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="sg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="white" stop-opacity="0"/><stop offset="100%" stop-color="white" stop-opacity="0.15"/></radialGradient></defs>
+    <g stroke="white" stroke-opacity="0.12">
+      <line x1="240" y1="240" x2="0" y2="0"/><line x1="240" y1="240" x2="120" y2="0"/>
+      <line x1="240" y1="240" x2="240" y2="0"/><line x1="240" y1="240" x2="360" y2="0"/>
+      <line x1="240" y1="240" x2="480" y2="0"/><line x1="240" y1="240" x2="480" y2="120"/>
+      <line x1="240" y1="240" x2="480" y2="240"/><line x1="240" y1="240" x2="480" y2="360"/>
+      <line x1="240" y1="240" x2="480" y2="480"/><line x1="240" y1="240" x2="360" y2="480"/>
+      <line x1="240" y1="240" x2="240" y2="480"/><line x1="240" y1="240" x2="120" y2="480"/>
+      <line x1="240" y1="240" x2="0" y2="480"/><line x1="240" y1="240" x2="0" y2="360"/>
+      <line x1="240" y1="240" x2="0" y2="240"/><line x1="240" y1="240" x2="0" y2="120"/>
+    </g>
+  </svg>
+
+  <!-- Screen crack -->
+  <div class="crack">
+    <svg viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="white" stroke-opacity="0.7" stroke-width="1.5" fill="none">
+        <polyline points="240,240 180,180 120,140 80,80"/><polyline points="240,240 200,160 220,80 180,20"/>
+        <polyline points="240,240 300,180 360,160 420,100"/><polyline points="240,240 280,300 260,380 300,460"/>
+        <polyline points="240,240 160,300 100,340 40,400"/><polyline points="240,240 320,320 380,400 440,460"/>
+        <polyline points="240,240 200,320 160,420 100,460"/><polyline points="240,240 340,260 420,240 480,200"/>
+        <polyline points="240,240 140,220 60,200 0,180"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Emoji rain -->
+  <div class="emoji" style="left:5%;animation-duration:3.2s;animation-delay:1.1s">💸</div>
+  <div class="emoji" style="left:15%;animation-duration:2.6s;animation-delay:1.6s">🚀</div>
+  <div class="emoji" style="left:70%;animation-duration:3.5s;animation-delay:1.2s">💸</div>
+  <div class="emoji" style="left:82%;animation-duration:2.4s;animation-delay:1.8s">🌟</div>
+  <div class="emoji" style="left:42%;animation-duration:4s;animation-delay:1.4s">💵</div>
+  <div class="emoji" style="left:58%;animation-duration:3s;animation-delay:2.1s">🔥</div>
+  <div class="emoji" style="left:28%;animation-duration:2.9s;animation-delay:2.3s">💵</div>
+
+  <!-- Mascot -->
+  <div class="mascot-wrap">
+    <img class="mascot" src="{{MASCOT_URL}}" />
+    <div class="shockwave"></div>
+    <div class="shockwave2"></div>
+  </div>
+  <div class="lasers">
+    <div class="laser-beam"></div>
+    <div class="laser-beam"></div>
+  </div>
+
+  <div class="new-buy">NEW BUY</div>
+  <div class="lfg">LFG 🚀</div>
+  <div class="ainl-tag">$AINL</div>
+
+  <!-- Sound wave bars -->
+  <div class="soundwave">
+    <div class="bar" style="--dur:0.3s;--min:4px;--max:16px"></div>
+    <div class="bar" style="--dur:0.4s;--min:6px;--max:28px"></div>
+    <div class="bar" style="--dur:0.25s;--min:8px;--max:22px"></div>
+    <div class="bar" style="--dur:0.35s;--min:4px;--max:32px"></div>
+    <div class="bar" style="--dur:0.45s;--min:10px;--max:24px"></div>
+    <div class="bar" style="--dur:0.3s;--min:6px;--max:36px"></div>
+    <div class="bar" style="--dur:0.4s;--min:4px;--max:20px"></div>
+    <div class="bar" style="--dur:0.28s;--min:8px;--max:28px"></div>
+    <div class="bar" style="--dur:0.38s;--min:6px;--max:18px"></div>
+    <div class="bar" style="--dur:0.32s;--min:10px;--max:32px"></div>
+    <div class="bar" style="--dur:0.42s;--min:4px;--max:24px"></div>
+    <div class="bar" style="--dur:0.36s;--min:8px;--max:36px"></div>
+    <div class="bar" style="--dur:0.29s;--min:6px;--max:20px"></div>
+    <div class="bar" style="--dur:0.44s;--min:4px;--max:28px"></div>
+    <div class="bar" style="--dur:0.31s;--min:8px;--max:16px"></div>
+    <div class="bar" style="--dur:0.37s;--min:6px;--max:30px"></div>
+    <div class="bar" style="--dur:0.26s;--min:10px;--max:22px"></div>
+    <div class="bar" style="--dur:0.41s;--min:4px;--max:34px"></div>
+    <div class="bar" style="--dur:0.33s;--min:8px;--max:26px"></div>
+    <div class="bar" style="--dur:0.39s;--min:6px;--max:18px"></div>
+  </div>
+</div>
+
+<script>
+// Matrix binary rain
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+const cols = Math.floor(480 / 14);
+const drops = Array(cols).fill(1);
+const chars = '01アイウエオカキクケコ$AINL';
+
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(0,0,0,0.05)';
+  ctx.fillRect(0, 0, 480, 480);
+  ctx.fillStyle = '#00ff88';
+  ctx.font = '12px monospace';
+  drops.forEach((y, i) => {
+    const char = chars[Math.floor(Math.random() * chars.length)];
+    ctx.fillStyle = i % 3 === 0 ? '#00ffcc' : '#004422';
+    ctx.fillText(char, i * 14, y * 14);
+    if (y * 14 > 480 && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  });
+}
+setInterval(drawMatrix, 50);
+</script>
+</body>
+</html>

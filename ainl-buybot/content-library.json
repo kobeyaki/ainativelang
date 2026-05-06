@@ -1,0 +1,127 @@
+{
+  "character": {
+    "name": "Starfish",
+    "ref": "https://files.catbox.moe/0ixt4z.jpg",
+    "description": "Orange cartoon starfish, big black eyes with white highlight, small smile, orange-red gradient body with yellow dots, dark outline, black background"
+  },
+  "prompts": [
+    {
+      "id": "buybot-001",
+      "caption": "NEW BUY 🔥",
+      "theme": "buy_alert",
+      "video_prompt": "The orange cartoon starfish bursts through a glass screen in slow motion, shards exploding outward, golden backlight halo. Matrix green code rain background. Twin purple laser beams fire from both pupils left to right, burning NEW BUY into the screen letter by letter. Character hovers deadpan after. Cinematic, dark background, 1:1.",
+      "image_prompt": "The orange cartoon starfish with wide excited eyes, surrounded by flying green dollar signs and coins, dark background, neon glow, crypto hype energy, 1:1",
+      "model": "kwaivgi/kling-3.0/image-to-video",
+      "cost": 0.95
+    },
+    {
+      "id": "moon-001",
+      "caption": "We're going to the moon 🌕",
+      "theme": "moon",
+      "video_prompt": "The orange cartoon starfish sits inside a rocket blasting off into space, stars rushing past, Earth shrinking below, huge smile, eyes wide with excitement, cinematic slow zoom out, dark space background, 1:1.",
+      "image_prompt": "Orange cartoon starfish astronaut floating in space, Earth in background, stars, moon visible, neon spacesuit, cinematic lighting, 1:1",
+      "model": "kwaivgi/kling-3.0/image-to-video",
+      "cost": 0.95
+    },
+    {
+      "id": "fud-001",
+      "caption": "FUD can't touch us 🛡️",
+      "theme": "fud_deflection",
+      "video_prompt": "The orange cartoon starfish stands confidently as arrows and red candles bounce off an invisible shield around it, dramatic light effects, dark background, slow motion impact, deadpan expression, 1:1.",
+      "image_prompt": "Orange cartoon starfish standing arms crossed, red arrows bouncing off a glowing force field, dark dramatic background, 1:1",
+      "model": "kwaivgi/kling-3.0/image-to-video",
+      "cost": 0.95
+    },
+    {
+      "id": "whale-001",
+      "caption": "WHALE ALERT 🐋",
+      "theme": "whale_alert",
+      "video_prompt": "The orange cartoon starfish looks up in awe as a massive golden whale swims through the sky above it, coins raining down, epic orchestral energy, slow motion, dark ocean-sky background, 1:1.",
+      "image_prompt": "Orange cartoon starfish looking up in shock and awe at a massive golden whale in the sky, gold coins raining, dark background, cinematic, 1:1",
+      "model": "kwaivgi/kling-3.0/image-to-video",
+      "cost": 0.95
+    },
+    {
+      "id": "hodl-001",
+      "caption": "HODL 💎🙌",
+      "theme": "hodl",
+      "video_prompt": "The orange cartoon starfish grips a glowing diamond with both hands, intense focus, wind blowing dramatically, red candles crashing all around it but it doesn't move, stone cold expression, dark background, 1:1.",
+      "image_prompt": "Orange cartoon starfish clutching a giant glowing diamond, intense focused expression, red candles crashing around it, dark dramatic background, 1:1",
+      "model": "kwaivgi/kling-3.0/image-to-video",
+      "cost": 0.95
+    },
+    {
+      "id": "ath-001",
+      "caption": "NEW ATH 🚀📈",
+      "theme": "ath",
+      "video_prompt": "The orange cartoon starfish surfs on top of a massive green candle rocket shooting upward, confetti exploding, fireworks, pure euphoria expression, arms raised, cinematic upward camera chase, dark background, 1:1.",
+      "image_prompt": "Orange cartoon starfish riding a giant green candle upward, confetti and fireworks exploding, euphoric expression, dark background, 1:1",
+      "model": "kwaivgi/kling-3.0/image-to-video",
+      "cost": 0.95
+    },
+    {
+      "id": "gm-001",
+      "caption": "GM ☀️",
+      "theme": "gm",
+      "video_prompt": "The orange cartoon starfish wakes up, stretches its arms wide, big yawn, sunlight beams streaming in, warm golden morning light, cozy and happy energy, gentle camera pull back, 1:1.",
+      "image_prompt": "Orange cartoon starfish stretching with a big smile, warm golden sunrise light, soft morning energy, clean background, 1:1",
+      "model": "kwaivgi/kling-3.0/image-to-video",
+      "cost": 0.95
+    },
+    {
+      "id": "chart-001",
+      "caption": "The chart is speaking 📊",
+      "theme": "chart",
+      "video_prompt": "The orange cartoon starfish stands in front of a massive glowing green chart going parabolic, pointing at it with a knowing smirk, dark trading terminal background, neon green glow reflecting on its face, 1:1.",
+      "image_prompt": "Orange cartoon starfish pointing at a huge glowing green parabolic chart, dark terminal background, neon reflections, confident smirk, 1:1",
+      "model": "kwaivgi/kling-3.0/image-to-video",
+      "cost": 0.95
+    },
+    {
+      "id": "shill-001",
+      "caption": "Tell a friend 📣",
+      "theme": "shill",
+      "video_prompt": "The orange cartoon starfish cups its hands around its mouth shouting into a megaphone made of gold, sound waves rippling out visibly, crowd of tiny starfish appear in the background cheering, hype energy, 1:1.",
+      "image_prompt": "Orange cartoon starfish shouting into a giant gold megaphone, sound waves radiating outward, crowd cheering in background, dark background, 1:1",
+      "model": "kwaivgi/kling-3.0/image-to-video",
+      "cost": 0.95
+    },
+    {
+      "id": "dump-001",
+      "caption": "They sold. We bought. 😈",
+      "theme": "buy_the_dip",
+      "video_prompt": "The orange cartoon starfish watches red candles crash around it with a calm evil smile, then pulls out a huge bag of coins and slams it on the table, slow motion dramatic zoom, dark background, 1:1.",
+      "image_prompt": "Orange cartoon starfish with an evil calm smile, red candles crashing around it, holding a giant bag of coins, dark dramatic lighting, 1:1",
+      "model": "kwaivgi/kling-3.0/image-to-video",
+      "cost": 0.95
+    },
+    {
+      "id": "vibes-001",
+      "caption": "Vibes only ✨",
+      "theme": "vibes",
+      "video_prompt": "The orange cartoon starfish lounges on a floating cloud, sunglasses on, lo-fi music visualizer pulsing in the background, pastel dreamy sky, chill slow bob animation, 1:1.",
+      "image_prompt": "Orange cartoon starfish with sunglasses lounging on a pastel cloud, lo-fi dreamy aesthetic, soft colors, relaxed vibe, 1:1",
+      "model": "kwaivgi/kling-3.0/image-to-video",
+      "cost": 0.95
+    },
+    {
+      "id": "listed-001",
+      "caption": "WE'RE LISTED 🎉",
+      "theme": "listing",
+      "video_prompt": "The orange cartoon starfish stands on a glowing exchange podium, confetti explosion, champagne popping, spotlights, crowd going wild, triumphant pose arms raised, cinematic wide shot, 1:1.",
+      "image_prompt": "Orange cartoon starfish on a glowing exchange podium, confetti everywhere, champagne, spotlights, triumphant expression, 1:1",
+      "model": "kwaivgi/kling-3.0/image-to-video",
+      "cost": 0.95
+    }
+  ],
+  "sticker_prompts": [
+    { "id": "sticker-001", "emotion": "hype", "prompt": "Orange cartoon starfish with massive excited eyes, arms raised, mouth wide open in hype, transparent background, sticker style, thick outline" },
+    { "id": "sticker-002", "emotion": "deadpan", "prompt": "Orange cartoon starfish completely flat expression, arms at sides, one eyebrow slightly raised, transparent background, sticker style, thick outline" },
+    { "id": "sticker-003", "emotion": "rich", "prompt": "Orange cartoon starfish wearing a gold chain, monocle, top hat, holding a bag of coins, smug smile, transparent background, sticker style" },
+    { "id": "sticker-004", "emotion": "crying_laughing", "prompt": "Orange cartoon starfish crying laughing, tears flying, arms holding sides, transparent background, sticker style, thick outline" },
+    { "id": "sticker-005", "emotion": "laser_eyes", "prompt": "Orange cartoon starfish with intense glowing purple laser beams shooting from both eyes, deadpan expression, transparent background, sticker style" },
+    { "id": "sticker-006", "emotion": "rocket", "prompt": "Orange cartoon starfish riding a rocket upward, huge grin, wind blowing, transparent background, sticker style" },
+    { "id": "sticker-007", "emotion": "sleep", "prompt": "Orange cartoon starfish sleeping peacefully, ZZZ floating above, tiny smile, transparent background, sticker style" },
+    { "id": "sticker-008", "emotion": "stonks", "prompt": "Orange cartoon starfish pointing at a green chart going up, knowing smirk, transparent background, sticker style" }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-04-08T06:00:24.326911Z",
+  "epoch_seconds": 1775628024,
+  "type": "ainl_store_baseline",
+  "version": "1.0",
+  "memory": {
+    "daily_files_count": 16,
+    "total_size_bytes": 112779,
+    "latest_date": "ainl-setup.md"
+  },
+  "config_files": {
+    "MEMORY.md": {
+      "size_bytes": 42556,
+      "modified": "2026-04-07T03:30:28.430281"
+    },
+    "SOUL.md": {
+      "size_bytes": 3562,
+      "modified": "2026-03-25T02:10:29.846269"
+    },
+    "USER.md": {
+      "size_bytes": 788,
+      "modified": "2026-03-20T01:54:56.809084"
+    },
+    "AGENTS.md": {
+      "size_bytes": 7971,
+      "modified": "2026-03-13T20:50:57.092518"
+    }
+  },
+  "ainl": {
+    "modules": 43,
+    "intelligence": 10
+  },
+  "state_hash": "65dce8e404e8aeb8"
+}

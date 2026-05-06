@@ -1,0 +1,31 @@
+AINL 60-Second Inspirational Commercial Script
+
+ACT 1: THE DREAM (12 seconds)
+"What if building agents didn't have to be expensive? 
+What if you could ship faster, cheaper, with complete control?
+What if the future of AI was deterministic, not chaotic?"
+
+ACT 2: THE VISION (10 seconds)
+"There's a better way.
+AINL is the compiler for the future.
+Turn reasoning into structure. Turn ideas into systems."
+
+ACT 3: THE PROOF (20 seconds)
+"This isn't theoretical. It's real.
+100+ agents running at scale.
+$29 a month. 99.7% uptime.
+90% cheaper than traditional orchestration.
+The cost problem is solved.
+The speed problem is solved.
+The reliability problem is solved."
+
+ACT 4: THE CALL (10 seconds)
+"You can build this.
+You already have the tools.
+You already have the vision.
+AINL gives you the infrastructure."
+
+ACT 5: THE MOMENTUM (8 seconds)
+"Join the future.
+github.com/sbhooley/ainativelang
+Build something real."
