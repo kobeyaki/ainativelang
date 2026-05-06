@@ -1,0 +1,13 @@
+node_modules/
+.cache/
+.ainl_cache/
+.ainl_baselines/
+.ainl_summarizer_cache.json
+.summarizer_cache
+.summarizer_cache.json
+.youtube-credentials.json
+nowIso
+preview_frame.jpg
+preview_frame2.jpg
+*.patch
+plushify-web/
